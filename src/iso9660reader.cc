@@ -145,7 +145,7 @@ namespace ckFileSystem
 			else
 			{
 #ifdef UNICODE
-				AnsiToUnicode(szFileName,(const char *)ucFileNameBuffer,sizeof(szFileName) / sizeof(ckcore::tchar));
+				ckcore::string::ansi_to_utf16((const char *)ucFileNameBuffer,szFileName,sizeof(szFileName) / sizeof(ckcore::tchar));
 #else
 				memcpy(szFileName,ucFileNameBuffer,CurDirRecord.ucFileIdentifierLen);
 #endif

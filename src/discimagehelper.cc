@@ -90,7 +90,7 @@ namespace ckFileSystem
 			unsigned char ucLen = m_Iso9660.WriteFileName((unsigned char *)szMultiFileName,szReqFileName,bIsDir);
 			szMultiFileName[ucLen] = '\0';
 
-			AnsiToUnicode(szFileName,szMultiFileName,ucLen + 1);
+			ckcore::string::ansi_to_utf16(szMultiFileName,szFileName,ucLen + 1);
 #else
 			unsigned char ucLen = m_Iso9660.WriteFileName((unsigned char *)szFileName,szReqFileName,bIsDir);
 			szFileName[ucLen] = '\0';

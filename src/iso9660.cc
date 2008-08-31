@@ -17,6 +17,9 @@
  */
 
 #include <ckcore/string.hh>
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
 #include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
@@ -207,16 +210,6 @@ namespace ckFileSystem
 
 	void MakeDateTime(struct tm &Time,tDirRecordDateTime &DateTime)
 	{
-unsigned char ucYear;       // Number of years since 1900.
-        unsigned char ucMonth;      // Month of the year from 1 to 12.
-        unsigned char ucDay;        // Day of the month from 1 to 31.
-        unsigned char ucHour;       // Hour of the day from 0 to 23.
-        unsigned char ucMinute;     // Minute of the hour from 0 to 59.
-        unsigned char ucSecond;     // Second of the minute from 0 to 59.
-        unsigned char ucZone;       // Offset from Greenwich Mean Time in number of
-                                    // 15 min intervals from -48 (West) to + 52 (East)
-                                    // recorded according to 7.1.2.
-
 		DateTime.ucYear = (unsigned char)Time.tm_year;
 		DateTime.ucMonth = (unsigned char)Time.tm_mon + 1;
 		DateTime.ucDay = (unsigned char)Time.tm_mday;
@@ -359,7 +352,7 @@ unsigned char ucYear;       // Number of years since 1900.
 		char *szMultiFileName;
 	#ifdef UNICODE
 		szMultiFileName = new char [iFileNameLen + 1];
-		UnicodeToAnsi(szMultiFileName,szFileName,iFileNameLen + 1);
+		ckcore::string::utf16_to_ansi(szFileName,szMultiFileName,iFileNameLen + 1);
 	#else
 		szMultiFileName = (char *)szFileName;
 	#endif
@@ -409,7 +402,7 @@ unsigned char ucYear;       // Number of years since 1900.
 
 	#ifdef UNICODE
 		char *szMultiFileName = new char [iFileNameLen + 1];
-		UnicodeToAnsi(szMultiFileName,szFileName,iFileNameLen + 1);
+		ckcore::string::utf16_to_ansi(szFileName,szMultiFileName,iFileNameLen + 1);
 	#else
 		char *szMultiFileName = (char *)szFileName;
 	#endif
@@ -472,7 +465,7 @@ unsigned char ucYear;       // Number of years since 1900.
 
 	#ifdef UNICODE
 		char *szMultiDirName = new char [iDirNameLen + 1];
-		UnicodeToAnsi(szMultiDirName,szDirName,iDirNameLen + 1);
+		ckcore::string::utf16_to_ansi(szDirName,szMultiDirName,iDirNameLen + 1);
 	#else
 		char *szMultiDirName = (char *)szDirName;
 	#endif
@@ -497,7 +490,7 @@ unsigned char ucYear;       // Number of years since 1900.
 
 	#ifdef UNICODE
 		char *szMultiDirName = new char [iDirNameLen + 1];
-		UnicodeToAnsi(szMultiDirName,szDirName,iDirNameLen + 1);
+		ckcore::string::utf16_to_ansi(szDirName,szMultiDirName,iDirNameLen + 1);
 	#else
 		char *szMultiDirName = (char *)szDirName;
 	#endif
@@ -629,7 +622,7 @@ unsigned char ucYear;       // Number of years since 1900.
 
 	#ifdef UNICODE
 		char szMultiLabel[33];
-		UnicodeToAnsi(szMultiLabel,szLabel,sizeof(szMultiLabel));
+		ckcore::string::utf16_to_ansi(szLabel,szMultiLabel,sizeof(szMultiLabel));
 		MemStrCopyD(m_VolDescPrimary.ucVolIdentifier,szMultiLabel,iLabelCopyLen);
 	#else
 		MemStrCopyD(m_VolDescPrimary.ucVolIdentifier,szLabel,iLabelCopyLen);
@@ -660,10 +653,10 @@ unsigned char ucYear;       // Number of years since 1900.
 		char szMultiPublIdent[129];
 		char szMultiPrepIdent[129];
 
-		UnicodeToAnsi(szMultiSystem,szSystem,sizeof(szMultiSystem));
-		UnicodeToAnsi(szMultiVolSetIdent,szVolSetIdent,sizeof(szMultiVolSetIdent));
-		UnicodeToAnsi(szMultiPublIdent,szPublIdent,sizeof(szMultiPublIdent));
-		UnicodeToAnsi(szMultiPrepIdent,szPrepIdent,sizeof(szMultiPrepIdent));
+		ckcore::string::utf16_to_ansi(szSystem,szMultiSystem,sizeof(szMultiSystem));
+		ckcore::string::utf16_to_ansi(szVolSetIdent,szMultiVolSetIdent,sizeof(szMultiVolSetIdent));
+		ckcore::string::utf16_to_ansi(szPublIdent,szMultiPublIdent,sizeof(szMultiPublIdent));
+		ckcore::string::utf16_to_ansi(szPrepIdent,szMultiPrepIdent,sizeof(szMultiPrepIdent));
 
 		MemStrCopyA(m_VolDescPrimary.ucSysIdentifier,szMultiSystem,iSystemCopyLen);
 		MemStrCopyD(m_VolDescPrimary.ucVolSetIdentifier,szMultiVolSetIdent,iVolSetIdentCopyLen);
@@ -698,9 +691,9 @@ unsigned char ucYear;       // Number of years since 1900.
 		char szMultiAbstFileIdent[38];
 		char szMultiBiblFileIdent[38];
 
-		UnicodeToAnsi(szMultiCopyFileIdent,szCopyFileIdent,sizeof(szMultiCopyFileIdent));
-		UnicodeToAnsi(szMultiAbstFileIdent,szAbstFileIdent,sizeof(szMultiAbstFileIdent));
-		UnicodeToAnsi(szMultiBiblFileIdent,szBiblFileIdent,sizeof(szMultiBiblFileIdent));
+		ckcore::string::utf16_to_ansi(szCopyFileIdent,szMultiCopyFileIdent,sizeof(szMultiCopyFileIdent));
+		ckcore::string::utf16_to_ansi(szAbstFileIdent,szMultiAbstFileIdent,sizeof(szMultiAbstFileIdent));
+		ckcore::string::utf16_to_ansi(szBiblFileIdent,szMultiBiblFileIdent,sizeof(szMultiBiblFileIdent));
 
 		MemStrCopyD(m_VolDescPrimary.ucCopyFileIdentifier,szMultiCopyFileIdent,iCopyFileIdentCopyLen);
 		MemStrCopyD(m_VolDescPrimary.ucAbstFileIdentifier,szMultiAbstFileIdent,iAbstFileIdentCopyLen);

@@ -330,7 +330,8 @@ namespace ckFileSystem
 			{
 #ifdef UNICODE
 				wchar_t szWideName[MAX_PATH];
-				AnsiToUnicode(szWideName,pChildNode->m_FileNameIso9660.c_str(),sizeof(szWideName)/sizeof(wchar_t));
+				ckcore::string::ansi_to_utf16(pChildNode->m_FileNameIso9660.c_str(),szWideName,
+											  sizeof(szWideName)/sizeof(wchar_t));
 
 				if (szWideName[pChildNode->m_FileNameIso9660.length() - 2] == ';')
 					szWideName[pChildNode->m_FileNameIso9660.length() - 2] = '\0';
@@ -385,7 +386,8 @@ namespace ckFileSystem
 				{
 	#ifdef UNICODE
 					wchar_t szWideName[MAX_PATH];
-					AnsiToUnicode(szWideName,pCurNode->m_FileNameIso9660.c_str(),sizeof(szWideName)/sizeof(wchar_t));
+					ckcore::string::ansi_to_utf16(pCurNode->m_FileNameIso9660.c_str(),szWideName,
+												  sizeof(szWideName)/sizeof(wchar_t));
 					NodePath.insert(0,szWideName);
 
 					if (szWideName[pCurNode->m_FileNameIso9660.length() - 2] == ';')
@@ -647,6 +649,10 @@ namespace ckFileSystem
 
 	void CDiscImageWriter::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
+		// A fix to make the code compile when winbase.h is included.
+#ifdef SetVolumeLabel
+#undef SetVolumeLabel
+#endif
 		m_Iso9660.SetVolumeLabel(szLabel);
 		m_Joliet.SetVolumeLabel(szLabel);
 		m_Udf.SetVolumeLabel(szLabel);

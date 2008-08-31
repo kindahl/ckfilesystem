@@ -49,7 +49,7 @@ namespace ckFileSystem
      */
     int CJoliet::LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter)
     {    
-        int iLength = wcslen(szString);
+        int iLength = (int)wcslen(szString);
 
         for (int i = iLength - 1; i >= 0; i--)
         {

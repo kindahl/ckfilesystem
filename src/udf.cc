@@ -16,6 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
 #include <ckcore/string.hh>
 #include "ckfilesystem/udf.hh"
 #include "ckfilesystem/iso9660.hh"
@@ -1167,7 +1170,7 @@ namespace ckFileSystem
 
 	unsigned long CUdf::CalcFileIdentSize(const ckcore::tchar *szFileName)
 	{
-		unsigned long ulFileNameLen = ckcore::string::astrlen(szFileName);
+		unsigned long ulFileNameLen = (unsigned long)ckcore::string::astrlen(szFileName);
 		if (ulFileNameLen > 254)
 			ulFileNameLen = 254;
 

@@ -33,6 +33,11 @@
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/udf.hh"
 
+// Fix to be able to include winbase.h.
+#ifdef SetVolumeLabel
+#undef SetVolumeLabel
+#endif
+
 namespace ckFileSystem
 {
 	class CDiscImageWriter

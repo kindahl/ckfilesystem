@@ -21,6 +21,11 @@
 #include <ckcore/stream.hh>
 #include <ckcore/crcstream.hh>
 
+// Fix to be able to include winbase.h.
+#ifdef SetVolumeLabel
+#undef SetVolumeLabel
+#endif
+
 #define UDF_SECTOR_SIZE							2048
 #define UDF_UNIQUEIDENT_MIN						16
 

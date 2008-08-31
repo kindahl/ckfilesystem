@@ -649,10 +649,6 @@ namespace ckFileSystem
 
 	void CDiscImageWriter::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
-		// A fix to make the code compile when winbase.h is included.
-#ifdef SetVolumeLabel
-#undef SetVolumeLabel
-#endif
 		m_Iso9660.SetVolumeLabel(szLabel);
 		m_Joliet.SetVolumeLabel(szLabel);
 		m_Udf.SetVolumeLabel(szLabel);

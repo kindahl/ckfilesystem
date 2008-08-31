@@ -20,6 +20,11 @@
 #include <ckcore/types.hh>
 #include <ckcore/stream.hh>
 
+// Fix to be able to include winbase.h.
+#ifdef SetVolumeLabel
+#undef SetVolumeLabel
+#endif
+
 #define ISO9660_SECTOR_SIZE						2048
 #define ISO9660_MAX_NAMELEN_1999				 207
 #define ISO9660_MAX_DIRLEVEL_NORMAL				   8		// Maximum is 8 for ISO9660:1988.

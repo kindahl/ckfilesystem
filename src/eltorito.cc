@@ -16,14 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "filestream.hh"
-#include "ElTorito.h"
-#include "Iso9660.h"
+#include <ckcore/filestream.hh>
+#include "eltorito.hh"
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
-	CElTorito::CElTorito(CLog *pLog) : m_pLog(pLog)
+	CElTorito::CElTorito(ckcore::Log *pLog) : m_pLog(pLog)
 	{
 	}
 
@@ -37,13 +36,13 @@ namespace ckFileSystem
 		m_BootImages.clear();
 	}
 
-	bool CElTorito::ReadSysTypeMBR(const TCHAR *szFullPath,unsigned char &ucSysType)
+	bool CElTorito::ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &ucSysType)
 	{
 		// Find the system type in the path table located in the MBR.
 		ckcore::FileInStream InFile(szFullPath);
 		if (!InFile.Open())
 		{
-			m_pLog->AddLine(_T("  Error: Unable to obtain file handle to \"%s\"."),szFullPath);
+			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),szFullPath);
 			return false;
 		}
 
@@ -55,7 +54,7 @@ namespace ckFileSystem
 		if (iProcessed != sizeof(tMasterBootRec) ||
 			(MBR.ucSignature1 != 0x55 || MBR.ucSignature2 != 0xAA))
 		{
-			m_pLog->AddLine(_T("  Error: Unable to locate MBR in default boot image."));
+			m_pLog->PrintLine(ckT("  Error: Unable to locate MBR in default boot image."));
 			return false;
 		}
 
@@ -67,7 +66,7 @@ namespace ckFileSystem
 			{
 				if (iUsedPartition != -1)
 				{
-					m_pLog->AddLine(_T("  Error: Invalid boot image, it contains more than one partition."));
+					m_pLog->PrintLine(ckT("  Error: Invalid boot image, it contains more than one partition."));
 					return false;
 				}
 				else
@@ -267,12 +266,12 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CElTorito::WriteBootImage(CSectorOutStream *pOutStream,const TCHAR *szFileName)
+	bool CElTorito::WriteBootImage(CSectorOutStream *pOutStream,const ckcore::tchar *szFileName)
 	{
 		ckcore::FileInStream FileStream(szFileName);
 		if (!FileStream.Open())
 		{
-			m_pLog->AddLine(_T("  Error: Unable to obtain file handle to \"%s\"."),szFileName);
+			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),szFileName);
 			return false;
 		}
 
@@ -283,13 +282,13 @@ namespace ckFileSystem
 			ckcore::tint64 iProcessed = FileStream.Read(szBuffer,ELTORITO_IO_BUFFER_SIZE);
 			if (iProcessed == -1)
 			{
-				m_pLog->AddLine(_T("  Error: Unable read file: %s."),szFileName);
+				m_pLog->PrintLine(ckT("  Error: Unable read file: %s."),szFileName);
 				return false;
 			}
 
 			if (pOutStream->Write(szBuffer,(ckcore::tuint32)iProcessed) == -1)
 			{
-				m_pLog->AddLine(_T("  Error: Unable write to disc image."));
+				m_pLog->PrintLine(ckT("  Error: Unable write to disc image."));
 				return false;
 			}
 		}
@@ -313,7 +312,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CElTorito::AddBootImageNoEmu(const TCHAR *szFullPath,bool bBootable,
+	bool CElTorito::AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
 		unsigned short usLoadSegment,unsigned short usSectorCount)
 	{
 		if (m_BootImages.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
@@ -327,7 +326,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CElTorito::AddBootImageFloppy(const TCHAR *szFullPath,bool bBootable)
+	bool CElTorito::AddBootImageFloppy(const ckcore::tchar *szFullPath,bool bBootable)
 	{
 		if (m_BootImages.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
 			return false;
@@ -335,10 +334,10 @@ namespace ckFileSystem
 		if (!ckcore::File::Exist(szFullPath))
 			return false;
 
-		__int64 iFileSize = ckcore::File::Size(szFullPath);
-		if (iFileSize != 1200 * 1024 && iFileSize != 1440 * 1024 && iFileSize != 2880 * 1024)
+		ckcore::tuint64 uiFileSize = ckcore::File::Size(szFullPath);
+		if (uiFileSize != 1200 * 1024 && uiFileSize != 1440 * 1024 && uiFileSize != 2880 * 1024)
 		{
-			m_pLog->AddLine(_T("  Error: Invalid file size for floppy emulated boot image."));
+			m_pLog->PrintLine(ckT("  Error: Invalid file size for floppy emulated boot image."));
 			return false;
 		}
 
@@ -348,7 +347,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CElTorito::AddBootImageHardDisk(const TCHAR *szFullPath,bool bBootable)
+	bool CElTorito::AddBootImageHardDisk(const ckcore::tchar *szFullPath,bool bBootable)
 	{
 		if (m_BootImages.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
 			return false;
@@ -366,22 +365,22 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CElTorito::CalculateFileSysData(unsigned __int64 uiStartSec,
-		unsigned __int64 &uiLastSec)
+	bool CElTorito::CalculateFileSysData(ckcore::tuint64 uiStartSec,
+		ckcore::tuint64 &uiLastSec)
 	{
 		std::vector<CElToritoImage *>::iterator itImage;
 		for (itImage = m_BootImages.begin(); itImage != m_BootImages.end(); itImage++)
 		{
 			if (uiStartSec > 0xFFFFFFFF)
 			{
-				m_pLog->AddLine(_T("  Error: Sector offset overflow (%I64d), can not include boot image: %s."),
+				m_pLog->PrintLine(ckT("  Error: Sector offset overflow (%I64d), can not include boot image: %s."),
 					uiStartSec,(*itImage)->m_FullPath.c_str());
 				return false;
 			}
 
 			(*itImage)->m_ulDataSecPos = (unsigned long)uiStartSec;
 
-			uiStartSec += BytesToSector64((unsigned __int64)
+			uiStartSec += BytesToSector64((ckcore::tuint64)
 				ckcore::File::Size((*itImage)->m_FullPath.c_str()));
 		}
 
@@ -389,24 +388,24 @@ namespace ckFileSystem
 		return true;
 	}
 
-	unsigned __int64 CElTorito::GetBootCatSize()
+	ckcore::tuint64 CElTorito::GetBootCatSize()
 	{
 		// The validator and default boot image allocates 64 bytes, the remaining
 		// boot images allocates 64 bytes a piece.
 		return m_BootImages.size() << 6;
 	}
 
-	unsigned __int64 CElTorito::GetBootDataSize()
+	ckcore::tuint64 CElTorito::GetBootDataSize()
 	{
-		unsigned __int64 uiSize = 0;
+		ckcore::tuint64 uiSize = 0;
 		std::vector<CElToritoImage *>::iterator itImage;
 		for (itImage = m_BootImages.begin(); itImage != m_BootImages.end(); itImage++)
-			uiSize += BytesToSector64((unsigned __int64)ckcore::File::Size((*itImage)->m_FullPath.c_str()));
+			uiSize += BytesToSector64((ckcore::tuint64)ckcore::File::Size((*itImage)->m_FullPath.c_str()));
 
 		return uiSize;
 	}
 
-	unsigned __int64 CElTorito::GetBootImageCount()
+	ckcore::tuint64 CElTorito::GetBootImageCount()
 	{
 		return m_BootImages.size();
 	}

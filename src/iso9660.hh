@@ -17,7 +17,8 @@
  */
 
 #pragma once
-#include "stream.hh"
+#include <ckcore/types.hh>
+#include <ckcore/stream.hh>
 
 #define ISO9660_SECTOR_SIZE						2048
 #define ISO9660_MAX_NAMELEN_1999				 207
@@ -273,23 +274,24 @@ namespace ckFileSystem
 
 		char MakeCharA(char c);
 		char MakeCharD(char c);
+        int LastDelimiterA(const char *szString,char cDelimiter);
 		void MemStrCopyA(unsigned char *szTarget,const char *szSource,size_t iLength);
 		void MemStrCopyD(unsigned char *szTarget,const char *szSource,size_t iLength);
 
-		unsigned char WriteFileNameL1(unsigned char *pOutBuffer,const TCHAR *szFileName);
-		unsigned char WriteFileNameGeneric(unsigned char *pOutBuffer,const TCHAR *szFileName,int iMaxLen);
-		unsigned char WriteFileNameL2(unsigned char *pOutBuffer,const TCHAR *szFileName);
-		unsigned char WriteFileName1999(unsigned char *pOutBuffer,const TCHAR *szFileName);
-		unsigned char WriteDirNameL1(unsigned char *pOutBuffer,const TCHAR *szDirName);
-		unsigned char WriteDirNameGeneric(unsigned char *pOutBuffer,const TCHAR *szDirName,int iMaxLen);
-		unsigned char WriteDirNameL2(unsigned char *pOutBuffer,const TCHAR *szDirName);
-		unsigned char WriteDirName1999(unsigned char *pOutBuffer,const TCHAR *szDirName);
-		unsigned char CalcFileNameLenL1(const TCHAR *szFileName);
-		unsigned char CalcFileNameLenL2(const TCHAR *szFileName);
-		unsigned char CalcFileNameLen1999(const TCHAR *szFileName);
-		unsigned char CalcDirNameLenL1(const TCHAR *szFileName);
-		unsigned char CalcDirNameLenL2(const TCHAR *szFileName);
-		unsigned char CalcDirNameLen1999(const TCHAR *szFileName);
+		unsigned char WriteFileNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
+		unsigned char WriteFileNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,int iMaxLen);
+		unsigned char WriteFileNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
+		unsigned char WriteFileName1999(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
+		unsigned char WriteDirNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szDirName);
+		unsigned char WriteDirNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szDirName,int iMaxLen);
+		unsigned char WriteDirNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szDirName);
+		unsigned char WriteDirName1999(unsigned char *pOutBuffer,const ckcore::tchar *szDirName);
+		unsigned char CalcFileNameLenL1(const ckcore::tchar *szFileName);
+		unsigned char CalcFileNameLenL2(const ckcore::tchar *szFileName);
+		unsigned char CalcFileNameLen1999(const ckcore::tchar *szFileName);
+		unsigned char CalcDirNameLenL1(const ckcore::tchar *szFileName);
+		unsigned char CalcDirNameLenL2(const ckcore::tchar *szFileName);
+		unsigned char CalcDirNameLen1999(const ckcore::tchar *szFileName);
 
 		void InitVolDescPrimary();
 		void InitVolDescSetTerm();
@@ -299,29 +301,29 @@ namespace ckFileSystem
 		~CIso9660();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const TCHAR *szLabel);
-		void SetTextFields(const TCHAR *szSystem,const TCHAR *szVolSetIdent,
-			const TCHAR *szPublIdent,const TCHAR *szPrepIdent);
-		void SetFileFields(const TCHAR *ucCopyFileIdent,const TCHAR *ucAbstFileIdent,
-			const TCHAR *ucBiblIdent);
+		void SetVolumeLabel(const ckcore::tchar *szLabel);
+		void SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
+			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
+		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
+			const ckcore::tchar *ucBiblIdent);
 		void SetInterchangeLevel(eInterLevel eInterLevel);
 		void SetRelaxMaxDirLevel(bool bRelaxRestriction);
 		void SetIncludeFileVerInfo(bool bIncludeInfo);
 
 		// Write functions.
-		bool WriteVolDescPrimary(ckcore::OutStream *pOutStream,SYSTEMTIME &stImageCreate,
+		bool WriteVolDescPrimary(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
 				unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
 				unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
 				unsigned long ulRootExtentLoc,unsigned long ulDataLen);
-		bool WriteVolDescSuppl(ckcore::OutStream *pOutStream,SYSTEMTIME &stImageCreate,
+		bool WriteVolDescSuppl(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
 				unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
 				unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
 				unsigned long ulRootExtentLoc,unsigned long ulDataLen);
 		bool WriteVolDescSetTerm(ckcore::OutStream *pOutStream);
 
 		// Helper functions.
-		unsigned char WriteFileName(unsigned char *pOutBuffer,const TCHAR *szFileName,bool bIsDir);
-		unsigned char CalcFileNameLen(const TCHAR *szFileName,bool bIsDir);
+		unsigned char WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir);
+		unsigned char CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir);
 		unsigned char GetMaxDirLevel();
 		bool HasVolDescSuppl();
 		bool AllowsFragmentation();
@@ -347,11 +349,11 @@ namespace ckFileSystem
 	unsigned long Read733(unsigned char *pOut);
 
 	unsigned long BytesToSector(unsigned long ulBytes);
-	unsigned long BytesToSector(unsigned __int64 uiBytes);
-	unsigned __int64 BytesToSector64(unsigned __int64 uiBytes);
+	unsigned long BytesToSector(ckcore::tuint64 uiBytes);
+	ckcore::tuint64 BytesToSector64(ckcore::tuint64 uiBytes);
 
-	void MakeDateTime(SYSTEMTIME &st,tVolDescDateTime &DateTime);
-	void MakeDateTime(SYSTEMTIME &st,tDirRecordDateTime &DateTime);
+	void MakeDateTime(struct tm &Time,tVolDescDateTime &DateTime);
+	void MakeDateTime(struct tm &Time,tDirRecordDateTime &DateTime);
 	void MakeDateTime(unsigned short usDate,unsigned short usTime,tDirRecordDateTime &DateTime);
 	void MakeDosDateTime(tDirRecordDateTime &DateTime,unsigned short &usDate,unsigned short &usTime);
 };

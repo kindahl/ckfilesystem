@@ -16,8 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "StringTable.h"
+#include "stringtable.hh"
 
 namespace ckFileSystem
 {
@@ -25,21 +24,21 @@ namespace ckFileSystem
 
 	CDynStringTable::CDynStringTable()
 	{
-		m_Strings[WARNING_FSDIRLEVEL] = _T("The directory structure is deeper than %d levels. Deep files and folders will be ignored.");
-		m_Strings[WARNING_SKIPFILE] = _T("Skipping \"%s\".");
-		m_Strings[WARNING_SKIP4GFILE] = _T("Skipping \"%s\", the file is larger than 4 GiB.");
-		m_Strings[WARNING_SKIP4GFILEISO] = _T("The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system.");
-		m_Strings[ERROR_PATHTABLESIZE] = _T("The disc image path table is to large. The project contains too many files.");
-		m_Strings[ERROR_OPENWRITE] = _T("Unable to open file for writing: %s.");
-		m_Strings[ERROR_OPENREAD] = _T("Unable to open file for reading: %s.");
-		m_Strings[STATUS_BUILDTREE] = _T("Building file tree.");
-		m_Strings[STATUS_WRITEDATA] = _T("Writing file data.");
-		m_Strings[STATUS_WRITEISOTABLE] = _T("Writing ISO9660 path tables.");
-		m_Strings[STATUS_WRITEJOLIETTABLE] = _T("Writing Joliet path tables.");
-		m_Strings[STATUS_WRITEDIRENTRIES] = _T("Writing directory entries.");
+		m_Strings[WARNING_FSDIRLEVEL] = ckT("The directory structure is deeper than %d levels. Deep files and folders will be ignored.");
+		m_Strings[WARNING_SKIPFILE] = ckT("Skipping \"%s\".");
+		m_Strings[WARNING_SKIP4GFILE] = ckT("Skipping \"%s\", the file is larger than 4 GiB.");
+		m_Strings[WARNING_SKIP4GFILEISO] = ckT("The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system.");
+		m_Strings[ERROR_PATHTABLESIZE] = ckT("The disc image path table is to large. The project contains too many files.");
+		m_Strings[ERROR_OPENWRITE] = ckT("Unable to open file for writing: %s.");
+		m_Strings[ERROR_OPENREAD] = ckT("Unable to open file for reading: %s.");
+		m_Strings[STATUS_BUILDTREE] = ckT("Building file tree.");
+		m_Strings[STATUS_WRITEDATA] = ckT("Writing file data.");
+		m_Strings[STATUS_WRITEISOTABLE] = ckT("Writing ISO9660 path tables.");
+		m_Strings[STATUS_WRITEJOLIETTABLE] = ckT("Writing Joliet path tables.");
+		m_Strings[STATUS_WRITEDIRENTRIES] = ckT("Writing directory entries.");
 	}
 
-	const TCHAR *CDynStringTable::GetString(eStrings StringID)
+	const ckcore::tchar *CDynStringTable::GetString(eStrings StringID)
 	{
 		return m_Strings[StringID];
 	}
@@ -47,7 +46,7 @@ namespace ckFileSystem
 	/*
 		For translation purposes.
 	*/
-	void CDynStringTable::SetString(eStrings StringID,const TCHAR *szString)
+	void CDynStringTable::SetString(eStrings StringID,const ckcore::tchar *szString)
 	{
 		m_Strings[StringID] = szString;
 	}

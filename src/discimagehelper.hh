@@ -17,10 +17,10 @@
  */
 
 #pragma once
-#include "../../Common/StringUtil.h"
-#include "DiscImageWriter.h"
-#include "Iso9660.h"
-#include "Joliet.h"
+#include <ckcore/types.hh>
+#include "discimagewriter.hh"
+#include "iso9660.hh"
+#include "joliet.hh"
 
 namespace ckFileSystem
 {
@@ -37,7 +37,7 @@ namespace ckFileSystem
 			bool bIncludeInfo,bool bLongJolietNames,CIso9660::eInterLevel InterLevel);
 		~CDiscImageHelper();
 
-		void CalcFileName(const TCHAR *szReqFileName,TCHAR *szFileName,bool bIsDir);
-		void CalcFilePath(const TCHAR *szReqFilePath,tstring &FilePath);
+		void CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir);
+		void CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath);
 	};
 };

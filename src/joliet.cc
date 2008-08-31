@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "../../Common/StringUtil.h"
-#include "Joliet.h"
+#include <ckcore/string.hh>
+#include "joliet.hh"
 
 namespace ckFileSystem
 {
@@ -44,6 +43,22 @@ namespace ckFileSystem
 
 		return c;
 	}
+
+    /*
+     * Find the last delimiter of the specified kind in the specified string.
+     */
+    int CJoliet::LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter)
+    {    
+        int iLength = wcslen(szString);
+
+        for (int i = iLength - 1; i >= 0; i--)
+        {
+            if (szString[i] == cDelimiter)
+                return i;
+        }
+
+        return -1;
+    }
 
 	/*
 		Copies the source string to the target buffer assuring that all characters
@@ -113,7 +128,7 @@ namespace ckFileSystem
 		memcpy(m_VolDescSuppl.ucAppIdentifier,szAppIdentifier,90);
 	}
 
-	bool CJoliet::WriteVolDesc(ckcore::OutStream *pOutStream,SYSTEMTIME &stImageCreate,
+	bool CJoliet::WriteVolDesc(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -131,9 +146,9 @@ namespace ckFileSystem
 		Write723(m_VolDescSuppl.RootDirRecord.ucVolSeqNumber,1);	// The file extent is on the first volume set.
 
 		// Time information.
-		MakeDateTime(stImageCreate,m_VolDescSuppl.RootDirRecord.RecDateTime);
+		MakeDateTime(ImageCreate,m_VolDescSuppl.RootDirRecord.RecDateTime);
 
-		MakeDateTime(stImageCreate,m_VolDescSuppl.CreateDateTime);
+		MakeDateTime(ImageCreate,m_VolDescSuppl.CreateDateTime);
 		memcpy(&m_VolDescSuppl.ModDateTime,&m_VolDescSuppl.CreateDateTime,sizeof(tVolDescDateTime));
 
 		memset(&m_VolDescSuppl.ExpDateTime,'0',sizeof(tVolDescDateTime));
@@ -151,29 +166,29 @@ namespace ckFileSystem
 		return true;
 	}
 
-	void CJoliet::SetVolumeLabel(const TCHAR *szLabel)
+	void CJoliet::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
-		size_t iLabelLen = lstrlen(szLabel);
+		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iLabelCopyLen = iLabelLen < 16 ? iLabelLen : 16;
 
 		EmptyStrBuffer(m_VolDescSuppl.ucVolIdentifier,sizeof(m_VolDescSuppl.ucVolIdentifier));
 
 	#ifdef UNICODE
-		MemStrCopy(m_VolDescSuppl.ucVolIdentifier,szLabel,iLabelCopyLen * sizeof(TCHAR));
+		MemStrCopy(m_VolDescSuppl.ucVolIdentifier,szLabel,iLabelCopyLen * sizeof(ckcore::tchar));
 	#else
 		wchar_t szWideLabel[17];
-		AnsiToUnicode(szWideLabel,szLabel,sizeof(szWideLabel) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szLabel,szWideLabel,sizeof(szWideLabel) / sizeof(wchar_t));
 		MemStrCopy(m_VolDescSuppl.ucVolIdentifier,szWideLabel,iLabelCopyLen * sizeof(wchar_t));
 	#endif
 	}
 
-	void CJoliet::SetTextFields(const TCHAR *szSystem,const TCHAR *szVolSetIdent,
-										 const TCHAR *szPublIdent,const TCHAR *szPrepIdent)
+	void CJoliet::SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
+										 const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent)
 	{
-		size_t iSystemLen = lstrlen(szSystem);
-		size_t iVolSetIdentLen = lstrlen(szVolSetIdent);
-		size_t iPublIdentLen = lstrlen(szPublIdent);
-		size_t iPrepIdentLen = lstrlen(szPrepIdent);
+		size_t iSystemLen = ckcore::string::astrlen(szSystem);
+		size_t iVolSetIdentLen = ckcore::string::astrlen(szVolSetIdent);
+		size_t iPublIdentLen = ckcore::string::astrlen(szPublIdent);
+		size_t iPrepIdentLen = ckcore::string::astrlen(szPrepIdent);
 
 		size_t iSystemCopyLen = iSystemLen < 16 ? iSystemLen : 16;
 		size_t iVolSetIdentCopyLen = iVolSetIdentLen < 64 ? iVolSetIdentLen : 64;
@@ -186,10 +201,10 @@ namespace ckFileSystem
 		EmptyStrBuffer(m_VolDescSuppl.ucPrepIdentifier,sizeof(m_VolDescSuppl.ucPrepIdentifier));
 
 	#ifdef UNICODE
-		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szSystem,iSystemCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szVolSetIdent,iVolSetIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szPublIdent,iPublIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szPrepIdent,iPrepIdentCopyLen * sizeof(TCHAR));
+		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szSystem,iSystemCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szVolSetIdent,iVolSetIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szPublIdent,iPublIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szPrepIdent,iPrepIdentCopyLen * sizeof(ckcore::tchar));
 		
 	#else
 		wchar_t szWideSystem[17];
@@ -197,25 +212,25 @@ namespace ckFileSystem
 		wchar_t szWidePublIdent[65];
 		wchar_t szWidePrepIdent[65];
 
-		AnsiToUnicode(szWideSystem,szSystem,sizeof(szWideSystem) / sizeof(wchar_t));
-		AnsiToUnicode(szWideVolSetIdent,szVolSetIdent,sizeof(szWideVolSetIdent) / sizeof(wchar_t));
-		AnsiToUnicode(szWidePublIdent,szPublIdent,sizeof(szWidePublIdent) / sizeof(wchar_t));
-		AnsiToUnicode(szWidePrepIdent,szPrepIdent,sizeof(szWidePrepIdent) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szSystem,szWideSystem,sizeof(szWideSystem) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szVolSetIdent,szWideVolSetIdent,sizeof(szWideVolSetIdent) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szPublIdent,szWidePublIdent,sizeof(szWidePublIdent) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szPrepIdent,szWidePrepIdent,sizeof(szWidePrepIdent) / sizeof(wchar_t));
 
-		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szWideSystem,iSystemCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szWideVolSetIdent,iVolSetIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szWidePublIdent,iPublIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szWidePrepIdent,iPrepIdentCopyLen * sizeof(TCHAR));
+		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szWideSystem,iSystemCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szWideVolSetIdent,iVolSetIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szWidePublIdent,iPublIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szWidePrepIdent,iPrepIdentCopyLen * sizeof(ckcore::tchar));
 	#endif
 	}
 
-	void CJoliet::SetFileFields(const TCHAR *szCopyFileIdent,
-										 const TCHAR *szAbstFileIdent,
-										 const TCHAR *szBiblFileIdent)
+	void CJoliet::SetFileFields(const ckcore::tchar *szCopyFileIdent,
+										 const ckcore::tchar *szAbstFileIdent,
+										 const ckcore::tchar *szBiblFileIdent)
 	{
-		size_t iCopyFileIdentLen = lstrlen(szCopyFileIdent);
-		size_t iAbstFileIdentLen = lstrlen(szAbstFileIdent);
-		size_t iBiblFileIdentLen = lstrlen(szBiblFileIdent);
+		size_t iCopyFileIdentLen = ckcore::string::astrlen(szCopyFileIdent);
+		size_t iAbstFileIdentLen = ckcore::string::astrlen(szAbstFileIdent);
+		size_t iBiblFileIdentLen = ckcore::string::astrlen(szBiblFileIdent);
 
 		size_t iCopyFileIdentCopyLen = iCopyFileIdentLen < 18 ? iCopyFileIdentLen : 18;
 		size_t iAbstFileIdentCopyLen = iAbstFileIdentLen < 18 ? iAbstFileIdentLen : 18;
@@ -226,21 +241,21 @@ namespace ckFileSystem
 		EmptyStrBuffer(m_VolDescSuppl.ucBiblFileIdentifier,sizeof(m_VolDescSuppl.ucBiblFileIdentifier));
 
 	#ifdef UNICODE
-		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szCopyFileIdent,iCopyFileIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szAbstFileIdent,iAbstFileIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szBiblFileIdent,iBiblFileIdentCopyLen * sizeof(TCHAR));
+		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szCopyFileIdent,iCopyFileIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szAbstFileIdent,iAbstFileIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szBiblFileIdent,iBiblFileIdentCopyLen * sizeof(ckcore::tchar));
 	#else
 		wchar_t szWideCopyFileIdent[19];
 		wchar_t szWideAbstFileIdent[19];
 		wchar_t szWideBiblFileIdent[19];
 
-		AnsiToUnicode(szWideCopyFileIdent,szCopyFileIdent,sizeof(szWideCopyFileIdent) / sizeof(wchar_t));
-		AnsiToUnicode(szWideAbstFileIdent,szAbstFileIdent,sizeof(szWideAbstFileIdent) / sizeof(wchar_t));
-		AnsiToUnicode(szWideBiblFileIdent,szBiblFileIdent,sizeof(szWideBiblFileIdent) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szCopyFileIdent,szWideCopyFileIdent,sizeof(szWideCopyFileIdent) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szAbstFileIdent,szWideAbstFileIdent,sizeof(szWideAbstFileIdent) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szBiblFileIdent,szWideBiblFileIdent,sizeof(szWideBiblFileIdent) / sizeof(wchar_t));
 
-		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szWideCopyFileIdent,iCopyFileIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szWideAbstFileIdent,iAbstFileIdentCopyLen * sizeof(TCHAR));
-		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szWideBiblFileIdent,iBiblFileIdentCopyLen * sizeof(TCHAR));
+		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szWideCopyFileIdent,iCopyFileIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szWideAbstFileIdent,iAbstFileIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szWideBiblFileIdent,iBiblFileIdentCopyLen * sizeof(ckcore::tchar));
 	#endif
 	}
 
@@ -257,14 +272,14 @@ namespace ckFileSystem
 			m_iMaxNameLen = JOLIET_MAX_NAMELEN_NORMAL;
 	}
 
-	unsigned char CJoliet::WriteFileName(unsigned char *pOutBuffer,const TCHAR *szFileName,bool bIsDir)
+	unsigned char CJoliet::WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir)
 	{/*
 #ifndef UNICODE
 		wchar_t szWideFileName[JOLIET_MAX_NAMELEN_RELAXED + 1];
 		AnsiToUnicode(szWideFileName,szFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 #endif
 
-		int iFileNameLen = (int)lstrlen(szFileName),iMax = 0;
+		int iFileNameLen = (int)ckcore::string::astrlen(szFileName),iMax = 0;
 
 		if (iFileNameLen > m_iMaxNameLen)
 		{
@@ -278,9 +293,9 @@ namespace ckFileSystem
 				// Copy the file name.
 				iMax = iExtDelimiter < (m_iMaxNameLen - iExtLen) ? iExtDelimiter : (m_iMaxNameLen - 1 - iExtLen);
 #ifdef UNICODE
-				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(ckcore::tchar));
 #else
-				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(ckcore::tchar));
 #endif
 
 				int iOutPos = iMax << 1;
@@ -289,9 +304,9 @@ namespace ckFileSystem
 
 				// Copy the extension.
 #ifdef UNICODE
-				MemStrCopy(pOutBuffer + iOutPos,szFileName + iExtDelimiter + 1,iExtLen * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer + iOutPos,szFileName + iExtDelimiter + 1,iExtLen * sizeof(ckcore::tchar));
 #else
-				MemStrCopy(pOutBuffer + iOutPos,szWideFileName + iExtDelimiter + 1,iExtLen * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer + iOutPos,szWideFileName + iExtDelimiter + 1,iExtLen * sizeof(ckcore::tchar));
 #endif
 
 				iMax = m_iMaxNameLen;
@@ -301,9 +316,9 @@ namespace ckFileSystem
 				iMax = m_iMaxNameLen;
 
 #ifdef UNICODE
-				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(ckcore::tchar));
 #else
-				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(ckcore::tchar));
 #endif
 			}
 		}
@@ -312,9 +327,9 @@ namespace ckFileSystem
 			iMax = iFileNameLen;
 
 #ifdef UNICODE
-				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(ckcore::tchar));
 #else
-				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(TCHAR));
+				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(ckcore::tchar));
 #endif
 		}
 
@@ -333,12 +348,12 @@ namespace ckFileSystem
 
 #ifndef UNICODE
 		wchar_t szWideFileName[JOLIET_MAX_NAMELEN_RELAXED + 1];
-		AnsiToUnicode(szWideFileName,szFileName,sizeof(szWideFileName) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szFileName,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 #else
 		const wchar_t *szWideFileName = szFileName;
 #endif
 
-		int iFileNameLen = (int)lstrlenW(szWideFileName),iMax = 0;
+		int iFileNameLen = (int)wcslen(szWideFileName),iMax = 0;
 
 		if (iFileNameLen > m_iMaxNameLen)
 		{
@@ -391,15 +406,15 @@ namespace ckFileSystem
 		return iMax;
 	}
 
-	unsigned char CJoliet::CalcFileNameLen(const TCHAR *szFileName,bool bIsDir)
+	unsigned char CJoliet::CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir)
 	{
-		/*size_t iNameLen = lstrlen(szFileName);
+		/*size_t iNameLen = ckcore::string::astrlen(szFileName);
 		if (iNameLen < m_iMaxNameLen)
 			return (unsigned char)iNameLen;
 
 		return m_iMaxNameLen;*/
 
-		size_t iNameLen = lstrlen(szFileName);
+		size_t iNameLen = ckcore::string::astrlen(szFileName);
 		if (iNameLen >= (size_t)m_iMaxNameLen)
 			iNameLen = m_iMaxNameLen;
 

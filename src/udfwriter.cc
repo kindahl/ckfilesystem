@@ -16,17 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
 #include <time.h>
-#include "file.hh"
-#include "directory.hh"
-#include "Const.h"
-#include "UdfWriter.h"
-#include "Iso9660.h"
+#include <ckcore/file.hh>
+#include <ckcore/directory.hh>
+#include "udfwriter.hh"
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
-	CUdfWriter::CUdfWriter(CLog *pLog,CSectorOutStream *pOutStream,
+	CUdfWriter::CUdfWriter(ckcore::Log *pLog,CSectorOutStream *pOutStream,
 		CSectorManager *pSectorManager,CUdf *pUdf,bool bUseFileTimes) :
 		m_pLog(pLog),m_pOutStream(pOutStream),m_pSectorManager(pSectorManager),
 		m_pUdf(pUdf),m_bUseFileTimes(bUseFileTimes),m_uiPartLength(0)
@@ -83,9 +81,9 @@ namespace ckFileSystem
 		}
 	}
 
-	unsigned __int64 CUdfWriter::CalcIdentSize(CFileTreeNode *pLocalNode)
+	ckcore::tuint64 CUdfWriter::CalcIdentSize(CFileTreeNode *pLocalNode)
 	{
-		unsigned __int64 uiTotalIdentSize = 0;
+		ckcore::tuint64 uiTotalIdentSize = 0;
 		std::vector<CFileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
@@ -103,7 +101,7 @@ namespace ckFileSystem
 		FIXME: This function uses recursion, it should be converted to an
 		iterative function to avoid the risk of running out of memory.
 	*/
-	unsigned __int64 CUdfWriter::CalcNodeSizeTotal(CFileTreeNode *pLocalNode)
+	ckcore::tuint64 CUdfWriter::CalcNodeSizeTotal(CFileTreeNode *pLocalNode)
 	{
 		std::vector<CFileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
@@ -119,7 +117,7 @@ namespace ckFileSystem
 		FIXME: This function uses recursion, it should be converted to an
 		iterative function to avoid the risk of running out of memory.
 	*/
-	unsigned __int64 CUdfWriter::CalcNodeLinksTotal(CFileTreeNode *pLocalNode)
+	ckcore::tuint64 CUdfWriter::CalcNodeLinksTotal(CFileTreeNode *pLocalNode)
 	{
 		std::vector<CFileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
@@ -134,7 +132,7 @@ namespace ckFileSystem
 	/**
 		Calculates the number of bytes needed to store the UDF partition.
 	*/
-	unsigned __int64 CUdfWriter::CalcParitionLength(CFileTree &FileTree)
+	ckcore::tuint64 CUdfWriter::CalcParitionLength(CFileTree &FileTree)
 	{
 		// First wee need to calculate the individual sizes of each records.
 		CalcNodeLengths(FileTree);
@@ -147,13 +145,13 @@ namespace ckFileSystem
 	}
 
 	bool CUdfWriter::WriteLocalParitionDir(std::deque<CFileTreeNode *> &DirNodeQueue,
-		CFileTreeNode *pLocalNode,unsigned long &ulCurPartSec,unsigned __int64 &uiUniqueIdent)
+		CFileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent)
 	{
 		unsigned long ulEntrySec = ulCurPartSec++;
 		unsigned long ulIdentSec = ulCurPartSec;	// On folders the identifiers will follow immediately.
 
 		// Calculate the size of all identifiers.
-		unsigned __int64 uiTotalIdentSize = 0;
+		ckcore::tuint64 uiTotalIdentSize = 0;
 		std::vector<CFileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
@@ -227,8 +225,8 @@ namespace ckFileSystem
 		}
 
 		// Insert the elements from the temporary stack into the queue.
-		std::vector<CFileTreeNode *>::const_reverse_iterator itStackNode;
-		for (itStackNode = TempStack.rbegin() ; itStackNode != TempStack.rend(); itStackNode++)
+		std::vector<CFileTreeNode *>::reverse_iterator itStackNode;
+		for (itStackNode = TempStack.rbegin(); itStackNode != TempStack.rend(); itStackNode++)
 			DirNodeQueue.push_front(*itStackNode);
 
 		// Pad to the next sector.
@@ -247,7 +245,7 @@ namespace ckFileSystem
 
 		// We start with unique identifier 0 (which is reserved for root) and
 		// increase it for every file or folder added.
-		unsigned __int64 uiUniqueIdent = 0;
+		ckcore::tuint64 uiUniqueIdent = 0;
 
 		CFileTreeNode *pCurNode = FileTree.GetRoot();
 		pCurNode->m_ulUdfPartLoc = ulCurPartSec;
@@ -266,7 +264,7 @@ namespace ckFileSystem
 #ifdef _DEBUG
 			if (pCurNode->m_ulUdfPartLoc != ulCurPartSec)
 			{
-				m_pLog->AddLine(_T("Invalid location for \"%s\" in UDF file system. Proposed position %u verus actual position %u."),
+				m_pLog->PrintLine(ckT("Invalid location for \"%s\" in UDF file system. Proposed position %u verus actual position %u."),
 					pCurNode->m_FileFullPath.c_str(),pCurNode->m_ulUdfPartLoc,ulCurPartSec);
 			}
 #endif
@@ -326,7 +324,7 @@ namespace ckFileSystem
 	{
 		if (!m_pUdf->WriteVolDescInitial(m_pOutStream))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to write initial UDF volume descriptors."));
+			m_pLog->PrintLine(ckT("  Error: Failed to write initial UDF volume descriptors."));
 			return RESULT_FAIL;
 		}
 
@@ -337,26 +335,26 @@ namespace ckFileSystem
 	{
 		if (m_uiPartLength == 0)
 		{
-			m_pLog->AddLine(_T("  Error: Cannot write UDF parition since no space has been reserved for it."));
+			m_pLog->PrintLine(ckT("  Error: Cannot write UDF parition since no space has been reserved for it."));
 			return RESULT_FAIL;
 		}
 
 		if (m_uiPartLength > 0xFFFFFFFF)
 		{
-			m_pLog->AddLine(_T("  Error: UDF partition is too large (%I64d sectors)."),m_uiPartLength);
+			m_pLog->PrintLine(ckT("  Error: UDF partition is too large (%I64d sectors)."),m_uiPartLength);
 			return RESULT_FAIL;
 		}
 
 		if (m_pSectorManager->GetStart(this,SR_MAINDESCRIPTORS) > 0xFFFFFFFF)
 		{
-			m_pLog->AddLine(_T("  Error: Error during sector space allocation. Start of UDF main descriptors %I64d."),
+			m_pLog->PrintLine(ckT("  Error: Error during sector space allocation. Start of UDF main descriptors %I64d."),
 				m_pSectorManager->GetStart(this,SR_MAINDESCRIPTORS));
 			return RESULT_FAIL;
 		}
 
 		if (m_pSectorManager->GetDataLength() > 0xFFFFFFFF)
 		{
-			m_pLog->AddLine(_T("  Error: File data too large (%I64d sectors) for UDF."),m_pSectorManager->GetDataLength());
+			m_pLog->PrintLine(ckT("  Error: File data too large (%I64d sectors) for UDF."),m_pSectorManager->GetDataLength());
 			return RESULT_FAIL;
 		}
 
@@ -370,7 +368,7 @@ namespace ckFileSystem
 
 		// Assign a unique identifier that's larger than any unique identifier of a
 		// file entry + 16 for the reserved numbers.
-		unsigned __int64 uiUniqueIdent = FileTree.GetDirCount() + FileTree.GetFileCount() + 1 + UDF_UNIQUEIDENT_MIN;
+		ckcore::tuint64 uiUniqueIdent = FileTree.GetDirCount() + FileTree.GetFileCount() + 1 + UDF_UNIQUEIDENT_MIN;
 
 		tUdfExtentAd IntegritySeqExtent;
 		IntegritySeqExtent.ulExtentLen = UDF_SECTOR_SIZE;
@@ -379,7 +377,7 @@ namespace ckFileSystem
 		if (!m_pUdf->WriteVolDescLogIntegrity(m_pOutStream,ulUdfCurSec,FileTree.GetFileCount(),
 			FileTree.GetDirCount() + 1,ulPartLength,uiUniqueIdent,m_ImageCreate))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to write UDF logical integrity descriptor."));
+			m_pLog->PrintLine(ckT("  Error: Failed to write UDF logical integrity descriptor."));
 			return RESULT_FAIL;
 		}
 		ulUdfCurSec++;			
@@ -399,42 +397,42 @@ namespace ckFileSystem
 			unsigned long ulVolDescSeqNum = 0;
 			if (!m_pUdf->WriteVolDescPrimary(m_pOutStream,ulVolDescSeqNum++,ulUdfCurSec,m_ImageCreate))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to write UDF primary volume descriptor."));
+				m_pLog->PrintLine(ckT("  Error: Failed to write UDF primary volume descriptor."));
 				return RESULT_FAIL;
 			}
 			ulUdfCurSec++;
 
 			if (!m_pUdf->WriteVolDescImplUse(m_pOutStream,ulVolDescSeqNum++,ulUdfCurSec))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to write UDF implementation use descriptor."));
+				m_pLog->PrintLine(ckT("  Error: Failed to write UDF implementation use descriptor."));
 				return RESULT_FAIL;
 			}
 			ulUdfCurSec++;
 
 			if (!m_pUdf->WriteVolDescPartition(m_pOutStream,ulVolDescSeqNum++,ulUdfCurSec,257,ulPartLength))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to write UDF partition descriptor."));
+				m_pLog->PrintLine(ckT("  Error: Failed to write UDF partition descriptor."));
 				return RESULT_FAIL;
 			}
 			ulUdfCurSec++;
 
 			if (!m_pUdf->WriteVolDescLogical(m_pOutStream,ulVolDescSeqNum++,ulUdfCurSec,IntegritySeqExtent))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to write UDF logical partition descriptor."));
+				m_pLog->PrintLine(ckT("  Error: Failed to write UDF logical partition descriptor."));
 				return RESULT_FAIL;
 			}
 			ulUdfCurSec++;
 
 			if (!m_pUdf->WriteVolDescUnalloc(m_pOutStream,ulVolDescSeqNum++,ulUdfCurSec))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to write UDF unallocated space descriptor."));
+				m_pLog->PrintLine(ckT("  Error: Failed to write UDF unallocated space descriptor."));
 				return RESULT_FAIL;
 			}
 			ulUdfCurSec++;
 
 			if (!m_pUdf->WriteVolDescTerm(m_pOutStream,ulUdfCurSec))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to write UDF descriptor terminator."));
+				m_pLog->PrintLine(ckT("  Error: Failed to write UDF descriptor terminator."));
 				return RESULT_FAIL;
 			}
 			ulUdfCurSec++;
@@ -461,7 +459,7 @@ namespace ckFileSystem
 		// At sector 256 write the first anchor volume descriptor pointer.
 		if (!m_pUdf->WriteAnchorVolDescPtr(m_pOutStream,ulUdfCurSec,m_MainVolDescSeqExtent,m_ReserveVolDescSeqExtent))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to write anchor volume descriptor pointer."));
+			m_pLog->PrintLine(ckT("  Error: Failed to write anchor volume descriptor pointer."));
 			return RESULT_FAIL;
 		}
 		ulUdfCurSec++;
@@ -470,13 +468,13 @@ namespace ckFileSystem
 		// The root is located directly after this descriptor, hence the location 1.
 		if (!m_pUdf->WriteFileSetDesc(m_pOutStream,0,1,m_ImageCreate))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to write file set descriptor."));
+			m_pLog->PrintLine(ckT("  Error: Failed to write file set descriptor."));
 			return RESULT_FAIL;
 		}
 
 		if (!WritePartitionEntries(FileTree))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to write file UDF partition."));
+			m_pLog->PrintLine(ckT("  Error: Failed to write file UDF partition."));
 			return RESULT_FAIL;
 		}
 
@@ -485,11 +483,11 @@ namespace ckFileSystem
 
 	int CUdfWriter::WriteTail()
 	{
-		unsigned __int64 uiLastDataSector = m_pSectorManager->GetDataStart() +
+		ckcore::tuint64 uiLastDataSector = m_pSectorManager->GetDataStart() +
 			m_pSectorManager->GetDataLength();
 		if (uiLastDataSector > 0xFFFFFFFF)
 		{
-			m_pLog->AddLine(_T("  Error: File data too large, last data sector is %I64d."),uiLastDataSector);
+			m_pLog->PrintLine(ckT("  Error: File data too large, last data sector is %I64d."),uiLastDataSector);
 			return RESULT_FAIL;
 		}
 
@@ -497,7 +495,7 @@ namespace ckFileSystem
 		if (!m_pUdf->WriteAnchorVolDescPtr(m_pOutStream,(unsigned long)uiLastDataSector,
 			m_MainVolDescSeqExtent,m_ReserveVolDescSeqExtent))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to write anchor volume descriptor pointer."));
+			m_pLog->PrintLine(ckT("  Error: Failed to write anchor volume descriptor pointer."));
 			return RESULT_FAIL;
 		}
 

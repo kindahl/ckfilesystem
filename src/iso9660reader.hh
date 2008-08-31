@@ -18,10 +18,10 @@
 
 #pragma once
 #include <vector>
-#include "stream.hh"
-#include "../../Common/Log.h"
-#include "../../Common/StringUtil.h"
-#include "Iso9660.h"
+#include <ckcore/types.hh>
+#include <ckcore/log.hh>
+#include <ckcore/stream.hh>
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
@@ -44,9 +44,9 @@ namespace ckFileSystem
 
 		tDirRecordDateTime m_RecDateTime;
 
-		tstring m_FileName;
+		ckcore::tstring m_FileName;
 
-		CIso9660TreeNode(CIso9660TreeNode *pParent,const TCHAR *szFileName,
+		CIso9660TreeNode(CIso9660TreeNode *pParent,const ckcore::tchar *szFileName,
 			unsigned long ulExtentLocation,unsigned long ulExtentLength,
 			unsigned short usVolSeqNumber,unsigned char ucFileFlags,
 			unsigned char ucFileUnitSize,unsigned char ucInterleaveGapSize,
@@ -84,7 +84,7 @@ namespace ckFileSystem
 	class CIso9660Reader
 	{
 	private:
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 
 		CIso9660TreeNode *m_pRootNode;
 
@@ -93,7 +93,7 @@ namespace ckFileSystem
 			CIso9660TreeNode *pParentNode,bool bJoliet);
 
 	public:
-		CIso9660Reader(CLog *pLog);
+		CIso9660Reader(ckcore::Log *pLog);
 		~CIso9660Reader();
 
 		bool Read(ckcore::InStream &InStream,unsigned long ulStartSector);

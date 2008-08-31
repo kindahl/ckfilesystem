@@ -19,9 +19,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../../Common/StringUtil.h"
-#include "../../Common/Log.h"
-#include "SectorStream.h"
+#include <ckcore/types.hh>
+#include <ckcore/log.hh>
+#include "sectorstream.hh"
 
 // Maximum values of unsigned short + 1 + the default boot image.
 #define ELTORITO_MAX_BOOTIMAGE_COUNT			0xFFFF + 2
@@ -132,7 +132,7 @@ namespace ckFileSystem
 			EMULATION_HARDDISK
 		};
 
-		tstring m_FullPath;
+		ckcore::tstring m_FullPath;
 		bool m_bBootable;
 		eEmulation m_Emulation;
 		unsigned short m_usLoadSegment;
@@ -141,7 +141,7 @@ namespace ckFileSystem
 		// Needs to be calculated in a separate pass.
 		unsigned long m_ulDataSecPos;	// Sector number of first sector containing data.
 
-		CElToritoImage(const TCHAR *szFullPath,bool bBootable,eEmulation Emulation,
+		CElToritoImage(const ckcore::tchar *szFullPath,bool bBootable,eEmulation Emulation,
 			unsigned short usLoadSegment,unsigned short usSectorCount)
 		{
 			m_FullPath = szFullPath;
@@ -157,32 +157,32 @@ namespace ckFileSystem
 	class CElTorito
 	{
 	private:
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 
 		std::vector<CElToritoImage *> m_BootImages;
 
-		bool ReadSysTypeMBR(const TCHAR *szFullPath,unsigned char &ucSysType);
+		bool ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &ucSysType);
 
-		bool WriteBootImage(CSectorOutStream *pOutStream,const TCHAR *szFileName);
+		bool WriteBootImage(CSectorOutStream *pOutStream,const ckcore::tchar *szFileName);
 
 	public:
-		CElTorito(CLog *pLog);
+		CElTorito(ckcore::Log *pLog);
 		~CElTorito();
 
 		bool WriteBootRecord(CSectorOutStream *pOutStream,unsigned long ulBootCatSecPos);
 		bool WriteBootCatalog(CSectorOutStream *pOutStream);
 		bool WriteBootImages(CSectorOutStream *pOutStream);
 
-		bool AddBootImageNoEmu(const TCHAR *szFullPath,bool bBootable,
+		bool AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
 			unsigned short usLoadSegment,unsigned short usSectorCount);
-		bool AddBootImageFloppy(const TCHAR *szFullPath,bool bBootable);
-		bool AddBootImageHardDisk(const TCHAR *szFullPath,bool bBootable);
+		bool AddBootImageFloppy(const ckcore::tchar *szFullPath,bool bBootable);
+		bool AddBootImageHardDisk(const ckcore::tchar *szFullPath,bool bBootable);
 
-		bool CalculateFileSysData(unsigned __int64 uiStartSec,
-			unsigned __int64 &uiLastSec);
+		bool CalculateFileSysData(ckcore::tuint64 uiStartSec,
+			ckcore::tuint64 &uiLastSec);
 
-		unsigned __int64 GetBootCatSize();
-		unsigned __int64 GetBootDataSize();
-		unsigned __int64 GetBootImageCount();
+		ckcore::tuint64 GetBootCatSize();
+		ckcore::tuint64 GetBootDataSize();
+		ckcore::tuint64 GetBootImageCount();
 	};
 };

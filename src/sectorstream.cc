@@ -16,8 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "SectorStream.h"
+#include "sectorstream.hh"
 
 namespace ckFileSystem
 {
@@ -54,7 +53,7 @@ namespace ckFileSystem
 	/*
 		Returns the current sector number.
 	*/
-	unsigned __int64 CSectorOutStream::GetSector()
+	ckcore::tuint64 CSectorOutStream::GetSector()
 	{
 		return m_uiSector;
 	}

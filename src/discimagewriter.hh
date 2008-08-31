@@ -22,16 +22,16 @@
 #include <vector>
 #include <string>
 #include <queue>
-#include "../../Common/StringUtil.h"
-#include "../../Common/Log.h"
-#include "FileSet.h"
-#include "FileTree.h"
-#include "SectorStream.h"
-#include "Const.h"
-#include "Iso9660.h"
-#include "Joliet.h"
-#include "ElTorito.h"
-#include "Udf.h"
+#include <ckcore/types.hh>
+#include <ckcore/progress.hh>
+#include <ckcore/log.hh>
+#include "fileset.hh"
+#include "filetree.hh"
+#include "sectorstream.hh"
+#include "iso9660.hh"
+#include "joliet.hh"
+#include "eltorito.hh"
+#include "udf.hh"
 
 namespace ckFileSystem
 {
@@ -49,7 +49,7 @@ namespace ckFileSystem
 		};
 
 	private:
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 
 		// What file system should be created.
 		eFileSystem m_FileSystem;
@@ -61,9 +61,9 @@ namespace ckFileSystem
 		CUdf m_Udf;
 
 		bool CalcLocalFileSysData(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-			CFileTreeNode *pLocalNode,int iLevel,unsigned __int64 &uiSecOffset,ckcore::Progress &Progress);
+			CFileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress);
 		bool CalcFileSysData(CFileTree &FileTree,ckcore::Progress &Progress,
-			unsigned __int64 uiStartSec,unsigned __int64 &uiLastSec);
+			ckcore::tuint64 uiStartSec,ckcore::tuint64 &uiLastSec);
 
 		int WriteFileNode(CSectorOutStream &OutStream,CFileTreeNode *pNode,
 			ckcore::Progresser &OutProgresser);
@@ -72,37 +72,37 @@ namespace ckFileSystem
 			CFileTreeNode *pLocalNode,int iLevel,ckcore::Progresser &FileProgresser);
 		int WriteFileData(CSectorOutStream &OutStream,CFileTree &FileTree,ckcore::Progresser &FileProgresser);
 
-		void GetInternalPath(CFileTreeNode *pChildNode,tstring &NodePath,
+		void GetInternalPath(CFileTreeNode *pChildNode,ckcore::tstring &NodePath,
 			bool bExternalPath,bool bJoliet);
 		void CreateLocalFilePathMap(CFileTreeNode *pLocalNode,
 			std::vector<CFileTreeNode *> &DirNodeStack,
-			std::map<tstring,tstring> &FilePathMap,bool bJoliet);
-		void CreateFilePathMap(CFileTree &FileTree,std::map<tstring,tstring> &FilePathMap,bool bJoliet);
+			std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet);
+		void CreateFilePathMap(CFileTree &FileTree,std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet);
 
 		int Fail(int iResult,CSectorOutStream &OutStream);
 
 	public:
-		CDiscImageWriter(CLog *pLog,eFileSystem FileSystem);
+		CDiscImageWriter(ckcore::Log *pLog,eFileSystem FileSystem);
 		~CDiscImageWriter();	
 
 		int Create(CSectorOutStream &OutStream,CFileSet &Files,ckcore::Progress &Progress,
-			unsigned long ulSectorOffset = 0,std::map<tstring,tstring> *pFilePathMap = NULL);
+			unsigned long ulSectorOffset = 0,std::map<ckcore::tstring,ckcore::tstring> *pFilePathMap = NULL);
 
 		// File system modifiers, mixed set for Joliet, UDF and ISO9660.
-		void SetVolumeLabel(const TCHAR *szLabel);
-		void SetTextFields(const TCHAR *szSystem,const TCHAR *szVolSetIdent,
-			const TCHAR *szPublIdent,const TCHAR *szPrepIdent);
-		void SetFileFields(const TCHAR *ucCopyFileIdent,const TCHAR *ucAbstFileIdent,
-			const TCHAR *ucBiblIdent);
+		void SetVolumeLabel(const ckcore::tchar *szLabel);
+		void SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
+			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
+		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
+			const ckcore::tchar *ucBiblIdent);
 		void SetInterchangeLevel(CIso9660::eInterLevel InterLevel);
 		void SetIncludeFileVerInfo(bool bIncludeInfo);
 		void SetPartAccessType(CUdf::ePartAccessType AccessType);
 		void SetRelaxMaxDirLevel(bool bRelaxRestriction);
 		void SetLongJolietNames(bool bEnable);
 
-		bool AddBootImageNoEmu(const TCHAR *szFullPath,bool bBootable,
+		bool AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
 			unsigned short usLoadSegment,unsigned short usSectorCount);
-		bool AddBootImageFloppy(const TCHAR *szFullPath,bool bBootable);
-		bool AddBootImageHardDisk(const TCHAR *szFullPath,bool bBootable);
+		bool AddBootImageFloppy(const ckcore::tchar *szFullPath,bool bBootable);
+		bool AddBootImageHardDisk(const ckcore::tchar *szFullPath,bool bBootable);
 	};
 };

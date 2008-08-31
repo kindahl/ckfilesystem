@@ -16,13 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "SectorManager.h"
-#include "Iso9660.h"		// FIXME:
+#include "sectormanager.hh"
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
-	CSectorManager::CSectorManager(unsigned __int64 uiStartSector)
+	CSectorManager::CSectorManager(ckcore::tuint64 uiStartSector)
 	{
 		m_uiNextFreeSector = uiStartSector;
 		m_uiDataStart = 0;
@@ -43,7 +42,7 @@ namespace ckFileSystem
 		@param uiNumSectors the number of sectors to allocate.
 	*/
 	void CSectorManager::AllocateSectors(ISectorClient *pClient,unsigned char ucIdentifier,
-		unsigned __int64 uiNumSectors)
+		ckcore::tuint64 uiNumSectors)
 	{
 		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
 
@@ -51,7 +50,7 @@ namespace ckFileSystem
 	}
 
 	void CSectorManager::AllocateBytes(ISectorClient *pClient,unsigned char ucIdentifier,
-		unsigned __int64 uiNumBytes)
+		ckcore::tuint64 uiNumBytes)
 	{
 		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
 
@@ -63,7 +62,7 @@ namespace ckFileSystem
 		is that there can only be one data allocation and it should be accessible by
 		any client.
 	*/
-	void CSectorManager::AllocateDataSectors(unsigned __int64 uiNumSectors)
+	void CSectorManager::AllocateDataSectors(ckcore::tuint64 uiNumSectors)
 	{
 		m_uiDataStart = m_uiNextFreeSector;
 		m_uiDataLength = uiNumSectors;
@@ -71,7 +70,7 @@ namespace ckFileSystem
 		m_uiNextFreeSector += m_uiDataLength;
 	}
 
-	void CSectorManager::AllocateDataBytes(unsigned __int64 uiNumBytes)
+	void CSectorManager::AllocateDataBytes(ckcore::tuint64 uiNumBytes)
 	{
 		m_uiDataStart = m_uiNextFreeSector;
 		m_uiDataLength = BytesToSector64(uiNumBytes);
@@ -87,7 +86,7 @@ namespace ckFileSystem
 		allocating.
 		@return the start sector.
 	*/
-	unsigned __int64 CSectorManager::GetStart(ISectorClient *pClient,unsigned char ucIdentifier)
+	ckcore::tuint64 CSectorManager::GetStart(ISectorClient *pClient,unsigned char ucIdentifier)
 	{
 		return m_ClientMap[std::make_pair(pClient,ucIdentifier)];
 	}
@@ -95,17 +94,17 @@ namespace ckFileSystem
 	/**
 		Returns the next free unallocated sector. This should be used with care.
 	*/
-	unsigned __int64 CSectorManager::GetNextFree()
+	ckcore::tuint64 CSectorManager::GetNextFree()
 	{
 		return m_uiNextFreeSector;
 	}
 
-	unsigned __int64 CSectorManager::GetDataStart()
+	ckcore::tuint64 CSectorManager::GetDataStart()
 	{
 		return m_uiDataStart;
 	}
 
-	unsigned __int64 CSectorManager::GetDataLength()
+	ckcore::tuint64 CSectorManager::GetDataLength()
 	{
 		return m_uiDataLength;
 	}

@@ -16,10 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "Udf.h"
-#include "Iso9660.h"
-#include "../../Common/StringUtil.h"
+#include <ckcore/string.hh>
+#include "udf.hh"
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
@@ -275,7 +274,7 @@ namespace ckFileSystem
 		if (iVolSetIdentSize < 18)
 			return;
 
-		TCHAR szCharSet[] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+		ckcore::tchar szCharSet[] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
 		wchar_t szGeneratedIdent[16];
 		for (unsigned int i = 0; i < sizeof(szGeneratedIdent)/sizeof(wchar_t); i++)
 			szGeneratedIdent[i] = szCharSet[rand() % 16];
@@ -293,9 +292,13 @@ namespace ckFileSystem
 	{
 		DateTime.usTypeAndTimezone = 1 << 12;		// Type: local time.
 
+#ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
 		DateTime.usTypeAndTimezone |= -tzi.Bias;
+#else
+        // FIXME: Add support for Unix time zones.
+#endif
 
 		DateTime.usYear = Time.tm_year + 1900;
 		DateTime.ucMonth = Time.tm_mon + 1;
@@ -315,9 +318,9 @@ namespace ckFileSystem
 		ucOsIdent = UDF_OSIDENT_UNDEFINED;
 	}
 
-	unsigned char CUdf::MakeFileIdent(unsigned char *pOutBuffer,const TCHAR *szFileName)
+	unsigned char CUdf::MakeFileIdent(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
 	{
-		size_t iNameLen = lstrlen(szFileName);
+		size_t iNameLen = ckcore::string::astrlen(szFileName);
 		size_t iCopyLen = iNameLen < (254 >> 1) ? iNameLen : (254 >> 1);		// One byte is reserved for compression descriptor.
 
 		// DVD-Video should use 8 bits to represent one character.
@@ -328,7 +331,7 @@ namespace ckFileSystem
 			(const unsigned short *)szFileName,pOutBuffer);
 	#else
 		wchar_t szWideFileName[125];
-		AnsiToUnicode(szWideFileName,szFileName,sizeof(szWideFileName) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szFileName,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iCopyLen,ucStrComp,
 			(const unsigned short *)szWideFileName,pOutBuffer);
@@ -399,9 +402,9 @@ namespace ckFileSystem
 		Write731(m_LogicalVolDesc.ucLogicalVolContentsUse,UDF_SECTOR_SIZE);	// ?
 	}
 
-	void CUdf::SetVolumeLabel(const TCHAR *szLabel)
+	void CUdf::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
-		size_t iLabelLen = lstrlen(szLabel);
+		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iPrimaryCopyLen = iLabelLen < 15 ? iLabelLen : 15;	// Two bytes are reserved for string format.
 		size_t iLogicalCopyLen = iLabelLen < 63 ? iLabelLen : 63;	// Two bytes are reserved for string format.
 
@@ -422,14 +425,14 @@ namespace ckFileSystem
 		m_LogicalVolDesc.ucLogicalVolIdent[127] = ucByteLen;
 	#else
 		wchar_t szWidePrimaryLabel[17];
-		AnsiToUnicode(szWidePrimaryLabel,szLabel,sizeof(szWidePrimaryLabel) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szLabel,szWidePrimaryLabel,sizeof(szWidePrimaryLabel) / sizeof(wchar_t));
 
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iPrimaryCopyLen,ucStrComp,
 			(const unsigned short *)szWidePrimaryLabel,m_PrimVolDesc.ucVolIdentifier);
 		m_PrimVolDesc.ucVolIdentifier[31] = ucByteLen;
 
 		wchar_t szWideLogicalLabel[17];
-		AnsiToUnicode(szWideLogicalLabel,szLabel,sizeof(szWideLogicalLabel) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(szLabel,szWideLogicalLabel,sizeof(szWideLogicalLabel) / sizeof(wchar_t));
 		ucByteLen = (unsigned char)CompressUnicodeStr(iLogicalCopyLen,ucStrComp,
 			(const unsigned short *)szWideLogicalLabel,m_LogicalVolDesc.ucLogicalVolIdent);
 		m_LogicalVolDesc.ucLogicalVolIdent[127] = ucByteLen;
@@ -707,7 +710,7 @@ namespace ckFileSystem
 	*/
 	bool CUdf::WriteVolDescLogIntegrity(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
-		unsigned __int64 uiUniqueIdent,struct tm &ImageCreate)
+		ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate)
 	{
 		tUdfLogicalVolIntegrityDesc LogIntegrityDesc;
 		memset(&LogIntegrityDesc,0,sizeof(tUdfLogicalVolIntegrityDesc));
@@ -889,7 +892,7 @@ namespace ckFileSystem
 		Note: This function does not pad to closest sector.
 	*/
 	bool CUdf::WriteFileIdent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
-		unsigned long ulFileEntrySecLoc,bool bIsDirectory,const TCHAR *szFileName)
+		unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName)
 	{
 		tUdfFileIdentDesc FileIdentDesc;
 		memset(&FileIdentDesc,0,sizeof(tUdfFileIdentDesc));
@@ -946,8 +949,8 @@ namespace ckFileSystem
 		directories and the size of the file on files.
 	*/
 	bool CUdf::WriteFileEntry(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
-		bool bIsDirectory,unsigned short usFileLinkCount,unsigned __int64 uiUniqueIdent,
-		unsigned long ulInfoLocation,unsigned __int64 uiInfoLength,
+		bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
+		unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
 		struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime)
 	{
 		tUdfFileEntry FileEntry;
@@ -1162,9 +1165,9 @@ namespace ckFileSystem
 		return sizeof(tUdfFileIdentDesc) + 2;
 	}
 
-	unsigned long CUdf::CalcFileIdentSize(const TCHAR *szFileName)
+	unsigned long CUdf::CalcFileIdentSize(const ckcore::tchar *szFileName)
 	{
-		unsigned long ulFileNameLen = lstrlen(szFileName);
+		unsigned long ulFileNameLen = ckcore::string::astrlen(szFileName);
 		if (ulFileNameLen > 254)
 			ulFileNameLen = 254;
 

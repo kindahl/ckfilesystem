@@ -16,17 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "StringTable.h"
-#include "SectorManager.h"
-#include "Iso9660Writer.h"
-#include "UdfWriter.h"
-#include "DvdVideo.h"
-#include "DiscImageWriter.h"
+#include <ckcore/string.hh>
+#include "stringtable.hh"
+#include "sectormanager.hh"
+#include "iso9660writer.hh"
+#include "udfwriter.hh"
+#include "dvdvideo.hh"
+#include "discimagewriter.hh"
 
 namespace ckFileSystem
 {
-	CDiscImageWriter::CDiscImageWriter(CLog *pLog,eFileSystem FileSystem) : m_FileSystem(FileSystem),
+	CDiscImageWriter::CDiscImageWriter(ckcore::Log *pLog,eFileSystem FileSystem) : m_FileSystem(FileSystem),
 		m_pLog(pLog),m_ElTorito(pLog),m_Udf(FileSystem == FS_DVDVIDEO)
 	{
 	}
@@ -40,7 +40,7 @@ namespace ckFileSystem
 		single file.
 	*/
 	bool CDiscImageWriter::CalcLocalFileSysData(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-		CFileTreeNode *pLocalNode,int iLevel,unsigned __int64 &uiSecOffset,ckcore::Progress &Progress)
+		CFileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress)
 	{
 		std::vector<CFileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
@@ -61,7 +61,7 @@ namespace ckFileSystem
 				{
 					if (m_FileSystem == FS_ISO9660 || m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_DVDVIDEO)
 					{
-						m_pLog->AddLine(_T("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
+						m_pLog->PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
 							(*itFile)->m_FileName.c_str());
 						Progress.Notify(ckcore::Progress::ckWARNING,g_StringTable.GetString(WARNING_SKIP4GFILE),
 							(*itFile)->m_FileName.c_str());
@@ -70,7 +70,7 @@ namespace ckFileSystem
 					}
 					else if (m_FileSystem == FS_ISO9660_UDF || m_FileSystem == FS_ISO9660_UDF_JOLIET)
 					{
-						m_pLog->AddLine(_T("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
+						m_pLog->PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
 							(*itFile)->m_FileName.c_str());
 						Progress.Notify(ckcore::Progress::ckWARNING,g_StringTable.GetString(WARNING_SKIP4GFILEISO),
 							(*itFile)->m_FileName.c_str());
@@ -83,7 +83,7 @@ namespace ckFileSystem
 					CIso9660ImportData *pImportNode = (CIso9660ImportData *)(*itFile)->m_pData;
 					if (pImportNode == NULL)
 					{
-						m_pLog->AddLine(_T("  Error: The file \"%s\" does not contain imported session data like advertised."),
+						m_pLog->PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
 							(*itFile)->m_FileName.c_str());
 						return false;
 					}
@@ -134,10 +134,10 @@ namespace ckFileSystem
 		extents.
 	*/
 	bool CDiscImageWriter::CalcFileSysData(CFileTree &FileTree,ckcore::Progress &Progress,
-		unsigned __int64 uiStartSec,unsigned __int64 &uiLastSec)
+		ckcore::tuint64 uiStartSec,ckcore::tuint64 &uiLastSec)
 	{
 		CFileTreeNode *pCurNode = FileTree.GetRoot();
-		unsigned __int64 uiSecOffset = uiStartSec;
+		ckcore::tuint64 uiSecOffset = uiStartSec;
 
 		std::vector<std::pair<CFileTreeNode *,int> > DirNodeStack;
 		if (!CalcLocalFileSysData(DirNodeStack,pCurNode,0,uiSecOffset,Progress))
@@ -163,7 +163,7 @@ namespace ckFileSystem
 		ckcore::FileInStream FileStream(pNode->m_FileFullPath.c_str());
 		if (!FileStream.Open())
 		{
-			m_pLog->AddLine(_T("  Error: Unable to obtain file handle to \"%s\"."),
+			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),
 				pNode->m_FileFullPath.c_str());
 			FileProgresser.Notify(ckcore::Progress::ckERROR,g_StringTable.GetString(ERROR_OPENREAD),
 				pNode->m_FileFullPath.c_str());
@@ -173,7 +173,7 @@ namespace ckFileSystem
 		/*char szBuffer[DISCIMAGEWRITER_IO_BUFFER_SIZE];
 		ckcore::tint64 iProcessed = 0;
 
-		unsigned __int64 uiReadSize = 0;
+		ckcore::tuint64 uiReadSize = 0;
 		while (uiReadSize < pNode->m_uiFileSize)
 		{
 			// Check if we should abort.
@@ -183,14 +183,14 @@ namespace ckFileSystem
 			iProcessed = FileStream.Read(szBuffer,DISCIMAGEWRITER_IO_BUFFER_SIZE);
 			if (iProcessed == -1)
 			{
-				m_pLog->AddLine(_T("  Error: Unable read file: %s."),pNode->m_FileFullPath.c_str());
+				m_pLog->PrintLine(ckT("  Error: Unable read file: %s."),pNode->m_FileFullPath.c_str());
 				return RESULT_FAIL;
 			}
 
 			if (iProcessed == 0)
 			{
 				// We may have a problem. The file size may have changed since specied in file list.
-				m_pLog->AddLine(_T("  Error: File size missmatch on \"%s\". Reported size %I64d bytes versus actual size %I64d bytes."),
+				m_pLog->PrintLine(ckT("  Error: File size missmatch on \"%s\". Reported size %I64d bytes versus actual size %I64d bytes."),
 					pNode->m_FileFullPath.c_str(),pNode->m_uiFileSize,uiReadSize);
 				return RESULT_FAIL;
 			}
@@ -204,7 +204,7 @@ namespace ckFileSystem
 			iProcessed = OutStream.Write(szBuffer,(ckcore::tuint32)iProcessed);
 			if (iProcessed == -1)
 			{
-				m_pLog->AddLine(_T("  Error: Unable write to disc image."));
+				m_pLog->PrintLine(ckT("  Error: Unable write to disc image."));
 				return RESULT_FAIL;
 			}
 
@@ -213,7 +213,7 @@ namespace ckFileSystem
 
 		if (!ckcore::stream::copy(FileStream,OutStream,FileProgresser))
 		{
-			m_pLog->AddLine(_T("  Error: Unable write file to disc image."));
+			m_pLog->PrintLine(ckT("  Error: Unable write file to disc image."));
 			return RESULT_FAIL;
 		}
 
@@ -256,7 +256,7 @@ namespace ckFileSystem
 				switch (WriteFileNode(OutStream,*itFile,FileProgresser))
 				{
 					case RESULT_FAIL:
-						m_pLog->AddLine(_T("  Error: Unable to write node \"%s\" to (%I64d,%I64d)."),
+						m_pLog->PrintLine(ckT("  Error: Unable to write node \"%s\" to (%I64d,%I64d)."),
 							(*itFile)->m_FileName.c_str(),(*itFile)->m_uiDataPosNormal,(*itFile)->m_uiDataSizeNormal);
 						return RESULT_FAIL;
 
@@ -301,10 +301,10 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	void CDiscImageWriter::GetInternalPath(CFileTreeNode *pChildNode,tstring &NodePath,
+	void CDiscImageWriter::GetInternalPath(CFileTreeNode *pChildNode,ckcore::tstring &NodePath,
 		bool bExternalPath,bool bJoliet)
 	{
-		NodePath = _T("/");
+		NodePath = ckT("/");
 
 		if (bExternalPath)
 		{
@@ -317,8 +317,8 @@ namespace ckFileSystem
 				else
 					NodePath.append(pChildNode->m_FileNameJoliet);
 #else
-				char szAnsiName[MAX_PATH];
-				UnicodeToAnsi(szAnsiName,pChildNode->m_FileNameJoliet.c_str(),sizeof(szAnsiName));
+				char szAnsiName[JOLIET_MAX_NAMELEN_RELAXED + 1];
+				ckcore::string::utf16_to_ansi(pChildNode->m_FileNameJoliet.c_str(),szAnsiName,sizeof(szAnsiName));
 
 				if (szAnsiName[pChildNode->m_FileNameJoliet.length() - 2] == ';')
 					szAnsiName[pChildNode->m_FileNameJoliet.length() - 2] = '\0';
@@ -372,8 +372,8 @@ namespace ckFileSystem
 							pCurNode->m_FileNameJoliet.end());
 					}
 	#else
-					char szAnsiName[MAX_PATH];
-					UnicodeToAnsi(szAnsiName,pCurNode->m_FileNameJoliet.c_str(),sizeof(szAnsiName));
+					char szAnsiName[JOLIET_MAX_NAMELEN_RELAXED + 1];
+					ckcore::string::utf16_to_ansi(pCurNode->m_FileNameJoliet.c_str(),szAnsiName,sizeof(szAnsiName));
 
 					if (szAnsiName[pCurNode->m_FileNameJoliet.length() - 2] == ';')
 						szAnsiName[pCurNode->m_FileNameJoliet.length() - 2] = '\0';
@@ -413,7 +413,7 @@ namespace ckFileSystem
 					pCurNode->m_FileName.end());
 			}
 
-			NodePath.insert(0,_T("/"));
+			NodePath.insert(0,ckT("/"));
 
 			pCurNode = pCurNode->GetParent();
 		}
@@ -421,7 +421,7 @@ namespace ckFileSystem
 
 	void CDiscImageWriter::CreateLocalFilePathMap(CFileTreeNode *pLocalNode,
 		std::vector<CFileTreeNode *> &DirNodeStack,
-		std::map<tstring,tstring> &FilePathMap,bool bJoliet)
+		std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet)
 	{
 		std::vector<CFileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
@@ -434,10 +434,10 @@ namespace ckFileSystem
 			else
 			{
 				// Yeah, this is not very efficient. Both paths should be calculated togather.
-				tstring FilePath;
+				ckcore::tstring FilePath;
 				GetInternalPath(*itFile,FilePath,false,bJoliet);
 
-				tstring ExternalFilePath;
+				ckcore::tstring ExternalFilePath;
 				GetInternalPath(*itFile,ExternalFilePath,true,bJoliet);
 
 				FilePathMap[FilePath] = ExternalFilePath;
@@ -452,7 +452,7 @@ namespace ckFileSystem
 		external (Joliet or ISO9660, in that order).
 	*/
 	void CDiscImageWriter::CreateFilePathMap(CFileTree &FileTree,
-		std::map<tstring,tstring> &FilePathMap,bool bJoliet)
+		std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet)
 	{
 		CFileTreeNode *pCurNode = FileTree.GetRoot();
 
@@ -475,10 +475,10 @@ namespace ckFileSystem
 		internal file paths to the actual external paths.
 	*/
 	int CDiscImageWriter::Create(CSectorOutStream &OutStream,CFileSet &Files,ckcore::Progress &Progress,
-		unsigned long ulSectorOffset,std::map<tstring,tstring> *pFilePathMap)
+		unsigned long ulSectorOffset,std::map<ckcore::tstring,ckcore::tstring> *pFilePathMap)
 	{
-		m_pLog->AddLine(_T("CDiscImageWriter::Create"));
-		m_pLog->AddLine(_T("  Sector offset: %u."),ulSectorOffset);
+		m_pLog->PrintLine(ckT("CDiscImageWriter::Create"));
+		m_pLog->PrintLine(ckT("  Sector offset: %u."),ulSectorOffset);
 
 		// The first 16 sectors are reserved for system use (write 0s).
 		char szTemp[1] = { 0 };
@@ -490,7 +490,7 @@ namespace ckFileSystem
 		/*CFileSet::const_iterator itFile;
 		for (itFile = Files.begin(); itFile != Files.end(); itFile++)
 		{
-			m_pLog->AddLine(_T("  %s"),(*itFile).m_InternalPath.c_str());
+			m_pLog->PrintLine(ckT("  %s"),(*itFile).m_InternalPath.c_str());
 		}*/
 		// ...
 
@@ -501,7 +501,7 @@ namespace ckFileSystem
 		CFileTree FileTree(m_pLog);
 		if (!FileTree.CreateFromFileSet(Files))
 		{
-			m_pLog->AddLine(_T("  Error: Failed to build file tree."));
+			m_pLog->PrintLine(ckT("  Error: Failed to build file tree."));
 			return Fail(RESULT_FAIL,OutStream);
 		}
 
@@ -511,7 +511,7 @@ namespace ckFileSystem
 			CDvdVideo DvdVideo(m_pLog);
 			if (!DvdVideo.CalcFilePadding(FileTree))
 			{
-				m_pLog->AddLine(_T("  Error: Failed to calculate file padding for DVD-Video file system."));
+				m_pLog->PrintLine(ckT("  Error: Failed to calculate file padding for DVD-Video file system."));
 				return Fail(RESULT_FAIL,OutStream);
 			}
 
@@ -563,12 +563,12 @@ namespace ckFileSystem
 		}
 
 		// Allocate file data.
-		unsigned __int64 uiFirstDataSec = SectorManager.GetNextFree();
-		unsigned __int64 uiLastDataSec = 0;
+		ckcore::tuint64 uiFirstDataSec = SectorManager.GetNextFree();
+		ckcore::tuint64 uiLastDataSec = 0;
 
 		if (!CalcFileSysData(FileTree,Progress,uiFirstDataSec,uiLastDataSec))
 		{
-			m_pLog->AddLine(_T("  Error: Could not calculate necessary file system information."));
+			m_pLog->PrintLine(ckT("  Error: Could not calculate necessary file system information."));
 			return Fail(RESULT_FAIL,OutStream);
 		}
 
@@ -645,23 +645,23 @@ namespace ckFileSystem
 		return iResult;
 	}
 
-	void CDiscImageWriter::SetVolumeLabel(const TCHAR *szLabel)
+	void CDiscImageWriter::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
 		m_Iso9660.SetVolumeLabel(szLabel);
 		m_Joliet.SetVolumeLabel(szLabel);
 		m_Udf.SetVolumeLabel(szLabel);
 	}
 
-	void CDiscImageWriter::SetTextFields(const TCHAR *szSystem,const TCHAR *szVolSetIdent,
-										 const TCHAR *szPublIdent,const TCHAR *szPrepIdent)
+	void CDiscImageWriter::SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
+										 const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent)
 	{
 		m_Iso9660.SetTextFields(szSystem,szVolSetIdent,szPublIdent,szPrepIdent);
 		m_Joliet.SetTextFields(szSystem,szVolSetIdent,szPublIdent,szPrepIdent);
 	}
 
-	void CDiscImageWriter::SetFileFields(const TCHAR *szCopyFileIdent,
-										 const TCHAR *szAbstFileIdent,
-										 const TCHAR *szBiblFileIdent)
+	void CDiscImageWriter::SetFileFields(const ckcore::tchar *szCopyFileIdent,
+										 const ckcore::tchar *szAbstFileIdent,
+										 const ckcore::tchar *szBiblFileIdent)
 	{
 		m_Iso9660.SetFileFields(szCopyFileIdent,szAbstFileIdent,szBiblFileIdent);
 		m_Joliet.SetFileFields(szCopyFileIdent,szAbstFileIdent,szBiblFileIdent);
@@ -693,18 +693,18 @@ namespace ckFileSystem
 		m_Joliet.SetRelaxMaxNameLen(bEnable);
 	}
 
-	bool CDiscImageWriter::AddBootImageNoEmu(const TCHAR *szFullPath,bool bBootable,
+	bool CDiscImageWriter::AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
 		unsigned short usLoadSegment,unsigned short usSectorCount)
 	{
 		return m_ElTorito.AddBootImageNoEmu(szFullPath,bBootable,usLoadSegment,usSectorCount);
 	}
 
-	bool CDiscImageWriter::AddBootImageFloppy(const TCHAR *szFullPath,bool bBootable)
+	bool CDiscImageWriter::AddBootImageFloppy(const ckcore::tchar *szFullPath,bool bBootable)
 	{
 		return m_ElTorito.AddBootImageFloppy(szFullPath,bBootable);
 	}
 
-	bool CDiscImageWriter::AddBootImageHardDisk(const TCHAR *szFullPath,bool bBootable)
+	bool CDiscImageWriter::AddBootImageHardDisk(const ckcore::tchar *szFullPath,bool bBootable)
 	{
 		return m_ElTorito.AddBootImageHardDisk(szFullPath,bBootable);
 	}

@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "Iso9660.h"
-#include "../../Common/StringUtil.h"
+#include <ckcore/string.hh>
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
@@ -137,7 +136,7 @@ namespace ckFileSystem
 		return ulSectors;
 	}
 
-	unsigned long BytesToSector(unsigned __int64 uiBytes)
+	unsigned long BytesToSector(ckcore::tuint64 uiBytes)
 	{
 		if (uiBytes == 0)
 			return 0;
@@ -153,12 +152,12 @@ namespace ckFileSystem
 		return ulSectors;
 	}
 
-	unsigned __int64 BytesToSector64(unsigned __int64 uiBytes)
+	ckcore::tuint64 BytesToSector64(ckcore::tuint64 uiBytes)
 	{
 		if (uiBytes == 0)
 			return 0;
 
-		unsigned __int64 uiSectors = 1;
+		ckcore::tuint64 uiSectors = 1;
 
 		while (uiBytes > ISO9660_SECTOR_SIZE)
 		{
@@ -169,47 +168,70 @@ namespace ckFileSystem
 		return uiSectors;
 	}
 
-	void MakeDateTime(SYSTEMTIME &st,tVolDescDateTime &DateTime)
+	void MakeDateTime(struct tm &Time,tVolDescDateTime &DateTime)
 	{
 		char szBuffer[5];
-		sprintf(szBuffer,"%.4u",st.wYear);
+		sprintf(szBuffer,"%.4u",Time.tm_year + 1900);
 		memcpy(&DateTime.uiYear,szBuffer,4);
 
-		sprintf(szBuffer,"%.2u",st.wMonth);
+		sprintf(szBuffer,"%.2u",Time.tm_mon + 1);
 		memcpy(&DateTime.usMonth,szBuffer,2);
 
-		sprintf(szBuffer,"%.2u",st.wDay);
+		sprintf(szBuffer,"%.2u",Time.tm_mday);
 		memcpy(&DateTime.usDay,szBuffer,2);
 
-		sprintf(szBuffer,"%.2u",st.wHour);
+		sprintf(szBuffer,"%.2u",Time.tm_hour);
 		memcpy(&DateTime.usHour,szBuffer,2);
 
-		sprintf(szBuffer,"%.2u",st.wMinute);
+		sprintf(szBuffer,"%.2u",Time.tm_min);
 		memcpy(&DateTime.usMinute,szBuffer,2);
 
-		sprintf(szBuffer,"%.2u",st.wSecond);
+        if (Time.tm_sec > 59)
+            sprintf(szBuffer,"%.2u",59);
+        else
+            sprintf(szBuffer,"%.2u",Time.tm_sec);
 		memcpy(&DateTime.usSecond,szBuffer,2);
 
-		sprintf(szBuffer,"%.2u",st.wMilliseconds/10);
+		sprintf(szBuffer,"%.2u",0);
 		memcpy(&DateTime.usHundreds,szBuffer,2);
 
+#ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
 		DateTime.ucZone = -(unsigned char)(tzi.Bias/15);
+#else
+        // FIXME: Add support for Unix time zone information.
+        DateTime.ucZone = 0;
+#endif
 	}
 
-	void MakeDateTime(SYSTEMTIME &st,tDirRecordDateTime &DateTime)
+	void MakeDateTime(struct tm &Time,tDirRecordDateTime &DateTime)
 	{
-		DateTime.ucYear = (unsigned char)(st.wYear - 1900);
-		DateTime.ucMonth = (unsigned char)st.wMonth;
-		DateTime.ucDay = (unsigned char)st.wDay;
-		DateTime.ucHour = (unsigned char)st.wHour;
-		DateTime.ucMinute = (unsigned char)st.wMinute;
-		DateTime.ucSecond = (unsigned char)st.wSecond;
+unsigned char ucYear;       // Number of years since 1900.
+        unsigned char ucMonth;      // Month of the year from 1 to 12.
+        unsigned char ucDay;        // Day of the month from 1 to 31.
+        unsigned char ucHour;       // Hour of the day from 0 to 23.
+        unsigned char ucMinute;     // Minute of the hour from 0 to 59.
+        unsigned char ucSecond;     // Second of the minute from 0 to 59.
+        unsigned char ucZone;       // Offset from Greenwich Mean Time in number of
+                                    // 15 min intervals from -48 (West) to + 52 (East)
+                                    // recorded according to 7.1.2.
 
+		DateTime.ucYear = (unsigned char)Time.tm_year;
+		DateTime.ucMonth = (unsigned char)Time.tm_mon + 1;
+		DateTime.ucDay = (unsigned char)Time.tm_mday;
+		DateTime.ucHour = (unsigned char)Time.tm_hour;
+		DateTime.ucMinute = (unsigned char)Time.tm_min;
+        DateTime.ucSecond = Time.tm_sec > 59 ? 59 : (unsigned char)Time.tm_sec;
+
+#ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
 		DateTime.ucZone = -(unsigned char)(tzi.Bias/15);
+#else
+        // FIXME: Add support for Unix time zone information.
+        DateTime.ucZone = 0;
+#endif
 	}
 
 	void MakeDateTime(unsigned short usDate,unsigned short usTime,tDirRecordDateTime &DateTime)
@@ -221,9 +243,14 @@ namespace ckFileSystem
 		DateTime.ucMinute = (usTime >> 5) & 0x3F;
 		DateTime.ucSecond = (usTime & 0x1F) << 1;
 
+#ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
 		DateTime.ucZone = -(unsigned char)(tzi.Bias/15);
+#else
+        // FIXME: Add support for Unix time zone information.
+        DateTime.ucZone = 0;
+#endif
 	}
 
 	void MakeDosDateTime(tDirRecordDateTime &DateTime,unsigned short &usDate,unsigned short &usTime)
@@ -282,6 +309,22 @@ namespace ckFileSystem
 		return '_';
 	}
 
+    /*
+     * Fins the last specified delimiter in the specified string.
+     */
+    int CIso9660::LastDelimiterA(const char *szString,char cDelimiter)
+    {    
+        int iLength = (int)strlen(szString);
+
+        for (int i = iLength - 1; i >= 0; i--)
+        {
+            if (szString[i] == cDelimiter)
+                return i;
+        }
+
+        return -1;
+    }
+
 	/*
 		Performs a memory copy from szSource to szTarget, all characters
 		in szTarget will be A-characters.
@@ -308,9 +351,9 @@ namespace ckFileSystem
 		 - A file extension of at most 3 characters.
 		 - A file name of at most 8 characters.
 	*/
-	unsigned char CIso9660::WriteFileNameL1(unsigned char *pOutBuffer,const TCHAR *szFileName)
+	unsigned char CIso9660::WriteFileNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
 	{
-		int iFileNameLen = (int)lstrlen(szFileName);
+		int iFileNameLen = (int)ckcore::string::astrlen(szFileName);
 		unsigned char ucLength = 0;
 
 		char *szMultiFileName;
@@ -358,10 +401,10 @@ namespace ckFileSystem
 		return ucLength;
 	}
 
-	unsigned char CIso9660::WriteFileNameGeneric(unsigned char *pOutBuffer,const TCHAR *szFileName,
+	unsigned char CIso9660::WriteFileNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,
 												 int iMaxLen)
 	{
-		int iFileNameLen = (int)lstrlen(szFileName);
+		int iFileNameLen = (int)ckcore::string::astrlen(szFileName);
 		unsigned char ucLength = 0;
 
 	#ifdef UNICODE
@@ -412,19 +455,19 @@ namespace ckFileSystem
 		Converts the input file name to a valid ISO level 2 and above file name. This means:
 		 - A maximum of 31 characters.
 	*/
-	unsigned char CIso9660::WriteFileNameL2(unsigned char *pOutBuffer,const TCHAR *szFileName)
+	unsigned char CIso9660::WriteFileNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
 	{
 		return WriteFileNameGeneric(pOutBuffer,szFileName,31);
 	}
 
-	unsigned char CIso9660::WriteFileName1999(unsigned char *pOutBuffer,const TCHAR *szFileName)
+	unsigned char CIso9660::WriteFileName1999(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
 	{
 		return WriteFileNameGeneric(pOutBuffer,szFileName,ISO9660_MAX_NAMELEN_1999);
 	}
 
-	unsigned char CIso9660::WriteDirNameL1(unsigned char *pOutBuffer,const TCHAR *szDirName)
+	unsigned char CIso9660::WriteDirNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szDirName)
 	{
-		int iDirNameLen = (int)lstrlen(szDirName);
+		int iDirNameLen = (int)ckcore::string::astrlen(szDirName);
 		int iMax = iDirNameLen < 8 ? iDirNameLen : 8;
 
 	#ifdef UNICODE
@@ -446,10 +489,10 @@ namespace ckFileSystem
 		return iMax;
 	}
 
-	unsigned char CIso9660::WriteDirNameGeneric(unsigned char *pOutBuffer,const TCHAR *szDirName,
+	unsigned char CIso9660::WriteDirNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szDirName,
 												int iMaxLen)
 	{
-		int iDirNameLen = (int)lstrlen(szDirName);
+		int iDirNameLen = (int)ckcore::string::astrlen(szDirName);
 		int iMax = iDirNameLen < iMaxLen ? iDirNameLen : iMaxLen;
 
 	#ifdef UNICODE
@@ -471,61 +514,61 @@ namespace ckFileSystem
 		return iMax;
 	}
 
-	unsigned char CIso9660::WriteDirNameL2(unsigned char *pOutBuffer,const TCHAR *szDirName)
+	unsigned char CIso9660::WriteDirNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szDirName)
 	{
 		return WriteDirNameGeneric(pOutBuffer,szDirName,31);
 	}
 
-	unsigned char CIso9660::WriteDirName1999(unsigned char *pOutBuffer,const TCHAR *szDirName)
+	unsigned char CIso9660::WriteDirName1999(unsigned char *pOutBuffer,const ckcore::tchar *szDirName)
 	{
 		return WriteDirNameGeneric(pOutBuffer,szDirName,ISO9660_MAX_NAMELEN_1999);
 	}
 
-	unsigned char CIso9660::CalcFileNameLenL1(const TCHAR *szFileName)
+	unsigned char CIso9660::CalcFileNameLenL1(const ckcore::tchar *szFileName)
 	{
 		unsigned char szTempBuffer[13];
 		return WriteFileNameL1(szTempBuffer,szFileName);
 	}
 
-	unsigned char CIso9660::CalcFileNameLenL2(const TCHAR *szFileName)
+	unsigned char CIso9660::CalcFileNameLenL2(const ckcore::tchar *szFileName)
 	{
-		size_t iFileNameLen = lstrlen(szFileName);
+		size_t iFileNameLen = ckcore::string::astrlen(szFileName);
 		if (iFileNameLen < 31)
 			return (unsigned char)iFileNameLen;
 
 		return 31;
 	}
 
-	unsigned char CIso9660::CalcFileNameLen1999(const TCHAR *szFileName)
+	unsigned char CIso9660::CalcFileNameLen1999(const ckcore::tchar *szFileName)
 	{
-		size_t iFileNameLen = lstrlen(szFileName);
+		size_t iFileNameLen = ckcore::string::astrlen(szFileName);
 		if (iFileNameLen < ISO9660_MAX_NAMELEN_1999)
 			return (unsigned char)iFileNameLen;
 
 		return ISO9660_MAX_NAMELEN_1999;
 	}
 
-	unsigned char CIso9660::CalcDirNameLenL1(const TCHAR *szDirName)
+	unsigned char CIso9660::CalcDirNameLenL1(const ckcore::tchar *szDirName)
 	{
-		size_t iDirNameLen = lstrlen(szDirName);
+		size_t iDirNameLen = ckcore::string::astrlen(szDirName);
 		if (iDirNameLen < 8)
 			return (unsigned char)iDirNameLen;
 
 		return 8;
 	}
 
-	unsigned char CIso9660::CalcDirNameLenL2(const TCHAR *szDirName)
+	unsigned char CIso9660::CalcDirNameLenL2(const ckcore::tchar *szDirName)
 	{
-		size_t iDirNameLen = lstrlen(szDirName);
+		size_t iDirNameLen = ckcore::string::astrlen(szDirName);
 		if (iDirNameLen < 31)
 			return (unsigned char)iDirNameLen;
 
 		return 31;
 	}
 
-	unsigned char CIso9660::CalcDirNameLen1999(const TCHAR *szDirName)
+	unsigned char CIso9660::CalcDirNameLen1999(const ckcore::tchar *szDirName)
 	{
-		size_t iDirNameLen = lstrlen(szDirName);
+		size_t iDirNameLen = ckcore::string::astrlen(szDirName);
 		if (iDirNameLen < ISO9660_MAX_NAMELEN_1999)
 			return (unsigned char)iDirNameLen;
 
@@ -577,9 +620,9 @@ namespace ckFileSystem
 		memcpy(m_VolDescSetTerm.ucIdentifier,g_IdentCD,sizeof(m_VolDescSetTerm.ucIdentifier));
 	}
 
-	void CIso9660::SetVolumeLabel(const TCHAR *szLabel)
+	void CIso9660::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
-		size_t iLabelLen = lstrlen(szLabel);
+		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iLabelCopyLen = iLabelLen < 32 ? iLabelLen : 32;
 
 		memset(m_VolDescPrimary.ucVolIdentifier,0x20,sizeof(m_VolDescPrimary.ucVolIdentifier));
@@ -593,13 +636,13 @@ namespace ckFileSystem
 	#endif
 	}
 
-	void CIso9660::SetTextFields(const TCHAR *szSystem,const TCHAR *szVolSetIdent,
-								 const TCHAR *szPublIdent,const TCHAR *szPrepIdent)
+	void CIso9660::SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
+								 const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent)
 	{
-		size_t iSystemLen = lstrlen(szSystem);
-		size_t iVolSetIdentLen = lstrlen(szVolSetIdent);
-		size_t iPublIdentLen = lstrlen(szPublIdent);
-		size_t iPrepIdentLen = lstrlen(szPrepIdent);
+		size_t iSystemLen = ckcore::string::astrlen(szSystem);
+		size_t iVolSetIdentLen = ckcore::string::astrlen(szVolSetIdent);
+		size_t iPublIdentLen = ckcore::string::astrlen(szPublIdent);
+		size_t iPrepIdentLen = ckcore::string::astrlen(szPrepIdent);
 
 		size_t iSystemCopyLen = iSystemLen < 32 ? iSystemLen : 32;
 		size_t iVolSetIdentCopyLen = iVolSetIdentLen < 128 ? iVolSetIdentLen : 128;
@@ -634,13 +677,13 @@ namespace ckFileSystem
 	#endif
 	}
 
-	void CIso9660::SetFileFields(const TCHAR *szCopyFileIdent,
-								 const TCHAR *szAbstFileIdent,
-								 const TCHAR *szBiblFileIdent)
+	void CIso9660::SetFileFields(const ckcore::tchar *szCopyFileIdent,
+								 const ckcore::tchar *szAbstFileIdent,
+								 const ckcore::tchar *szBiblFileIdent)
 	{
-		size_t iCopyFileIdentLen = lstrlen(szCopyFileIdent);
-		size_t iAbstFileIdentLen = lstrlen(szAbstFileIdent);
-		size_t iBiblFileIdentLen = lstrlen(szBiblFileIdent);
+		size_t iCopyFileIdentLen = ckcore::string::astrlen(szCopyFileIdent);
+		size_t iAbstFileIdentLen = ckcore::string::astrlen(szAbstFileIdent);
+		size_t iBiblFileIdentLen = ckcore::string::astrlen(szBiblFileIdent);
 
 		size_t iCopyFileIdentCopyLen = iCopyFileIdentLen < 37 ? iCopyFileIdentLen : 37;
 		size_t iAbstFileIdentCopyLen = iAbstFileIdentLen < 37 ? iAbstFileIdentLen : 37;
@@ -684,7 +727,7 @@ namespace ckFileSystem
 		m_bIncFileVerInfo = bIncludeInfo;
 	}
 
-	bool CIso9660::WriteVolDescPrimary(ckcore::OutStream *pOutStream,SYSTEMTIME &stImageCreate,
+	bool CIso9660::WriteVolDescPrimary(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -702,9 +745,9 @@ namespace ckFileSystem
 		Write723(m_VolDescPrimary.RootDirRecord.ucVolSeqNumber,1);	// The file extent is on the first volume set.
 
 		// Time information.
-		MakeDateTime(stImageCreate,m_VolDescPrimary.RootDirRecord.RecDateTime);
+		MakeDateTime(ImageCreate,m_VolDescPrimary.RootDirRecord.RecDateTime);
 
-		MakeDateTime(stImageCreate,m_VolDescPrimary.CreateDateTime);
+		MakeDateTime(ImageCreate,m_VolDescPrimary.CreateDateTime);
 		memcpy(&m_VolDescPrimary.ModDateTime,&m_VolDescPrimary.CreateDateTime,sizeof(tVolDescDateTime));
 
 		memset(&m_VolDescPrimary.ExpDateTime,'0',sizeof(tVolDescDateTime));
@@ -722,7 +765,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660::WriteVolDescSuppl(ckcore::OutStream *pOutStream,SYSTEMTIME &stImageCreate,
+	bool CIso9660::WriteVolDescSuppl(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -752,9 +795,9 @@ namespace ckFileSystem
 			Write723(SupplDesc.RootDirRecord.ucVolSeqNumber,1);	// The file extent is on the first volume set.
 
 			// Time information.
-			MakeDateTime(stImageCreate,SupplDesc.RootDirRecord.RecDateTime);
+			MakeDateTime(ImageCreate,SupplDesc.RootDirRecord.RecDateTime);
 
-			MakeDateTime(stImageCreate,SupplDesc.CreateDateTime);
+			MakeDateTime(ImageCreate,SupplDesc.CreateDateTime);
 			memcpy(&SupplDesc.ModDateTime,&SupplDesc.CreateDateTime,sizeof(tVolDescDateTime));
 
 			memset(&SupplDesc.ExpDateTime,'0',sizeof(tVolDescDateTime));
@@ -787,7 +830,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	unsigned char CIso9660::WriteFileName(unsigned char *pOutBuffer,const TCHAR *szFileName,bool bIsDir)
+	unsigned char CIso9660::WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir)
 	{
 		switch (m_InterLevel)
 		{
@@ -847,7 +890,7 @@ namespace ckFileSystem
 		@param bIsDir if true, szFileName is assumed to be a directory name.
 		@return the length of the compatible file name.
 	*/
-	unsigned char CIso9660::CalcFileNameLen(const TCHAR *szFileName,bool bIsDir)
+	unsigned char CIso9660::CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir)
 	{
 		switch (m_InterLevel)
 		{

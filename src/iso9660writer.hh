@@ -18,13 +18,15 @@
 
 #pragma once
 #include <string>
-#include "../../Common/StringUtil.h"
-#include "SectorManager.h"
-#include "FileSet.h"
-#include "FileTree.h"
-#include "Iso9660.h"
-#include "Joliet.h"
-#include "ElTorito.h"
+#include <ckcore/types.hh>
+#include <ckcore/log.hh>
+#include "const.hh"
+#include "sectormanager.hh"
+#include "fileset.hh"
+#include "filetree.hh"
+#include "iso9660.hh"
+#include "joliet.hh"
+#include "eltorito.hh"
 
 #define ISO9660WRITER_FILENAME_BUFFER_SIZE		206			// Must be enough to hold the largest possible string using
 															// any of the supported file system extensions.
@@ -78,7 +80,7 @@ namespace ckFileSystem
 			TYPE_PARENT
 		};
 
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 		CSectorOutStream *m_pOutStream;
 		CSectorManager *m_pSectorManager;
 
@@ -92,27 +94,27 @@ namespace ckFileSystem
 		bool m_bUseFileTimes;
 
 		// Sizes of different structures.
-		unsigned __int64 m_uiPathTableSizeNormal;
-		unsigned __int64 m_uiPathTableSizeJoliet;
+		ckcore::tuint64 m_uiPathTableSizeNormal;
+		ckcore::tuint64 m_uiPathTableSizeJoliet;
 
 		// The time when this object was created.
-		SYSTEMTIME m_stImageCreate;
+		struct tm m_ImageCreate;
 
 		// File system preparation functions.
 		void MakeUniqueJoliet(CFileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
 		void MakeUniqueIso9660(CFileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
 
-		bool CompareStrings(const char *szString1,const TCHAR *szString2,unsigned char ucLength);
-		bool CompareStrings(const unsigned char *pWideString1,const TCHAR *szString2,unsigned char ucLength);
+		bool CompareStrings(const char *szString1,const ckcore::tchar *szString2,unsigned char ucLength);
+		bool CompareStrings(const unsigned char *pWideString1,const ckcore::tchar *szString2,unsigned char ucLength);
 
 		bool CalcPathTableSize(CFileSet &Files,bool bJolietTable,
-			unsigned __int64 &uiPathTableSize,ckcore::Progress &Progress);
+			ckcore::tuint64 &uiPathTableSize,ckcore::Progress &Progress);
 		bool CalcLocalDirEntryLength(CFileTreeNode *pLocalNode,bool bJoliet,int iLevel,
 			unsigned long &ulDirLength);
 		bool CalcLocalDirEntriesLength(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-			CFileTreeNode *pLocalNode,int iLevel,unsigned __int64 &uiSecOffset,ckcore::Progress &Progress);
+			CFileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress);
 		bool CalcDirEntriesLength(CFileTree &FileTree,ckcore::Progress &Progress,
-			unsigned __int64 uiStartSector,unsigned __int64 &uiLength);
+			ckcore::tuint64 uiStartSector,ckcore::tuint64 &uiLength);
 
 		// Write functions.
 		bool WritePathTable(CFileSet &Files,CFileTree &FileTree,bool bJolietTable,
@@ -125,7 +127,7 @@ namespace ckFileSystem
 			ckcore::Progress &Progress,CFileTreeNode *pLocalNode,int iLevel);
 
 	public:
-		CIso9660Writer(CLog *pLog,CSectorOutStream *pOutStream,
+		CIso9660Writer(ckcore::Log *pLog,CSectorOutStream *pOutStream,
 			CSectorManager *pSectorManager,CIso9660 *pIso9660,CJoliet *pJoliet,
 			CElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet);
 		~CIso9660Writer();

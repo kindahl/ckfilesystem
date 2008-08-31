@@ -18,7 +18,8 @@
 
 #pragma once
 #include <vector>
-#include "filestream.hh"
+#include <ckcore/types.hh>
+#include <ckcore/filestream.hh>
 
 #define IFO_INDETIFIER_VMG				"DVDVIDEO-VMG"
 #define IFO_INDETIFIER_VTS				"DVDVIDEO-VTS"
@@ -64,7 +65,7 @@ namespace ckFileSystem
 
 	public:
 
-		CIfoReader(const TCHAR *szFullPath);
+		CIfoReader(const ckcore::tchar *szFullPath);
 		~CIfoReader();
 
 		bool Open();

@@ -17,8 +17,9 @@
  */
 
 #pragma once
-#include "stream.hh"
-#include "crcstream.hh"
+#include <ckcore/types.hh>
+#include <ckcore/stream.hh>
+#include <ckcore/crcstream.hh>
 
 #define UDF_SECTOR_SIZE							2048
 #define UDF_UNIQUEIDENT_MIN						16
@@ -335,7 +336,7 @@ namespace ckFileSystem
 
 	typedef struct	// ISO 13346 4/14.15.
 	{
-		unsigned __int64 uiUniqueIdent;
+		ckcore::tuint64 uiUniqueIdent;
 		unsigned char ucReserved1[24];
 	} tUdfLogicalVolHeaderDesc;
 
@@ -439,15 +440,15 @@ namespace ckFileSystem
 		unsigned char ucRecFormat;
 		unsigned char ucRecDispAttr;
 		unsigned long ulRecLen;
-		unsigned __int64 uiInfoLen;
-		unsigned __int64 uiLogicalBlocksRecorded;
+		ckcore::tuint64 uiInfoLen;
+		ckcore::tuint64 uiLogicalBlocksRecorded;
 		tUdfTimeStamp AccessTime;
 		tUdfTimeStamp ModificationTime;
 		tUdfTimeStamp AttributeTime;
 		unsigned long ulCheckpoint;
 		tUdfLongAllocDesc ExtendedAttrIcb;
 		tUdfEntityIdent ImplIdent;
-		unsigned __int64 uiUniqueIdent;
+		ckcore::tuint64 uiUniqueIdent;
 		unsigned long ulExtendedAttrLen;
 		unsigned long ulAllocDescLen;
 
@@ -663,7 +664,7 @@ namespace ckFileSystem
 		void MakeDateTime(struct tm &Time,tUdfTimeStamp &DateTime);
 		void MakeOsIdentifiers(unsigned char &ucOsClass,unsigned char &ucOsIdent);
 
-		unsigned char MakeFileIdent(unsigned char *pOutBuffer,const TCHAR *szFileName);
+		unsigned char MakeFileIdent(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
 
 		unsigned short MakeExtAddrChecksum(unsigned char *pBuffer);
 
@@ -672,7 +673,7 @@ namespace ckFileSystem
 		~CUdf();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const TCHAR *szLabel);
+		void SetVolumeLabel(const ckcore::tchar *szLabel);
 		void SetPartAccessType(ePartAccessType AccessType);
 
 		// Write functions.
@@ -690,7 +691,7 @@ namespace ckFileSystem
 		bool WriteVolDescTerm(ckcore::OutStream *pOutStream,unsigned long ulSecLocation);
 		bool WriteVolDescLogIntegrity(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 			unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
-			unsigned __int64 uiUniqueIdent,struct tm &ImageCreate);
+			ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate);
 		bool WriteAnchorVolDescPtr(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 			tUdfExtentAd &MainVolDescSeqExtent,tUdfExtentAd &ReserveVolDescSeqExtent);
 
@@ -699,15 +700,15 @@ namespace ckFileSystem
 		bool WriteFileIdentParent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 			unsigned long ulFileEntrySecLoc);
 		bool WriteFileIdent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
-			unsigned long ulFileEntrySecLoc,bool bIsDirectory,const TCHAR *szFileName);
+			unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName);
 		bool WriteFileEntry(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
-			bool bIsDirectory,unsigned short usFileLinkCount,unsigned __int64 uiUniqueIdent,
-			unsigned long ulInfoLocation,unsigned __int64 uiInfoLength,
+			bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
+			unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
 			struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime);
 
 		// Helper functions.
 		unsigned long CalcFileIdentParentSize();
-		unsigned long CalcFileIdentSize(const TCHAR *szFileName);
+		unsigned long CalcFileIdentSize(const ckcore::tchar *szFileName);
 		unsigned long CalcFileEntrySize();
 
 		unsigned long GetVolDescInitialSize();

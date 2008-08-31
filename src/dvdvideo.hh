@@ -17,11 +17,11 @@
  */
 
 #pragma once
-#include "../../Common/StringUtil.h"
-#include "../../Common/Log.h"
-#include "FileSet.h"
-#include "FileTree.h"
-#include "IfoReader.h"
+#include <ckcore/types.hh>
+#include <ckcore/log.hh>
+#include "fileset.hh"
+#include "filetree.hh"
+#include "iforeader.hh"
 
 #define DVDVIDEO_BLOCK_SIZE			2048
 
@@ -38,20 +38,20 @@ namespace ckFileSystem
 			FST_TITLE
 		};
 
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 
-		unsigned __int64 SizeToDvdLen(unsigned __int64 uiFileSize);
+		ckcore::tuint64 SizeToDvdLen(ckcore::tuint64 uiFileSize);
 
 		CFileTreeNode *FindVideoNode(CFileTree &FileTree,eFileSetType Type,unsigned long ulNumber);
 
-		bool GetTotalTitlesSize(tstring &FilePath,eFileSetType Type,unsigned long ulNumber,
-			unsigned __int64 &uiFileSize);
+		bool GetTotalTitlesSize(ckcore::tstring &FilePath,eFileSetType Type,unsigned long ulNumber,
+			ckcore::tuint64 &uiFileSize);
 		bool ReadFileSetInfoRoot(CFileTree &FileTree,CIfoVmgData &VmgData,
 			std::vector<unsigned long> &TitleSetSectors);
 		bool ReadFileSetInfo(CFileTree &FileTree,std::vector<unsigned long> &TitleSetSectors);
 
 	public:
-		CDvdVideo(CLog *pLog);
+		CDvdVideo(ckcore::Log *pLog);
 		~CDvdVideo();
 
 		bool PrintFilePadding(CFileTree &FileTree);

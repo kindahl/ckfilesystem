@@ -18,6 +18,7 @@
 
 #pragma once
 #include <map>
+#include <ckcore/types.hh>
 
 namespace ckFileSystem
 {
@@ -40,13 +41,13 @@ namespace ckFileSystem
 	class CDynStringTable
 	{
 	private:
-		std::map<eStrings,const TCHAR *> m_Strings;
+		std::map<eStrings,const ckcore::tchar *> m_Strings;
 
 	public:
 		CDynStringTable();
 
-		const TCHAR *GetString(eStrings StringID);
-		void SetString(eStrings StringID,const TCHAR *szString);
+		const ckcore::tchar *GetString(eStrings StringID);
+		void SetString(eStrings StringID,const ckcore::tchar *szString);
 	};
 
 	extern CDynStringTable g_StringTable;

@@ -18,9 +18,9 @@
 
 #pragma once
 #include <vector>
-#include "../../Common/StringUtil.h"
-#include "../../Common/Log.h"
-#include "FileSet.h"
+#include <ckcore/types.hh>
+#include <ckcore/log.hh>
+#include "fileset.hh"
 
 namespace ckFileSystem
 {
@@ -40,32 +40,32 @@ namespace ckFileSystem
 		};
 
 		unsigned char m_ucFileFlags;
-		unsigned __int64 m_uiFileSize;
-		tstring m_FileName;					// File name in disc image (requested name not actual, using ISO9660 may cripple the name).
-		tstring m_FileFullPath;				// Place on hard drive.
+		ckcore::tuint64 m_uiFileSize;
+		ckcore::tstring m_FileName;			// File name in disc image (requested name not actual, using ISO9660 may cripple the name).
+		ckcore::tstring m_FileFullPath;		// Place on hard drive.
 
 		// I am not sure this is the best way, this uses lots of memory.
 		std::string m_FileNameIso9660;
 		std::wstring m_FileNameJoliet;
 
 		// File system information (not set by the routines in this file).
-		unsigned __int64 m_uiDataPosNormal;	// Sector number of first sector containing data.
-		unsigned __int64 m_uiDataPosJoliet;
-		unsigned __int64 m_uiDataSizeNormal;// Data length in bytes.
-		unsigned __int64 m_uiDataSizeJoliet;
+		ckcore::tuint64 m_uiDataPosNormal;	// Sector number of first sector containing data.
+		ckcore::tuint64 m_uiDataPosJoliet;
+		ckcore::tuint64 m_uiDataSizeNormal;	// Data length in bytes.
+		ckcore::tuint64 m_uiDataSizeJoliet;
 
 		unsigned long m_ulDataPadLen;		// The number of sectors to pad with zeroes after the file.
 
 		// Sector size of UDF partition entry (all data) for an node and all it's children.
-		unsigned __int64 m_uiUdfSize;
-		unsigned __int64 m_uiUdfSizeTot;
-		unsigned __int64 m_uiUdfLinkTot;	// The number of directory links within the UDF file system.
+		ckcore::tuint64 m_uiUdfSize;
+		ckcore::tuint64 m_uiUdfSizeTot;
+		ckcore::tuint64 m_uiUdfLinkTot;		// The number of directory links within the UDF file system.
 		unsigned long m_ulUdfPartLoc;		// Where is the actual UDF file entry stored.
 
 		void *m_pData;						// Pointer to a user-defined structure, designed for CIso9660TreeNode
 
-		CFileTreeNode(CFileTreeNode *pParent,const TCHAR *szFileName,
-			const TCHAR *szFileFullPath,unsigned __int64 uiFileSize,
+		CFileTreeNode(CFileTreeNode *pParent,const ckcore::tchar *szFileName,
+			const ckcore::tchar *szFileFullPath,ckcore::tuint64 uiFileSize,
 			bool bLastFragment,unsigned long ulFragmentIndex,
 			unsigned char ucFileFlags = 0,void *pData = NULL)
 		{
@@ -109,25 +109,25 @@ namespace ckFileSystem
 	class CFileTree
 	{
 	private:
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 		CFileTreeNode *m_pRootNode;
 
 		// File tree information.
 		unsigned long m_ulDirCount;
 		unsigned long m_ulFileCount;
 
-		CFileTreeNode *GetChildFromFileName(CFileTreeNode *pParent,const TCHAR *szFileName);
+		CFileTreeNode *GetChildFromFileName(CFileTreeNode *pParent,const ckcore::tchar *szFileName);
 		bool AddFileFromPath(const CFileDescriptor &File);
 
 	public:
-		CFileTree(CLog *pLog);
+		CFileTree(ckcore::Log *pLog);
 		~CFileTree();
 
 		CFileTreeNode *GetRoot();
 		
 		bool CreateFromFileSet(const CFileSet &Files);
 		CFileTreeNode *GetNodeFromPath(const CFileDescriptor &File);
-		CFileTreeNode *GetNodeFromPath(const TCHAR *szInternalPath);
+		CFileTreeNode *GetNodeFromPath(const ckcore::tchar *szInternalPath);
 
 	#ifdef _DEBUG
 		void PrintLocalTree(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,

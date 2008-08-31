@@ -17,9 +17,10 @@
  */
 
 #pragma once
-#include "stream.hh"
-#include "bufferedstream.hh"
-#include "Iso9660.h"
+#include <ckcore/types.hh>
+#include <ckcore/stream.hh>
+#include <ckcore/bufferedstream.hh>
+#include "iso9660.hh"
 
 namespace ckFileSystem
 {
@@ -27,8 +28,8 @@ namespace ckFileSystem
 	{
 	private:
 		unsigned long m_ulSectorSize;
-		unsigned __int64 m_uiSector;
-		unsigned __int64 m_uiWritten;
+		ckcore::tuint64 m_uiSector;
+		ckcore::tuint64 m_uiWritten;
 
 	public:
 		CSectorOutStream(ckcore::OutStream &OutStream,
@@ -37,7 +38,7 @@ namespace ckFileSystem
 
 		ckcore::tint64 Write(void *pBuffer,ckcore::tuint32 uiCount);
 
-		unsigned __int64 GetSector();
+		ckcore::tuint64 GetSector();
 		unsigned long GetAllocated();
 		unsigned long GetRemaining();
 

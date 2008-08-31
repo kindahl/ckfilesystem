@@ -18,6 +18,8 @@
 
 #pragma once
 #include <set>
+#include <ckcore/types.hh>
+#include <ckcore/string.hh>
 
 namespace ckFileSystem
 {
@@ -33,8 +35,8 @@ namespace ckFileSystem
 			FLAG_IMPORTED = 0x02
 		};
 
-		CFileDescriptor(const TCHAR *szInternalPath,const TCHAR *szExternalPath,
-			unsigned __int64 uiFileSize,unsigned char ucFlags = 0,void *pData = NULL)
+		CFileDescriptor(const ckcore::tchar *szInternalPath,const ckcore::tchar *szExternalPath,
+			ckcore::tuint64 uiFileSize,unsigned char ucFlags = 0,void *pData = NULL)
 		{
 			m_ucFlags = ucFlags;
 			m_uiFileSize = uiFileSize;
@@ -44,9 +46,9 @@ namespace ckFileSystem
 		}
 
 		unsigned char m_ucFlags;
-		unsigned __int64 m_uiFileSize;
-		tstring m_InternalPath;			// Path in disc image.
-		tstring m_ExternalPath;			// Path on hard drive.
+		ckcore::tuint64 m_uiFileSize;
+		ckcore::tstring m_InternalPath;		// Path in disc image.
+		ckcore::tstring m_ExternalPath;		// Path on hard drive.
 
 		void *m_pData;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
 	};
@@ -63,55 +65,55 @@ namespace ckFileSystem
 			Returns a weight of the specified file name, a ligher file should
 			be placed heigher in the directory hierarchy.
 		*/
-		unsigned long GetFileWeight(const TCHAR *szFullPath) const
+		unsigned long GetFileWeight(const ckcore::tchar *szFullPath) const
 		{
 			unsigned long ulWeight = 0xFFFFFFFF;
 
 			// Quick test for optimization.
 			if (szFullPath[1] == 'V')
 			{
-				if (!lstrcmp(szFullPath,_T("/VIDEO_TS")))	// The VIDEO_TS folder should be first.
+				if (!ckcore::string::astrcmp(szFullPath,ckT("/VIDEOckTS")))	// The VIDEO_TS folder should be first.
 					ulWeight = 0;
-				else if (!lstrncmp(szFullPath,_T("/VIDEO_TS/"),10))
+				else if (!ckcore::string::astrncmp(szFullPath,ckT("/VIDEOckTS/"),10))
 				{
-					const TCHAR *szFileName = szFullPath + 10;
+					const ckcore::tchar *szFileName = szFullPath + 10;
 
-					if (!lstrncmp(szFileName,_T("VIDEO_TS"),8))
+					if (!ckcore::string::astrncmp(szFileName,ckT("VIDEOckTS"),8))
 					{
 						ulWeight -= 0x80000000;
 
-						const TCHAR *szFileExt = szFileName + 9;
-						if (!lstrcmp(szFileExt,_T("IFO")))
+						const ckcore::tchar *szFileExt = szFileName + 9;
+						if (!ckcore::string::astrcmp(szFileExt,ckT("IFO")))
 							ulWeight -= 3;
-						else if (!lstrcmp(szFileExt,_T("VOB")))
+						else if (!ckcore::string::astrcmp(szFileExt,ckT("VOB")))
 							ulWeight -= 2;
-						else if (!lstrcmp(szFileExt,_T("BUP")))
+						else if (!ckcore::string::astrcmp(szFileExt,ckT("BUP")))
 							ulWeight -= 1;
 					}
-					else if (!lstrncmp(szFileName,_T("VTS_"),4))
+					else if (!ckcore::string::astrncmp(szFileName,ckT("VTS_"),4))
 					{
 						ulWeight -= 0x40000000;
 
 						// Just a safety measure.
-						if (lstrlen(szFileName) < 64)
+						if (ckcore::string::astrlen(szFileName) < 64)
 						{
-							TCHAR szFileExt[64];
+							ckcore::tchar szFileExt[64];
 							unsigned long ulNum = 0,ulSubNum = 0;
 
-							if (lsscanf(szFileName,_T("VTS_%u_%u.%[^\0]"),&ulNum,&ulSubNum,szFileExt) == 3)
+							if (asscanf(szFileName,ckT("VTS_%u_%u.%[^\0]"),&ulNum,&ulSubNum,szFileExt) == 3)
 							{
 								// The first number is worth the most, the lower the lighter.
 								ulWeight -= 0xFFFFFF - (ulNum << 8);
 
-								if (!lstrcmp(szFileExt,_T("IFO")))
+								if (!ckcore::string::astrcmp(szFileExt,ckT("IFO")))
 								{
 									ulWeight -= 0xFF;
 								}
-								else if (!lstrcmp(szFileExt,_T("VOB")))
+								else if (!ckcore::string::astrcmp(szFileExt,ckT("VOB")))
 								{
 									ulWeight -= 0x0F - ulSubNum;
 								}
-								else if (!lstrcmp(szFileExt,_T("BUP")))
+								else if (!ckcore::string::astrcmp(szFileExt,ckT("BUP")))
 								{
 									ulWeight -= 1;
 								}
@@ -134,10 +136,10 @@ namespace ckFileSystem
 
 		static int Level(const CFileDescriptor &Item)
 		{
-			const TCHAR *szFullPath = Item.m_InternalPath.c_str();
+			const ckcore::tchar *szFullPath = Item.m_InternalPath.c_str();
 
 			int iLevel = 0;
-			for (size_t i = 0; i < (size_t)lstrlen(szFullPath); i++)
+			for (size_t i = 0; i < (size_t)ckcore::string::astrlen(szFullPath); i++)
 			{
 				if (szFullPath[i] == '/' || szFullPath[i] == '\\')
 					iLevel++;
@@ -171,7 +173,7 @@ namespace ckFileSystem
 			if (iLevelItem1 < iLevelItem2)
 				return true;
 			else if (iLevelItem1 == iLevelItem2)
-				return lstrcmp(Item1.m_InternalPath.c_str(),Item2.m_InternalPath.c_str()) < 0;
+				return ckcore::string::astrcmp(Item1.m_InternalPath.c_str(),Item2.m_InternalPath.c_str()) < 0;
 			else
 				return false;
 		}

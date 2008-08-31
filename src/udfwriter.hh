@@ -19,10 +19,12 @@
 #pragma once
 #include <vector>
 #include <deque>
-#include "SectorManager.h"
-#include "SectorStream.h"
-#include "FileTree.h"
-#include "Udf.h"
+#include <ckcore/log.hh>
+#include "const.hh"
+#include "sectormanager.hh"
+#include "sectorstream.hh"
+#include "filetree.hh"
+#include "udf.hh"
 
 namespace ckFileSystem
 {
@@ -37,7 +39,7 @@ namespace ckFileSystem
 			SR_FILESETCONTENTS
 		};
 
-		CLog *m_pLog;
+		ckcore::Log *m_pLog;
 		CSectorOutStream *m_pOutStream;
 		CSectorManager *m_pSectorManager;
 
@@ -48,7 +50,7 @@ namespace ckFileSystem
 		CUdf *m_pUdf;
 
 		// Sizes of different structures.
-		unsigned __int64 m_uiPartLength;
+		ckcore::tuint64 m_uiPartLength;
 		tUdfExtentAd m_MainVolDescSeqExtent;
 		tUdfExtentAd m_ReserveVolDescSeqExtent;
 
@@ -60,18 +62,18 @@ namespace ckFileSystem
 			CFileTreeNode *pLocalNode);
 		void CalcNodeLengths(CFileTree &FileTree);
 
-		unsigned __int64 CalcIdentSize(CFileTreeNode *pLocalNode);
-		unsigned __int64 CalcNodeSizeTotal(CFileTreeNode *pLocalNode);
-		unsigned __int64 CalcNodeLinksTotal(CFileTreeNode *pLocalNode);
-		unsigned __int64 CalcParitionLength(CFileTree &FileTree);
+		ckcore::tuint64 CalcIdentSize(CFileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcNodeSizeTotal(CFileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcNodeLinksTotal(CFileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcParitionLength(CFileTree &FileTree);
 
 		// Write functions.
 		bool WriteLocalParitionDir(std::deque<CFileTreeNode *> &DirNodeQueue,
-			CFileTreeNode *pLocalNode,unsigned long &ulCurPartSec,unsigned __int64 &uiUniqueIdent);
+			CFileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent);
 		bool WritePartitionEntries(CFileTree &FileTree);
 
 	public:
-		CUdfWriter(CLog *pLog,CSectorOutStream *pOutStream,
+		CUdfWriter(ckcore::Log *pLog,CSectorOutStream *pOutStream,
 			CSectorManager *pSectorManager,CUdf *pUdf,bool bUseFileTimes);
 		~CUdfWriter();
 

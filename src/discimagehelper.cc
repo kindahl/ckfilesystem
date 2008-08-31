@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "Iso9660Writer.h"
-#include "DiscImageHelper.h"
+#include "iso9660writer.hh"
+#include "discimagehelper.hh"
 
 namespace ckFileSystem
 {
@@ -41,7 +40,7 @@ namespace ckFileSystem
 
 	// Warning: This function duplicates some functionality in CUdf.
 	// szFileName is assumed to be at least as long as szReqFileName.
-	void CDiscImageHelper::CalcFileName(const TCHAR *szReqFileName,TCHAR *szFileName,bool bIsDir)
+	void CDiscImageHelper::CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir)
 	{
 		bool bUseIso = m_FileSystem != CDiscImageWriter::FS_UDF;
 		bool bUseUdf = m_FileSystem == CDiscImageWriter::FS_ISO9660_UDF ||
@@ -53,8 +52,8 @@ namespace ckFileSystem
 
 		if (bUseUdf)
 		{
-			size_t iNameLen = lstrlen(szFileName);
-			lstrncpy(szFileName,szReqFileName,iNameLen < (254 >> 1) ? iNameLen : (254 >> 1));		// One byte is reserved for compression descriptor.
+			size_t iNameLen = ckcore::string::astrlen(szFileName);
+			ckcore::string::astrncpy(szFileName,szReqFileName,iNameLen < (254 >> 1) ? iNameLen : (254 >> 1));		// One byte is reserved for compression descriptor.
 		}
 		else if (bUseJoliet)
 		{
@@ -81,12 +80,11 @@ namespace ckFileSystem
 
 			szWideFileName[ucLen] = '\0';
 
-			UnicodeToAnsi(szFileName,szWideFileName,ucLen);
+			ckcore::string::utf16_to_ansi(szWideFileName,szFileName,ucLen);
 #endif
 		}
 		else if (bUseIso)
 		{
-			//CalcFileNameLen
 #ifdef UNICODE
 			char szMultiFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
 			unsigned char ucLen = m_Iso9660.WriteFileName((unsigned char *)szMultiFileName,szReqFileName,bIsDir);
@@ -100,15 +98,15 @@ namespace ckFileSystem
 		}
 		else
 		{
-			lstrcpy(szFileName,szReqFileName);
+			ckcore::string::astrcpy(szFileName,szReqFileName);
 		}
 	}
 
-	void CDiscImageHelper::CalcFilePath(const TCHAR *szReqFilePath,tstring &FilePath)
+	void CDiscImageHelper::CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath)
 	{
-		size_t iDirPathLen = lstrlen(szReqFilePath),iPrevDelim = 0,iPos = 0;
-		tstring CurDirName;
-		TCHAR szFileNameBuffer[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+		size_t iDirPathLen = ckcore::string::astrlen(szReqFilePath),iPrevDelim = 0,iPos = 0;
+		ckcore::tstring CurDirName;
+		ckcore::tchar szFileNameBuffer[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
 
 		// Locate the first delimiter (so we can safely skip any driveletter).
 		for (size_t i = 0; i < iDirPathLen; i++)
@@ -141,7 +139,7 @@ namespace ckFileSystem
 						CurDirName.push_back(szReqFilePath[j]);
 
 					CalcFileName(CurDirName.c_str(),szFileNameBuffer,true);
-					FilePath.append(_T("/"));
+					FilePath.append(ckT("/"));
 					FilePath.append(szFileNameBuffer);
 				}
 
@@ -151,11 +149,11 @@ namespace ckFileSystem
 
 		CalcFileName(szReqFilePath + iPrevDelim + 1,szFileNameBuffer,false);
 
-		size_t iFileNameBufferLen = lstrlen(szFileNameBuffer);
+		size_t iFileNameBufferLen = ckcore::string::astrlen(szFileNameBuffer);
 		if (szFileNameBuffer[iFileNameBufferLen - 2] = ';')
 			szFileNameBuffer[iFileNameBufferLen - 2] = '\0';
 
-		FilePath.append(_T("/"));
+		FilePath.append(ckT("/"));
 		FilePath.append(szFileNameBuffer);
 	}
 };

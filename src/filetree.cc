@@ -16,12 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "FileTree.h"
+#include "filetree.hh"
 
 namespace ckFileSystem
 {
-	CFileTree::CFileTree(CLog *pLog) :
+	CFileTree::CFileTree(ckcore::Log *pLog) :
 		m_pLog(pLog),m_pRootNode(NULL)
 	{
 		m_ulDirCount = 0;
@@ -42,13 +41,13 @@ namespace ckFileSystem
 		return m_pRootNode;
 	}
 
-	CFileTreeNode *CFileTree::GetChildFromFileName(CFileTreeNode *pParent,const TCHAR *szFileName)
+	CFileTreeNode *CFileTree::GetChildFromFileName(CFileTreeNode *pParent,const ckcore::tchar *szFileName)
 	{
 		std::vector<CFileTreeNode *>::const_iterator itChild;
 		for (itChild = pParent->m_Children.begin(); itChild !=
 			pParent->m_Children.end(); itChild++)
 		{
-			if (!lstrcmp(szFileName,(*itChild)->m_FileName.c_str()))
+			if (!ckcore::string::astrcmp(szFileName,(*itChild)->m_FileName.c_str()))
 				return *itChild;
 		}
 
@@ -58,7 +57,7 @@ namespace ckFileSystem
 	bool CFileTree::AddFileFromPath(const CFileDescriptor &File)
 	{
 		size_t iDirPathLen = File.m_InternalPath.length(),iPrevDelim = 0,iPos;
-		tstring CurDirName;
+		ckcore::tstring CurDirName;
 		CFileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
@@ -77,7 +76,7 @@ namespace ckFileSystem
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
-						m_pLog->AddLine(_T("  Error: Unable to find child node \"%s\" in path \"%s\"."),
+						m_pLog->PrintLine(ckT("  Error: Unable to find child node \"%s\" in path \"%s\"."),
 							CurDirName.c_str(),File.m_InternalPath.c_str());
 						return false;
 					}
@@ -88,7 +87,7 @@ namespace ckFileSystem
 		}
 
 		// We now have our parent.
-		const TCHAR *szFileName = File.m_InternalPath.c_str() + iPrevDelim + 1;
+		const ckcore::tchar *szFileName = File.m_InternalPath.c_str() + iPrevDelim + 1;
 
 		// Check if imported.
 		unsigned char ucImportFlag = 0;
@@ -123,7 +122,7 @@ namespace ckFileSystem
 		if (m_pRootNode != NULL)
 			delete m_pRootNode;
 
-		m_pRootNode = new CFileTreeNode(NULL,_T(""),_T(""),0,true,0,
+		m_pRootNode = new CFileTreeNode(NULL,ckT(""),ckT(""),0,true,0,
 			CFileTreeNode::FLAG_DIRECTORY);
 
 		CFileSet::const_iterator itFile;
@@ -138,9 +137,9 @@ namespace ckFileSystem
 
 	CFileTreeNode *CFileTree::GetNodeFromPath(const CFileDescriptor &File)
 	{
-		//m_pLog->AddLine(_T("BEGIN: %s"),File.m_ExternalPath.c_str());
+		//m_pLog->PrintLine(ckT("BEGIN: %s"),File.m_ExternalPath.c_str());
 		size_t iDirPathLen = File.m_InternalPath.length(),iPrevDelim = 0,iPos;
-		tstring CurDirName;
+		ckcore::tstring CurDirName;
 		CFileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
@@ -157,7 +156,7 @@ namespace ckFileSystem
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
-						m_pLog->AddLine(_T("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
+						m_pLog->PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
 						return NULL;
 					}
 				}
@@ -167,16 +166,16 @@ namespace ckFileSystem
 		}
 
 		// We now have our parent.
-		const TCHAR *szFileName = File.m_InternalPath.c_str() + iPrevDelim + 1;
+		const ckcore::tchar *szFileName = File.m_InternalPath.c_str() + iPrevDelim + 1;
 
-		//m_pLog->AddLine(_T("  END: %s"),File.m_ExternalPath.c_str());
+		//m_pLog->PrintLine(ckT("  END: %s"),File.m_ExternalPath.c_str());
 		return GetChildFromFileName(pCurNode,szFileName);
 	}
 
-	CFileTreeNode *CFileTree::GetNodeFromPath(const TCHAR *szInternalPath)
+	CFileTreeNode *CFileTree::GetNodeFromPath(const ckcore::tchar *szInternalPath)
 	{
-		size_t iDirPathLen = lstrlen(szInternalPath),iPrevDelim = 0,iPos;
-		tstring CurDirName;
+		size_t iDirPathLen = ckcore::string::astrlen(szInternalPath),iPrevDelim = 0,iPos;
+		ckcore::tstring CurDirName;
 		CFileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
@@ -193,7 +192,7 @@ namespace ckFileSystem
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
-						m_pLog->AddLine(_T("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
+						m_pLog->PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
 						return NULL;
 					}
 				}
@@ -203,7 +202,7 @@ namespace ckFileSystem
 		}
 
 		// We now have our parent.
-		const TCHAR *szFileName = szInternalPath + iPrevDelim + 1;
+		const ckcore::tchar *szFileName = szInternalPath + iPrevDelim + 1;
 
 		return GetChildFromFileName(pCurNode,szFileName);
 	}
@@ -239,11 +238,11 @@ namespace ckFileSystem
 			else
 			{
 				for (int i = 0; i < iIndent; i++)
-					m_pLog->AddString(_T(" "));
+					m_pLog->Print(ckT(" "));
 
-				m_pLog->AddString(_T("<f>"));
-				m_pLog->AddString((*itFile)->m_FileName.c_str());
-				m_pLog->AddLine(_T(" (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),(*itFile)->m_uiDataPosNormal,
+				m_pLog->Print(ckT("<f>"));
+				m_pLog->Print((*itFile)->m_FileName.c_str());
+				m_pLog->PrintLine(ckT(" (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),(*itFile)->m_uiDataPosNormal,
 					(*itFile)->m_uiDataSizeNormal,(*itFile)->m_uiDataPosJoliet,
 					(*itFile)->m_uiDataSizeJoliet,(*itFile)->m_uiUdfSize,(*itFile)->m_uiUdfSizeTot);
 			}
@@ -258,8 +257,8 @@ namespace ckFileSystem
 		CFileTreeNode *pCurNode = m_pRootNode;
 		int iIndent = 0;
 
-		m_pLog->AddLine(_T("CFileTree::PrintTree"));
-		m_pLog->AddLine(_T("  <root> (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),pCurNode->m_uiDataPosNormal,
+		m_pLog->PrintLine(ckT("CFileTree::PrintTree"));
+		m_pLog->PrintLine(ckT("  <root> (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),pCurNode->m_uiDataPosNormal,
 				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
 				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
 
@@ -275,11 +274,11 @@ namespace ckFileSystem
 
 			// Print the directory name.
 			for (int i = 0; i < iIndent; i++)
-				m_pLog->AddString(_T(" "));
+				m_pLog->Print(ckT(" "));
 
-			m_pLog->AddString(_T("<d>"));
-			m_pLog->AddString(pCurNode->m_FileName.c_str());
-			m_pLog->AddLine(_T(" (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),pCurNode->m_uiDataPosNormal,
+			m_pLog->Print(ckT("<d>"));
+			m_pLog->Print(pCurNode->m_FileName.c_str());
+			m_pLog->PrintLine(ckT(" (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),pCurNode->m_uiDataPosNormal,
 				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
 				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
 

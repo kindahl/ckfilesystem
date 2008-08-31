@@ -16,14 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "stdafx.h"
-#include "convert.hh"
-#include "DvdVideo.h"
-#include "IfoReader.h"
+#include <ckcore/convert.hh>
+#include "dvdvideo.hh"
+#include "iforeader.hh"
 
 namespace ckFileSystem
 {
-	CIfoReader::CIfoReader(const TCHAR *szFullPath) : m_InStream(szFullPath)
+	CIfoReader::CIfoReader(const ckcore::tchar *szFullPath) : m_InStream(szFullPath)
 	{
 		m_IfoType = IT_UNKNOWN;
 	}

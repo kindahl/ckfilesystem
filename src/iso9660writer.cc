@@ -19,9 +19,9 @@
 #include <ckcore/file.hh>
 #include <ckcore/directory.hh>
 #include <ckcore/convert.hh>
-#include "stringtable.hh"
-#include "iso9660reader.hh"
-#include "iso9660writer.hh"
+#include "ckfilesystem/stringtable.hh"
+#include "ckfilesystem/iso9660reader.hh"
+#include "ckfilesystem/iso9660writer.hh"
 
 namespace ckFileSystem
 {

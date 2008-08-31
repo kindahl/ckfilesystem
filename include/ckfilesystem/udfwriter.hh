@@ -20,11 +20,11 @@
 #include <vector>
 #include <deque>
 #include <ckcore/log.hh>
-#include "const.hh"
-#include "sectormanager.hh"
-#include "sectorstream.hh"
-#include "filetree.hh"
-#include "udf.hh"
+#include "ckfilesystem/const.hh"
+#include "ckfilesystem/sectormanager.hh"
+#include "ckfilesystem/sectorstream.hh"
+#include "ckfilesystem/filetree.hh"
+#include "ckfilesystem/udf.hh"
 
 namespace ckFileSystem
 {

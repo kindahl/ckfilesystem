@@ -20,7 +20,7 @@
 #include <vector>
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
-#include "fileset.hh"
+#include "ckfilesystem/fileset.hh"
 
 namespace ckFileSystem
 {

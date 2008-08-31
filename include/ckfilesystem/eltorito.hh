@@ -21,7 +21,7 @@
 #include <vector>
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
-#include "sectorstream.hh"
+#include "ckfilesystem/sectorstream.hh"
 
 // Maximum values of unsigned short + 1 + the default boot image.
 #define ELTORITO_MAX_BOOTIMAGE_COUNT			0xFFFF + 2

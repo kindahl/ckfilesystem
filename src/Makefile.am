@@ -1,8 +1,21 @@
-EXTRA_DIST = discimagehelper.hh dvdvideo.hh fileset.hh iforeader.hh \
-			 iso9660reader.hh joliet.hh sectorstream.hh udf.hh \
-			 discimagewriter.hh eltorito.hh filetree.hh iso9660.hh \
-			 iso9660writer.hh sectormanager.hh stringtable.hh udfwriter.hh 
-
+EXTRA_DIST = ../include/ckfilesystem/const.hh \
+			 ../include/ckfilesystem/discimagehelper.hh \
+			 ../include/ckfilesystem/discimagewriter.hh \
+			 ../include/ckfilesystem/dvdvideo.hh \
+			 ../include/ckfilesystem/eltorito.hh \
+			 ../include/ckfilesystem/fileset.hh \
+			 ../include/ckfilesystem/filetree.hh \
+			 ../include/ckfilesystem/iforeader.hh \
+			 ../include/ckfilesystem/iso9660.hh \
+			 ../include/ckfilesystem/iso9660reader.hh \
+			 ../include/ckfilesystem/iso9660writer.hh \
+			 ../include/ckfilesystem/joliet.hh \
+			 ../include/ckfilesystem/sectormanager.hh \
+			 ../include/ckfilesystem/sectorstream.hh \
+			 ../include/ckfilesystem/stringtable.hh \
+			 ../include/ckfilesystem/udf.hh \
+			 ../include/ckfilesystem/udfwriter.hh 
+INCLUDES = -I../include
 lib_LTLIBRARIES = libckfilesystem.la
 
 libckfilesystem_la_SOURCES = discimagehelper.cc dvdvideo.cc filetree.cc \
@@ -12,9 +25,21 @@ libckfilesystem_la_SOURCES = discimagehelper.cc dvdvideo.cc filetree.cc \
 							 joliet.cc sectorstream.cc udf.cc
 
 library_includedir = $(includedir)/ckfilesystem
-library_include_HEADERS = discimagehelper.hh dvdvideo.hh fileset.hh \
-						  iforeader.hh iso9660reader.hh joliet.hh \
-						  sectorstream.hh udf.hh discimagewriter.hh \
-						  eltorito.hh filetree.hh iso9660.hh iso9660writer.hh \
-						  sectormanager.hh stringtable.hh udfwriter.hh
+library_include_HEADERS = ../include/ckfilesystem/const.hh \
+						  ../include/ckfilesystem/discimagehelper.hh \
+						  ../include/ckfilesystem/discimagewriter.hh \
+						  ../include/ckfilesystem/dvdvideo.hh \
+						  ../include/ckfilesystem/eltorito.hh \
+						  ../include/ckfilesystem/fileset.hh \
+						  ../include/ckfilesystem/filetree.hh \
+						  ../include/ckfilesystem/iforeader.hh \
+						  ../include/ckfilesystem/iso9660.hh \
+						  ../include/ckfilesystem/iso9660reader.hh \
+						  ../include/ckfilesystem/iso9660writer.hh \
+						  ../include/ckfilesystem/joliet.hh \
+						  ../include/ckfilesystem/sectormanager.hh \
+						  ../include/ckfilesystem/sectorstream.hh \
+						  ../include/ckfilesystem/stringtable.hh \
+						  ../include/ckfilesystem/udf.hh \
+						  ../include/ckfilesystem/udfwriter.hh
 

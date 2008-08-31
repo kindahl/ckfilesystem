@@ -17,8 +17,8 @@
  */
 
 #include <ckcore/filestream.hh>
-#include "eltorito.hh"
-#include "iso9660.hh"
+#include "ckfilesystem/eltorito.hh"
+#include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
 {

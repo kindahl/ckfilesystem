@@ -20,13 +20,13 @@
 #include <string>
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
-#include "const.hh"
-#include "sectormanager.hh"
-#include "fileset.hh"
-#include "filetree.hh"
-#include "iso9660.hh"
-#include "joliet.hh"
-#include "eltorito.hh"
+#include "ckfilesystem/const.hh"
+#include "ckfilesystem/sectormanager.hh"
+#include "ckfilesystem/fileset.hh"
+#include "ckfilesystem/filetree.hh"
+#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/joliet.hh"
+#include "ckfilesystem/eltorito.hh"
 
 #define ISO9660WRITER_FILENAME_BUFFER_SIZE		206			// Must be enough to hold the largest possible string using
 															// any of the supported file system extensions.

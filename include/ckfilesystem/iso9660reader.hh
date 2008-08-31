@@ -21,7 +21,7 @@
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
 #include <ckcore/stream.hh>
-#include "iso9660.hh"
+#include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
 {

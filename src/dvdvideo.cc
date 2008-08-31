@@ -18,8 +18,8 @@
 
 #include <algorithm>
 #include <ckcore/convert.hh>
-#include "dvdvideo.hh"
-#include "iforeader.hh"
+#include "ckfilesystem/dvdvideo.hh"
+#include "ckfilesystem/iforeader.hh"
 
 namespace ckFileSystem
 {

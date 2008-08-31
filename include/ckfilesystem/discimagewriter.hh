@@ -25,13 +25,13 @@
 #include <ckcore/types.hh>
 #include <ckcore/progress.hh>
 #include <ckcore/log.hh>
-#include "fileset.hh"
-#include "filetree.hh"
-#include "sectorstream.hh"
-#include "iso9660.hh"
-#include "joliet.hh"
-#include "eltorito.hh"
-#include "udf.hh"
+#include "ckfilesystem/fileset.hh"
+#include "ckfilesystem/filetree.hh"
+#include "ckfilesystem/sectorstream.hh"
+#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/joliet.hh"
+#include "ckfilesystem/eltorito.hh"
+#include "ckfilesystem/udf.hh"
 
 namespace ckFileSystem
 {

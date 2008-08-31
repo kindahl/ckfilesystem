@@ -17,7 +17,7 @@
  */
 
 #include <ckcore/string.hh>
-#include "iso9660.hh"
+#include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
 {

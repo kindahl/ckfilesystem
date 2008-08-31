@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "iso9660writer.hh"
-#include "discimagehelper.hh"
+#include "ckfilesystem/iso9660writer.hh"
+#include "ckfilesystem/discimagehelper.hh"
 
 namespace ckFileSystem
 {

@@ -17,12 +17,12 @@
  */
 
 #include <ckcore/string.hh>
-#include "stringtable.hh"
-#include "sectormanager.hh"
-#include "iso9660writer.hh"
-#include "udfwriter.hh"
-#include "dvdvideo.hh"
-#include "discimagewriter.hh"
+#include "ckfilesystem/stringtable.hh"
+#include "ckfilesystem/sectormanager.hh"
+#include "ckfilesystem/iso9660writer.hh"
+#include "ckfilesystem/udfwriter.hh"
+#include "ckfilesystem/dvdvideo.hh"
+#include "ckfilesystem/discimagewriter.hh"
 
 namespace ckFileSystem
 {

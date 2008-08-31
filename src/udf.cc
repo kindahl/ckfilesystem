@@ -17,8 +17,8 @@
  */
 
 #include <ckcore/string.hh>
-#include "udf.hh"
-#include "iso9660.hh"
+#include "ckfilesystem/udf.hh"
+#include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
 {

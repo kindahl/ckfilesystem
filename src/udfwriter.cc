@@ -19,8 +19,8 @@
 #include <time.h>
 #include <ckcore/file.hh>
 #include <ckcore/directory.hh>
-#include "udfwriter.hh"
-#include "iso9660.hh"
+#include "ckfilesystem/udfwriter.hh"
+#include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
 {

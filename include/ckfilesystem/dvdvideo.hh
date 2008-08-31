@@ -19,9 +19,9 @@
 #pragma once
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
-#include "fileset.hh"
-#include "filetree.hh"
-#include "iforeader.hh"
+#include "ckfilesystem/fileset.hh"
+#include "ckfilesystem/filetree.hh"
+#include "ckfilesystem/iforeader.hh"
 
 #define DVDVIDEO_BLOCK_SIZE			2048
 

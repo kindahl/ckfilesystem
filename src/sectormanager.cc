@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "sectormanager.hh"
-#include "iso9660.hh"
+#include "ckfilesystem/sectormanager.hh"
+#include "ckfilesystem/iso9660.hh"
 
 namespace ckFileSystem
 {

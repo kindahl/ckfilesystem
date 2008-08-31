@@ -18,30 +18,26 @@
 
 #pragma once
 #include <ckcore/types.hh>
-#include <ckcore/stream.hh>
-#include <ckcore/bufferedstream.hh>
-#include "iso9660.hh"
+#include "ckfilesystem/discimagewriter.hh"
+#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/joliet.hh"
 
 namespace ckFileSystem
 {
-	class CSectorOutStream : public ckcore::BufferedOutStream
+	class CDiscImageHelper
 	{
 	private:
-		unsigned long m_ulSectorSize;
-		ckcore::tuint64 m_uiSector;
-		ckcore::tuint64 m_uiWritten;
+		CDiscImageWriter::eFileSystem m_FileSystem;
+
+		CJoliet m_Joliet;
+		CIso9660 m_Iso9660;
 
 	public:
-		CSectorOutStream(ckcore::OutStream &OutStream,
-			unsigned long ulSectorSize = ISO9660_SECTOR_SIZE);
-		~CSectorOutStream();
+		CDiscImageHelper(CDiscImageWriter::eFileSystem FileSystem,
+			bool bIncludeInfo,bool bLongJolietNames,CIso9660::eInterLevel InterLevel);
+		~CDiscImageHelper();
 
-		ckcore::tint64 Write(void *pBuffer,ckcore::tuint32 uiCount);
-
-		ckcore::tuint64 GetSector();
-		unsigned long GetAllocated();
-		unsigned long GetRemaining();
-
-		void PadSector();
+		void CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir);
+		void CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath);
 	};
 };

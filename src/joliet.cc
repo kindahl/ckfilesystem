@@ -17,7 +17,7 @@
  */
 
 #include <ckcore/string.hh>
-#include "joliet.hh"
+#include "ckfilesystem/joliet.hh"
 
 namespace ckFileSystem
 {

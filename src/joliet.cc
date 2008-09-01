@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2006-2008 Christian Kindahl, christian dot kindahl at gmail dot com
- *
- * This program is free software; you can redistribute it and/or modify
+ * The ckFileSystem library provides file system functionality.
+ * Copyright (C) 2006-2008 Christian Kindahl
+ * 
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <ckcore/string.hh>
@@ -69,7 +69,7 @@ namespace ckFileSystem
 	{
 		size_t iSourcePos = 0;
 
-		for (size_t i = 0; i < iSize; i += 2)
+		for (size_t i = 0; i < iSize; i += sizeof(wchar_t))
 		{
 			wchar_t cSafe = MakeChar(szSource[iSourcePos++]);
 
@@ -173,7 +173,7 @@ namespace ckFileSystem
 
 		EmptyStrBuffer(m_VolDescSuppl.ucVolIdentifier,sizeof(m_VolDescSuppl.ucVolIdentifier));
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		MemStrCopy(m_VolDescSuppl.ucVolIdentifier,szLabel,iLabelCopyLen * sizeof(ckcore::tchar));
 	#else
 		wchar_t szWideLabel[17];
@@ -200,12 +200,11 @@ namespace ckFileSystem
 		EmptyStrBuffer(m_VolDescSuppl.ucPublIdentifier,sizeof(m_VolDescSuppl.ucPublIdentifier));
 		EmptyStrBuffer(m_VolDescSuppl.ucPrepIdentifier,sizeof(m_VolDescSuppl.ucPrepIdentifier));
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szSystem,iSystemCopyLen * sizeof(ckcore::tchar));
 		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szVolSetIdent,iVolSetIdentCopyLen * sizeof(ckcore::tchar));
 		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szPublIdent,iPublIdentCopyLen * sizeof(ckcore::tchar));
 		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szPrepIdent,iPrepIdentCopyLen * sizeof(ckcore::tchar));
-		
 	#else
 		wchar_t szWideSystem[17];
 		wchar_t szWideVolSetIdent[65];
@@ -217,10 +216,10 @@ namespace ckFileSystem
 		ckcore::string::ansi_to_utf16(szPublIdent,szWidePublIdent,sizeof(szWidePublIdent) / sizeof(wchar_t));
 		ckcore::string::ansi_to_utf16(szPrepIdent,szWidePrepIdent,sizeof(szWidePrepIdent) / sizeof(wchar_t));
 
-		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szWideSystem,iSystemCopyLen * sizeof(ckcore::tchar));
-		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szWideVolSetIdent,iVolSetIdentCopyLen * sizeof(ckcore::tchar));
-		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szWidePublIdent,iPublIdentCopyLen * sizeof(ckcore::tchar));
-		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szWidePrepIdent,iPrepIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szWideSystem,iSystemCopyLen * sizeof(wchar_t));
+		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szWideVolSetIdent,iVolSetIdentCopyLen * sizeof(wchar_t));
+		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szWidePublIdent,iPublIdentCopyLen * sizeof(wchar_t));
+		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szWidePrepIdent,iPrepIdentCopyLen * sizeof(wchar_t));
 	#endif
 	}
 
@@ -240,7 +239,7 @@ namespace ckFileSystem
 		EmptyStrBuffer(m_VolDescSuppl.ucAbstFileIdentifier,sizeof(m_VolDescSuppl.ucAbstFileIdentifier));
 		EmptyStrBuffer(m_VolDescSuppl.ucBiblFileIdentifier,sizeof(m_VolDescSuppl.ucBiblFileIdentifier));
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szCopyFileIdent,iCopyFileIdentCopyLen * sizeof(ckcore::tchar));
 		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szAbstFileIdent,iAbstFileIdentCopyLen * sizeof(ckcore::tchar));
 		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szBiblFileIdent,iBiblFileIdentCopyLen * sizeof(ckcore::tchar));
@@ -253,9 +252,9 @@ namespace ckFileSystem
 		ckcore::string::ansi_to_utf16(szAbstFileIdent,szWideAbstFileIdent,sizeof(szWideAbstFileIdent) / sizeof(wchar_t));
 		ckcore::string::ansi_to_utf16(szBiblFileIdent,szWideBiblFileIdent,sizeof(szWideBiblFileIdent) / sizeof(wchar_t));
 
-		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szWideCopyFileIdent,iCopyFileIdentCopyLen * sizeof(ckcore::tchar));
-		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szWideAbstFileIdent,iAbstFileIdentCopyLen * sizeof(ckcore::tchar));
-		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szWideBiblFileIdent,iBiblFileIdentCopyLen * sizeof(ckcore::tchar));
+		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szWideCopyFileIdent,iCopyFileIdentCopyLen * sizeof(wchar_t));
+		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szWideAbstFileIdent,iAbstFileIdentCopyLen * sizeof(wchar_t));
+		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szWideBiblFileIdent,iBiblFileIdentCopyLen * sizeof(wchar_t));
 	#endif
 	}
 
@@ -273,80 +272,8 @@ namespace ckFileSystem
 	}
 
 	unsigned char CJoliet::WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir)
-	{/*
-#ifndef UNICODE
-		wchar_t szWideFileName[JOLIET_MAX_NAMELEN_RELAXED + 1];
-		AnsiToUnicode(szWideFileName,szFileName,sizeof(szWideFileName) / sizeof(wchar_t));
-#endif
-
-		int iFileNameLen = (int)ckcore::string::astrlen(szFileName),iMax = 0;
-
-		if (iFileNameLen > m_iMaxNameLen)
-		{
-			int iExtDelimiter = LastDelimiter(szFileName,'.');
-			if (iExtDelimiter != -1)
-			{
-				int iExtLen = (int)iFileNameLen - iExtDelimiter - 1;
-				if (iExtLen > m_iMaxNameLen - 1)	// The file can at most contain an extension of length m_iMaxNameLen - 1 characters.
-					iExtLen = m_iMaxNameLen - 1;
-
-				// Copy the file name.
-				iMax = iExtDelimiter < (m_iMaxNameLen - iExtLen) ? iExtDelimiter : (m_iMaxNameLen - 1 - iExtLen);
-#ifdef UNICODE
-				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(ckcore::tchar));
-#else
-				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(ckcore::tchar));
-#endif
-
-				int iOutPos = iMax << 1;
-				pOutBuffer[iOutPos++] = 0x00;
-				pOutBuffer[iOutPos++] = '.';
-
-				// Copy the extension.
-#ifdef UNICODE
-				MemStrCopy(pOutBuffer + iOutPos,szFileName + iExtDelimiter + 1,iExtLen * sizeof(ckcore::tchar));
-#else
-				MemStrCopy(pOutBuffer + iOutPos,szWideFileName + iExtDelimiter + 1,iExtLen * sizeof(ckcore::tchar));
-#endif
-
-				iMax = m_iMaxNameLen;
-			}
-			else
-			{
-				iMax = m_iMaxNameLen;
-
-#ifdef UNICODE
-				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(ckcore::tchar));
-#else
-				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(ckcore::tchar));
-#endif
-			}
-		}
-		else
-		{
-			iMax = iFileNameLen;
-
-#ifdef UNICODE
-				MemStrCopy(pOutBuffer,szFileName,iMax * sizeof(ckcore::tchar));
-#else
-				MemStrCopy(pOutBuffer,szWideFileName,iMax * sizeof(ckcore::tchar));
-#endif
-		}
-
-		if (!bIsDir && m_bIncFileVerInfo)
-		{
-			int iOutPos = iMax << 1;
-			pOutBuffer[iOutPos + 0] = 0x00;
-			pOutBuffer[iOutPos + 1] = ';';
-			pOutBuffer[iOutPos + 2] = 0x00;
-			pOutBuffer[iOutPos + 3] = '1';
-
-			iMax += 2;
-		}
-
-		return iMax;*/
-
-#ifndef UNICODE
+	{
+#ifndef _UNICODE
 		wchar_t szWideFileName[JOLIET_MAX_NAMELEN_RELAXED + 1];
 		ckcore::string::ansi_to_utf16(szFileName,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 #else

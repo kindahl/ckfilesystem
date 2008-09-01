@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2006-2008 Christian Kindahl, christian dot kindahl at gmail dot com
- *
- * This program is free software; you can redistribute it and/or modify
+ * The ckFileSystem library provides file system functionality.
+ * Copyright (C) 2006-2008 Christian Kindahl
+ * 
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <ckcore/string.hh>
@@ -350,7 +350,7 @@ namespace ckFileSystem
 		unsigned char ucLength = 0;
 
 		char *szMultiFileName;
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		szMultiFileName = new char [iFileNameLen + 1];
 		ckcore::string::utf16_to_ansi(szFileName,szMultiFileName,iFileNameLen + 1);
 	#else
@@ -387,7 +387,7 @@ namespace ckFileSystem
 			pOutBuffer[ucLength] = '\0';
 		}
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		delete [] szMultiFileName;
 	#endif
 
@@ -400,7 +400,7 @@ namespace ckFileSystem
 		int iFileNameLen = (int)ckcore::string::astrlen(szFileName);
 		unsigned char ucLength = 0;
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		char *szMultiFileName = new char [iFileNameLen + 1];
 		ckcore::string::utf16_to_ansi(szFileName,szMultiFileName,iFileNameLen + 1);
 	#else
@@ -437,7 +437,7 @@ namespace ckFileSystem
 			pOutBuffer[ucLength] = '\0';
 		}
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		delete [] szMultiFileName;
 	#endif
 
@@ -463,7 +463,7 @@ namespace ckFileSystem
 		int iDirNameLen = (int)ckcore::string::astrlen(szDirName);
 		int iMax = iDirNameLen < 8 ? iDirNameLen : 8;
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		char *szMultiDirName = new char [iDirNameLen + 1];
 		ckcore::string::utf16_to_ansi(szDirName,szMultiDirName,iDirNameLen + 1);
 	#else
@@ -475,7 +475,7 @@ namespace ckFileSystem
 			
 		pOutBuffer[iMax] = '\0';
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		delete [] szMultiDirName;
 	#endif
 
@@ -488,7 +488,7 @@ namespace ckFileSystem
 		int iDirNameLen = (int)ckcore::string::astrlen(szDirName);
 		int iMax = iDirNameLen < iMaxLen ? iDirNameLen : iMaxLen;
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		char *szMultiDirName = new char [iDirNameLen + 1];
 		ckcore::string::utf16_to_ansi(szDirName,szMultiDirName,iDirNameLen + 1);
 	#else
@@ -500,7 +500,7 @@ namespace ckFileSystem
 			
 		pOutBuffer[iMax] = '\0';
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		delete [] szMultiDirName;
 	#endif
 
@@ -620,7 +620,7 @@ namespace ckFileSystem
 
 		memset(m_VolDescPrimary.ucVolIdentifier,0x20,sizeof(m_VolDescPrimary.ucVolIdentifier));
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		char szMultiLabel[33];
 		ckcore::string::utf16_to_ansi(szLabel,szMultiLabel,sizeof(szMultiLabel));
 		MemStrCopyD(m_VolDescPrimary.ucVolIdentifier,szMultiLabel,iLabelCopyLen);
@@ -647,7 +647,7 @@ namespace ckFileSystem
 		memset(m_VolDescPrimary.ucPublIdentifier,0x20,sizeof(m_VolDescPrimary.ucPublIdentifier));
 		memset(m_VolDescPrimary.ucPrepIdentifier,0x20,sizeof(m_VolDescPrimary.ucPrepIdentifier));
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		char szMultiSystem[33];
 		char szMultiVolSetIdent[129];
 		char szMultiPublIdent[129];
@@ -686,7 +686,7 @@ namespace ckFileSystem
 		memset(m_VolDescPrimary.ucAbstFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucAbstFileIdentifier));
 		memset(m_VolDescPrimary.ucBiblFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucBiblFileIdentifier));
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		char szMultiCopyFileIdent[38];
 		char szMultiAbstFileIdent[38];
 		char szMultiBiblFileIdent[38];

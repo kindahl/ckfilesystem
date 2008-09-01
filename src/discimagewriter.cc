@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2006-2008 Christian Kindahl, christian dot kindahl at gmail dot com
- *
- * This program is free software; you can redistribute it and/or modify
+ * The ckFileSystem library provides file system functionality.
+ * Copyright (C) 2006-2008 Christian Kindahl
+ * 
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <ckcore/string.hh>
@@ -170,47 +170,6 @@ namespace ckFileSystem
 			return RESULT_FAIL;
 		}
 
-		/*char szBuffer[DISCIMAGEWRITER_IO_BUFFER_SIZE];
-		ckcore::tint64 iProcessed = 0;
-
-		ckcore::tuint64 uiReadSize = 0;
-		while (uiReadSize < pNode->m_uiFileSize)
-		{
-			// Check if we should abort.
-			if (Progress.Cancelled())
-				return RESULT_CANCEL;
-
-			iProcessed = FileStream.Read(szBuffer,DISCIMAGEWRITER_IO_BUFFER_SIZE);
-			if (iProcessed == -1)
-			{
-				m_pLog->PrintLine(ckT("  Error: Unable read file: %s."),pNode->m_FileFullPath.c_str());
-				return RESULT_FAIL;
-			}
-
-			if (iProcessed == 0)
-			{
-				// We may have a problem. The file size may have changed since specied in file list.
-				m_pLog->PrintLine(ckT("  Error: File size missmatch on \"%s\". Reported size %I64d bytes versus actual size %I64d bytes."),
-					pNode->m_FileFullPath.c_str(),pNode->m_uiFileSize,uiReadSize);
-				return RESULT_FAIL;
-			}
-
-			uiReadSize += iProcessed;
-
-			// Check if we should abort.
-			if (Progress.Cancelled())
-				return RESULT_CANCEL;
-
-			iProcessed = OutStream.Write(szBuffer,(ckcore::tuint32)iProcessed);
-			if (iProcessed == -1)
-			{
-				m_pLog->PrintLine(ckT("  Error: Unable write to disc image."));
-				return RESULT_FAIL;
-			}
-
-			Progress.SetProgress(FilesProgress.UpdateProcessed((unsigned long)iProcessed));
-		}*/
-
 		if (!ckcore::stream::copy(FileStream,OutStream,FileProgresser))
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable write file to disc image."));
@@ -311,7 +270,7 @@ namespace ckFileSystem
 			// Joliet or ISO9660?
 			if (bJoliet)
 			{
-#ifdef UNICODE
+#ifdef _UNICODE
 				if (pChildNode->m_FileNameJoliet[pChildNode->m_FileNameJoliet.length() - 2] == ';')
 					NodePath.append(pChildNode->m_FileNameJoliet,0,pChildNode->m_FileNameJoliet.length() - 2);
 				else
@@ -328,7 +287,7 @@ namespace ckFileSystem
 			}
 			else
 			{
-#ifdef UNICODE
+#ifdef _UNICODE
 				wchar_t szWideName[MAX_PATH];
 				ckcore::string::ansi_to_utf16(pChildNode->m_FileNameIso9660.c_str(),szWideName,
 											  sizeof(szWideName)/sizeof(wchar_t));
@@ -358,7 +317,7 @@ namespace ckFileSystem
 				// Joliet or ISO9660?
 				if (bJoliet)
 				{
-	#ifdef UNICODE
+	#ifdef _UNICODE
 					if (pCurNode->m_FileNameJoliet[pCurNode->m_FileNameJoliet.length() - 2] == ';')
 					{
 						std::wstring::iterator itEnd = pCurNode->m_FileNameJoliet.end();
@@ -384,7 +343,7 @@ namespace ckFileSystem
 				}
 				else
 				{
-	#ifdef UNICODE
+	#ifdef _UNICODE
 					wchar_t szWideName[MAX_PATH];
 					ckcore::string::ansi_to_utf16(pCurNode->m_FileNameIso9660.c_str(),szWideName,
 												  sizeof(szWideName)/sizeof(wchar_t));

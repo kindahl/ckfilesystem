@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2006-2008 Christian Kindahl, christian dot kindahl at gmail dot com
- *
- * This program is free software; you can redistribute it and/or modify
+ * The ckFileSystem library provides file system functionality.
+ * Copyright (C) 2006-2008 Christian Kindahl
+ * 
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifdef _WINDOWS
@@ -139,7 +139,7 @@ namespace ckFileSystem
 		compression ID is invalid.
 	*/
 	size_t CUdf::CompressUnicodeStr(size_t iNumChars,unsigned char ucCompID,
-		const unsigned short *pInString,unsigned char *pOutString)
+		const wchar_t *pInString,unsigned char *pOutString)
 	{
 		if (ucCompID != 8 && ucCompID != 16)
 			return -1;
@@ -286,7 +286,7 @@ namespace ckFileSystem
 		memset(pVolSetIdent,0,iVolSetIdentSize);
 
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(16,
-			UDF_COMPRESSION_BYTE,(const unsigned short *)szGeneratedIdent,pVolSetIdent);
+			UDF_COMPRESSION_BYTE,szGeneratedIdent,pVolSetIdent);
 
 		pVolSetIdent[iVolSetIdentSize - 1] = ucByteLen;
 	}
@@ -329,15 +329,15 @@ namespace ckFileSystem
 		// DVD-Video should use 8 bits to represent one character.
 		unsigned char ucStrComp = m_bDvdVideo ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iCopyLen,ucStrComp,
-			(const unsigned short *)szFileName,pOutBuffer);
+			szFileName,pOutBuffer);
 	#else
 		wchar_t szWideFileName[125];
 		ckcore::string::ansi_to_utf16(szFileName,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iCopyLen,ucStrComp,
-			(const unsigned short *)szWideFileName,pOutBuffer);
+			szWideFileName,pOutBuffer);
 	#endif
 		return ucByteLen;
 	}
@@ -418,26 +418,26 @@ namespace ckFileSystem
 		// DVD-Video should use 8 bits to represent one character.
 		unsigned char ucStrComp = m_bDvdVideo ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
 
-	#ifdef UNICODE
+	#ifdef _UNICODE
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iPrimaryCopyLen,ucStrComp,
-			(const unsigned short *)szLabel,m_PrimVolDesc.ucVolIdentifier);
+			szLabel,m_PrimVolDesc.ucVolIdentifier);
 		m_PrimVolDesc.ucVolIdentifier[31] = ucByteLen;
 
 		ucByteLen = (unsigned char)CompressUnicodeStr(iLogicalCopyLen,ucStrComp,
-			(const unsigned short *)szLabel,m_LogicalVolDesc.ucLogicalVolIdent);
+			szLabel,m_LogicalVolDesc.ucLogicalVolIdent);
 		m_LogicalVolDesc.ucLogicalVolIdent[127] = ucByteLen;
 	#else
 		wchar_t szWidePrimaryLabel[17];
 		ckcore::string::ansi_to_utf16(szLabel,szWidePrimaryLabel,sizeof(szWidePrimaryLabel) / sizeof(wchar_t));
 
 		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iPrimaryCopyLen,ucStrComp,
-			(const unsigned short *)szWidePrimaryLabel,m_PrimVolDesc.ucVolIdentifier);
+			szWidePrimaryLabel,m_PrimVolDesc.ucVolIdentifier);
 		m_PrimVolDesc.ucVolIdentifier[31] = ucByteLen;
 
 		wchar_t szWideLogicalLabel[17];
 		ckcore::string::ansi_to_utf16(szLabel,szWideLogicalLabel,sizeof(szWideLogicalLabel) / sizeof(wchar_t));
 		ucByteLen = (unsigned char)CompressUnicodeStr(iLogicalCopyLen,ucStrComp,
-			(const unsigned short *)szWideLogicalLabel,m_LogicalVolDesc.ucLogicalVolIdent);
+			szWideLogicalLabel,m_LogicalVolDesc.ucLogicalVolIdent);
 		m_LogicalVolDesc.ucLogicalVolIdent[127] = ucByteLen;
 	#endif
 	}

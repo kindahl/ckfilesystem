@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2006-2008 Christian Kindahl, christian dot kindahl at gmail dot com
- *
- * This program is free software; you can redistribute it and/or modify
+ * The ckFileSystem library provides file system functionality.
+ * Copyright (C) 2006-2008 Christian Kindahl
+ * 
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <time.h>
@@ -289,7 +289,7 @@ namespace ckFileSystem
 	bool CIso9660Writer::CompareStrings(const char *szString1,const ckcore::tchar *szString2,unsigned char ucLength)
 	{
 #ifdef _WINDOWS
-#ifdef UNICODE
+#ifdef _UNICODE
 		for (unsigned char i = 0; i < ucLength; i++)
 			if (toupper(szString1[i]) != toupper(szString2[i]))
 				return false;
@@ -305,7 +305,7 @@ namespace ckFileSystem
 
 	bool CIso9660Writer::CompareStrings(const unsigned char *pWideString1,const ckcore::tchar *szString2,unsigned char ucLength)
 	{
-#ifdef UNICODE
+#ifdef _UNICODE
 		unsigned char ucFileNamePos = 0;
 		for (unsigned int i = 0; i < ucLength; i++)
 		{
@@ -488,7 +488,7 @@ namespace ckFileSystem
 
 				if (CompareStrings(szFileName,(*itFile)->m_FileName.c_str(),ucFileNameEnd))
 				{
-#ifdef UNICODE
+#ifdef _UNICODE
 					(*itFile)->m_FileNameJoliet = (*itFile)->m_FileName;
 
 					if (!bIsFolder && m_pJoliet->IncludesFileVerInfo())

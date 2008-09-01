@@ -88,16 +88,16 @@ namespace ckFileSystem
 
 	CUdf::CUdf(bool bDvdVideo) : m_CrcStream(ckcore::CrcStream::ckCRC_CCITT),m_bDvdVideo(bDvdVideo)
 	{
-		InitVolDescPrimary();
-		InitVolDescPartition();
-		InitVolDescLogical();
-
 		// Intialize the byte buffer.
 		m_pByteBuffer = NULL;
 		m_ulByteBufferSize = 0;
 
 		// Default parition type is read only.
 		m_PartAccessType = AT_READONLY;
+
+		InitVolDescPrimary();
+		InitVolDescPartition();
+		InitVolDescLogical();
 	}
 
 	CUdf::~CUdf()

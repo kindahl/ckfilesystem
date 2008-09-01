@@ -341,20 +341,32 @@ namespace ckFileSystem
 
 		if (m_uiPartLength > 0xFFFFFFFF)
 		{
-			m_pLog->PrintLine(ckT("  Error: UDF partition is too large (%I64d sectors)."),m_uiPartLength);
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT("  Error: UDF partition is too large (%I64u sectors)."),m_uiPartLength);
+#else
+			m_pLog->PrintLine(ckT("  Error: UDF partition is too large (%llu sectors)."),m_uiPartLength);
+#endif
 			return RESULT_FAIL;
 		}
 
 		if (m_pSectorManager->GetStart(this,SR_MAINDESCRIPTORS) > 0xFFFFFFFF)
 		{
+#ifdef _WINDOWS
 			m_pLog->PrintLine(ckT("  Error: Error during sector space allocation. Start of UDF main descriptors %I64d."),
+#else
+			m_pLog->PrintLine(ckT("  Error: Error during sector space allocation. Start of UDF main descriptors %lld."),
+#endif
 				m_pSectorManager->GetStart(this,SR_MAINDESCRIPTORS));
 			return RESULT_FAIL;
 		}
 
 		if (m_pSectorManager->GetDataLength() > 0xFFFFFFFF)
 		{
+#ifdef _WINDOWS
 			m_pLog->PrintLine(ckT("  Error: File data too large (%I64d sectors) for UDF."),m_pSectorManager->GetDataLength());
+#else
+			m_pLog->PrintLine(ckT("  Error: File data too large (%lld sectors) for UDF."),m_pSectorManager->GetDataLength());
+#endif
 			return RESULT_FAIL;
 		}
 
@@ -487,7 +499,11 @@ namespace ckFileSystem
 			m_pSectorManager->GetDataLength();
 		if (uiLastDataSector > 0xFFFFFFFF)
 		{
+#ifdef _WINDOWS
 			m_pLog->PrintLine(ckT("  Error: File data too large, last data sector is %I64d."),uiLastDataSector);
+#else
+			m_pLog->PrintLine(ckT("  Error: File data too large, last data sector is %lld."),uiLastDataSector);
+#endif
 			return RESULT_FAIL;
 		}
 

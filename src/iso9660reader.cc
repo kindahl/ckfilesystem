@@ -401,7 +401,11 @@ namespace ckFileSystem
 		int iIndent = 0;
 
 		m_pLog->PrintLine(ckT("CIso9660Reader::PrintTree"));
-		m_pLog->PrintLine(ckT("  <root> (%I64d:%I64d)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+#ifdef _WINDOWS
+		m_pLog->PrintLine(ckT("  <root> (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+#else
+		m_pLog->PrintLine(ckT("  <root> (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+#endif
 
 		std::vector<std::pair<CIso9660TreeNode *,int> > DirNodeStack;
 		PrintLocalTree(DirNodeStack,pCurNode,4);
@@ -419,7 +423,11 @@ namespace ckFileSystem
 
 			m_pLog->Print(ckT("<d>"));
 			m_pLog->Print(pCurNode->m_FileName.c_str());
-			m_pLog->PrintLine(ckT(" (%I64d:%I64d)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT(" (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+#else
+			m_pLog->PrintLine(ckT(" (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+#endif
 
 			PrintLocalTree(DirNodeStack,pCurNode,iIndent + 2);
 		}

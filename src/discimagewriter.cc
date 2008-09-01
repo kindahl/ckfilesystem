@@ -215,7 +215,11 @@ namespace ckFileSystem
 				switch (WriteFileNode(OutStream,*itFile,FileProgresser))
 				{
 					case RESULT_FAIL:
-						m_pLog->PrintLine(ckT("  Error: Unable to write node \"%s\" to (%I64d,%I64d)."),
+#ifdef _WINDOWS
+						m_pLog->PrintLine(ckT("  Error: Unable to write node \"%s\" to (%I64u,%I64u)."),
+#else
+						m_pLog->PrintLine(ckT("  Error: Unable to write node \"%s\" to (%llu,%llu)."),
+#endif
 							(*itFile)->m_FileName.c_str(),(*itFile)->m_uiDataPosNormal,(*itFile)->m_uiDataSizeNormal);
 						return RESULT_FAIL;
 

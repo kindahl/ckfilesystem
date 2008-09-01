@@ -187,7 +187,11 @@ namespace ckFileSystem
 
 		if (uiInfoLength > 0xFFFFFFFF)
 		{
-			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%I64d blocks)."),uiInfoLength);
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%I64u blocks)."),uiInfoLength);
+#else
+			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%llu blocks)."),uiInfoLength);
+#endif 
 			return false;
 		}
 
@@ -202,7 +206,11 @@ namespace ckFileSystem
 
 			if (uiMenuLength > 0xFFFFFFFF)
 			{
-				m_pLog->PrintLine(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%I64d blocks)."),uiMenuLength);
+#ifdef _WINDOWS
+				m_pLog->PrintLine(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%I64u blocks)."),uiMenuLength);
+#else
+				m_pLog->PrintLine(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%lld blocks)."),uiMenuLength);
+#endif
 				return false;
 			}
 
@@ -218,7 +226,11 @@ namespace ckFileSystem
 
 		if (uiBupLength > 0xFFFFFFFF)
 		{
-			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%I64d blocks)."),uiBupLength);
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%I64u blocks)."),uiBupLength);
+#else
+			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%llu blocks)."),uiBupLength);
+#endif
 			return false;
 		}
 

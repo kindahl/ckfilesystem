@@ -242,7 +242,11 @@ namespace ckFileSystem
 
 				m_pLog->Print(ckT("<f>"));
 				m_pLog->Print((*itFile)->m_FileName.c_str());
-				m_pLog->PrintLine(ckT(" (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),(*itFile)->m_uiDataPosNormal,
+#ifdef _WINDOWS
+				m_pLog->PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*itFile)->m_uiDataPosNormal,
+#else
+				m_pLog->PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),(*itFile)->m_uiDataPosNormal,
+#endif
 					(*itFile)->m_uiDataSizeNormal,(*itFile)->m_uiDataPosJoliet,
 					(*itFile)->m_uiDataSizeJoliet,(*itFile)->m_uiUdfSize,(*itFile)->m_uiUdfSizeTot);
 			}
@@ -258,7 +262,11 @@ namespace ckFileSystem
 		int iIndent = 0;
 
 		m_pLog->PrintLine(ckT("CFileTree::PrintTree"));
-		m_pLog->PrintLine(ckT("  <root> (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),pCurNode->m_uiDataPosNormal,
+#ifdef _WINDOWS
+		m_pLog->PrintLine(ckT("  <root> (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
+#else
+		m_pLog->PrintLine(ckT("  <root> (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
+#endif
 				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
 				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
 
@@ -278,7 +286,11 @@ namespace ckFileSystem
 
 			m_pLog->Print(ckT("<d>"));
 			m_pLog->Print(pCurNode->m_FileName.c_str());
-			m_pLog->PrintLine(ckT(" (%I64d:%I64d,%I64d:%I64d,%I64d:%I64d)"),pCurNode->m_uiDataPosNormal,
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
+#else
+			m_pLog->PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
+#endif
 				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
 				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
 

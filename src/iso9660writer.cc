@@ -884,7 +884,11 @@ namespace ckFileSystem
 
 		if (m_uiPathTableSizeNormal > 0xFFFFFFFF || m_uiPathTableSizeJoliet > 0xFFFFFFFF)
 		{
-			m_pLog->PrintLine(ckT("  Error: The path table is too large, %I64d and %I64d bytes."),
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT("  Error: The path table is too large, %I64u and %I64u bytes."),
+#else
+			m_pLog->PrintLine(ckT("  Error: The path table is too large, %llu and %llu bytes."),
+#endif
 				m_uiPathTableSizeNormal,m_uiPathTableSizeJoliet);
 			Progress.Notify(ckcore::Progress::ckERROR,g_StringTable.GetString(ERROR_PATHTABLESIZE));
 			return RESULT_FAIL;
@@ -906,7 +910,11 @@ namespace ckFileSystem
 
 		m_pSectorManager->AllocateSectors(this,SR_DIRENTRIES,uiDirEntriesLen);
 
-		m_pLog->PrintLine(ckT("  Allocated directory entries %I64d sectors."),uiDirEntriesLen);
+#ifdef _WINDOWS
+		m_pLog->PrintLine(ckT("  Allocated directory entries %I64u sectors."),uiDirEntriesLen);
+#else
+		m_pLog->PrintLine(ckT("  Allocated directory entries %llu sectors."),uiDirEntriesLen);
+#endif
 		return RESULT_OK;
 	}
 
@@ -928,7 +936,11 @@ namespace ckFileSystem
 
 			if (uiBootDataSector > 0xFFFFFFFF || uiBootDataEnd > 0xFFFFFFFF)
 			{
-				m_pLog->PrintLine(ckT("  Error: Invalid boot data sector range (%I64d to %I64d)."),
+#ifdef _WINDOWS
+				m_pLog->PrintLine(ckT("  Error: Invalid boot data sector range (%I64u to %I64u)."),
+#else
+				m_pLog->PrintLine(ckT("  Error: Invalid boot data sector range (%llu to %llu)."),
+#endif
 					uiBootDataSector,uiBootDataEnd);
 				return RESULT_FAIL;
 			}
@@ -943,17 +955,16 @@ namespace ckFileSystem
 		unsigned long ulPosPathTableJolietM = (unsigned long)m_pSectorManager->GetStart(this,SR_PATHTABLE_JOLIET_M);
 
 		// Print the sizes.
-		/*m_pLog->PrintLine(ckT("  Sizes: %I64d, %I64d, %I64d, %d."),uiPathTableSizeNormal,uiPathTableSizeJoliet,
-			uiBootCatSize,ulVolDescSize);
-		m_pLog->PrintLine(ckT("  Locations: %I64d, %d, %d, %d, %d, %d."),uiPosBootCat,ulPosPathTableNormalL,
-			ulPosPathTableNormalM,ulPosPathTableJolietL,ulPosPathTableJolietM,ulRootExtentLoc);*/
-
 		ckcore::tuint64 uiDirEntriesSector = m_pSectorManager->GetStart(this,SR_DIRENTRIES);
 		ckcore::tuint64 uiFileDataEndSector = m_pSectorManager->GetDataStart() + m_pSectorManager->GetDataLength();
 
 		if (uiDirEntriesSector > 0xFFFFFFFF)
 		{
-			m_pLog->PrintLine(ckT("  Error: Invalid start sector of directory entries (%I64d)."),uiDirEntriesSector);
+#ifdef _WINDOWS
+			m_pLog->PrintLine(ckT("  Error: Invalid start sector of directory entries (%I64u)."),uiDirEntriesSector);
+#else
+			m_pLog->PrintLine(ckT("  Error: Invalid start sector of directory entries (%llu)."),uiDirEntriesSector);
+#endif
 			return RESULT_FAIL;
 		}
 
@@ -970,7 +981,11 @@ namespace ckFileSystem
 			ckcore::tuint64 uiBootCatSector = m_pSectorManager->GetStart(this,SR_BOOTCATALOG);
 			if (!m_pElTorito->WriteBootRecord(m_pOutStream,(unsigned long)uiBootCatSector))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to write boot record at sector %I64d."),uiBootCatSector);
+#ifdef _WINDOWS
+				m_pLog->PrintLine(ckT("  Error: Failed to write boot record at sector %I64u."),uiBootCatSector);
+#else
+				m_pLog->PrintLine(ckT("  Error: Failed to write boot record at sector %llu."),uiBootCatSector);
+#endif
 				return RESULT_FAIL;
 			}
 
@@ -994,7 +1009,11 @@ namespace ckFileSystem
 		{
 			if (FileTree.GetRoot()->m_uiDataSizeNormal > 0xFFFFFFFF)
 			{
-				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%I64d) than the ISO9660 file system can handle."),
+#ifdef _WINDOWS
+				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%I64u) than the ISO9660 file system can handle."),
+#else
+				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%llu) than the ISO9660 file system can handle."),
+#endif
 					FileTree.GetRoot()->m_uiDataSizeNormal);
 				return RESULT_FAIL;
 			}

@@ -373,7 +373,11 @@ namespace ckFileSystem
 		{
 			if (uiStartSec > 0xFFFFFFFF)
 			{
-				m_pLog->PrintLine(ckT("  Error: Sector offset overflow (%I64d), can not include boot image: %s."),
+#ifdef _WINDOWS
+				m_pLog->PrintLine(ckT("  Error: Sector offset overflow (%I64u), can not include boot image: %s."),
+#else
+				m_pLog->PrintLine(ckT("  Error: Sector offset overflow (%lld), can not include boot image: %s."),
+#endif
 					uiStartSec,(*itImage)->m_FullPath.c_str());
 				return false;
 			}

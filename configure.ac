@@ -20,14 +20,11 @@ AC_ARG_WITH([ckcore],
 if test -d "$with_ckcore"
 then
 	CXXFLAGS="$CXXFLAGS -I$with_ckcore/include"
-	LIBS="$LIBS -L$with_ckcore/lib"
+	LIBS="$LIBS -L$with_ckcore/lib -lckcore"
 fi
 
 AS_IF([test "x$with_ckcore" != xno],
-	  [AC_CHECK_LIB([ckcore],[main],
-           		 	[AC_SUBST([LIBREADLINE],["-lreadline -lncurses"])
-       		         AC_DEFINE([HAVE_LIBREADLINE],[1],
-                  		       [Define if you have libreadline])],
+	  [AC_CHECK_LIB([ckcore],[main],[],
               		[AC_MSG_FAILURE([--with-ckcore was given, but test for ckcore failed])])])
 
 AC_DEFINE(_UNIX)

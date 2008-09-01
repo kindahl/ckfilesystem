@@ -36,7 +36,7 @@ namespace ckFileSystem
 
 		wchar_t MakeChar(wchar_t c);
         int LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter);
-		void MemStrCopy(unsigned char *szTarget,const wchar_t *szSource,size_t iSize);
+		void MemStrCopy(unsigned char *szTarget,const wchar_t *szSource,size_t iLen);
 		void EmptyStrBuffer(unsigned char *szBuffer,size_t iBufferLen);
 
 		void InitVolDesc();

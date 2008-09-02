@@ -34,15 +34,11 @@ bool AddFiles(ckFileSystem::CFileSet &file_set,std::vector<ckcore::Directory *> 
             file_set.insert(ckFileSystem::CFileDescriptor(int_path,ext_path,0,
                             ckFileSystem::CFileDescriptor::FLAG_DIRECTORY));
             dir_stack.push_back(new ckcore::Directory(new_path));
-            //std::cout << "[DIR]" << new_path.Name() << std::endl;
         }
         else
         {
-            //std::cout << "[DBG]" << int_path << std::endl;
-
             file_set.insert(ckFileSystem::CFileDescriptor(int_path,ext_path,
                             ckcore::File::Size(new_path)));
-            //std::cout << "[FIL]" << new_path.Name() << std::endl;
         }
     }
 
@@ -73,7 +69,6 @@ int main(int argc,const char *argv[])
     std::cout << "Building file tree." << std::endl;
 
     // Add all file decsiptors.
-    //fileset.insert(ckFileSystem::CFileDescriptor(ckT("/some image.png"),ckT("/Users/dawgh/Desktop/xml_pipe.png"),92748));
     std::vector<ckcore::Directory *> dir_stack;
     if (!AddFiles(file_set,dir_stack,dir,base_path))
     {
@@ -97,7 +92,6 @@ int main(int argc,const char *argv[])
         }
     }
 
-    //return 0;
     std::cout << "Writing disc image." << std::endl;
 
     // Create output stream.

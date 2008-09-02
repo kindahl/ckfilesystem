@@ -372,7 +372,6 @@ namespace ckFileSystem
 
 		// Used for padding.
 		char szTemp[1] = { 0 };
-		unsigned long ulProcessedSize = 0;
 
 		// Parition size = the partition size calculated above + the set descriptor + the data length.
 		unsigned long ulUdfCurSec = (unsigned long)m_pSectorManager->GetStart(this,SR_MAINDESCRIPTORS);

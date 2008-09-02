@@ -71,8 +71,6 @@ namespace ckFileSystem
 					for (size_t j = iPrevDelim + 1; j < iPos; j++)
 						CurDirName.push_back(File.m_InternalPath.c_str()[j]);
 
-					CFileTreeNode *pTemp = pCurNode;
-
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{

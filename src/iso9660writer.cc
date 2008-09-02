@@ -855,7 +855,6 @@ namespace ckFileSystem
 		m_pSectorManager->AllocateBytes(this,SR_DESCRIPTORS,ulVolDescSize);
 
 		// Allocate boot catalog and data.
-		ckcore::tuint64 uiBootCatSize = 0;
 		if (m_pElTorito->GetBootImageCount() > 0)
 		{
 			m_pSectorManager->AllocateBytes(this,SR_BOOTCATALOG,m_pElTorito->GetBootCatSize());

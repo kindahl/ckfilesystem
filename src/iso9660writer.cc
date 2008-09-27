@@ -773,7 +773,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool Iso9660Writer::WriteSysDirectory(FileTreeNode *pParent,eSysDirType Type,
+	bool Iso9660Writer::WriteSysDirectory(FileTreeNode *pParent,SysDirType Type,
 		unsigned long ulDataPos,unsigned long ulDataSize)
 	{
 		tDirRecord DirRecord;

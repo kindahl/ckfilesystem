@@ -38,7 +38,7 @@ namespace ckfilesystem
 		m_Strings[STATUS_WRITEDIRENTRIES] = ckT("Writing directory entries.");
 	}
 
-	const ckcore::tchar *DynStringTable::GetString(eStrings StringID)
+	const ckcore::tchar *DynStringTable::GetString(StringsId StringID)
 	{
 		return m_Strings[StringID];
 	}
@@ -46,7 +46,7 @@ namespace ckfilesystem
 	/*
 		For translation purposes.
 	*/
-	void DynStringTable::SetString(eStrings StringID,const ckcore::tchar *szString)
+	void DynStringTable::SetString(StringsId StringID,const ckcore::tchar *szString)
 	{
 		m_Strings[StringID] = szString;
 	}

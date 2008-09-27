@@ -74,7 +74,7 @@ namespace ckfilesystem
 		};
 
 		// Identifiers the two different types of system directories.
-		enum eSysDirType
+		enum SysDirType
 		{
 			TYPE_CURRENT,
 			TYPE_PARENT
@@ -119,7 +119,7 @@ namespace ckfilesystem
 		// Write functions.
 		bool WritePathTable(FileSet &Files,FileTree &file_tree,bool bJolietTable,
 			bool bMSBF,ckcore::Progress &Progress);
-		bool WriteSysDirectory(FileTreeNode *pParent,eSysDirType Type,
+		bool WriteSysDirectory(FileTreeNode *pParent,SysDirType Type,
 			unsigned long ulDataPos,unsigned long ulDataSize);
 		int WriteLocalDirEntry(ckcore::Progress &Progress,FileTreeNode *pLocalNode,
 			bool bJoliet,int iLevel);

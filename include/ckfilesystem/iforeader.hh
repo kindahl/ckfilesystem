@@ -51,7 +51,7 @@ namespace ckfilesystem
 	class IfoReader
 	{
 	public:
-		enum eIfoType
+		enum IfoType
 		{
 			IT_UNKNOWN,
 			IT_VMG,
@@ -59,7 +59,7 @@ namespace ckfilesystem
 		};
 
 	private:
-		eIfoType m_IfoType;
+		IfoType m_IfoType;
 
 		ckcore::FileInStream m_InStream;
 
@@ -74,6 +74,6 @@ namespace ckfilesystem
 		bool ReadVmg(IfoVmgData &VmgData);
 		bool ReadVts(IfoVtsData &VtsData);
 
-		eIfoType GetType();
+		IfoType GetType();
 	};
 };

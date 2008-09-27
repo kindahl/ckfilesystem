@@ -260,7 +260,7 @@ namespace ckfilesystem
 	class Iso9660
 	{
 	public:
-		enum eInterLevel
+		enum InterLevel
 		{
 			LEVEL_1,
 			LEVEL_2,
@@ -272,7 +272,7 @@ namespace ckfilesystem
 		bool m_bRelaxMaxDirLevel;
 		bool m_bIncFileVerInfo;
 
-		eInterLevel m_InterLevel;
+		InterLevel m_InterLevel;
 
 		tVolDescPrimary m_VolDescPrimary;
 		tVolDescSetTerm m_VolDescSetTerm;
@@ -311,7 +311,7 @@ namespace ckfilesystem
 			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
 		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
 			const ckcore::tchar *ucBiblIdent);
-		void SetInterchangeLevel(eInterLevel eInterLevel);
+		void SetInterchangeLevel(InterLevel inter_level);
 		void SetRelaxMaxDirLevel(bool bRelaxRestriction);
 		void SetIncludeFileVerInfo(bool bIncludeInfo);
 

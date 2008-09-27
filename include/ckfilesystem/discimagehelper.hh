@@ -34,7 +34,7 @@ namespace ckfilesystem
 
 	public:
 		DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
-			bool bIncludeInfo,bool bLongJolietNames,Iso9660::eInterLevel InterLevel);
+			bool bIncludeInfo,bool bLongJolietNames,Iso9660::InterLevel inter_level);
 		~DiscImageHelper();
 
 		void CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir);

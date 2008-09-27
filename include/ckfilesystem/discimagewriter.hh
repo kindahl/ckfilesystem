@@ -99,9 +99,9 @@ namespace ckfilesystem
 			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
 		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
 			const ckcore::tchar *ucBiblIdent);
-		void SetInterchangeLevel(Iso9660::eInterLevel InterLevel);
+		void SetInterchangeLevel(Iso9660::InterLevel inter_level);
 		void SetIncludeFileVerInfo(bool bIncludeInfo);
-		void SetPartAccessType(Udf::ePartAccessType AccessType);
+		void SetPartAccessType(Udf::PartAccessType AccessType);
 		void SetRelaxMaxDirLevel(bool bRelaxRestriction);
 		void SetLongJolietNames(bool bEnable);
 

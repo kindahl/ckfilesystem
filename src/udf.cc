@@ -176,7 +176,7 @@ namespace ckfilesystem
 	/*
 		Helper function for filling a tUdfEntityIdent structure.
 	*/
-	void Udf::MakeIdent(tUdfEntityIdent &ImplIdent,eIdentType IdentType)
+	void Udf::MakeIdent(tUdfEntityIdent &ImplIdent,IdentType ident_type)
 	{
 		ImplIdent.ucFlags = 0;
 		memset(ImplIdent.ucIdentifier,0,sizeof(ImplIdent.ucIdentifier));
@@ -185,7 +185,7 @@ namespace ckfilesystem
 		unsigned char ucOsClass,ucOsIdent;
 		MakeOsIdentifiers(ucOsClass,ucOsIdent);
 
-		switch (IdentType)
+		switch (ident_type)
 		{
 			case IT_DEVELOPER:
 				{
@@ -442,7 +442,7 @@ namespace ckfilesystem
 	#endif
 	}
 
-	void Udf::SetPartAccessType(ePartAccessType AccessType)
+	void Udf::SetPartAccessType(PartAccessType AccessType)
 	{
 		m_PartAccessType = AccessType;
 	}

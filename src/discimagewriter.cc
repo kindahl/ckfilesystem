@@ -632,9 +632,9 @@ namespace ckfilesystem
 		m_Joliet.SetFileFields(szCopyFileIdent,szAbstFileIdent,szBiblFileIdent);
 	}
 
-	void DiscImageWriter::SetInterchangeLevel(Iso9660::eInterLevel InterLevel)
+	void DiscImageWriter::SetInterchangeLevel(Iso9660::InterLevel inter_level)
 	{
-		m_Iso9660.SetInterchangeLevel(InterLevel);
+		m_Iso9660.SetInterchangeLevel(inter_level);
 	}
 
 	void DiscImageWriter::SetIncludeFileVerInfo(bool bIncludeInfo)
@@ -643,7 +643,7 @@ namespace ckfilesystem
 		m_Joliet.SetIncludeFileVerInfo(bIncludeInfo);
 	}
 
-	void DiscImageWriter::SetPartAccessType(Udf::ePartAccessType AccessType)
+	void DiscImageWriter::SetPartAccessType(Udf::PartAccessType AccessType)
 	{
 		m_Udf.SetPartAccessType(AccessType);
 	}

@@ -30,7 +30,7 @@ namespace ckfilesystem
 	class DvdVideo
 	{
 	private:
-		enum eFileSetType
+		enum FileSetType
 		{
 			FST_INFO,
 			FST_BACKUP,
@@ -42,9 +42,9 @@ namespace ckfilesystem
 
 		ckcore::tuint64 SizeToDvdLen(ckcore::tuint64 uiFileSize);
 
-		FileTreeNode *FindVideoNode(FileTree &file_tree,eFileSetType Type,unsigned long ulNumber);
+		FileTreeNode *FindVideoNode(FileTree &file_tree,FileSetType Type,unsigned long ulNumber);
 
-		bool GetTotalTitlesSize(ckcore::tstring &FilePath,eFileSetType Type,unsigned long ulNumber,
+		bool GetTotalTitlesSize(ckcore::tstring &FilePath,FileSetType Type,unsigned long ulNumber,
 			ckcore::tuint64 &uiFileSize);
 		bool ReadFileSetInfoRoot(FileTree &file_tree,IfoVmgData &VmgData,
 			std::vector<unsigned long> &TitleSetSectors);

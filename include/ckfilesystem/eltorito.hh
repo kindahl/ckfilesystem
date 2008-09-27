@@ -125,7 +125,7 @@ namespace ckfilesystem
 	class ElToritoImage
 	{
 	public:
-		enum eEmulation
+		enum Emulation
 		{
 			EMULATION_NONE,
 			EMULATION_FLOPPY,
@@ -134,19 +134,19 @@ namespace ckfilesystem
 
 		ckcore::tstring m_FullPath;
 		bool m_bBootable;
-		eEmulation m_Emulation;
+		Emulation m_Emulation;
 		unsigned short m_usLoadSegment;
 		unsigned short m_usSectorCount;
 
 		// Needs to be calculated in a separate pass.
 		unsigned long m_ulDataSecPos;	// Sector number of first sector containing data.
 
-		ElToritoImage(const ckcore::tchar *szFullPath,bool bBootable,eEmulation Emulation,
+		ElToritoImage(const ckcore::tchar *szFullPath,bool bBootable,Emulation emulation,
 			unsigned short usLoadSegment,unsigned short usSectorCount)
 		{
 			m_FullPath = szFullPath;
 			m_bBootable = bBootable;
-			m_Emulation = Emulation;
+			m_Emulation = emulation;
 			m_usLoadSegment = usLoadSegment;
 			m_usSectorCount = usSectorCount;
 

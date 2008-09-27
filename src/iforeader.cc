@@ -177,7 +177,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	IfoReader::eIfoType IfoReader::GetType()
+	IfoReader::IfoType IfoReader::GetType()
 	{
 		return m_IfoType;
 	}

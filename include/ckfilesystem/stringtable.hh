@@ -22,7 +22,7 @@
 
 namespace ckfilesystem
 {
-	enum eStrings
+	enum StringsId
 	{
 		WARNING_FSDIRLEVEL,
 		WARNING_SKIPFILE,
@@ -41,13 +41,13 @@ namespace ckfilesystem
 	class DynStringTable
 	{
 	private:
-		std::map<eStrings,const ckcore::tchar *> m_Strings;
+		std::map<StringsId,const ckcore::tchar *> m_Strings;
 
 	public:
 		DynStringTable();
 
-		const ckcore::tchar *GetString(eStrings StringID);
-		void SetString(eStrings StringID,const ckcore::tchar *szString);
+		const ckcore::tchar *GetString(StringsId StringID);
+		void SetString(StringsId StringID,const ckcore::tchar *szString);
 	};
 
 	extern DynStringTable g_StringTable;

@@ -616,7 +616,7 @@ namespace ckfilesystem
 	class Udf
 	{
 	public:
-		enum ePartAccessType
+		enum PartAccessType
 		{
 			AT_UNKNOWN,
 			AT_READONLY,
@@ -627,7 +627,7 @@ namespace ckfilesystem
 
 	private:
 		// Enumartion of different descriptor types.
-		enum eIdentType
+		enum IdentType
 		{
 			IT_DEVELOPER,
 			IT_LVINFO,
@@ -643,7 +643,7 @@ namespace ckfilesystem
 		ckcore::CrcStream m_CrcStream;
 
 		// Determines what access will be given to the parition.
-		ePartAccessType m_PartAccessType;
+		PartAccessType m_PartAccessType;
 
 		// Set to true of writing a DVD-Video compatible file system.
 		bool m_bDvdVideo;
@@ -662,7 +662,7 @@ namespace ckfilesystem
 		void InitVolDescLogical();
 
 		void MakeCharSpec(tUdfCharSpec &CharSpec);
-		void MakeIdent(tUdfEntityIdent &ImplIdent,eIdentType IdentType);
+		void MakeIdent(tUdfEntityIdent &ImplIdent,IdentType IdentType);
 		void MakeTag(tUdfTag &Tag,unsigned short usIdentifier);
 		void MakeTagChecksums(tUdfTag &Tag,unsigned char *pBuffer);
 		void MakeVolSetIdent(unsigned char *pVolSetIdent,size_t iVolSetIdentSize);
@@ -679,7 +679,7 @@ namespace ckfilesystem
 
 		// Change of internal state functions.
 		void SetVolumeLabel(const ckcore::tchar *szLabel);
-		void SetPartAccessType(ePartAccessType AccessType);
+		void SetPartAccessType(PartAccessType AccessType);
 
 		// Write functions.
 		bool WriteVolDescInitial(ckcore::OutStream *pOutStream);

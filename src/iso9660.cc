@@ -705,9 +705,9 @@ namespace ckfilesystem
 	#endif
 	}
 
-	void Iso9660::SetInterchangeLevel(eInterLevel eInterLevel)
+	void Iso9660::SetInterchangeLevel(InterLevel inter_level)
 	{
-		m_InterLevel = eInterLevel;
+		m_InterLevel = inter_level;
 	}
 
 	void Iso9660::SetRelaxMaxDirLevel(bool bRelaxRestriction)

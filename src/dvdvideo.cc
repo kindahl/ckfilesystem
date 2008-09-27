@@ -36,7 +36,7 @@ namespace ckfilesystem
 		return uiFileSize / DVDVIDEO_BLOCK_SIZE;
 	}
 
-	FileTreeNode *DvdVideo::FindVideoNode(FileTree &file_tree,eFileSetType Type,unsigned long ulNumber)
+	FileTreeNode *DvdVideo::FindVideoNode(FileTree &file_tree,FileSetType Type,unsigned long ulNumber)
 	{
 		ckcore::tstring InternalPath = ckT("/VIDEO_TS/");
 
@@ -117,7 +117,7 @@ namespace ckfilesystem
 		return file_tree.GetNodeFromPath(InternalPath.c_str());
 	}
 
-	bool DvdVideo::GetTotalTitlesSize(ckcore::tstring &FilePath,eFileSetType Type,
+	bool DvdVideo::GetTotalTitlesSize(ckcore::tstring &FilePath,FileSetType Type,
 		unsigned long ulNumber,ckcore::tuint64 &uiFileSize)
 	{
 		ckcore::tstring FullPath = FilePath;

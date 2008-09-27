@@ -22,7 +22,7 @@
 namespace ckfilesystem
 {
 	DiscImageHelper::DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
-		bool bIncludeInfo,bool bLongJolietNames,Iso9660::eInterLevel InterLevel) :
+		bool bIncludeInfo,bool bLongJolietNames,Iso9660::InterLevel inter_level) :
 		m_FileSystem(FileSystem)
 	{
 		// Joliet.
@@ -31,7 +31,7 @@ namespace ckfilesystem
 
 		// ISO9660.
 		m_Iso9660.SetIncludeFileVerInfo(bIncludeInfo);
-		m_Iso9660.SetInterchangeLevel(InterLevel);
+		m_Iso9660.SetInterchangeLevel(inter_level);
 	}
 
 	DiscImageHelper::~DiscImageHelper()

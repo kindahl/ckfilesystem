@@ -44,37 +44,37 @@ namespace ckfilesystem
 		SectorManager &sec_manager_;
 
 		// File system attributes.
-		bool m_bUseFileTimes;
+		bool use_file_times_;
 
 		// Different standard implementations.
 		Udf &udf_;
 
 		// Sizes of different structures.
-		ckcore::tuint64 m_uiPartLength;
-		tUdfExtentAd m_MainVolDescSeqExtent;
-		tUdfExtentAd m_ReserveVolDescSeqExtent;
+		ckcore::tuint64 part_len_;
+		tudf_extent_ad voldesc_seqextent_main_;
+		tudf_extent_ad voldesc_seqextent_rsrv_;
 
 		// The time when this object was created.
-		struct tm m_ImageCreate;
+		struct tm create_time_;
 
 		// File system preparation functions.
-		void CalcLocalNodeLengths(std::vector<FileTreeNode *> &DirNodeStack,
-			FileTreeNode *pLocalNode);
+		void CalcLocalNodeLengths(std::vector<FileTreeNode *> &dir_node_stack,
+			FileTreeNode *local_node);
 		void CalcNodeLengths(FileTree &file_tree);
 
-		ckcore::tuint64 CalcIdentSize(FileTreeNode *pLocalNode);
-		ckcore::tuint64 CalcNodeSizeTotal(FileTreeNode *pLocalNode);
-		ckcore::tuint64 CalcNodeLinksTotal(FileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcIdentSize(FileTreeNode *local_node);
+		ckcore::tuint64 CalcNodeSizeTotal(FileTreeNode *local_node);
+		ckcore::tuint64 CalcNodeLinksTotal(FileTreeNode *local_node);
 		ckcore::tuint64 CalcParitionLength(FileTree &file_tree);
 
 		// Write functions.
-		bool WriteLocalParitionDir(std::deque<FileTreeNode *> &DirNodeQueue,
-			FileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent);
+		bool WriteLocalParitionDir(std::deque<FileTreeNode *> &dir_node_queue,
+			FileTreeNode *local_node,unsigned long &cur_part_sec,ckcore::tuint64 &unique_ident);
 		bool WritePartitionEntries(FileTree &file_tree);
 
 	public:
-		UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,
-			SectorManager &sec_manager,Udf &udf,bool bUseFileTimes);
+		UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
+			Udf &udf,bool use_file_times);
 		~UdfWriter();
 
 		int AllocateHeader();

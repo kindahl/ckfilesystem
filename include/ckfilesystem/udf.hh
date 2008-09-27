@@ -174,442 +174,441 @@ namespace ckfilesystem
 	*/
 	typedef struct
 	{
-		unsigned char ucType;				// Must be 0.
-		unsigned char ucIdent[5];			// "BEA01", "NSR03", "TEA01".
-		unsigned char ucStructVer;			// Must be 1.
-		unsigned char ucStructData[2041];
-	} tUdfVolStructDesc;
+		unsigned char type;					// Must be 0.
+		unsigned char ident[5];				// "BEA01", "NSR03", "TEA01".
+		unsigned char struct_ver;			// Must be 1.
+		unsigned char struct_data[2041];
+	} tudf_volstruct_desc;
 
 	typedef struct
 	{
-		unsigned char ucCharSetType;		// Must be 0.
-		unsigned char ucCharSetInfo[63];	// "OSTA Compressed Unicode".
-	} tUdfCharSpec;
+		unsigned char charset_type;		// Must be 0.
+		unsigned char charset_info[63];	// "OSTA Compressed Unicode".
+	} tudf_charspec;
 
 	typedef struct	// ISO 13346 1/7.3.
 	{
-		unsigned short usTypeAndTimezone;
-		unsigned short usYear;
-		unsigned char ucMonth;
-		unsigned char ucDay;
-		unsigned char ucHour;
-		unsigned char ucMinute;
-		unsigned char ucSecond;
-		unsigned char ucCentisec;
-		unsigned char ucHundredsOfMicrosec;
-		unsigned char ucMicrosec;
-	} tUdfTimeStamp;
+		unsigned short type_tz;
+		unsigned short year;
+		unsigned char mon;
+		unsigned char day;
+		unsigned char hour;
+		unsigned char min;
+		unsigned char sec;
+		unsigned char centisec;
+		unsigned char hundreds_of_microsec;
+		unsigned char microsec;
+	} tudf_timestamp;
 
 	typedef struct	// ISO 13346 1/7.4.
 	{ 
-		unsigned char ucFlags;
-		unsigned char ucIdentifier[23];
-		unsigned char ucIdentifierSuffix[8];
-	} tUdfEntityIdent;
+		unsigned char flags;
+		unsigned char ident[23];
+		unsigned char ident_suffix[8];
+	} tudf_intity_ident;
 
 	typedef struct	// ISO 13346 3/7.2.
 	{
-		unsigned short usTagIdentifier;
-		unsigned short usDescriptorVersion;
-		unsigned char ucTagChecksum;
-		unsigned char ucReserved1;
-		unsigned short usTagSerialNumber;
-		unsigned short usDescriptorCrc;
-		unsigned short usDescriptorCrcLen;
-		unsigned long ulTagLocation;
-	} tUdfTag;
+		unsigned short tag_ident;
+		unsigned short desc_ver;
+		unsigned char tag_chksum;
+		unsigned char res1;
+		unsigned short tag_serial_num;
+		unsigned short desc_crc;
+		unsigned short desc_crc_len;
+		unsigned long tag_loc;
+	} tudf_tag;
 
 	/*typedef struct	// ISO 13346 4/14.5.
 	{
-		tUdfTag DescTag;
-		unsigned long ulPrevAllocExtentLoc;
-		unsigned long ulAllocDescLen;
-	} tUdfAllocExtentDesc;*/
+		tudf_tag desc_tag;
+		unsigned long prev_allocextent_loc;
+		unsigned long alloc_desc_len;
+	} tudf_alloc_extent_desc;*/
 
 	typedef struct	// ISO 13346 3/7.1
 	{
-		unsigned long ulExtentLen;
-		unsigned long ulExtentLoc;
-	} tUdfExtentAd;
+		unsigned long extent_len;
+		unsigned long extent_loc;
+	} tudf_extent_ad;
 
 	typedef struct	// ISO 13346 3/10.1.
 	{
-		tUdfTag DescTag;
-		unsigned long ulVolDescSeqNum;
-		unsigned long ulPrimVolDescNum;
-		unsigned char ucVolIdentifier[32];		// D-characters.
-		unsigned short usVolSeqNum;
-		unsigned short usMaxVolSeqNum;
-		unsigned short usInterchangeLevel;
-		unsigned short usMaxInterchangeLevel;
-		unsigned long ulCharSetList;
-		unsigned long ulMaxCharSetList;
-		unsigned char ucVolSetIdent[128];	// D-characters.
-		tUdfCharSpec DescCharSet;
-		tUdfCharSpec ExplanatoryCharSet;
-		tUdfExtentAd VolAbstract;
-		tUdfExtentAd VolCopyrightNotice;
-		tUdfEntityIdent ApplicationIdent;
-		tUdfTimeStamp RecordDateTime;
-		tUdfEntityIdent ImplIdent;
-		unsigned char ucImplUse[64];
-		unsigned long ulPredecessorVolDescSeqLoc;
-		unsigned short usFlags;
-		unsigned char ucReserved1[22];
-	} tUdfPrimVolDesc;
+		tudf_tag desc_tag;
+		unsigned long voldesc_seqnum;
+		unsigned long voldesc_primnum;
+		unsigned char vol_ident[32];		// D-characters.
+		unsigned short volseq_num;
+		unsigned short max_volseq_num;
+		unsigned short interchange_level;
+		unsigned short max_interchange_level;
+		unsigned long charset_list;
+		unsigned long max_charset_list;
+		unsigned char volset_ident[128];	// D-characters.
+		tudf_charspec desc_charset;
+		tudf_charspec explanatory_charset;
+		tudf_extent_ad vol_abstract;
+		tudf_extent_ad vol_copyright_notice;
+		tudf_intity_ident app_ident;
+		tudf_timestamp rec_timestamp;
+		tudf_intity_ident impl_ident;
+		unsigned char impl_use[64];
+		unsigned long predecessor_voldesc_seqloc;
+		unsigned short flags;
+		unsigned char res1[22];
+	} tudf_voldesc_prim;
 
 	typedef struct
 	{
-		tUdfCharSpec LvInfoCharset;
-		unsigned char LogicalVolIdent[128];		// D-characters.
-		unsigned char LvInfo1[36];				// D-characters.
-		unsigned char LvInfo2[36];				// D-characters.
-		unsigned char LvInfo3[36];				// D-characters.
-		tUdfEntityIdent ImplIdent;
-		unsigned char ucImplUse[128];
-	} tUdfLvInfo;
+		tudf_charspec lv_info_charset;
+		unsigned char lv_ident[128];		// D-characters.
+		unsigned char lv_info1[36];				// D-characters.
+		unsigned char lv_info2[36];				// D-characters.
+		unsigned char lv_info3[36];				// D-characters.
+		tudf_intity_ident impl_ident;
+		unsigned char impl_use[128];
+	} tudf_lv_info;
 
 	typedef struct
 	{
-		tUdfTag DescTag;
-		unsigned long ulVolDescSeqNum;
-		tUdfEntityIdent ImplIdent;
-		tUdfLvInfo LvInfo;
-	} tUdfImplUseVolDesc;
+		tudf_tag desc_tag;
+		unsigned long voldesc_seqnum;
+		tudf_intity_ident impl_ident;
+		tudf_lv_info lv_info;
+	} tudf_voldesc_impl_use;
 
 	typedef struct
 	{
-		tUdfTag DescTag;
-		unsigned long ulVolDescSeqNum;
-		unsigned short usPartFlags;
-		unsigned short usPartNum;
-		tUdfEntityIdent PartConentIdent;
-		unsigned char ucPartContentUse[128];
-		unsigned long ulAccessType;
-		unsigned long ulPartStartLoc;
-		unsigned long ulPartLen;
-		tUdfEntityIdent ImplIdent;
-		unsigned char ucImplUse[128];
-		unsigned char ucReserved[156];
-	} tUdfPartVolDesc;
+		tudf_tag desc_tag;
+		unsigned long voldesc_seqnum;
+		unsigned short part_flags;
+		unsigned short part_num;
+		tudf_intity_ident part_content_ident;
+		unsigned char part_content_use[128];
+		unsigned long access_type;
+		unsigned long part_start_loc;
+		unsigned long part_len;
+		tudf_intity_ident impl_ident;
+		unsigned char impl_use[128];
+		unsigned char res1[156];
+	} tudf_voldesc_part;
 
 	typedef struct	// ISO 13346 3/10.6.
 	{
-		tUdfTag DescTag;
-		unsigned long ulVolDescSeqNum;
-		tUdfCharSpec DescriptorCharSet;
-		unsigned char ucLogicalVolIdent[128];	// D-characters.
-		unsigned long ulLogicalBlockSize;
-		tUdfEntityIdent DomainIdent;
-		unsigned char ucLogicalVolContentsUse[16];
-		unsigned long ulMapTableLength;
-		unsigned long ulNumPartitionMaps;
-		tUdfEntityIdent ImplIdent;
-		unsigned char ucImplUse[128];
-		tUdfExtentAd IntegritySeqExtent;
-		//unsigned char ucPartitionMaps[1];		// Actually ulNumPartitionMaps.
-	} tUdfLogicalVolDesc;	// No maximum size.
+		tudf_tag desc_tag;
+		unsigned long voldesc_seqnum;
+		tudf_charspec desc_charset;
+		unsigned char logical_vol_ident[128];	// D-characters.
+		unsigned long logical_block_size;
+		tudf_intity_ident domain_ident;
+		unsigned char logocal_vol_contents_use[16];
+		unsigned long map_table_len;
+		unsigned long num_part_maps;
+		tudf_intity_ident impl_ident;
+		unsigned char impl_use[128];
+		tudf_extent_ad integrity_seq_extent;
+		//unsigned char part_maps[1];			// Actually num_part_maps.
+	} tudf_voldesc_logical;	// No maximum size.
 
 	typedef struct	// ISO 13346 3/17
 	{
-		unsigned char ucPartMapType;			// Always UDF_PARTITION_MAP_TYPE1.
-		unsigned char ucPartMapLen;				// Always 6.
-		unsigned short usVolSeqNum;
-		unsigned short usPartNum;
-	} tUdfLogicalPartMapType1;
+		unsigned char part_map_type;			// Always UDF_PARTITION_MAP_TYPE1.
+		unsigned char part_map_len;				// Always 6.
+		unsigned short volseq_num;
+		unsigned short part_num;
+	} tudf_logical_partmap_type1;
 
 	typedef struct	// ISO 13346 3/18
 	{
-		unsigned char ucPartMapType;			// Always UDF_PARTITION_MAP_TYPE2.
-		unsigned char ucPartMapLen;				// Always 64.
-		unsigned char ucPartIdent[62];
-	} tUdfLogicalPartMapType2;
+		unsigned char part_map_type;			// Always UDF_PARTITION_MAP_TYPE2.
+		unsigned char part_map_len;				// Always 64.
+		unsigned char part_ident[62];
+	} tudf_logical_partmap_type2;
 
 	typedef struct	// ISO 13346 3/10.8.
 	{
-		tUdfTag DescTag;
-		unsigned long ulVolDescSeqNum;
-		unsigned long ulNumAllocDesc;
-		//tUdfExtentAd AllocDesc[1];			// Actually ulNumAllocDesc.
-	} tUdfUnallocSpaceDesc;	// No maximum size.
+		tudf_tag desc_tag;
+		unsigned long voldesc_seqnum;
+		unsigned long num_allocdesc;
+		//tudf_extent_ad alloc_desc[1];			// Actually num_allocdesc.
+	} tudf_unalloc_space_desc;	// No maximum size.
 
 	typedef struct
 	{
-		tUdfTag DescTag;
-		unsigned char ucReserved[496];
-	} tUdfTermVolDesc;
+		tudf_tag desc_tag;
+		unsigned char res1[496];
+	} tudf_voldesc_term;
 
 	typedef struct	// ISO 13346 4/14.15.
 	{
-		ckcore::tuint64 uiUniqueIdent;
-		unsigned char ucReserved1[24];
-	} tUdfLogicalVolHeaderDesc;
+		ckcore::tuint64 unique_ident;
+		unsigned char res1[24];
+	} tudf_voldesc_logical_header;
 
 	typedef struct
 	{
-		tUdfEntityIdent ImplIdent;
-		unsigned long ulNumFiles;
-		unsigned long ulNumDirectories;
-		unsigned short usMinUdfRevRead;
-		unsigned short usMinUdfRevWrite;
-		unsigned short usMaxUdfRevWrite;
-	} tUdfLogicalVolIntegrityDescImplUse;
+		tudf_intity_ident impl_ident;
+		unsigned long num_files;
+		unsigned long num_dirs;
+		unsigned short min_udf_rev_read;
+		unsigned short min_udf_rev_write;
+		unsigned short max_udf_rev_write;
+	} tudf_voldesc_logical_integrity_impl_use;
 
 	typedef struct	// ISO 13346 3/10.10.
 	{
-		tUdfTag DescTag;
-		tUdfTimeStamp RecordDateTime;
-		unsigned long ulIntegrityType;
-		tUdfExtentAd NextIntegrityExtent;
-		tUdfLogicalVolHeaderDesc LogicalVolContentsUse;
-		unsigned long ulNumPartitions;
-		unsigned long ulLenImplUse;
-		unsigned long ulFreeSpaceTable;
-		unsigned long ulSizeTable;
-		tUdfLogicalVolIntegrityDescImplUse ucImplUse;
-	} tUdfLogicalVolIntegrityDesc;
+		tudf_tag desc_tag;
+		tudf_timestamp rec_timestamp;
+		unsigned long integrity_type;
+		tudf_extent_ad next_integrity_extent;
+		tudf_voldesc_logical_header logical_volcontents_use;
+		unsigned long num_partitions;
+		unsigned long impl_use_len;
+		unsigned long free_space_table;
+		unsigned long size_table;
+		tudf_voldesc_logical_integrity_impl_use impl_use;
+	} tudf_voldesc_logical_integrity;
 
 	typedef struct	// ISO 13346 3/10.2.
 	{
-		tUdfTag DescTag;
-		tUdfExtentAd MainVolDescSeqExtent;
-		tUdfExtentAd ReserveVolDescSeqExtent;
-		unsigned char ucReserved1[480];
-	} tUdfAnchorVolDescPtr;		// Must be 512 bytes.
+		tudf_tag desc_tag;
+		tudf_extent_ad voldesc_main_seqextent;
+		tudf_extent_ad voldesc_rsrv_seqextent;
+		unsigned char res1[480];
+	} tudf_voldesc_anchor_ptr;		// Must be 512 bytes.
 
 	/*
 		Partition Structures.
 	*/
-
 	typedef struct	// ISO 13346 4/7.1.
 	{
-		unsigned long ulLogicalBlockNum;
-		unsigned short usPartitionRefNum;
-	} tUdfAddrLb;
+		unsigned long logical_block_num;
+		unsigned short partition_ref_num;
+	} tudf_attr_lb;
 
 	typedef struct	// ISO 13346 - 4/14.14.1. (Short Allocation Descriptor)
 	{
-		unsigned long ulExtentLen;
-		unsigned long ulExtentPos;
-	} tUdfShortAllocDesc;
+		unsigned long extent_len;
+		unsigned long extent_loc;
+	} tudf_short_alloc_desc;
 
 	typedef struct	// ISO 13346 - 4/14.14.2. (Long Allocation Descriptor)
 	{
-		unsigned long ulExtentLen;
-		tUdfAddrLb ExtentLoc;
-		unsigned char ucImplUse[6];
-	} tUdfLongAllocDesc;
+		unsigned long extent_len;
+		tudf_attr_lb extent_loc;
+		unsigned char impl_use[6];
+	} tudf_long_alloc_desc;
 
 	typedef struct	// ISO 13346 4/14.1.
 	{
-		tUdfTag DescTag;
-		tUdfTimeStamp RecordDateTime;
-		unsigned short usInterchangeLevel;
-		unsigned short usMaxInterchangeLevel;
-		unsigned long ulCharSetList;
-		unsigned long ulMaxCharSetList;
-		unsigned long ulFileSetNum;
-		unsigned long ulFileSetDescNum;
-		tUdfCharSpec LogicalVolIdentCharSet;
-		unsigned char ucLogicalVolIdent[128];	// D-characters.
-		tUdfCharSpec FileSetCharSet;
-		unsigned char ucFileSetIdent[32];		// D-characters.
-		unsigned char ucCopyFileIdent[32];		// D-characters.
-		unsigned char ucAbstFileIdent[32];		// D-characters.
-		tUdfLongAllocDesc RootDirectoryIcb;
-		tUdfEntityIdent DomainIdent;
-		tUdfLongAllocDesc NextExtent;
-		unsigned char ucReserved1[48];
-	} tUdfFileSetDesc;	// Must be 512 bytes.
+		tudf_tag desc_tag;
+		tudf_timestamp rec_timestamp;
+		unsigned short interchange_level;
+		unsigned short max_interchange_level;
+		unsigned long charset_list;
+		unsigned long max_charset_list;
+		unsigned long fileset_num;
+		unsigned long fileset_descnum;
+		tudf_charspec logical_vol_ident_charset;
+		unsigned char logical_vol_ident[128];	// D-characters.
+		tudf_charspec fileset_charset;
+		unsigned char fileset_ident[32];		// D-characters.
+		unsigned char copy_file_ident[32];		// D-characters.
+		unsigned char abst_file_ident[32];		// D-characters.
+		tudf_long_alloc_desc rootdir_icb;
+		tudf_intity_ident domain_ident;
+		tudf_long_alloc_desc next_extent;
+		unsigned char res1[48];
+	} tudf_fileset_desc;	// Must be 512 bytes.
 
 	typedef struct	// ISO 13346 4/14.6.
 	{
-		unsigned long ulPriorRecNumDirectEntries;
-		unsigned short usStrategyType;
-		unsigned char ucStrategyParam[2];
-		unsigned short usNumEntries;
-		unsigned char ucReserved1;
-		unsigned char ucFileType;
-		tUdfAddrLb ParentIcbLocation;
-		unsigned short usFlags;
-	} tUdfTagIcb;
+		unsigned long prior_rec_num_direct_entries;
+		unsigned short strategy_type;
+		unsigned char strategy_param[2];
+		unsigned short num_entries;
+		unsigned char res1;
+		unsigned char file_type;
+		tudf_attr_lb parent_icb_loc;
+		unsigned short flags;
+	} tudf_tagicb;
 
 	typedef struct	// ISO 13346 4/14.9.
 	{
-		tUdfTag DescTag;
-		tUdfTagIcb IcbTag;
-		unsigned long ulUid;
-		unsigned long ulGid;
-		unsigned long ulPermissions;
-		unsigned short usFileLinkCount;
-		unsigned char ucRecFormat;
-		unsigned char ucRecDispAttr;
-		unsigned long ulRecLen;
-		ckcore::tuint64 uiInfoLen;
-		ckcore::tuint64 uiLogicalBlocksRecorded;
-		tUdfTimeStamp AccessTime;
-		tUdfTimeStamp ModificationTime;
-		tUdfTimeStamp AttributeTime;
-		unsigned long ulCheckpoint;
-		tUdfLongAllocDesc ExtendedAttrIcb;
-		tUdfEntityIdent ImplIdent;
-		ckcore::tuint64 uiUniqueIdent;
-		unsigned long ulExtendedAttrLen;
-		unsigned long ulAllocDescLen;
+		tudf_tag desc_tag;
+		tudf_tagicb icb_tag;
+		unsigned long uid;
+		unsigned long gid;
+		unsigned long permissions;
+		unsigned short file_link_count;
+		unsigned char rec_format;
+		unsigned char rec_disp_attr;
+		unsigned long rec_len;
+		ckcore::tuint64 info_len;
+		ckcore::tuint64 logical_blocks_rec;
+		tudf_timestamp access_time;
+		tudf_timestamp modify_time;
+		tudf_timestamp attrib_time;
+		unsigned long checkpoint;
+		tudf_long_alloc_desc extended_attr_icb;
+		tudf_intity_ident impl_ident;
+		ckcore::tuint64 unique_ident;
+		unsigned long extended_attr_len;
+		unsigned long allocdesc_len;
 
-		//unsigned char ucExtendedAttr[ulExtendedAttrLen];
-		//unsigned char ucAllocationDesc[ulAllocationDescLen];
-	} tUdfFileEntry;	// Maximum of a logical block size.
+		//unsigned char extended_attr[extended_attr_len];
+		//unsigned char allocdesc[allocdesc_len];
+	} tudf_file_entry;	// Maximum of a logical block size.
 
 	typedef struct	// ISO 13346 4/14.4.
 	{
-		tUdfTag DescTag;
-		unsigned short usFileVerNum;
-		unsigned char ucFileCharacteristics;
-		unsigned char ucFileIdentLen;
-		tUdfLongAllocDesc Icb;
-		unsigned short usImplUseLen;
-		//unsigned char ucImplUse[1];			// Actually usImplUseLen.
-		//char szFileIdent[1];					// Actually ucFileIdentLen.
-		//unsigned char ucPadding[...];
-	} tUdfFileIdentDesc;	// Maximum of a logical block size.
+		tudf_tag desc_tag;
+		unsigned short file_ver_num;
+		unsigned char file_characteristics;
+		unsigned char file_ident_len;
+		tudf_long_alloc_desc icb;
+		unsigned short impl_use_len;
+		//unsigned char impl_use[1];			// Actually impl_use_len.
+		//char file_ident[1];					// Actually file_ident_len.
+		//unsigned char padding[...];
+	} tudf_fileident_desc;	// Maximum of a logical block size.
 
 	/*
 		Extended attributes.
 	*/
 	typedef struct	// ISO 13346 4/14.10.1.
 	{
-		tUdfTag DescTag;
-		unsigned long ulImplAttrLoc;
-		unsigned long ulAppAttrLoc;
-	} tUdfExtendedAttrHeaderDesc;
+		tudf_tag desc_tag;
+		unsigned long impl_attr_loc;
+		unsigned long app_attr_loc;
+	} tudf_extended_attr_header_desc;
 
 	/*typedef struct	// ISO 13346 4/14.10.8.
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLength;
-		unsigned long ulImplUseLen;
-		tUdfEntityIdent ImplIdent;
-		//unsigned char ucImplementationUse[ulImplUseLen];
-	} tUdfImplUseExtendedAttr;*/
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned long impl_use_len;
+		tudf_intity_ident impl_ident;
+		//unsigned char impl_use[impl_use_len];
+	} tudf_impl_use_extended_attr;*/
 
 	typedef struct	// UDF 1.02 - 3.3.4.5.1.1
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLength;
-		unsigned long ulImplUseLen;
-		tUdfEntityIdent ImplIdent;
-		unsigned short usHeaderChecksum;
-		unsigned short usFreeSpace;
-	} tUdfExendedAttrFreeEaSpace;
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned long impl_use_len;
+		tudf_intity_ident impl_ident;
+		unsigned short header_checksum;
+		unsigned short free_space;
+	} tudf_extended_attr_free_ea_space;
 
 	typedef struct	// UDF 1.02 - 3.3.4.5.1.2
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLength;
-		unsigned long ulImplUseLen;
-		tUdfEntityIdent ImplIdent;
-		unsigned short usHeaderChecksum;
-		unsigned char ucCgmsInfo;
-		unsigned char ucDataStructType;
-		unsigned long ulProtSysInfo;
-	} tUdfExtendedAttrCgms;
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned long impl_use_len;
+		tudf_intity_ident impl_ident;
+		unsigned short header_checksum;
+		unsigned char cgms_info;
+		unsigned char data_struct_type;
+		unsigned long prot_sys_info;
+	} tudf_extended_attr_cgms;
 
 	/*typedef struct	// ISO 13346 4/14.3.
 	{
-		tUdfShortAllocDesc UnallocSpaceTable;
-		tUdfShortAllocDesc UnallocSpaceBitmap;
-		tUdfShortAllocDesc PartitionIntegrityTable;
-		tUdfShortAllocDesc FreedSpaceTable;
-		tUdfShortAllocDesc FreedSpaceBitmap;
-		unsigned char ucReserved1[88];
-	} tUdfPartitionHeaderDesc;
+		tudf_short_alloc_desc unalloc_space_table;
+		tudf_short_alloc_desc unalloc_space_bitmap;
+		tudf_short_alloc_desc partition_integrity_table;
+		tudf_short_alloc_desc freed_space_table;
+		tudf_short_alloc_desc freed_space_bitmap;
+		unsigned char res1[88];
+	} tudf_part_header_desc;
 
 	typedef struct	// ISO 13346 4/14.11.
 	{
-		tUdfTag DescTag;
-		tUdfTagICB ICBTag;
-		unsigned long ulAllocationDescLen;
-		//unsigned char ucAllocationDesc[ulAllocationDescLen];
-	} tUdfUnallocdSpaceEntry;	// Maximum of a logical block size.
+		tudf_tag desc_tag;
+		tudf_tagICB icb_tag;
+		unsigned long allocdesc_len;
+		//unsigned char allocdesc[allocdesc_len];
+	} tudf_unallocd_space_entry;	// Maximum of a logical block size.
 
 	typedef struct	// ISO 13346 4/14.11.
 	{
-		tUdfTag DescTag;
-		unsigned long ulNumBits;
-		unsigned long ulNumBytes;
-		//unsigned char ucBitmap[ulNumBytes];
-	} tUdfSpaceBitmap;	// No maximum size.
+		tudf_tag desc_tag;
+		unsigned long num_bits;
+		unsigned long num_bytes;
+		//unsigned char bitmap[num_bytes];
+	} tudf_space_bitmap;	// No maximum size.
 
 	typedef struct	// ISO 13346 4/14.13.
 	{
-		tUdfTag DescTag;
-		tUdfTagICB ICBTag;
-		tUdfTimeStamp RecTime;
-		unsigned char ucIntegrityType;
-		unsigned char ucReserved1[175];
-		tUdfEntityIdent ImplIdent;
-		unsigned char ucImplUse[256];
-	} tUdfPartitionIntegrityEntry;
+		tudf_tag desc_tag;
+		tudf_tagICB icb_tag;
+		tudf_timestamp rec_timestamp;
+		unsigned char integrity_type;
+		unsigned char res1[175];
+		tudf_intity_ident impl_ident;
+		unsigned char impl_use[256];
+	} tudf_part_integrity_entry;
 
 	typedef struct	// ISO 13346 4/14.16.1.
 	{
-		unsigned char ucComponentType;
-		unsigned char ucComponentIdentLen;
-		unsigned short usComponentFileVerNum;
-		//char ComponentIdentifier[ucComponentIdentLen];
-	} tUdfPathComponent;*/
+		unsigned char comp_type;
+		unsigned char comp_ident_len;
+		unsigned short comp_file_ver_num;
+		//char comp_ident[comp_ident_len];
+	} tudf_path_comp;*/
 
 	/*typedef struct	// ISO 13346 4/14.10.4.
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLen;
-		unsigned short usOwnerIdent;
-		unsigned short usGroupIdent;
-		unsigned short usPermission;
-	} tUdfAltPermissionsExtendedAttr;
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned short owner_ident;
+		unsigned short group_ident;
+		unsigned short permission;
+	} tudf_alt_permissions_extended_attr;
 
 	typedef struct	// ISO 13346 4/14.10.5.
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLen;
-		unsigned long ulDataLen;
-		unsigned long ulFileTimeExistence;
-		unsigned char ucFileTimes;
-	} tUdfFileTimesExtendedAttr;
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned long data_len;
+		unsigned long file_time_existence;
+		unsigned char file_times;
+	} tudf_filetimes_extended_attr;
 
 	typedef struct	// ISO 13346 4/14.10.7.
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLength;
-		unsigned long ulImplUseLen;
-		unsigned long ulMajorDevIdent;
-		unsigned long ulMinorDevIdent;
-		//unsigned char ucImplementationUse[ulImplUseLen];
-	} tUdfDevSpecExtendedAttr;
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned long impl_use_len;
+		unsigned long major_dev_ident;
+		unsigned long minor_dev_ident;
+		//unsigned char impl_use[impl_use_len];
+	} tudf_devspec_extendedattr;
 
 	typedef struct	// ISO 13346 4/14.10.9.
 	{
-		unsigned long ulAttrType;
-		unsigned char ucAttrSubtype;
-		unsigned char ucReserved1[3];
-		unsigned long ulAttrLength;
-		unsigned long ulAppUseLen;
-		tUdfEntityIdent AppIdent;
-		//unsigned char ucAppUse[ulAppUseLen];
-	} tUdfAppUseExtendedAttr;*/
+		unsigned long attr_type;
+		unsigned char attr_subtype;
+		unsigned char res1[3];
+		unsigned long attr_len;
+		unsigned long app_use_len;
+		tudf_intity_ident app_ident;
+		//unsigned char app_use[app_use_len];
+	} tudf_app_use_extended_attr;*/
 
 #pragma pack()	// Switch back to normal alignment.
 
@@ -636,84 +635,84 @@ namespace ckfilesystem
 			IT_CGMS
 		};
 
-		tUdfPrimVolDesc m_PrimVolDesc;
-		tUdfPartVolDesc m_PartVolDesc;
-		tUdfLogicalVolDesc m_LogicalVolDesc;
+		tudf_voldesc_prim voldesc_primary_;
+		tudf_voldesc_part voldesc_partition_;
+		tudf_voldesc_logical voldesc_logical_;
 
-		ckcore::CrcStream m_CrcStream;
+		ckcore::CrcStream crc_stream_;
 
 		// Determines what access will be given to the parition.
-		PartAccessType m_PartAccessType;
+		PartAccessType part_access_type_;
 
 		// Set to true of writing a DVD-Video compatible file system.
-		bool m_bDvdVideo;
+		bool dvd_video_;
 
 		// Buffer used for various data storage. This is used for performance reasons.
-		unsigned char *m_pByteBuffer;
-		unsigned long m_ulByteBufferSize;
+		unsigned char *byte_buffer_;
+		unsigned long byte_buffer_size_;
 
-		void AllocateByteBuffer(unsigned long ulMinSize);
+		void AllocateByteBuffer(unsigned long min_size);
 
-		size_t CompressUnicodeStr(size_t iNumChars,unsigned char ucCompID,
-			const wchar_t *pInString,unsigned char *pOutString);
+		size_t CompressUnicodeStr(size_t num_chars,unsigned char comp_id,
+			const wchar_t *in_str,unsigned char *out_str);
 
 		void InitVolDescPrimary();
 		void InitVolDescPartition();
 		void InitVolDescLogical();
 
-		void MakeCharSpec(tUdfCharSpec &CharSpec);
-		void MakeIdent(tUdfEntityIdent &ImplIdent,IdentType IdentType);
-		void MakeTag(tUdfTag &Tag,unsigned short usIdentifier);
-		void MakeTagChecksums(tUdfTag &Tag,unsigned char *pBuffer);
-		void MakeVolSetIdent(unsigned char *pVolSetIdent,size_t iVolSetIdentSize);
-		void MakeDateTime(struct tm &Time,tUdfTimeStamp &DateTime);
-		void MakeOsIdentifiers(unsigned char &ucOsClass,unsigned char &ucOsIdent);
+		void MakeCharSpec(tudf_charspec &char_spec);
+		void MakeIdent(tudf_intity_ident &impl_ident,IdentType ident_type);
+		void MakeTag(tudf_tag &tag,unsigned short ident);
+		void MakeTagChecksums(tudf_tag &tag,unsigned char *buffer);
+		void MakeVolSetIdent(unsigned char *volset_ident,size_t volset_ident_size);
+		void MakeDateTime(struct tm &time,tudf_timestamp &udf_time);
+		void MakeOsIdentifiers(unsigned char &os_class,unsigned char &os_ident);
 
-		unsigned char MakeFileIdent(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
+		unsigned char MakeFileIdent(unsigned char *out_buffer,const ckcore::tchar *file_name);
 
-		unsigned short MakeExtAddrChecksum(unsigned char *pBuffer);
+		unsigned short MakeExtAddrChecksum(unsigned char *buffer);
 
 	public:
-		Udf(bool bDvdVideo);
+		Udf(bool dvd_video);
 		~Udf();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const ckcore::tchar *szLabel);
-		void SetPartAccessType(PartAccessType AccessType);
+		void SetVolumeLabel(const ckcore::tchar *label);
+		void SetPartAccessType(PartAccessType access_type);
 
 		// Write functions.
 		bool WriteVolDescInitial(ckcore::OutStream &out_stream);
-		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-			unsigned long ulSecLocation,struct tm &ImageCreate);
-		bool WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-			unsigned long ulSecLocation);
-		bool WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-			unsigned long ulSecLocation,unsigned long ulPartStartLoc,unsigned long ulPartLen);
-		bool WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-			unsigned long ulSecLocation,tUdfExtentAd &IntegritySeqExtent);
-		bool WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-			unsigned long ulSecLocation);
-		bool WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long ulSecLocation);
-		bool WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-			unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
-			ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate);
-		bool WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-			tUdfExtentAd &MainVolDescSeqExtent,tUdfExtentAd &ReserveVolDescSeqExtent);
+		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+			unsigned long sec_location,struct tm &create_time);
+		bool WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+			unsigned long sec_location);
+		bool WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+			unsigned long sec_location,unsigned long part_start_loc,unsigned long part_len);
+		bool WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+			unsigned long sec_location,tudf_extent_ad &integrity_seq_extent);
+		bool WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+			unsigned long sec_location);
+		bool WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long sec_location);
+		bool WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long sec_location,
+			unsigned long file_count,unsigned long dir_count,unsigned long part_len,
+			ckcore::tuint64 unique_ident,struct tm &create_time);
+		bool WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long sec_location,
+			tudf_extent_ad &voldesc_main_seqextent,tudf_extent_ad &voldesc_rsrv_seqextent);
 
-		bool WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-			unsigned long ulRootSecLocation,struct tm &ImageCreate);
-		bool WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-			unsigned long ulFileEntrySecLoc);
-		bool WriteFileIdent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-			unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName);
-		bool WriteFileEntry(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-			bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
-			unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
-			struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime);
+		bool WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long sec_location,
+			unsigned long root_sec_loc,struct tm &create_time);
+		bool WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long sec_location,
+			unsigned long file_entry_sec_loc);
+		bool WriteFileIdent(ckcore::OutStream &out_stream,unsigned long sec_location,
+			unsigned long file_entry_sec_loc,bool is_dir,const ckcore::tchar *file_name);
+		bool WriteFileEntry(ckcore::OutStream &out_stream,unsigned long sec_location,
+			bool is_dir,unsigned short file_link_count,ckcore::tuint64 unique_ident,
+			unsigned long info_loc,ckcore::tuint64 info_len,
+			struct tm &access_time,struct tm &modify_time,struct tm &create_time);
 
 		// Helper functions.
 		unsigned long CalcFileIdentParentSize();
-		unsigned long CalcFileIdentSize(const ckcore::tchar *szFileName);
+		unsigned long CalcFileIdentSize(const ckcore::tchar *file_name);
 		unsigned long CalcFileEntrySize();
 
 		unsigned long GetVolDescInitialSize();

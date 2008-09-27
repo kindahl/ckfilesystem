@@ -28,72 +28,72 @@ namespace ckfilesystem
 	/*
 		Identifiers.
 	*/
-	const unsigned char g_pIdentUdfCharSet[] = {
+	const unsigned char ident_udf_charset[] = {
 		0x4F,0x53,0x54,0x41,0x20,0x43,0x6F,0x6D,0x70,0x72,0x65,0x73,
 		0x73,0x65,0x64,0x20,0x55,0x6E,0x69,0x63,0x6F,0x64,0x65 };
-	const unsigned char g_pIdentUdfEntityCompliant[] = {
+	const unsigned char ident_udf_entity_compliant[] = {
 		0x2A,0x4F,0x53,0x54,0x41,0x20,0x55,0x44,0x46,0x20,0x43,0x6F,
 		0x6D,0x70,0x6C,0x69,0x61,0x6E,0x74 };
 
 	// Used.
-	const unsigned char g_pIdentUdfEntityLVInfo[] = {
+	const unsigned char ident_udf_entity_lv_info[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x4C,0x56,0x20,0x49,0x6E,0x66,0x6F };
-	const unsigned char g_pIdentUdfEntityDomain[] = {
+	const unsigned char ident_udf_entity_domain[] = {
 		0x2A,0x4F,0x53,0x54,0x41,0x20,0x55,0x44,0x46,0x20,0x43,0x6F,
 		0x6D,0x70,0x6C,0x69,0x61,0x6E,0x74 };
-	const unsigned char g_pIdentUdfFreeEaSpace[] = {
+	const unsigned char ident_udf_free_ea_space[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x46,0x72,0x65,0x65,0x45,0x41,0x53,
 		0x70,0x61,0x63,0x65 };
-	const unsigned char g_pUdentUdfCgms[] = {
+	const unsigned char ident_udf_cgms[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x44,0x56,0x44,0x20,0x43,0x47,0x4D,
 		0x53,0x20,0x49,0x6E,0x66,0x6F
 	};
 
-	const unsigned char g_pIdentUdfEntityFreeEASpace[] = {
+	const unsigned char ident_udf_entity_free_ea_space[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x46,0x72,0x65,0x65,0x45,0x41,0x53,
 		0x70,0x61,0x63,0x65 };
-	const unsigned char g_pIdentUdfEntityFreeAppEASpace[] = {
+	const unsigned char ident_udf_entity_free_app_ea_space[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x46,0x72,0x65,0x65,0x41,0x70,0x70,
 		0x45,0x41,0x53,0x70,0x61,0x63,0x65 };
-	const unsigned char g_pIdentUdfEntityDVDCGMSInfo[] = {
+	const unsigned char ident_udf_entity_dvd_cgms_info[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x44,0x56,0x44,0x20,0x43,0x47,0x4D,
 		0x53,0x20,0x49,0x6E,0x66,0x6F };
-	const unsigned char g_pIdentUdfEntityOS2EA[] = {
+	const unsigned char ident_udf_entity_os2ea[] = {
 		0x2A,0x55,0x44,0x46,0x41,0x20,0x45,0x41};
-	const unsigned char g_pIdentUdfEntityOS2EALen[] = {
+	const unsigned char ident_udf_entity_os2ea_len[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x45,0x41,0x4C,0x65,0x6E,0x67,0x74,
 		0x68 };
-	const unsigned char g_pIdentUdfEntityMacVolInfo[] = {
+	const unsigned char ident_udf_entity_mac_vol_info[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x4D,0x61,0x63,0x20,0x56,0x6F,0x6C,
 		0x75,0x6D,0x65,0x49,0x6E,0x66,0x6F };
-	const unsigned char g_pIdentUdfEntityMacFinderInfo[] = {
+	const unsigned char ident_udf_entity_mac_finder_info[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x4D,0x61,0x63,0x20,0x49,0x69,0x6E,
 		0x64,0x65,0x72,0x49,0x6E,0x66,0x6F };
-	const unsigned char g_pIdentUdfEntityMacUniqueTable[] = {
+	const unsigned char ident_udf_entity_mac_unique_table[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x4D,0x61,0x63,0x20,0x55,0x6E,0x69,
 		0x71,0x75,0x65,0x49,0x44,0x54,0x61,0x62,0x6C,0x65 };
-	const unsigned char g_pIdentUdfEntityMacResFork[] = {
+	const unsigned char ident_udf_entity_mac_res_fork[] = {
 		0x2A,0x55,0x44,0x46,0x20,0x4D,0x61,0x63,0x20,0x52,0x65,0x73,
 		0x6F,0x75,0x72,0x63,0x65,0x46,0x6F,0x72,0x6B };
 
 	// Initial volume descriptor identifiers.
-	const char *g_pIdentBEA = "BEA01";
-	const char *g_pIdentNSR = "NSR02";
-	const char *g_pIdentTEA = "TEA01";
+	const char *ident_bea = "BEA01";
+	const char *ident_nsr = "NSR02";
+	const char *ident_tea = "TEA01";
 
-	const char *g_IdentPartContentFdc = "+FDC01";	// As if it were a volume recorded according to ECMA-107.
-	const char *g_IdentPartContentCd = "+CD001";	// As if it were a volume recorded according to ECMA-119.
-	const char *g_IdentPartContentCdw = "+CDW02";	// As if it were a volume recorded according to ECMA-168.
-	const char *g_IdentPartContentNsr = "+NSR02";	// According to Part 4 of this ECMA Standard.
+	const char *ident_part_content_fdc = "+FDC01";	// As if it were a volume recorded according to ECMA-107.
+	const char *ident_part_content_cd  = "+CD001";	// As if it were a volume recorded according to ECMA-119.
+	const char *ident_part_content_cdw = "+CDW02";	// As if it were a volume recorded according to ECMA-168.
+	const char *ident_part_content_nsr = "+NSR02";	// According to Part 4 of this ECMA Standard.
 
-	Udf::Udf(bool bDvdVideo) : m_CrcStream(ckcore::CrcStream::ckCRC_CCITT),m_bDvdVideo(bDvdVideo)
+	Udf::Udf(bool dvd_video) : crc_stream_(ckcore::CrcStream::ckCRC_CCITT),dvd_video_(dvd_video)
 	{
 		// Intialize the byte buffer.
-		m_pByteBuffer = NULL;
-		m_ulByteBufferSize = 0;
+		byte_buffer_ = NULL;
+		byte_buffer_size_ = 0;
 
 		// Default parition type is read only.
-		m_PartAccessType = AT_READONLY;
+		part_access_type_ = AT_READONLY;
 
 		InitVolDescPrimary();
 		InitVolDescPartition();
@@ -102,24 +102,25 @@ namespace ckfilesystem
 
 	Udf::~Udf()
 	{
-		if (m_pByteBuffer != NULL)
+		// Free the byte buffer.
+		if (byte_buffer_ != NULL)
 		{
-			delete [] m_pByteBuffer;
-			m_pByteBuffer = NULL;
+			delete [] byte_buffer_;
+			byte_buffer_ = NULL;
 
-			m_ulByteBufferSize = 0;
+			byte_buffer_size_ = 0;
 		}
 	}
 
-	void Udf::AllocateByteBuffer(unsigned long ulMinSize)
+	void Udf::AllocateByteBuffer(unsigned long min_size)
 	{
-		if (m_ulByteBufferSize < ulMinSize)
+		if (byte_buffer_size_ < min_size)
 		{
-			if (m_pByteBuffer != NULL)
-				delete [] m_pByteBuffer;
+			if (byte_buffer_ != NULL)
+				delete [] byte_buffer_;
 
-			m_ulByteBufferSize = ulMinSize;
-			m_pByteBuffer = new unsigned char[m_ulByteBufferSize];
+			byte_buffer_size_ = min_size;
+			byte_buffer_ = new unsigned char[byte_buffer_size_];
 		}
 	}
 
@@ -138,93 +139,93 @@ namespace ckfilesystem
 		CS0 string, including the compression ID. -1 is returned if the
 		compression ID is invalid.
 	*/
-	size_t Udf::CompressUnicodeStr(size_t iNumChars,unsigned char ucCompID,
-		const wchar_t *pInString,unsigned char *pOutString)
+	size_t Udf::CompressUnicodeStr(size_t num_chars,unsigned char comp_id,
+		const wchar_t *in_str,unsigned char *out_str)
 	{
-		if (ucCompID != 8 && ucCompID != 16)
+		if (comp_id != 8 && comp_id != 16)
 			return -1;
 
 		// Place compression code in first byte.
-		pOutString[0] = ucCompID;
+		out_str[0] = comp_id;
 
-		size_t iByteIndex = 1,iUnicodeIndex = 0;
-		while (iUnicodeIndex < iNumChars)
+		size_t byte_index = 1,iUnicodeIndex = 0;
+		while (iUnicodeIndex < num_chars)
 		{
-			if (ucCompID == 16)
+			if (comp_id == 16)
 			{
 				// First, place the high bits of the char into the byte stream.
-				pOutString[iByteIndex++] = (pInString[iUnicodeIndex] & 0xFF00) >> 8;
+				out_str[byte_index++] = (in_str[iUnicodeIndex] & 0xFF00) >> 8;
 			}
 			// Then place the low bits into the stream.
-			pOutString[iByteIndex++] = pInString[iUnicodeIndex] & 0x00FF;
+			out_str[byte_index++] = in_str[iUnicodeIndex] & 0x00FF;
 			iUnicodeIndex++;
 		}
 
-		return iByteIndex;
+		return byte_index;
 	}
 
 	/*
-		Helper function for filling a tUdfCharSpec structure.
+		Helper function for filling a tudf_charspec structure.
 	*/
-	void Udf::MakeCharSpec(tUdfCharSpec &CharSpec)
+	void Udf::MakeCharSpec(tudf_charspec &char_spec)
 	{
-		memset(&CharSpec,0,sizeof(tUdfCharSpec));
-		CharSpec.ucCharSetType = 0;
-		memcpy(CharSpec.ucCharSetInfo,g_pIdentUdfCharSet,sizeof(g_pIdentUdfCharSet));
+		memset(&char_spec,0,sizeof(tudf_charspec));
+		char_spec.charset_type = 0;
+		memcpy(char_spec.charset_info,ident_udf_charset,sizeof(ident_udf_charset));
 	}
 
 	/*
-		Helper function for filling a tUdfEntityIdent structure.
+		Helper function for filling a tudf_intity_ident structure.
 	*/
-	void Udf::MakeIdent(tUdfEntityIdent &ImplIdent,IdentType ident_type)
+	void Udf::MakeIdent(tudf_intity_ident &impl_ident,IdentType ident_type)
 	{
-		ImplIdent.ucFlags = 0;
-		memset(ImplIdent.ucIdentifier,0,sizeof(ImplIdent.ucIdentifier));
-		memset(ImplIdent.ucIdentifierSuffix,0,sizeof(ImplIdent.ucIdentifierSuffix));
+		impl_ident.flags = 0;
+		memset(impl_ident.ident,0,sizeof(impl_ident.ident));
+		memset(impl_ident.ident_suffix,0,sizeof(impl_ident.ident_suffix));
 
-		unsigned char ucOsClass,ucOsIdent;
-		MakeOsIdentifiers(ucOsClass,ucOsIdent);
+		unsigned char os_class,os_ident;
+		MakeOsIdentifiers(os_class,os_ident);
 
 		switch (ident_type)
 		{
 			case IT_DEVELOPER:
 				{
-					char szAppIdentifier[] = { 0x2A,0x49,0x6E,0x66,0x72,0x61,0x52,0x65,0x63,0x6F,0x72,0x64,0x65,0x72 };
-					memcpy(ImplIdent.ucIdentifier,szAppIdentifier,sizeof(szAppIdentifier));
+					char app_ident[] = { 0x2A,0x49,0x6E,0x66,0x72,0x61,0x52,0x65,0x63,0x6F,0x72,0x64,0x65,0x72 };
+					memcpy(impl_ident.ident,app_ident,sizeof(app_ident));
 
-					ImplIdent.ucIdentifierSuffix[0] = ucOsClass;
-					ImplIdent.ucIdentifierSuffix[1] = ucOsIdent;
+					impl_ident.ident_suffix[0] = os_class;
+					impl_ident.ident_suffix[1] = os_ident;
 				}
 				break;
 
 			case IT_LVINFO:
-				memcpy(ImplIdent.ucIdentifier,g_pIdentUdfEntityLVInfo,sizeof(g_pIdentUdfEntityLVInfo));
+				memcpy(impl_ident.ident,ident_udf_entity_lv_info,sizeof(ident_udf_entity_lv_info));
 
-				Write721(ImplIdent.ucIdentifierSuffix,0x0102);	// Currently only UDF 1.02 is supported.
+				Write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 
-				ImplIdent.ucIdentifierSuffix[2] = ucOsClass;
-				ImplIdent.ucIdentifierSuffix[3] = ucOsIdent;
+				impl_ident.ident_suffix[2] = os_class;
+				impl_ident.ident_suffix[3] = os_ident;
 				break;
 
 			case IT_DOMAIN:
-				memcpy(ImplIdent.ucIdentifier,g_pIdentUdfEntityDomain,sizeof(g_pIdentUdfEntityDomain));
+				memcpy(impl_ident.ident,ident_udf_entity_domain,sizeof(ident_udf_entity_domain));
 
-				Write721(ImplIdent.ucIdentifierSuffix,0x0102);	// Currently only UDF 1.02 is supported.
+				Write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 
-				ImplIdent.ucIdentifierSuffix[2] = UDF_DOMAIN_FLAG_HARD_WRITEPROTECT | UDF_DOMAIN_FLAG_SOFT_WRITEPROTECT;
-				ImplIdent.ucIdentifierSuffix[3] = ucOsIdent;
+				impl_ident.ident_suffix[2] = UDF_DOMAIN_FLAG_HARD_WRITEPROTECT | UDF_DOMAIN_FLAG_SOFT_WRITEPROTECT;
+				impl_ident.ident_suffix[3] = os_ident;
 				break;
 
 			case IT_FREEEASPACE:
-				memcpy(ImplIdent.ucIdentifier,g_pIdentUdfFreeEaSpace,sizeof(g_pIdentUdfFreeEaSpace));
+				memcpy(impl_ident.ident,ident_udf_free_ea_space,sizeof(ident_udf_free_ea_space));
 
-				Write721(ImplIdent.ucIdentifierSuffix,0x0102);	// Currently only UDF 1.02 is supported.
+				Write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 				break;
 
 			case IT_CGMS:
-				memcpy(ImplIdent.ucIdentifier,g_pUdentUdfCgms,sizeof(g_pUdentUdfCgms));
+				memcpy(impl_ident.ident,ident_udf_cgms,sizeof(ident_udf_cgms));
 
-				Write721(ImplIdent.ucIdentifierSuffix,0x0102);	// Currently only UDF 1.02 is supported.
+				Write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 				break;
 		}
 	}
@@ -232,219 +233,219 @@ namespace ckfilesystem
 	/*
 		Helper function for creating a tag.
 	*/
-	void Udf::MakeTag(tUdfTag &Tag,unsigned short usIdentifier)
+	void Udf::MakeTag(tudf_tag &tag,unsigned short ident)
 	{
-		memset(&Tag,0,sizeof(tUdfTag));
-		Tag.usTagIdentifier = usIdentifier;
-		Tag.usDescriptorVersion = UDF_TAG_DESCRIPTOR_VERSION;
-		Tag.usTagSerialNumber = 1;
-		Tag.usDescriptorCrc = 0;
-		Tag.usDescriptorCrcLen = 0;
+		memset(&tag,0,sizeof(tudf_tag));
+		tag.tag_ident = ident;
+		tag.desc_ver = UDF_TAG_DESCRIPTOR_VERSION;
+		tag.tag_serial_num = 1;
+		tag.desc_crc = 0;
+		tag.desc_crc_len = 0;
 	}
 
 	/*
 		Helper function for calculating descriptor CRC and tag checksum.
 	*/
-	void Udf::MakeTagChecksums(tUdfTag &Tag,unsigned char *pBuffer)
+	void Udf::MakeTagChecksums(tudf_tag &tag,unsigned char *buffer)
 	{
-		m_CrcStream.Reset();
-		m_CrcStream.Write(pBuffer,Tag.usDescriptorCrcLen);
-		Tag.usDescriptorCrc = (unsigned short)m_CrcStream.Checksum();
+		crc_stream_.Reset();
+		crc_stream_.Write(buffer,tag.desc_crc_len);
+		tag.desc_crc = (unsigned short)crc_stream_.Checksum();
 
 		// Sum of bytes 0-3 and 5-15 modulo 256.
-		unsigned char ucChecksum = 0;
-		for (int i = 0; i < sizeof(tUdfTag); i++)
-			ucChecksum += ((unsigned char *)&Tag)[i];
+		unsigned char checksum = 0;
+		for (int i = 0; i < sizeof(tudf_tag); i++)
+			checksum += ((unsigned char *)&tag)[i];
 
-		Tag.ucTagChecksum = ucChecksum;
+		tag.tag_chksum = checksum;
 	}
 
-	unsigned short Udf::MakeExtAddrChecksum(unsigned char *pBuffer)
+	unsigned short Udf::MakeExtAddrChecksum(unsigned char *buffer)
 	{
-		unsigned short usChecksum = 0;
+		unsigned short checksum = 0;
 		for (unsigned int i = 0; i < 48; i++)
-			usChecksum += *pBuffer++;
+			checksum += *buffer++;
 
-		return usChecksum;
+		return checksum;
 	}
 
 	/*
 		Generates a unique volume set indentifer to identify a particular
 		volume. pVolSysIdent is assumed to hold 128 bytes.
 	*/
-	void Udf::MakeVolSetIdent(unsigned char *pVolSetIdent,size_t iVolSetIdentSize)
+	void Udf::MakeVolSetIdent(unsigned char *volset_ident,size_t volset_ident_size)
 	{
-		if (iVolSetIdentSize < 18)
+		if (volset_ident_size < 18)
 			return;
 
-		ckcore::tchar szCharSet[] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
-		wchar_t szGeneratedIdent[16];
-		for (unsigned int i = 0; i < sizeof(szGeneratedIdent)/sizeof(wchar_t); i++)
-			szGeneratedIdent[i] = szCharSet[rand() % 16];
+		ckcore::tchar charset[] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+		wchar_t gen_ident[16];
+		for (unsigned int i = 0; i < sizeof(gen_ident)/sizeof(wchar_t); i++)
+			gen_ident[i] = charset[rand() % 16];
 
 		// Make a compatible D-string.
-		memset(pVolSetIdent,0,iVolSetIdentSize);
+		memset(volset_ident,0,volset_ident_size);
 
-		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(16,
-			UDF_COMPRESSION_BYTE,szGeneratedIdent,pVolSetIdent);
+		unsigned char byte_len = (unsigned char)CompressUnicodeStr(16,
+			UDF_COMPRESSION_BYTE,gen_ident,volset_ident);
 
-		pVolSetIdent[iVolSetIdentSize - 1] = ucByteLen;
+		volset_ident[volset_ident_size - 1] = byte_len;
 	}
 
-	void Udf::MakeDateTime(struct tm &Time,tUdfTimeStamp &DateTime)
+	void Udf::MakeDateTime(struct tm &time,tudf_timestamp &udf_time)
 	{
-		DateTime.usTypeAndTimezone = 1 << 12;		// Type: local time.
+		udf_time.type_tz = 1 << 12;		// Type: local time.
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.usTypeAndTimezone |= -tzi.Bias;
+		udf_time.type_tz |= -tzi.Bias;
 #else
         // FIXME: Add support for Unix time zones.
 #endif
 
-		DateTime.usYear = Time.tm_year + 1900;
-		DateTime.ucMonth = Time.tm_mon + 1;
-		DateTime.ucDay = Time.tm_mday;
-		DateTime.ucHour = Time.tm_hour;
-		DateTime.ucMinute = Time.tm_min;
-		DateTime.ucSecond = Time.tm_sec;
-		DateTime.ucCentisec = 0;
-		DateTime.ucHundredsOfMicrosec = 0;
-		DateTime.ucMicrosec = 0;
+		udf_time.year = time.tm_year + 1900;
+		udf_time.mon = time.tm_mon + 1;
+		udf_time.day = time.tm_mday;
+		udf_time.hour = time.tm_hour;
+		udf_time.min = time.tm_min;
+		udf_time.sec = time.tm_sec;
+		udf_time.centisec = 0;
+		udf_time.hundreds_of_microsec = 0;
+		udf_time.microsec = 0;
 	}
 
-	void Udf::MakeOsIdentifiers(unsigned char &ucOsClass,unsigned char &ucOsIdent)
+	void Udf::MakeOsIdentifiers(unsigned char &os_class,unsigned char &os_ident)
 	{
 		// UDF 1.02 does not support any Windows identification.
-		ucOsClass = UDF_OSCLASS_UNDEFINED;
-		ucOsIdent = UDF_OSIDENT_UNDEFINED;
+		os_class = UDF_OSCLASS_UNDEFINED;
+		os_ident = UDF_OSIDENT_UNDEFINED;
 	}
 
-	unsigned char Udf::MakeFileIdent(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
+	unsigned char Udf::MakeFileIdent(unsigned char *out_buffer,const ckcore::tchar *file_name)
 	{
-		size_t iNameLen = ckcore::string::astrlen(szFileName);
-		size_t iCopyLen = iNameLen < (254 >> 1) ? iNameLen : (254 >> 1);		// One byte is reserved for compression descriptor.
+		size_t name_len = ckcore::string::astrlen(file_name);
+		size_t copy_len = name_len < (254 >> 1) ? name_len : (254 >> 1);		// One byte is reserved for compression descriptor.
 
 		// DVD-Video should use 8 bits to represent one character.
-		unsigned char ucStrComp = m_bDvdVideo ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
+		unsigned char str_comp = dvd_video_ ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
 
 	#ifdef _UNICODE
-		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iCopyLen,ucStrComp,
-			szFileName,pOutBuffer);
+		unsigned char byte_len = (unsigned char)CompressUnicodeStr(copy_len,str_comp,
+			file_name,out_buffer);
 	#else
 		wchar_t szWideFileName[125];
-		ckcore::string::ansi_to_utf16(szFileName,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(file_name,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 
-		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iCopyLen,ucStrComp,
-			szWideFileName,pOutBuffer);
+		unsigned char byte_len = (unsigned char)CompressUnicodeStr(copy_len,str_comp,
+			szWideFileName,out_buffer);
 	#endif
-		return ucByteLen;
+		return byte_len;
 	}
 
 	void Udf::InitVolDescPrimary()
 	{
-		memset(&m_PrimVolDesc,0,sizeof(tUdfPrimVolDesc));
+		memset(&voldesc_primary_,0,sizeof(tudf_voldesc_prim));
 
 		// Other members.
-		MakeIdent(m_PrimVolDesc.ImplIdent,IT_DEVELOPER);
-		MakeIdent(m_PrimVolDesc.ApplicationIdent,IT_DEVELOPER);
+		MakeIdent(voldesc_primary_.impl_ident,IT_DEVELOPER);
+		MakeIdent(voldesc_primary_.app_ident,IT_DEVELOPER);
 
-		MakeCharSpec(m_PrimVolDesc.DescCharSet);
-		MakeCharSpec(m_PrimVolDesc.ExplanatoryCharSet);
+		MakeCharSpec(voldesc_primary_.desc_charset);
+		MakeCharSpec(voldesc_primary_.explanatory_charset);
 
-		MakeVolSetIdent(m_PrimVolDesc.ucVolSetIdent,sizeof(m_PrimVolDesc.ucVolSetIdent));
+		MakeVolSetIdent(voldesc_primary_.volset_ident,sizeof(voldesc_primary_.volset_ident));
 	}
 
 	void Udf::InitVolDescPartition()
 	{
-		memset(&m_PartVolDesc,0,sizeof(tUdfPartVolDesc));
+		memset(&voldesc_partition_,0,sizeof(tudf_voldesc_part));
 
 		// Other members.
-		m_PartVolDesc.usPartFlags = UDF_PARTITION_FLAG_ALLOCATED;
-		m_PartVolDesc.usPartNum = 0;		// We always create the first parition using these routines.
+		voldesc_partition_.part_flags = UDF_PARTITION_FLAG_ALLOCATED;
+		voldesc_partition_.part_num = 0;		// We always create the first parition using these routines.
 
-		m_PartVolDesc.PartConentIdent.ucFlags = m_bDvdVideo ? UDF_ENTITYFLAG_DVDVIDEO : 0;
-		memcpy(m_PartVolDesc.PartConentIdent.ucIdentifier,g_IdentPartContentNsr,strlen(g_IdentPartContentNsr));
+		voldesc_partition_.part_content_ident.flags = dvd_video_ ? UDF_ENTITYFLAG_DVDVIDEO : 0;
+		memcpy(voldesc_partition_.part_content_ident.ident,ident_part_content_nsr,strlen(ident_part_content_nsr));
 
-		switch (m_PartAccessType)
+		switch (part_access_type_)
 		{
 			case AT_UNKNOWN:
-				m_PartVolDesc.ulAccessType = UDF_PARTITION_ACCESS_UNKNOWN;
+				voldesc_partition_.access_type = UDF_PARTITION_ACCESS_UNKNOWN;
 				break;
 			case AT_WRITEONCE:
-				m_PartVolDesc.ulAccessType = UDF_PARTITION_ACCESS_WRITEONCE;
+				voldesc_partition_.access_type = UDF_PARTITION_ACCESS_WRITEONCE;
 				break;
 			case AT_REWRITABLE:
-				m_PartVolDesc.ulAccessType = UDF_PARTITION_ACCESS_REWRITABLE;
+				voldesc_partition_.access_type = UDF_PARTITION_ACCESS_REWRITABLE;
 				break;
 			case AT_OVERWRITABLE:
-				m_PartVolDesc.ulAccessType = UDF_PARTITION_ACCESS_OVERWRITABLE;
+				voldesc_partition_.access_type = UDF_PARTITION_ACCESS_OVERWRITABLE;
 				break;
 			//case AT_READONLY:
 			default:
-				m_PartVolDesc.ulAccessType = UDF_PARTITION_ACCESS_READONLY;
+				voldesc_partition_.access_type = UDF_PARTITION_ACCESS_READONLY;
 				break;
 		}
 
-		MakeIdent(m_PartVolDesc.ImplIdent,IT_DEVELOPER);
+		MakeIdent(voldesc_partition_.impl_ident,IT_DEVELOPER);
 	}
 
 	void Udf::InitVolDescLogical()
 	{
-		memset(&m_LogicalVolDesc,0,sizeof(tUdfLogicalVolDesc));
+		memset(&voldesc_logical_,0,sizeof(tudf_voldesc_logical));
 
 		// Other members.
-		MakeCharSpec(m_LogicalVolDesc.DescriptorCharSet);
+		MakeCharSpec(voldesc_logical_.desc_charset);
 
-		m_LogicalVolDesc.ulLogicalBlockSize = UDF_SECTOR_SIZE;
+		voldesc_logical_.logical_block_size = UDF_SECTOR_SIZE;
 
-		MakeIdent(m_LogicalVolDesc.DomainIdent,IT_DOMAIN);
-		MakeIdent(m_LogicalVolDesc.ImplIdent,IT_DEVELOPER);
+		MakeIdent(voldesc_logical_.domain_ident,IT_DOMAIN);
+		MakeIdent(voldesc_logical_.impl_ident,IT_DEVELOPER);
 	
-		Write731(m_LogicalVolDesc.ucLogicalVolContentsUse,UDF_SECTOR_SIZE);	// ?
+		Write731(voldesc_logical_.logocal_vol_contents_use,UDF_SECTOR_SIZE);	// ?
 	}
 
-	void Udf::SetVolumeLabel(const ckcore::tchar *szLabel)
+	void Udf::SetVolumeLabel(const ckcore::tchar *label)
 	{
-		size_t iLabelLen = ckcore::string::astrlen(szLabel);
-		size_t iPrimaryCopyLen = iLabelLen < 15 ? iLabelLen : 15;	// Two bytes are reserved for string format.
-		size_t iLogicalCopyLen = iLabelLen < 63 ? iLabelLen : 63;	// Two bytes are reserved for string format.
+		size_t label_len = ckcore::string::astrlen(label);
+		size_t primary_copy_len = label_len < 15 ? label_len : 15;	// Two bytes are reserved for string format.
+		size_t logical_copy_len = label_len < 63 ? label_len : 63;	// Two bytes are reserved for string format.
 
 		// We need to update both the logical and primary descriptor identifiers.
-		memset(m_PrimVolDesc.ucVolIdentifier,0,sizeof(m_PrimVolDesc.ucVolIdentifier));
-		memset(m_LogicalVolDesc.ucLogicalVolIdent,0,sizeof(m_LogicalVolDesc.ucLogicalVolIdent));
+		memset(voldesc_primary_.vol_ident,0,sizeof(voldesc_primary_.vol_ident));
+		memset(voldesc_logical_.logical_vol_ident,0,sizeof(voldesc_logical_.logical_vol_ident));
 
 		// DVD-Video should use 8 bits to represent one character.
-		unsigned char ucStrComp = m_bDvdVideo ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
+		unsigned char str_comp = dvd_video_ ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
 
 	#ifdef _UNICODE
-		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iPrimaryCopyLen,ucStrComp,
-			szLabel,m_PrimVolDesc.ucVolIdentifier);
-		m_PrimVolDesc.ucVolIdentifier[31] = ucByteLen;
+		unsigned char byte_len = (unsigned char)CompressUnicodeStr(primary_copy_len,str_comp,
+			label,voldesc_primary_.vol_ident);
+		voldesc_primary_.vol_ident[31] = byte_len;
 
-		ucByteLen = (unsigned char)CompressUnicodeStr(iLogicalCopyLen,ucStrComp,
-			szLabel,m_LogicalVolDesc.ucLogicalVolIdent);
-		m_LogicalVolDesc.ucLogicalVolIdent[127] = ucByteLen;
+		byte_len = (unsigned char)CompressUnicodeStr(logical_copy_len,str_comp,
+			label,voldesc_logical_.logical_vol_ident);
+		voldesc_logical_.logical_vol_ident[127] = byte_len;
 	#else
 		wchar_t szWidePrimaryLabel[17];
-		ckcore::string::ansi_to_utf16(szLabel,szWidePrimaryLabel,sizeof(szWidePrimaryLabel) / sizeof(wchar_t));
+		ckcore::string::ansi_to_utf16(label,szWidePrimaryLabel,sizeof(szWidePrimaryLabel) / sizeof(wchar_t));
 
-		unsigned char ucByteLen = (unsigned char)CompressUnicodeStr(iPrimaryCopyLen,ucStrComp,
-			szWidePrimaryLabel,m_PrimVolDesc.ucVolIdentifier);
-		m_PrimVolDesc.ucVolIdentifier[31] = ucByteLen;
+		unsigned char byte_len = (unsigned char)CompressUnicodeStr(primary_copy_len,str_comp,
+			szWidePrimaryLabel,voldesc_primary_.vol_ident);
+		voldesc_primary_.vol_ident[31] = byte_len;
 
 		wchar_t szWideLogicalLabel[17];
-		ckcore::string::ansi_to_utf16(szLabel,szWideLogicalLabel,sizeof(szWideLogicalLabel) / sizeof(wchar_t));
-		ucByteLen = (unsigned char)CompressUnicodeStr(iLogicalCopyLen,ucStrComp,
-			szWideLogicalLabel,m_LogicalVolDesc.ucLogicalVolIdent);
-		m_LogicalVolDesc.ucLogicalVolIdent[127] = ucByteLen;
+		ckcore::string::ansi_to_utf16(label,szWideLogicalLabel,sizeof(szWideLogicalLabel) / sizeof(wchar_t));
+		byte_len = (unsigned char)CompressUnicodeStr(logical_copy_len,str_comp,
+			szWideLogicalLabel,voldesc_logical_.logical_vol_ident);
+		voldesc_logical_.logical_vol_ident[127] = byte_len;
 	#endif
 	}
 
-	void Udf::SetPartAccessType(PartAccessType AccessType)
+	void Udf::SetPartAccessType(PartAccessType access_type)
 	{
-		m_PartAccessType = AccessType;
+		part_access_type_ = access_type;
 	}
 
 	/*
@@ -453,394 +454,391 @@ namespace ckfilesystem
 	*/
 	bool Udf::WriteVolDescInitial(ckcore::OutStream &out_stream)
 	{
-		tUdfVolStructDesc VolStructDesc;
-		memset(&VolStructDesc,0,sizeof(tUdfVolStructDesc));
-		VolStructDesc.ucType = 0;
-		VolStructDesc.ucStructVer = 1;
+		tudf_volstruct_desc vol_struct_desc;
+		memset(&vol_struct_desc,0,sizeof(tudf_volstruct_desc));
+		vol_struct_desc.type = 0;
+		vol_struct_desc.struct_ver = 1;
 
-		memcpy(VolStructDesc.ucIdent,g_pIdentBEA,sizeof(VolStructDesc.ucIdent));
-		ckcore::tint64 iProcessed = out_stream.Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
-		if (iProcessed == -1)
+		memcpy(vol_struct_desc.ident,ident_bea,sizeof(vol_struct_desc.ident));
+		ckcore::tint64 processed = out_stream.Write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfVolStructDesc))
-			return false;
-
-		memcpy(VolStructDesc.ucIdent,g_pIdentNSR,sizeof(VolStructDesc.ucIdent));
-		iProcessed = out_stream.Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
-		if (iProcessed == -1)
-			return false;
-		if (iProcessed != sizeof(tUdfVolStructDesc))
+		if (processed != sizeof(tudf_volstruct_desc))
 			return false;
 
-		memcpy(VolStructDesc.ucIdent,g_pIdentTEA,sizeof(VolStructDesc.ucIdent));
-		iProcessed = out_stream.Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
-		if (iProcessed == -1)
+		memcpy(vol_struct_desc.ident,ident_nsr,sizeof(vol_struct_desc.ident));
+		processed = out_stream.Write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfVolStructDesc))
+		if (processed != sizeof(tudf_volstruct_desc))
+			return false;
+
+		memcpy(vol_struct_desc.ident,ident_tea,sizeof(vol_struct_desc.ident));
+		processed = out_stream.Write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
+		if (processed == -1)
+			return false;
+		if (processed != sizeof(tudf_volstruct_desc))
 			return false;
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-		unsigned long ulSecLocation,struct tm &ImageCreate)
+	bool Udf::WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+		unsigned long sec_location,struct tm &create_time)
 	{
 		// Make the tag.
-		MakeTag(m_PrimVolDesc.DescTag,UDF_TAGIDENT_PRIMVOLDESC);
-		m_PrimVolDesc.DescTag.ulTagLocation = ulSecLocation;
-		m_PrimVolDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfPrimVolDesc) - sizeof(tUdfTag);
+		MakeTag(voldesc_primary_.desc_tag,UDF_TAGIDENT_PRIMVOLDESC);
+		voldesc_primary_.desc_tag.tag_loc = sec_location;
+		voldesc_primary_.desc_tag.desc_crc_len = sizeof(tudf_voldesc_prim) - sizeof(tudf_tag);
 
 		// Update the primary volume descriptor data.
-		m_PrimVolDesc.ulVolDescSeqNum = ulVolDescSeqNum;
-		m_PrimVolDesc.ulPrimVolDescNum = ulVolDescSeqNum;
+		voldesc_primary_.voldesc_seqnum = voldesc_seqnum;
+		voldesc_primary_.voldesc_primnum = voldesc_seqnum;
 
-		m_PrimVolDesc.usVolSeqNum = 1;		// This is the first disc in the volume set.
-		m_PrimVolDesc.usMaxVolSeqNum = 1;
+		voldesc_primary_.volseq_num = 1;		// This is the first disc in the volume set.
+		voldesc_primary_.max_volseq_num = 1;
 
-		m_PrimVolDesc.usInterchangeLevel = UDF_INTERCHANGE_LEVEL_SINGLESET;
-		m_PrimVolDesc.usMaxInterchangeLevel = UDF_INTERCHANGE_LEVEL_SINGLESET;
-		m_PrimVolDesc.ulCharSetList = 1;
-		m_PrimVolDesc.ulMaxCharSetList = 1;
+		voldesc_primary_.interchange_level = UDF_INTERCHANGE_LEVEL_SINGLESET;
+		voldesc_primary_.max_interchange_level = UDF_INTERCHANGE_LEVEL_SINGLESET;
+		voldesc_primary_.charset_list = 1;
+		voldesc_primary_.max_charset_list = 1;
 
-		MakeDateTime(ImageCreate,m_PrimVolDesc.RecordDateTime);
+		MakeDateTime(create_time,voldesc_primary_.rec_timestamp);
 
 		// Calculate checksums.
-		MakeTagChecksums(m_PrimVolDesc.DescTag,(unsigned char *)(&m_PrimVolDesc) + sizeof(tUdfTag));
+		MakeTagChecksums(voldesc_primary_.desc_tag,(unsigned char *)(&voldesc_primary_) + sizeof(tudf_tag));
 
-		ckcore::tint64 iProcessed = out_stream.Write(&m_PrimVolDesc,sizeof(tUdfPrimVolDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&voldesc_primary_,sizeof(tudf_voldesc_prim));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfPrimVolDesc))
+		if (processed != sizeof(tudf_voldesc_prim))
 			return false;
 
 		// Pad the sector from 512 to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfPrimVolDesc)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_prim)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-		unsigned long ulSecLocation)
+	bool Udf::WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+		unsigned long sec_location)
 	{	
-		tUdfImplUseVolDesc ImplUseVolDesc;
-		memset(&ImplUseVolDesc,0,sizeof(tUdfImplUseVolDesc));
+		tudf_voldesc_impl_use impl_use_voldesc;
+		memset(&impl_use_voldesc,0,sizeof(tudf_voldesc_impl_use));
 
 		// Create tag.
-		MakeTag(ImplUseVolDesc.DescTag,UDF_TAGIDENT_IMPLUSEVOLDESC);
-		ImplUseVolDesc.DescTag.ulTagLocation = ulSecLocation;
-		ImplUseVolDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfImplUseVolDesc) - sizeof(tUdfTag);
+		MakeTag(impl_use_voldesc.desc_tag,UDF_TAGIDENT_IMPLUSEVOLDESC);
+		impl_use_voldesc.desc_tag.tag_loc = sec_location;
+		impl_use_voldesc.desc_tag.desc_crc_len = sizeof(tudf_voldesc_impl_use) - sizeof(tudf_tag);
 
-		MakeIdent(ImplUseVolDesc.ImplIdent,IT_LVINFO);
+		MakeIdent(impl_use_voldesc.impl_ident,IT_LVINFO);
 
-		ImplUseVolDesc.ulVolDescSeqNum = ulVolDescSeqNum;
+		impl_use_voldesc.voldesc_seqnum = voldesc_seqnum;
 
-		MakeCharSpec(ImplUseVolDesc.LvInfo.LvInfoCharset);
-		memcpy(ImplUseVolDesc.LvInfo.LogicalVolIdent,m_LogicalVolDesc.ucLogicalVolIdent,
-			sizeof(ImplUseVolDesc.LvInfo.LogicalVolIdent));		// Steal the value from the logical descriptor.
-		MakeIdent(ImplUseVolDesc.LvInfo.ImplIdent,IT_DEVELOPER);
+		MakeCharSpec(impl_use_voldesc.lv_info.lv_info_charset);
+		memcpy(impl_use_voldesc.lv_info.lv_ident,voldesc_logical_.logical_vol_ident,
+			sizeof(impl_use_voldesc.lv_info.lv_ident));		// Steal the value from the logical descriptor.
+		MakeIdent(impl_use_voldesc.lv_info.impl_ident,IT_DEVELOPER);
 
 		// Calculate tag checksums.
-		MakeTagChecksums(ImplUseVolDesc.DescTag,(unsigned char *)(&ImplUseVolDesc) + sizeof(tUdfTag));
+		MakeTagChecksums(impl_use_voldesc.desc_tag,(unsigned char *)(&impl_use_voldesc) + sizeof(tudf_tag));
 
-		ckcore::tint64 iProcessed = out_stream.Write(&ImplUseVolDesc,sizeof(tUdfImplUseVolDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&impl_use_voldesc,sizeof(tudf_voldesc_impl_use));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfImplUseVolDesc))
+		if (processed != sizeof(tudf_voldesc_impl_use))
 			return false;
 
 		// Pad the sector from 512 to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfImplUseVolDesc)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_impl_use)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
 	/**
-		@param ulPartLen is the partition size in sectors.
+		@param part_len is the partition size in sectors.
 	*/
-	bool Udf::WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-		unsigned long ulSecLocation,unsigned long ulPartStartLoc,unsigned long ulPartLen)
+	bool Udf::WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+		unsigned long sec_location,unsigned long part_start_loc,unsigned long part_len)
 	{
 		// Make the tag.
-		MakeTag(m_PartVolDesc.DescTag,UDF_TAGIDENT_PARTDESC);
-		m_PartVolDesc.DescTag.ulTagLocation = ulSecLocation;
-		m_PartVolDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfPartVolDesc) - sizeof(tUdfTag);
+		MakeTag(voldesc_partition_.desc_tag,UDF_TAGIDENT_PARTDESC);
+		voldesc_partition_.desc_tag.tag_loc = sec_location;
+		voldesc_partition_.desc_tag.desc_crc_len = sizeof(tudf_voldesc_part) - sizeof(tudf_tag);
 
-		m_PartVolDesc.ulVolDescSeqNum = ulVolDescSeqNum;
-		m_PartVolDesc.ulPartStartLoc = ulPartStartLoc;	// nero_udfiso: 267
-		m_PartVolDesc.ulPartLen = ulPartLen;			// nero_udfiso: 67
+		voldesc_partition_.voldesc_seqnum = voldesc_seqnum;
+		voldesc_partition_.part_start_loc = part_start_loc;
+		voldesc_partition_.part_len = part_len;
 
 		// Calculate tag checksums.
-		MakeTagChecksums(m_PartVolDesc.DescTag,(unsigned char *)(&m_PartVolDesc) + sizeof(tUdfTag));
+		MakeTagChecksums(voldesc_partition_.desc_tag,(unsigned char *)(&voldesc_partition_) + sizeof(tudf_tag));
 
-		ckcore::tint64 iProcessed = out_stream.Write(&m_PartVolDesc,sizeof(tUdfPartVolDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&voldesc_partition_,sizeof(tudf_voldesc_part));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfPartVolDesc))
+		if (processed != sizeof(tudf_voldesc_part))
 			return false;
 
 		// Pad the sector from 512 to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfPartVolDesc)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_part)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-		unsigned long ulSecLocation,tUdfExtentAd &IntegritySeqExtent)
+	bool Udf::WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+		unsigned long sec_location,tudf_extent_ad &integrity_seq_extent)
 	{
 		// Make the tag.
-		MakeTag(m_LogicalVolDesc.DescTag,UDF_TAGIDENT_LOGICALVOLDESC);
-		m_LogicalVolDesc.DescTag.ulTagLocation = ulSecLocation;
-		m_LogicalVolDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfLogicalVolDesc) +
-			sizeof(tUdfLogicalPartMapType1) - sizeof(tUdfTag);
+		MakeTag(voldesc_logical_.desc_tag,UDF_TAGIDENT_LOGICALVOLDESC);
+		voldesc_logical_.desc_tag.tag_loc = sec_location;
+		voldesc_logical_.desc_tag.desc_crc_len = sizeof(tudf_voldesc_logical) +
+			sizeof(tudf_logical_partmap_type1) - sizeof(tudf_tag);
 
-		m_LogicalVolDesc.ulVolDescSeqNum = ulVolDescSeqNum;
-		m_LogicalVolDesc.ulMapTableLength = 6;
-		m_LogicalVolDesc.ulNumPartitionMaps = 1;
-
-		m_LogicalVolDesc.IntegritySeqExtent = IntegritySeqExtent;
-		//m_LogicalVolDesc.IntegritySeqExtent.ulExtentLen = 4096
-		//m_LogicalVolDesc.IntegritySeqExtent.ulExtentLoc = 64
+		voldesc_logical_.voldesc_seqnum = voldesc_seqnum;
+		voldesc_logical_.map_table_len = 6;
+		voldesc_logical_.num_part_maps = 1;
+		voldesc_logical_.integrity_seq_extent = integrity_seq_extent;
 
 		// Write parition map.
-		tUdfLogicalPartMapType1 PartMap;
-		memset(&PartMap,0,sizeof(tUdfLogicalPartMapType1));
+		tudf_logical_partmap_type1 part_map;
+		memset(&part_map,0,sizeof(tudf_logical_partmap_type1));
 
-		PartMap.ucPartMapType = UDF_PARTITION_MAP_TYPE1;
-		PartMap.ucPartMapLen = 6;
-		PartMap.usVolSeqNum = 1;
-		PartMap.usPartNum = 0;
+		part_map.part_map_type = UDF_PARTITION_MAP_TYPE1;
+		part_map.part_map_len = 6;
+		part_map.volseq_num = 1;
+		part_map.part_num = 0;
 
 		// Calculate tag checksums.
-		unsigned char ucCompleteBuffer[sizeof(tUdfLogicalVolDesc) + sizeof(tUdfLogicalPartMapType1)];
-		memcpy(ucCompleteBuffer,&m_LogicalVolDesc,sizeof(tUdfLogicalVolDesc));
-		memcpy(ucCompleteBuffer + sizeof(tUdfLogicalVolDesc),&PartMap,sizeof(tUdfLogicalPartMapType1));
-		MakeTagChecksums(m_LogicalVolDesc.DescTag,ucCompleteBuffer + sizeof(tUdfTag));
+		unsigned char complete_buffer[sizeof(tudf_voldesc_logical) + sizeof(tudf_logical_partmap_type1)];
+		memcpy(complete_buffer,&voldesc_logical_,sizeof(tudf_voldesc_logical));
+		memcpy(complete_buffer + sizeof(tudf_voldesc_logical),&part_map,sizeof(tudf_logical_partmap_type1));
+		MakeTagChecksums(voldesc_logical_.desc_tag,complete_buffer + sizeof(tudf_tag));
 
 		// Write logical volume descriptor.
-		ckcore::tint64 iProcessed = out_stream.Write(&m_LogicalVolDesc,sizeof(tUdfLogicalVolDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&voldesc_logical_,sizeof(tudf_voldesc_logical));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfLogicalVolDesc))
+		if (processed != sizeof(tudf_voldesc_logical))
 			return false;
 
 		// Write partition map.
-		iProcessed = out_stream.Write(&PartMap,sizeof(tUdfLogicalPartMapType1));
-		if (iProcessed == -1)
+		processed = out_stream.Write(&part_map,sizeof(tudf_logical_partmap_type1));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfLogicalPartMapType1))
+		if (processed != sizeof(tudf_logical_partmap_type1))
 			return false;
 
 		// Pad the sector.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfLogicalVolDesc) -
-			sizeof(tUdfLogicalPartMapType1)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_logical) -
+			sizeof(tudf_logical_partmap_type1)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
-		unsigned long ulSecLocation)
+	bool Udf::WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+		unsigned long sec_location)
 	{
-		tUdfUnallocSpaceDesc UnallocSpaceDesc;
-		memset(&UnallocSpaceDesc,0,sizeof(tUdfUnallocSpaceDesc));
+		tudf_unalloc_space_desc unalloc_space_desc;
+		memset(&unalloc_space_desc,0,sizeof(tudf_unalloc_space_desc));
 
 		// Make the tag.
-		MakeTag(UnallocSpaceDesc.DescTag,UDF_TAGIDENT_UNALLOCATEDSPACEDESC);
-		UnallocSpaceDesc.DescTag.ulTagLocation = ulSecLocation;
-		UnallocSpaceDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfUnallocSpaceDesc) - sizeof(tUdfTag);
+		MakeTag(unalloc_space_desc.desc_tag,UDF_TAGIDENT_UNALLOCATEDSPACEDESC);
+		unalloc_space_desc.desc_tag.tag_loc = sec_location;
+		unalloc_space_desc.desc_tag.desc_crc_len = sizeof(tudf_unalloc_space_desc) - sizeof(tudf_tag);
 
-		UnallocSpaceDesc.ulVolDescSeqNum = ulVolDescSeqNum;
-		UnallocSpaceDesc.ulNumAllocDesc = 0;
+		unalloc_space_desc.voldesc_seqnum = voldesc_seqnum;
+		unalloc_space_desc.num_allocdesc = 0;
 
 		// Calculate checksums.
-		MakeTagChecksums(UnallocSpaceDesc.DescTag,(unsigned char *)(&UnallocSpaceDesc) + sizeof(tUdfTag));
+		MakeTagChecksums(unalloc_space_desc.desc_tag,(unsigned char *)(&unalloc_space_desc) + sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = out_stream.Write(&UnallocSpaceDesc,sizeof(tUdfUnallocSpaceDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&unalloc_space_desc,sizeof(tudf_unalloc_space_desc));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfUnallocSpaceDesc))
+		if (processed != sizeof(tudf_unalloc_space_desc))
 			return false;
 
 		// Pad the sector from 512 to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfUnallocSpaceDesc)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_unalloc_space_desc)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long ulSecLocation)
+	bool Udf::WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long sec_location)
 	{
-		tUdfTermVolDesc TermDesc;
-		memset(&TermDesc,0,sizeof(tUdfTermVolDesc));
+		tudf_voldesc_term term_desc;
+		memset(&term_desc,0,sizeof(tudf_voldesc_term));
 
 		// Make the tag.
-		MakeTag(TermDesc.DescTag,UDF_TAGIDENT_TERMDESC);
-		TermDesc.DescTag.ulTagLocation = ulSecLocation;
-		TermDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfTermVolDesc) - sizeof(tUdfTag);
-		MakeTagChecksums(TermDesc.DescTag,(unsigned char *)(&TermDesc) + sizeof(tUdfTag));
+		MakeTag(term_desc.desc_tag,UDF_TAGIDENT_TERMDESC);
+		term_desc.desc_tag.tag_loc = sec_location;
+		term_desc.desc_tag.desc_crc_len = sizeof(tudf_voldesc_term) - sizeof(tudf_tag);
+		MakeTagChecksums(term_desc.desc_tag,(unsigned char *)(&term_desc) + sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = out_stream.Write(&TermDesc,sizeof(tUdfTermVolDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&term_desc,sizeof(tudf_voldesc_term));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfTermVolDesc))
+		if (processed != sizeof(tudf_voldesc_term))
 			return false;
 
 		// Pad the sector from 512 to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfTermVolDesc)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_term)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
 	/**
-		@param ulFileCount the number of files in the file system not including
+		@param file_count the number of files in the file system not including
 		extended attribute records.
-		@param ulDirCount the number of directories in the file system not
+		@param dir_count the number of directories in the file system not
 		including the root directory.
-		@param uiUniqueIdent must be larger than the unique udentifiers of any
+		@param unique_ident must be larger than the unique udentifiers of any
 		file entry.
 	*/
-	bool Udf::WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-		unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
-		ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate)
+	bool Udf::WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long sec_location,
+		unsigned long file_count,unsigned long dir_count,unsigned long part_len,
+		ckcore::tuint64 unique_ident,struct tm &create_time)
 	{
-		tUdfLogicalVolIntegrityDesc LogIntegrityDesc;
-		memset(&LogIntegrityDesc,0,sizeof(tUdfLogicalVolIntegrityDesc));
+		tudf_voldesc_logical_integrity vli;
+		memset(&vli,0,sizeof(tudf_voldesc_logical_integrity));
 
 		// Make the tag.
-		MakeTag(LogIntegrityDesc.DescTag,UDF_TAGIDENT_LOGICALVOLINTEGRITYDESC);
-		LogIntegrityDesc.DescTag.ulTagLocation = ulSecLocation;
-		LogIntegrityDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfLogicalVolIntegrityDesc) - sizeof(tUdfTag);
+		MakeTag(vli.desc_tag,UDF_TAGIDENT_LOGICALVOLINTEGRITYDESC);
+		vli.desc_tag.tag_loc = sec_location;
+		vli.desc_tag.desc_crc_len = sizeof(tudf_voldesc_logical_integrity) - sizeof(tudf_tag);
 
-		MakeDateTime(ImageCreate,LogIntegrityDesc.RecordDateTime);
+		MakeDateTime(create_time,vli.rec_timestamp);
 
-		LogIntegrityDesc.ulIntegrityType = UDF_LOGICAL_INTEGRITY_CLOSE;
-		LogIntegrityDesc.ulNumPartitions = 1;
-		LogIntegrityDesc.ulLenImplUse = sizeof(tUdfLogicalVolIntegrityDescImplUse);
-		LogIntegrityDesc.ulFreeSpaceTable = 0;		// No free space available on the partition.
-		LogIntegrityDesc.ulSizeTable = ulPartLen;
+		vli.integrity_type = UDF_LOGICAL_INTEGRITY_CLOSE;
+		vli.num_partitions = 1;
+		vli.impl_use_len = sizeof(tudf_voldesc_logical_integrity_impl_use);
+		vli.free_space_table = 0;		// No free space available on the partition.
+		vli.size_table = part_len;
 
 		// Must be larger than the unique udentifiers of any file entry.
-		LogIntegrityDesc.LogicalVolContentsUse.uiUniqueIdent = uiUniqueIdent;
+		vli.logical_volcontents_use.unique_ident = unique_ident;
 
-		MakeIdent(LogIntegrityDesc.ucImplUse.ImplIdent,IT_DEVELOPER);
-		LogIntegrityDesc.ucImplUse.ulNumFiles = ulFileCount;
-		LogIntegrityDesc.ucImplUse.ulNumDirectories = ulDirCount;
-		LogIntegrityDesc.ucImplUse.usMinUdfRevRead = 0x0102;	// Currently only UDF 1.02 is supported.
-		LogIntegrityDesc.ucImplUse.usMinUdfRevWrite = 0x0102;	// Currently only UDF 1.02 is supported.
-		LogIntegrityDesc.ucImplUse.usMaxUdfRevWrite = 0x0102;	// Currently only UDF 1.02 is supported.
+		MakeIdent(vli.impl_use.impl_ident,IT_DEVELOPER);
+		vli.impl_use.num_files = file_count;
+		vli.impl_use.num_dirs = dir_count;
+		vli.impl_use.min_udf_rev_read = 0x0102;	// Currently only UDF 1.02 is supported.
+		vli.impl_use.min_udf_rev_write = 0x0102;	// Currently only UDF 1.02 is supported.
+		vli.impl_use.max_udf_rev_write = 0x0102;	// Currently only UDF 1.02 is supported.
 
 		// Calculate tag checksums.
-		MakeTagChecksums(LogIntegrityDesc.DescTag,(unsigned char *)(&LogIntegrityDesc) + sizeof(tUdfTag));
+		MakeTagChecksums(vli.desc_tag,(unsigned char *)(&vli) + sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = out_stream.Write(&LogIntegrityDesc,sizeof(tUdfLogicalVolIntegrityDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&vli,sizeof(tudf_voldesc_logical_integrity));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfLogicalVolIntegrityDesc))
+		if (processed != sizeof(tudf_voldesc_logical_integrity))
 			return false;
 
 		// Pad the sector to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfLogicalVolIntegrityDesc)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_logical_integrity)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-		tUdfExtentAd &MainVolDescSeqExtent,tUdfExtentAd &ReserveVolDescSeqExtent)
+	bool Udf::WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long sec_location,
+		tudf_extent_ad &voldesc_main_seqextent,tudf_extent_ad &voldesc_rsrv_seqextent)
 	{
-		tUdfAnchorVolDescPtr AnchorVolDescPtr;
-		memset(&AnchorVolDescPtr,0,sizeof(tUdfAnchorVolDescPtr));
+		tudf_voldesc_anchor_ptr vap;
+		memset(&vap,0,sizeof(tudf_voldesc_anchor_ptr));
 
 		// Setup tag.
-		MakeTag(AnchorVolDescPtr.DescTag,UDF_TAGIDENT_ANCHORVOLDESCPTR);
-		AnchorVolDescPtr.DescTag.ulTagLocation = ulSecLocation;
-		AnchorVolDescPtr.DescTag.usDescriptorCrcLen = sizeof(tUdfAnchorVolDescPtr) - sizeof(tUdfTag);
+		MakeTag(vap.desc_tag,UDF_TAGIDENT_ANCHORVOLDESCPTR);
+		vap.desc_tag.tag_loc = sec_location;
+		vap.desc_tag.desc_crc_len = sizeof(tudf_voldesc_anchor_ptr) - sizeof(tudf_tag);
 
 		// Other members.
-		memcpy(&AnchorVolDescPtr.MainVolDescSeqExtent,&MainVolDescSeqExtent,sizeof(tUdfExtentAd));
-		memcpy(&AnchorVolDescPtr.ReserveVolDescSeqExtent,&ReserveVolDescSeqExtent,sizeof(tUdfExtentAd));
+		memcpy(&vap.voldesc_main_seqextent,&voldesc_main_seqextent,sizeof(tudf_extent_ad));
+		memcpy(&vap.voldesc_rsrv_seqextent,&voldesc_rsrv_seqextent,sizeof(tudf_extent_ad));
 
 		// Calculate tag checksums.
-		MakeTagChecksums(AnchorVolDescPtr.DescTag,(unsigned char *)(&AnchorVolDescPtr) + sizeof(tUdfTag));
+		MakeTagChecksums(vap.desc_tag,(unsigned char *)(&vap) + sizeof(tudf_tag));
 
-		ckcore::tint64 iProcessed = out_stream.Write(&AnchorVolDescPtr,sizeof(tUdfAnchorVolDescPtr));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&vap,sizeof(tudf_voldesc_anchor_ptr));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfAnchorVolDescPtr))
+		if (processed != sizeof(tudf_voldesc_anchor_ptr))
 			return false;
 
 		// Pad the sector to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfAnchorVolDescPtr)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_anchor_ptr)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
 	/**
 		Writes a file set decsriptor structure to the output stream.
-		@param ulSecLocation sector position relative to the first logical block of the partition.
+		@param sec_location sector position relative to the first logical block of the partition.
 	*/
-	bool Udf::WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-		unsigned long ulRootSecLocation,struct tm &ImageCreate)
+	bool Udf::WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long sec_location,
+		unsigned long root_sec_loc,struct tm &create_time)
 	{
-		tUdfFileSetDesc FileSetDesc;
-		memset(&FileSetDesc,0,sizeof(tUdfFileSetDesc));
+		tudf_fileset_desc fd;
+		memset(&fd,0,sizeof(tudf_fileset_desc));
 
 		// Setup tag.
-		MakeTag(FileSetDesc.DescTag,UDF_TAGIDENT_FILESETDESC);
-		FileSetDesc.DescTag.ulTagLocation = ulSecLocation;
-		FileSetDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfFileSetDesc) - sizeof(tUdfTag);
+		MakeTag(fd.desc_tag,UDF_TAGIDENT_FILESETDESC);
+		fd.desc_tag.tag_loc = sec_location;
+		fd.desc_tag.desc_crc_len = sizeof(tudf_fileset_desc) - sizeof(tudf_tag);
 
-		MakeDateTime(ImageCreate,FileSetDesc.RecordDateTime);
+		MakeDateTime(create_time,fd.rec_timestamp);
 
-		FileSetDesc.usInterchangeLevel = UDF_INTERCHANGE_LEVEL_FILESET;
-		FileSetDesc.usMaxInterchangeLevel = UDF_INTERCHANGE_LEVEL_FILESET;
-		FileSetDesc.ulCharSetList = 1;
-		FileSetDesc.ulMaxCharSetList = 1;
-		FileSetDesc.ulFileSetNum = 0;
-		FileSetDesc.ulFileSetDescNum = 0;
+		fd.interchange_level = UDF_INTERCHANGE_LEVEL_FILESET;
+		fd.max_interchange_level = UDF_INTERCHANGE_LEVEL_FILESET;
+		fd.charset_list = 1;
+		fd.max_charset_list = 1;
+		fd.fileset_num = 0;
+		fd.fileset_descnum = 0;
 
-		MakeCharSpec(FileSetDesc.LogicalVolIdentCharSet);
-		MakeCharSpec(FileSetDesc.FileSetCharSet);
-		memcpy(FileSetDesc.ucLogicalVolIdent,m_LogicalVolDesc.ucLogicalVolIdent,
-			sizeof(FileSetDesc.ucLogicalVolIdent));	// Steal the value from the logical descriptor.
-		memcpy(FileSetDesc.ucFileSetIdent,m_PrimVolDesc.ucVolIdentifier,
-			sizeof(FileSetDesc.ucFileSetIdent));	// Steal the value from the primary descriptor.
+		MakeCharSpec(fd.logical_vol_ident_charset);
+		MakeCharSpec(fd.fileset_charset);
+		memcpy(fd.logical_vol_ident,voldesc_logical_.logical_vol_ident,
+			sizeof(fd.logical_vol_ident));	// Steal the value from the logical descriptor.
+		memcpy(fd.fileset_ident,voldesc_primary_.vol_ident,
+			sizeof(fd.fileset_ident));	// Steal the value from the primary descriptor.
 
-		FileSetDesc.RootDirectoryIcb.ulExtentLen = UDF_SECTOR_SIZE;
-		FileSetDesc.RootDirectoryIcb.ExtentLoc.ulLogicalBlockNum = ulRootSecLocation;
-		FileSetDesc.RootDirectoryIcb.ExtentLoc.usPartitionRefNum = 0;	// Wee only support one partition.
+		fd.rootdir_icb.extent_len = UDF_SECTOR_SIZE;
+		fd.rootdir_icb.extent_loc.logical_block_num = root_sec_loc;
+		fd.rootdir_icb.extent_loc.partition_ref_num = 0;	// Wee only support one partition.
 
-		MakeIdent(FileSetDesc.DomainIdent,IT_DOMAIN);
+		MakeIdent(fd.domain_ident,IT_DOMAIN);
 
 		// Calculate tag checksums.
-		MakeTagChecksums(FileSetDesc.DescTag,(unsigned char *)(&FileSetDesc) + sizeof(tUdfTag));
+		MakeTagChecksums(fd.desc_tag,(unsigned char *)(&fd) + sizeof(tudf_tag));
 
-		ckcore::tint64 iProcessed = out_stream.Write(&FileSetDesc,sizeof(tUdfFileSetDesc));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&fd,sizeof(tudf_fileset_desc));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(tUdfFileSetDesc))
+		if (processed != sizeof(tudf_fileset_desc))
 			return false;
 
 		// Pad the sector to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfAnchorVolDescPtr)); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_anchor_ptr)); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
@@ -848,44 +846,44 @@ namespace ckfilesystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool Udf::WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-		unsigned long ulFileEntrySecLoc)
+	bool Udf::WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long sec_location,
+		unsigned long file_entry_sec_loc)
 	{
-		tUdfFileIdentDesc FileIdentDesc;
-		memset(&FileIdentDesc,0,sizeof(tUdfFileIdentDesc));
+		tudf_fileident_desc fd;
+		memset(&fd,0,sizeof(tudf_fileident_desc));
 
 		// Setup tag.
-		MakeTag(FileIdentDesc.DescTag,UDF_TAGIDENT_FILEIDENTDESC);
-		FileIdentDesc.DescTag.ulTagLocation = ulSecLocation;
-		FileIdentDesc.DescTag.usDescriptorCrcLen = sizeof(tUdfFileIdentDesc) + 2 - sizeof(tUdfTag);	// Always pad two bytes.
+		MakeTag(fd.desc_tag,UDF_TAGIDENT_FILEIDENTDESC);
+		fd.desc_tag.tag_loc = sec_location;
+		fd.desc_tag.desc_crc_len = sizeof(tudf_fileident_desc) + 2 - sizeof(tudf_tag);	// Always pad two bytes.
 
 		// Setup other members.
-		FileIdentDesc.usFileVerNum = 1;
-		FileIdentDesc.ucFileCharacteristics = UDF_FILECHARFLAG_DIRECTORY | UDF_FILECHARFLAG_PARENT;
-		FileIdentDesc.ucFileIdentLen = 0;
+		fd.file_ver_num = 1;
+		fd.file_characteristics = UDF_FILECHARFLAG_DIRECTORY | UDF_FILECHARFLAG_PARENT;
+		fd.file_ident_len = 0;
 
-		FileIdentDesc.Icb.ulExtentLen = UDF_SECTOR_SIZE;
-		FileIdentDesc.Icb.ExtentLoc.ulLogicalBlockNum = ulFileEntrySecLoc;
-		FileIdentDesc.Icb.ExtentLoc.usPartitionRefNum = 0;	// Always first partition.
+		fd.icb.extent_len = UDF_SECTOR_SIZE;
+		fd.icb.extent_loc.logical_block_num = file_entry_sec_loc;
+		fd.icb.extent_loc.partition_ref_num = 0;	// Always first partition.
 
 		// Calculate tag checksums.
-		unsigned char ucCompleteBuffer[sizeof(tUdfFileIdentDesc) + 2];
-		memcpy(ucCompleteBuffer,&FileIdentDesc,sizeof(tUdfFileIdentDesc));
+		unsigned char complete_buffer[sizeof(tudf_fileident_desc) + 2];
+		memcpy(complete_buffer,&fd,sizeof(tudf_fileident_desc));
 
 		// Padded bytes.
-		ucCompleteBuffer[sizeof(tUdfFileIdentDesc)    ] = 0;
-		ucCompleteBuffer[sizeof(tUdfFileIdentDesc) + 1] = 0;
+		complete_buffer[sizeof(tudf_fileident_desc)    ] = 0;
+		complete_buffer[sizeof(tudf_fileident_desc) + 1] = 0;
 
-		MakeTagChecksums(FileIdentDesc.DescTag,ucCompleteBuffer + sizeof(tUdfTag));
+		MakeTagChecksums(fd.desc_tag,complete_buffer + sizeof(tudf_tag));
 
 		// Re-copy the tag since the CRC and checksum has been updated.
-		memcpy(ucCompleteBuffer,&FileIdentDesc.DescTag,sizeof(tUdfTag));
+		memcpy(complete_buffer,&fd.desc_tag,sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = out_stream.Write(ucCompleteBuffer,sizeof(ucCompleteBuffer));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(complete_buffer,sizeof(complete_buffer));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(ucCompleteBuffer))
+		if (processed != sizeof(complete_buffer))
 			return false;
 
 		return true;
@@ -894,293 +892,293 @@ namespace ckfilesystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool Udf::WriteFileIdent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-		unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName)
+	bool Udf::WriteFileIdent(ckcore::OutStream &out_stream,unsigned long sec_location,
+		unsigned long file_entry_sec_loc,bool is_dir,const ckcore::tchar *file_name)
 	{
-		tUdfFileIdentDesc FileIdentDesc;
-		memset(&FileIdentDesc,0,sizeof(tUdfFileIdentDesc));
+		tudf_fileident_desc fd;
+		memset(&fd,0,sizeof(tudf_fileident_desc));
 
 		// Setup tag.
-		MakeTag(FileIdentDesc.DescTag,UDF_TAGIDENT_FILEIDENTDESC);
-		FileIdentDesc.DescTag.ulTagLocation = ulSecLocation;
+		MakeTag(fd.desc_tag,UDF_TAGIDENT_FILEIDENTDESC);
+		fd.desc_tag.tag_loc = sec_location;
 
 		// Setup other members.
-		FileIdentDesc.usFileVerNum = 1;
-		FileIdentDesc.ucFileCharacteristics = bIsDirectory ? UDF_FILECHARFLAG_DIRECTORY : 0;
+		fd.file_ver_num = 1;
+		fd.file_characteristics = is_dir ? UDF_FILECHARFLAG_DIRECTORY : 0;
 		
 		// Create file identifier.
-		unsigned char ucFileIdent[255];
-		FileIdentDesc.ucFileIdentLen = MakeFileIdent(ucFileIdent,szFileName);
+		unsigned char file_ident[255];
+		fd.file_ident_len = MakeFileIdent(file_ident,file_name);
 
-		FileIdentDesc.Icb.ulExtentLen = UDF_SECTOR_SIZE;	// The file entry will always fit within one sector.
-		FileIdentDesc.Icb.ExtentLoc.ulLogicalBlockNum = ulFileEntrySecLoc;
-		FileIdentDesc.Icb.ExtentLoc.usPartitionRefNum = 0;	// Always first partition.
+		fd.icb.extent_len = UDF_SECTOR_SIZE;		// The file entry will always fit within one sector.
+		fd.icb.extent_loc.logical_block_num = file_entry_sec_loc;
+		fd.icb.extent_loc.partition_ref_num = 0;	// Always first partition.
 
 		// Pad the file identifier.
-		unsigned short usPadSize = 4 * (unsigned short)((FileIdentDesc.ucFileIdentLen +
-			FileIdentDesc.usImplUseLen + 38 + 3)/4) -
-			(FileIdentDesc.ucFileIdentLen + FileIdentDesc.usImplUseLen + 38);
+		unsigned short usPadSize = 4 * (unsigned short)((fd.file_ident_len +
+			fd.impl_use_len + 38 + 3)/4) -
+			(fd.file_ident_len + fd.impl_use_len + 38);
 
 		// Update tag with checksums.
-		unsigned short usDescLen = sizeof(tUdfFileIdentDesc) + FileIdentDesc.ucFileIdentLen + usPadSize;
-		FileIdentDesc.DescTag.usDescriptorCrcLen = usDescLen - sizeof(tUdfTag);
+		unsigned short desc_len = sizeof(tudf_fileident_desc) + fd.file_ident_len + usPadSize;
+		fd.desc_tag.desc_crc_len = desc_len - sizeof(tudf_tag);
 
-		AllocateByteBuffer(usDescLen);
-		memset(m_pByteBuffer,0,usDescLen);
-		memcpy(m_pByteBuffer,&FileIdentDesc,sizeof(tUdfFileIdentDesc));
-		memcpy(m_pByteBuffer + sizeof(tUdfFileIdentDesc),ucFileIdent,FileIdentDesc.ucFileIdentLen);
+		AllocateByteBuffer(desc_len);
+		memset(byte_buffer_,0,desc_len);
+		memcpy(byte_buffer_,&fd,sizeof(tudf_fileident_desc));
+		memcpy(byte_buffer_ + sizeof(tudf_fileident_desc),file_ident,fd.file_ident_len);
 
-		MakeTagChecksums(FileIdentDesc.DescTag,m_pByteBuffer + sizeof(tUdfTag));
+		MakeTagChecksums(fd.desc_tag,byte_buffer_ + sizeof(tudf_tag));
 
 		// Re-copy the tag since the CRC and checksum has been updated.
-		memcpy(m_pByteBuffer,&FileIdentDesc.DescTag,sizeof(tUdfTag));
+		memcpy(byte_buffer_,&fd.desc_tag,sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = out_stream.Write(m_pByteBuffer,usDescLen);
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(byte_buffer_,desc_len);
+		if (processed == -1)
 			return false;
-		if (iProcessed != usDescLen)
+		if (processed != desc_len)
 			return false;
 
 		return true;
 	}
 
 	/**
-		@param usFileLinkCount the number of identifiers in the extent.
-		@param uiUniqueIdent a unique identifier for this file.
-		@param uiInfoLength the length of all file identifiers in bytes for
+		@param file_link_count the number of identifiers in the extent.
+		@param unique_ident a unique identifier for this file.
+		@param info_len the length of all file identifiers in bytes for
 		directories and the size of the file on files.
 	*/
-	bool Udf::WriteFileEntry(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
-		bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
-		unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
-		struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime)
+	bool Udf::WriteFileEntry(ckcore::OutStream &out_stream,unsigned long sec_location,
+		bool is_dir,unsigned short file_link_count,ckcore::tuint64 unique_ident,
+		unsigned long info_loc,ckcore::tuint64 info_len,
+		struct tm &access_time,struct tm &modify_time,struct tm &create_time)
 	{
-		tUdfFileEntry FileEntry;
-		memset(&FileEntry,0,sizeof(tUdfFileEntry));
+		tudf_file_entry fe;
+		memset(&fe,0,sizeof(tudf_file_entry));
 
 		// According to ECMA 14.14.2.2 the location must be 0 if the length is 0.
-		if (uiInfoLength == 0)
-			ulInfoLocation = 0;
+		if (info_len == 0)
+			info_loc = 0;
 
 		// Setup tag.
-		MakeTag(FileEntry.DescTag,UDF_TAGIDENT_FILEENTRYDESC);
-		FileEntry.DescTag.ulTagLocation = ulSecLocation;
-		FileEntry.DescTag.usDescriptorCrcLen = sizeof(tUdfFileEntry) - sizeof(tUdfTag);
+		MakeTag(fe.desc_tag,UDF_TAGIDENT_FILEENTRYDESC);
+		fe.desc_tag.tag_loc = sec_location;
+		fe.desc_tag.desc_crc_len = sizeof(tudf_file_entry) - sizeof(tudf_tag);
 
 		// Set up ICB.
-		FileEntry.IcbTag.ulPriorRecNumDirectEntries = 0;	// Seems to be optional.
-		FileEntry.IcbTag.usStrategyType = UDF_ICB_STRATEGY_4;
-		FileEntry.IcbTag.usNumEntries = 1;					// Seems to be fixed to 1.
-		FileEntry.IcbTag.ucFileType = bIsDirectory ? UDF_ICB_FILETYPE_DIRECTORY :
+		fe.icb_tag.prior_rec_num_direct_entries = 0;	// Seems to be optional.
+		fe.icb_tag.strategy_type = UDF_ICB_STRATEGY_4;
+		fe.icb_tag.num_entries = 1;					// Seems to be fixed to 1.
+		fe.icb_tag.file_type = is_dir ? UDF_ICB_FILETYPE_DIRECTORY :
 			UDF_ICB_FILETYPE_RANDOM_BYTES;
 
-		FileEntry.IcbTag.ParentIcbLocation.ulLogicalBlockNum = 0;	// Is optional.
-		FileEntry.IcbTag.ParentIcbLocation.usPartitionRefNum = 0;	// Is optional.
+		fe.icb_tag.parent_icb_loc.logical_block_num = 0;	// Is optional.
+		fe.icb_tag.parent_icb_loc.partition_ref_num = 0;	// Is optional.
 
-		FileEntry.IcbTag.usFlags = UDF_ICB_FILEFLAG_ARCHIVE/* | UDF_ICB_FILEFLAG_LONG_ALLOC_DESC*/;
-		FileEntry.IcbTag.usFlags |= m_bDvdVideo ? UDF_ICB_FILEFLAG_SHORT_ALLOC_DESC :
+		fe.icb_tag.flags = UDF_ICB_FILEFLAG_ARCHIVE/* | UDF_ICB_FILEFLAG_LONG_ALLOC_DESC*/;
+		fe.icb_tag.flags |= dvd_video_ ? UDF_ICB_FILEFLAG_SHORT_ALLOC_DESC :
 			UDF_ICB_FILEFLAG_LONG_ALLOC_DESC;
 
-		if (m_bDvdVideo)
+		if (dvd_video_)
 		{
-			FileEntry.IcbTag.usFlags |= UDF_ICB_FILEFLAG_NOT_RELOCATABLE | UDF_ICB_FILEFLAG_CONTIGUOUS;
+			fe.icb_tag.flags |= UDF_ICB_FILEFLAG_NOT_RELOCATABLE | UDF_ICB_FILEFLAG_CONTIGUOUS;
 
 			// DVD-Video does not allow files larger than 1 GiB.
-			if (uiInfoLength > 0x40000000)
+			if (info_len > 0x40000000)
 				return false;
 		}
 
-		FileEntry.ulUid = 0xFFFFFFFF;
-		FileEntry.ulGid = 0xFFFFFFFF;
-		FileEntry.ulPermissions =
+		fe.uid = 0xFFFFFFFF;
+		fe.gid = 0xFFFFFFFF;
+		fe.permissions =
 			UDF_ICB_FILEPERM_OTHER_EXECUTE | UDF_ICB_FILEPERM_OTHER_READ |
 			UDF_ICB_FILEPERM_GROUP_EXECUTE | UDF_ICB_FILEPERM_GROUP_READ |
 			UDF_ICB_FILEPERM_OWNER_EXECUTE | UDF_ICB_FILEPERM_OWNER_READ;
 
-		FileEntry.usFileLinkCount = usFileLinkCount;
+		fe.file_link_count = file_link_count;
 
-		FileEntry.uiInfoLen = uiInfoLength;			// flow.txt = 40, root = 264
-		FileEntry.uiLogicalBlocksRecorded = BytesToSector64(uiInfoLength);
+		fe.info_len = info_len;			// flow.txt = 40, root = 264
+		fe.logical_blocks_rec = BytesToSector64(info_len);
 
 		// File time stamps.
-		MakeDateTime(AccessTime,FileEntry.AccessTime);
-		MakeDateTime(ModifyTime,FileEntry.ModificationTime);
-		MakeDateTime(CreateTime,FileEntry.AttributeTime);
+		MakeDateTime(access_time,fe.access_time);
+		MakeDateTime(modify_time,fe.modify_time);
+		MakeDateTime(create_time,fe.attrib_time);
 
-		FileEntry.ulCheckpoint = 1;
-		MakeIdent(FileEntry.ImplIdent,IT_DEVELOPER);
-		FileEntry.uiUniqueIdent = uiUniqueIdent;
+		fe.checkpoint = 1;
+		MakeIdent(fe.impl_ident,IT_DEVELOPER);
+		fe.unique_ident = unique_ident;
 
 		// Allocation descriptor.
-		tUdfLongAllocDesc AllocDesc;
-		FileEntry.ulAllocDescLen = 0;
+		tudf_long_alloc_desc lad;
+		fe.allocdesc_len = 0;
 
 		// Calculate the total number of bytes needed to store all descriptors.
-		unsigned long ulTotAllocDescSize = ((unsigned long)(uiInfoLength / 0x3FFFF800) + 1) *
-			sizeof(tUdfLongAllocDesc);
+		unsigned long tot_alloc_desc_size = ((unsigned long)(info_len / 0x3FFFF800) + 1) *
+			sizeof(tudf_long_alloc_desc);
 
 		// Add the extended attributes length information, and replace the
 		// allocation descriptor length since DVD-Video only supports short
 		// allocation descriptors.
-		if (m_bDvdVideo)
+		if (dvd_video_)
 		{
-			FileEntry.ulExtendedAttrLen = sizeof(tUdfExtendedAttrHeaderDesc) +
-				sizeof(tUdfExendedAttrFreeEaSpace) + sizeof(tUdfExtendedAttrCgms);
+			fe.extended_attr_len = sizeof(tudf_extended_attr_header_desc) +
+				sizeof(tudf_extended_attr_free_ea_space) + sizeof(tudf_extended_attr_cgms);
 
-			ulTotAllocDescSize = sizeof(tUdfShortAllocDesc);
+			tot_alloc_desc_size = sizeof(tudf_short_alloc_desc);
 		}
 
-		// FIXME: Move everything to m_pByteBuffer.
-		unsigned char *pCompleteBuffer = new unsigned char[sizeof(tUdfFileEntry) +
-			FileEntry.ulExtendedAttrLen + ulTotAllocDescSize];
+		// FIXME: Move everything to byte_buffer_.
+		unsigned char *complete_buffer = new unsigned char[sizeof(tudf_file_entry) +
+			fe.extended_attr_len + tot_alloc_desc_size];
 
 		// Extended attributes that seems to be necessary for DVD-Video support.
-		if (m_bDvdVideo)
+		if (dvd_video_)
 		{
 			// Exended attributes header.
-			tUdfExtendedAttrHeaderDesc ExtHeader;
-			memset(&ExtHeader,0,sizeof(tUdfExtendedAttrHeaderDesc));
+			tudf_extended_attr_header_desc eahd;
+			memset(&eahd,0,sizeof(tudf_extended_attr_header_desc));
 
 			// Setup the tag.
-			MakeTag(ExtHeader.DescTag,UDF_TAGIDENT_EXTENDEDATTRDESC);
-			ExtHeader.DescTag.ulTagLocation = ulSecLocation;
-			ExtHeader.DescTag.usDescriptorCrcLen = sizeof(tUdfExtendedAttrHeaderDesc) - sizeof(tUdfTag);
+			MakeTag(eahd.desc_tag,UDF_TAGIDENT_EXTENDEDATTRDESC);
+			eahd.desc_tag.tag_loc = sec_location;
+			eahd.desc_tag.desc_crc_len = sizeof(tudf_extended_attr_header_desc) - sizeof(tudf_tag);
 
-			ExtHeader.ulImplAttrLoc = sizeof(tUdfExtendedAttrHeaderDesc);
-			ExtHeader.ulAppAttrLoc = sizeof(tUdfExtendedAttrHeaderDesc) +
-				sizeof(tUdfExendedAttrFreeEaSpace) + sizeof(tUdfExtendedAttrCgms);
+			eahd.impl_attr_loc = sizeof(tudf_extended_attr_header_desc);
+			eahd.app_attr_loc = sizeof(tudf_extended_attr_header_desc) +
+				sizeof(tudf_extended_attr_free_ea_space) + sizeof(tudf_extended_attr_cgms);
 
 			// Compute tag checksums.
-			MakeTagChecksums(ExtHeader.DescTag,(unsigned char *)&ExtHeader + sizeof(tUdfTag));
+			MakeTagChecksums(eahd.desc_tag,(unsigned char *)&eahd + sizeof(tudf_tag));
 
 			// Free EA space descriptor.
-			tUdfExendedAttrFreeEaSpace EaSpaceDesc;
-			memset(&EaSpaceDesc,0,sizeof(tUdfExendedAttrFreeEaSpace));
+			tudf_extended_attr_free_ea_space eafes;
+			memset(&eafes,0,sizeof(tudf_extended_attr_free_ea_space));
 
-			EaSpaceDesc.ulAttrType = UDF_SECTOR_SIZE;
-			EaSpaceDesc.ucAttrSubtype = 1;
-			EaSpaceDesc.ulAttrLength = sizeof(tUdfExendedAttrFreeEaSpace);
-			EaSpaceDesc.ulImplUseLen = 4;
-			MakeIdent(EaSpaceDesc.ImplIdent,IT_FREEEASPACE);
-			EaSpaceDesc.usHeaderChecksum = MakeExtAddrChecksum((unsigned char *)&EaSpaceDesc);
-			EaSpaceDesc.usFreeSpace = 0;
+			eafes.attr_type = UDF_SECTOR_SIZE;
+			eafes.attr_subtype = 1;
+			eafes.attr_len = sizeof(tudf_extended_attr_free_ea_space);
+			eafes.impl_use_len = 4;
+			MakeIdent(eafes.impl_ident,IT_FREEEASPACE);
+			eafes.header_checksum = MakeExtAddrChecksum((unsigned char *)&eafes);
+			eafes.free_space = 0;
 
 			// CGMS descriptor.
-			tUdfExtendedAttrCgms CgmsDesc;
-			memset(&CgmsDesc,0,sizeof(tUdfExtendedAttrCgms));
+			tudf_extended_attr_cgms eac;
+			memset(&eac,0,sizeof(tudf_extended_attr_cgms));
 
-			CgmsDesc.ulAttrType = UDF_SECTOR_SIZE;
-			CgmsDesc.ucAttrSubtype = 1;
-			CgmsDesc.ulAttrLength = sizeof(tUdfExtendedAttrCgms);
-			CgmsDesc.ulImplUseLen = 8;
-			MakeIdent(CgmsDesc.ImplIdent,IT_CGMS);
-			CgmsDesc.usHeaderChecksum = MakeExtAddrChecksum((unsigned char *)&CgmsDesc);
-			CgmsDesc.ucCgmsInfo = 0;
-			CgmsDesc.ucDataStructType = 0;
-			CgmsDesc.ulProtSysInfo = 0;
+			eac.attr_type = UDF_SECTOR_SIZE;
+			eac.attr_subtype = 1;
+			eac.attr_len = sizeof(tudf_extended_attr_cgms);
+			eac.impl_use_len = 8;
+			MakeIdent(eac.impl_ident,IT_CGMS);
+			eac.header_checksum = MakeExtAddrChecksum((unsigned char *)&eac);
+			eac.cgms_info = 0;
+			eac.data_struct_type = 0;
+			eac.prot_sys_info = 0;
 
-			unsigned long ulBufferPos = sizeof(tUdfFileEntry);
-			memcpy(pCompleteBuffer + ulBufferPos,&ExtHeader,sizeof(tUdfExtendedAttrHeaderDesc));
-			ulBufferPos += sizeof(tUdfExtendedAttrHeaderDesc);
+			unsigned long buffer_pos = sizeof(tudf_file_entry);
+			memcpy(complete_buffer + buffer_pos,&eahd,sizeof(tudf_extended_attr_header_desc));
+			buffer_pos += sizeof(tudf_extended_attr_header_desc);
 
-			memcpy(pCompleteBuffer + ulBufferPos,&EaSpaceDesc,sizeof(tUdfExendedAttrFreeEaSpace));
-			ulBufferPos += sizeof(tUdfExendedAttrFreeEaSpace);
+			memcpy(complete_buffer + buffer_pos,&eafes,sizeof(tudf_extended_attr_free_ea_space));
+			buffer_pos += sizeof(tudf_extended_attr_free_ea_space);
 
-			memcpy(pCompleteBuffer + ulBufferPos,&CgmsDesc,sizeof(tUdfExtendedAttrCgms));
-			ulBufferPos += sizeof(tUdfExtendedAttrCgms);
+			memcpy(complete_buffer + buffer_pos,&eac,sizeof(tudf_extended_attr_cgms));
+			buffer_pos += sizeof(tudf_extended_attr_cgms);
 
 			// Allocation descriptor.
-			tUdfShortAllocDesc AllocDesc;
-			memset(&AllocDesc,0,sizeof(tUdfShortAllocDesc));
+			tudf_short_alloc_desc sad;
+			memset(&sad,0,sizeof(tudf_short_alloc_desc));
 
-			AllocDesc.ulExtentLen = (unsigned long)uiInfoLength;
-			AllocDesc.ulExtentPos = ulInfoLocation;
+			sad.extent_len = (unsigned long)info_len;
+			sad.extent_loc = info_loc;
 
-			FileEntry.ulAllocDescLen = sizeof(tUdfShortAllocDesc);
-			memcpy(pCompleteBuffer + ulBufferPos,&AllocDesc,sizeof(tUdfShortAllocDesc));
+			fe.allocdesc_len = sizeof(tudf_short_alloc_desc);
+			memcpy(complete_buffer + buffer_pos,&sad,sizeof(tudf_short_alloc_desc));
 		}
 		else
 		{
-			unsigned long ulBufferPos = sizeof(tUdfFileEntry) + FileEntry.ulExtendedAttrLen;
-			while (uiInfoLength > 0x3FFFF800)
+			unsigned long buffer_pos = sizeof(tudf_file_entry) + fe.extended_attr_len;
+			while (info_len > 0x3FFFF800)
 			{
-				memset(&AllocDesc,0,sizeof(tUdfLongAllocDesc));
-				AllocDesc.ulExtentLen = 0x3FFFF800;		// FIXME: Maybe I should not state that the memory has been recorded (ECMA 14.14.1.1).
-				AllocDesc.ExtentLoc.ulLogicalBlockNum = ulInfoLocation;
-				AllocDesc.ExtentLoc.usPartitionRefNum = 0;
+				memset(&lad,0,sizeof(tudf_long_alloc_desc));
+				lad.extent_len = 0x3FFFF800;		// FIXME: Maybe I should not state that the memory has been recorded (ECMA 14.14.1.1).
+				lad.extent_loc.logical_block_num = info_loc;
+				lad.extent_loc.partition_ref_num = 0;
 
-				FileEntry.ulAllocDescLen += sizeof(tUdfLongAllocDesc);
+				fe.allocdesc_len += sizeof(tudf_long_alloc_desc);
 
 				// Copy the entry to the complete buffer.
-				memcpy(pCompleteBuffer + ulBufferPos,&AllocDesc,sizeof(tUdfLongAllocDesc));
-				ulBufferPos += sizeof(tUdfLongAllocDesc);
+				memcpy(complete_buffer + buffer_pos,&lad,sizeof(tudf_long_alloc_desc));
+				buffer_pos += sizeof(tudf_long_alloc_desc);
 
-				uiInfoLength -= 0x3FFFF800;
-				ulInfoLocation += 0x3FFFF800 / UDF_SECTOR_SIZE;
+				info_len -= 0x3FFFF800;
+				info_loc += 0x3FFFF800 / UDF_SECTOR_SIZE;
 			}
 
 			// Add a descriptor containing the remaining bytes.
-			memset(&AllocDesc,0,sizeof(tUdfLongAllocDesc));
-			AllocDesc.ulExtentLen = (unsigned long)uiInfoLength;	// FIXME: Same as above.
-			AllocDesc.ExtentLoc.ulLogicalBlockNum = ulInfoLocation;
-			AllocDesc.ExtentLoc.usPartitionRefNum = 0;
+			memset(&lad,0,sizeof(tudf_long_alloc_desc));
+			lad.extent_len = (unsigned long)info_len;	// FIXME: Same as above.
+			lad.extent_loc.logical_block_num = info_loc;
+			lad.extent_loc.partition_ref_num = 0;
 
-			FileEntry.ulAllocDescLen += sizeof(tUdfLongAllocDesc);
+			fe.allocdesc_len += sizeof(tudf_long_alloc_desc);
 
 			// Copy the entry to the complete buffer.
-			memcpy(pCompleteBuffer + ulBufferPos,&AllocDesc,sizeof(tUdfLongAllocDesc));
+			memcpy(complete_buffer + buffer_pos,&lad,sizeof(tudf_long_alloc_desc));
 		}
 
 		// Calculate checksums.
-		unsigned short usDescLen = sizeof(tUdfFileEntry) +
-			(unsigned short)FileEntry.ulExtendedAttrLen +
-			(unsigned short)FileEntry.ulAllocDescLen;
-		FileEntry.DescTag.usDescriptorCrcLen = usDescLen - sizeof(tUdfTag);
+		unsigned short desc_len = sizeof(tudf_file_entry) +
+			(unsigned short)fe.extended_attr_len +
+			(unsigned short)fe.allocdesc_len;
+		fe.desc_tag.desc_crc_len = desc_len - sizeof(tudf_tag);
 
 		// The file entry part is done, copy it.
-		memcpy(pCompleteBuffer,&FileEntry,sizeof(tUdfFileEntry));
+		memcpy(complete_buffer,&fe,sizeof(tudf_file_entry));
 
-		MakeTagChecksums(FileEntry.DescTag,pCompleteBuffer + sizeof(tUdfTag));
+		MakeTagChecksums(fe.desc_tag,complete_buffer + sizeof(tudf_tag));
 
 		// Re-copy the tag since the CRC and checksum has been updated.
-		memcpy(pCompleteBuffer,&FileEntry.DescTag,sizeof(tUdfTag));
+		memcpy(complete_buffer,&fe.desc_tag,sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = out_stream.Write(pCompleteBuffer,usDescLen);
-		delete [] pCompleteBuffer;
+		ckcore::tint64 processed = out_stream.Write(complete_buffer,desc_len);
+		delete [] complete_buffer;
 
-		if (iProcessed == -1)
+		if (processed == -1)
 			return false;
-		if (iProcessed != usDescLen)
+		if (processed != desc_len)
 			return false;
 
 		// Pad the sector to 2048 bytes.
-		char szTemp[1] = { 0 };
-		for (unsigned long i = 0; i < (unsigned long)(UDF_SECTOR_SIZE - usDescLen); i++)
-			out_stream.Write(szTemp,1);
+		char tmp[1] = { 0 };
+		for (unsigned long i = 0; i < (unsigned long)(UDF_SECTOR_SIZE - desc_len); i++)
+			out_stream.Write(tmp,1);
 
 		return true;
 	}
 
 	unsigned long Udf::CalcFileIdentParentSize()
 	{
-		return sizeof(tUdfFileIdentDesc) + 2;
+		return sizeof(tudf_fileident_desc) + 2;
 	}
 
-	unsigned long Udf::CalcFileIdentSize(const ckcore::tchar *szFileName)
+	unsigned long Udf::CalcFileIdentSize(const ckcore::tchar *file_name)
 	{
-		unsigned long ulFileNameLen = (unsigned long)ckcore::string::astrlen(szFileName);
-		if (ulFileNameLen > 254)
-			ulFileNameLen = 254;
+		unsigned long file_name_len = (unsigned long)ckcore::string::astrlen(file_name);
+		if (file_name_len > 254)
+			file_name_len = 254;
 
-		unsigned long ulFileIdentLen = m_bDvdVideo ? ulFileNameLen + 1 : (ulFileNameLen << 1) + 1;
-		unsigned long ulFileImplUseLen = 0;
+		unsigned long file_ident_len = dvd_video_ ? file_name_len + 1 : (file_name_len << 1) + 1;
+		unsigned long file_impl_use_len = 0;
 
-		unsigned long ulPadSize = 4 * (unsigned short)((ulFileIdentLen + ulFileImplUseLen + 38 + 3)/4) -
-			(ulFileIdentLen + ulFileImplUseLen + 38);
+		unsigned long pad_size = 4 * (unsigned short)((file_ident_len + file_impl_use_len + 38 + 3)/4) -
+			(file_ident_len + file_impl_use_len + 38);
 
-		return sizeof(tUdfFileIdentDesc) + ulFileIdentLen + ulFileImplUseLen + ulPadSize;
+		return sizeof(tudf_fileident_desc) + file_ident_len + file_impl_use_len + pad_size;
 	}
 
 	unsigned long Udf::CalcFileEntrySize()
@@ -1194,6 +1192,6 @@ namespace ckfilesystem
 	*/
 	unsigned long Udf::GetVolDescInitialSize()
 	{
-		return sizeof(tUdfVolStructDesc) * 3;
+		return sizeof(tudf_volstruct_desc) * 3;
 	}
 };

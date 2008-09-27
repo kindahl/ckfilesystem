@@ -20,7 +20,7 @@
 #include "ckfilesystem/dvdvideo.hh"
 #include "ckfilesystem/iforeader.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	IfoReader::IfoReader(const ckcore::tchar *szFullPath) : m_InStream(szFullPath)
 	{

@@ -19,7 +19,7 @@
 #include "ckfilesystem/iso9660writer.hh"
 #include "ckfilesystem/discimagehelper.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	DiscImageHelper::DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
 		bool bIncludeInfo,bool bLongJolietNames,Iso9660::eInterLevel InterLevel) :

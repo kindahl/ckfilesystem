@@ -23,7 +23,7 @@
 #include <ckcore/stream.hh>
 #include "ckfilesystem/iso9660.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	// A Iso9660TreeNode tree node contains every information needed to write
 	// an ISO9660 directory record.

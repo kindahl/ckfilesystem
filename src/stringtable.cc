@@ -18,7 +18,7 @@
 
 #include "ckfilesystem/stringtable.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	DynStringTable g_StringTable;
 

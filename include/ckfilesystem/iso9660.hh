@@ -44,7 +44,7 @@
 #define VOLDESCTYPE_VOL_PARTITION_DESC			3
 #define VOLDESCTYPE_VOL_DESC_SET_TERM			255
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	/*
 		Identifiers.

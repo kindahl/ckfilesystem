@@ -25,7 +25,7 @@
 
 #define DVDVIDEO_BLOCK_SIZE			2048
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class DvdVideo
 	{

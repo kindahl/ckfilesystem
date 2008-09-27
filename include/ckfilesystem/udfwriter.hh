@@ -26,7 +26,7 @@
 #include "ckfilesystem/filetree.hh"
 #include "ckfilesystem/udf.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class UdfWriter : public SectorClient
 	{

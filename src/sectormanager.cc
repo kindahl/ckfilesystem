@@ -19,7 +19,7 @@
 #include "ckfilesystem/sectormanager.hh"
 #include "ckfilesystem/iso9660.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	CSectorManager::CSectorManager(ckcore::tuint64 uiStartSector)
 	{

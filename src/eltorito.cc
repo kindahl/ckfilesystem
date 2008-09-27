@@ -20,7 +20,7 @@
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/iso9660.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	ElTorito::ElTorito(ckcore::Log *pLog) : m_pLog(pLog)
 	{

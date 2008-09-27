@@ -165,7 +165,7 @@
 // Parition entity flags.
 #define UDF_ENTITYFLAG_DVDVIDEO					1 << 1
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 #pragma pack(1)	// Force byte alignment.
 

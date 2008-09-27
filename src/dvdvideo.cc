@@ -21,7 +21,7 @@
 #include "ckfilesystem/dvdvideo.hh"
 #include "ckfilesystem/iforeader.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	DvdVideo::DvdVideo(ckcore::Log *pLog) : m_pLog(pLog)
 	{

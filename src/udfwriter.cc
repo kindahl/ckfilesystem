@@ -22,7 +22,7 @@
 #include "ckfilesystem/udfwriter.hh"
 #include "ckfilesystem/iso9660.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	UdfWriter::UdfWriter(ckcore::Log *pLog,SectorOutStream *pOutStream,
 		CSectorManager *pSectorManager,Udf *pUdf,bool bUseFileTimes) :

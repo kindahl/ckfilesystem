@@ -24,7 +24,7 @@
 #include "ckfilesystem/dvdvideo.hh"
 #include "ckfilesystem/discimagewriter.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	DiscImageWriter::DiscImageWriter(ckcore::Log *pLog,eFileSystem FileSystem) : m_FileSystem(FileSystem),
 		m_pLog(pLog),m_ElTorito(pLog),m_Udf(FileSystem == FS_DVDVIDEO)

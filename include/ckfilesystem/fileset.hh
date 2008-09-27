@@ -21,7 +21,7 @@
 #include <ckcore/types.hh>
 #include <ckcore/string.hh>
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	/*
 		Describes a file that should be included in the disc image.
@@ -179,5 +179,5 @@ namespace ckFileSystem
 		}
 	};
 
-	typedef std::set<ckFileSystem::FileDescriptor,ckFileSystem::FileComparator> FileSet;
+	typedef std::set<ckfilesystem::FileDescriptor,ckfilesystem::FileComparator> FileSet;
 };

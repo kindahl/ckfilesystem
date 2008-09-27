@@ -20,7 +20,7 @@
 #include "ckfilesystem/iso9660reader.hh"
 #include "ckfilesystem/iso9660.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	Iso9660Reader::Iso9660Reader(ckcore::Log *pLog) : m_pLog(pLog),
 		m_pRootNode(NULL)

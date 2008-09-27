@@ -30,7 +30,7 @@
 
 #define ISO9660WRITER_FILENAME_BUFFER_SIZE		206			// Must be enough to hold the largest possible string using
 															// any of the supported file system extensions.
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class Iso9660ImportData
 	{
@@ -42,7 +42,7 @@ namespace ckFileSystem
 		unsigned long m_ulExtentLocation;
 		unsigned long m_ulExtentLength;
 
-		ckFileSystem::tDirRecordDateTime m_RecDateTime;
+		ckfilesystem::tDirRecordDateTime m_RecDateTime;
 
 		Iso9660ImportData()
 		{
@@ -53,7 +53,7 @@ namespace ckFileSystem
 			m_ulExtentLocation = 0;
 			m_ulExtentLength = 0;
 
-			memset(&m_RecDateTime,0,sizeof(ckFileSystem::tDirRecordDateTime));
+			memset(&m_RecDateTime,0,sizeof(ckfilesystem::tDirRecordDateTime));
 		}
 	};
 

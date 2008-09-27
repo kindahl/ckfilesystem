@@ -120,7 +120,7 @@ typedef struct
 
 #pragma pack()	// Switch back to normal alignment.
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class ElToritoImage
 	{

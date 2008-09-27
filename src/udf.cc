@@ -23,7 +23,7 @@
 #include "ckfilesystem/udf.hh"
 #include "ckfilesystem/iso9660.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	/*
 		Identifiers.

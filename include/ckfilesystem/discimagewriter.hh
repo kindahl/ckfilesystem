@@ -38,7 +38,7 @@
 #undef SetVolumeLabel
 #endif
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class DiscImageWriter
 	{

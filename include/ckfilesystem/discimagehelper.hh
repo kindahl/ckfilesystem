@@ -22,7 +22,7 @@
 #include "ckfilesystem/iso9660.hh"
 #include "ckfilesystem/joliet.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class DiscImageHelper
 	{

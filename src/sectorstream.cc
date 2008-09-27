@@ -18,7 +18,7 @@
 
 #include "ckfilesystem/sectorstream.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	/*
 		COutBufferedStream

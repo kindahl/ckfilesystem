@@ -25,7 +25,7 @@
 #define IFO_INDETIFIER_VTS				"DVDVIDEO-VTS"
 #define IFO_IDENTIFIER_LEN				12
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class IfoVmgData
 	{

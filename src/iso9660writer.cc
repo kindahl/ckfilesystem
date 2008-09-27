@@ -24,7 +24,7 @@
 #include "ckfilesystem/iso9660reader.hh"
 #include "ckfilesystem/iso9660writer.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	Iso9660Writer::Iso9660Writer(ckcore::Log *pLog,SectorOutStream *pOutStream,
 		CSectorManager *pSectorManager,Iso9660 *pIso9660,Joliet *pJoliet,

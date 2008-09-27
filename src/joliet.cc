@@ -20,7 +20,7 @@
 #include <ckcore/string.hh>
 #include "ckfilesystem/joliet.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	Joliet::Joliet()
 	{

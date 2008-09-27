@@ -18,7 +18,7 @@
 
 #include "ckfilesystem/filetree.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	FileTree::FileTree(ckcore::Log *pLog) :
 		m_pLog(pLog),m_pRootNode(NULL)

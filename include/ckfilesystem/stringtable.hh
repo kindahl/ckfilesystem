@@ -20,7 +20,7 @@
 #include <map>
 #include <ckcore/types.hh>
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	enum eStrings
 	{

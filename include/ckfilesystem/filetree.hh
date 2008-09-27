@@ -22,7 +22,7 @@
 #include <ckcore/log.hh>
 #include "ckfilesystem/fileset.hh"
 
-namespace ckFileSystem
+namespace ckfilesystem
 {
 	class FileTreeNode
 	{

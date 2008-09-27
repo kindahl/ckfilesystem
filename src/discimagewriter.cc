@@ -46,7 +46,7 @@ namespace ckfilesystem
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= m_Iso9660.GetMaxDirLevel())
@@ -78,7 +78,7 @@ namespace ckfilesystem
 				}
 
 				// If imported, use the imported information.
-				if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_IMPORTED)
+				if ((*itFile)->file_flags_ & FileTreeNode::FLAG_IMPORTED)
 				{
 					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->m_pData;
 					if (pImportNode == NULL)
@@ -88,11 +88,11 @@ namespace ckfilesystem
 						return false;
 					}
 
-					(*itFile)->m_uiDataSizeNormal = pImportNode->m_ulExtentLength;
-					(*itFile)->m_uiDataSizeJoliet = pImportNode->m_ulExtentLength;
+					(*itFile)->m_uiDataSizeNormal = pImportNode->extent_len_;
+					(*itFile)->m_uiDataSizeJoliet = pImportNode->extent_len_;
 
-					(*itFile)->m_uiDataPosNormal = pImportNode->m_ulExtentLocation;
-					(*itFile)->m_uiDataPosJoliet = pImportNode->m_ulExtentLocation;
+					(*itFile)->m_uiDataPosNormal = pImportNode->extent_loc_;
+					(*itFile)->m_uiDataPosJoliet = pImportNode->extent_loc_;
 				}
 				else
 				{
@@ -195,7 +195,7 @@ namespace ckfilesystem
 			if (FileProgresser.Cancelled())
 				return RESULT_CANCEL;
 
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= m_Iso9660.GetMaxDirLevel())
@@ -203,7 +203,7 @@ namespace ckfilesystem
 				else
 					DirNodeStack.push_back(std::make_pair(*itFile,iLevel + 1));
 			}
-			else if (!((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_IMPORTED))	// We don't have any data to write for imported files.
+			else if (!((*itFile)->file_flags_ & FileTreeNode::FLAG_IMPORTED))	// We don't have any data to write for imported files.
 			{
 				// Validate file size.
 				if (m_FileSystem == FS_ISO9660 || m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_DVDVIDEO)
@@ -392,7 +392,7 @@ namespace ckfilesystem
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				DirNodeStack.push_back(*itFile);
 			}

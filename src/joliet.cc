@@ -90,41 +90,41 @@ namespace ckfilesystem
 	{
 		// Clear memory.
 		memset(&m_VolDescSuppl,0,sizeof(m_VolDescSuppl));
-		EmptyStrBuffer(m_VolDescSuppl.ucSysIdentifier,sizeof(m_VolDescSuppl.ucSysIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucVolIdentifier,sizeof(m_VolDescSuppl.ucVolIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucVolSetIdentifier,sizeof(m_VolDescSuppl.ucVolSetIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucPublIdentifier,sizeof(m_VolDescSuppl.ucPublIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucPrepIdentifier,sizeof(m_VolDescSuppl.ucPrepIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucAppIdentifier,sizeof(m_VolDescSuppl.ucAppIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucCopyFileIdentifier,sizeof(m_VolDescSuppl.ucCopyFileIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucAbstFileIdentifier,sizeof(m_VolDescSuppl.ucAbstFileIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucBiblFileIdentifier,sizeof(m_VolDescSuppl.ucBiblFileIdentifier));
+		EmptyStrBuffer(m_VolDescSuppl.sys_ident,sizeof(m_VolDescSuppl.sys_ident));
+		EmptyStrBuffer(m_VolDescSuppl.vol_ident,sizeof(m_VolDescSuppl.vol_ident));
+		EmptyStrBuffer(m_VolDescSuppl.volset_ident,sizeof(m_VolDescSuppl.volset_ident));
+		EmptyStrBuffer(m_VolDescSuppl.publ_ident,sizeof(m_VolDescSuppl.publ_ident));
+		EmptyStrBuffer(m_VolDescSuppl.prep_ident,sizeof(m_VolDescSuppl.prep_ident));
+		EmptyStrBuffer(m_VolDescSuppl.app_ident,sizeof(m_VolDescSuppl.app_ident));
+		EmptyStrBuffer(m_VolDescSuppl.copy_file_ident,sizeof(m_VolDescSuppl.copy_file_ident));
+		EmptyStrBuffer(m_VolDescSuppl.abst_file_ident,sizeof(m_VolDescSuppl.abst_file_ident));
+		EmptyStrBuffer(m_VolDescSuppl.bibl_file_ident,sizeof(m_VolDescSuppl.bibl_file_ident));
 
 		// Set primary volume descriptor header.
-		m_VolDescSuppl.ucType = VOLDESCTYPE_SUPPL_VOL_DESC;
-		m_VolDescSuppl.ucVersion = 1;
-		m_VolDescSuppl.ucFileStructVer = 1;
-		memcpy(m_VolDescSuppl.ucIdentifier,g_IdentCD,sizeof(m_VolDescSuppl.ucIdentifier));	
+		m_VolDescSuppl.type = VOLDESCTYPE_SUPPL_VOL_DESC;
+		m_VolDescSuppl.version = 1;
+		m_VolDescSuppl.file_struct_ver = 1;
+		memcpy(m_VolDescSuppl.ident,g_IdentCD,sizeof(m_VolDescSuppl.ident));	
 
 		// Always use Joliet level 3.
-		m_VolDescSuppl.ucEscapeSeq[0] = 0x25;
-		m_VolDescSuppl.ucEscapeSeq[1] = 0x2F;
-		m_VolDescSuppl.ucEscapeSeq[2] = 0x45;
+		m_VolDescSuppl.esc_sec[0] = 0x25;
+		m_VolDescSuppl.esc_sec[1] = 0x2F;
+		m_VolDescSuppl.esc_sec[2] = 0x45;
 
 		// Set the root directory record.
-		m_VolDescSuppl.RootDirRecord.ucDirRecordLen = 34;
-		m_VolDescSuppl.RootDirRecord.ucFileFlags = DIRRECORD_FILEFLAG_DIRECTORY;
-		m_VolDescSuppl.RootDirRecord.ucFileIdentifierLen = 1;	// One byte is always allocated in the tDirRecord structure.
+		m_VolDescSuppl.root_dir_record.dir_record_len = 34;
+		m_VolDescSuppl.root_dir_record.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
+		m_VolDescSuppl.root_dir_record.file_ident_len = 1;	// One byte is always allocated in the tiso_dir_record structure.
 
 		// Set application identifier.
-		memset(m_VolDescSuppl.ucAppData,0x20,sizeof(m_VolDescSuppl.ucAppData));
+		memset(m_VolDescSuppl.app_data,0x20,sizeof(m_VolDescSuppl.app_data));
 		char szAppIdentifier[] = { 0x00,0x49,0x00,0x6E,0x00,0x66,0x00,0x72,0x00,0x61,
 			0x00,0x52,0x00,0x65,0x00,0x63,0x00,0x6F,0x00,0x72,0x00,0x64,0x00,0x65,0x00,0x72,
 			0x00,0x20,0x00,0x28,0x00,0x43,0x00,0x29,0x00,0x20,0x00,0x32,0x00,0x30,0x00,0x30,
 			0x00,0x36,0x00,0x2D,0x00,0x32,0x00,0x30,0x00,0x30,0x00,0x38,0x00,0x20,0x00,0x43,
 			0x00,0x68,0x00,0x72,0x00,0x69,0x00,0x73,0x00,0x74,0x00,0x69,0x00,0x61,0x00,0x6E,
 			0x00,0x20,0x00,0x4B,0x00,0x69,0x00,0x6E,0x00,0x64,0x00,0x61,0x00,0x68,0x00,0x6C };
-		memcpy(m_VolDescSuppl.ucAppIdentifier,szAppIdentifier,90);
+		memcpy(m_VolDescSuppl.app_ident,szAppIdentifier,90);
 	}
 
 	bool Joliet::WriteVolDesc(ckcore::OutStream &out_stream,struct tm &ImageCreate,
@@ -132,28 +132,28 @@ namespace ckfilesystem
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
 		// Initialize the supplementary volume descriptor.
-		Write733(m_VolDescSuppl.ucVolSpaceSize,ulVolSpaceSize);		// Volume size in sectors.
-		Write723(m_VolDescSuppl.ucVolSetSize,1);		// Only one disc in the volume set.
-		Write723(m_VolDescSuppl.ucVolSeqNumber,1);		// This is the first disc in the volume set.
-		Write723(m_VolDescSuppl.ucLogicalBlockSize,ISO9660_SECTOR_SIZE);
-		Write733(m_VolDescSuppl.ucPathTableSize,ulPathTableSize);	// Path table size in bytes.
-		Write731(m_VolDescSuppl.ucPathTableTypeL,ulPosPathTableL);	// Start sector of LSBF path table.
-		Write732(m_VolDescSuppl.ucPathTableTypeM,ulPosPathTableM);	// Start sector of MSBF path table.
+		Write733(m_VolDescSuppl.vol_space_size,ulVolSpaceSize);		// Volume size in sectors.
+		Write723(m_VolDescSuppl.volset_size,1);		// Only one disc in the volume set.
+		Write723(m_VolDescSuppl.volseq_num,1);		// This is the first disc in the volume set.
+		Write723(m_VolDescSuppl.logical_block_size,ISO9660_SECTOR_SIZE);
+		Write733(m_VolDescSuppl.path_table_size,ulPathTableSize);	// Path table size in bytes.
+		Write731(m_VolDescSuppl.path_table_type_l,ulPosPathTableL);	// Start sector of LSBF path table.
+		Write732(m_VolDescSuppl.path_table_type_m,ulPosPathTableM);	// Start sector of MSBF path table.
 
-		Write733(m_VolDescSuppl.RootDirRecord.ucExtentLocation,ulRootExtentLoc);
-		Write733(m_VolDescSuppl.RootDirRecord.ucDataLen,ulDataLen);
-		Write723(m_VolDescSuppl.RootDirRecord.ucVolSeqNumber,1);	// The file extent is on the first volume set.
+		Write733(m_VolDescSuppl.root_dir_record.extent_loc,ulRootExtentLoc);
+		Write733(m_VolDescSuppl.root_dir_record.data_len,ulDataLen);
+		Write723(m_VolDescSuppl.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 		// Time information.
-		MakeDateTime(ImageCreate,m_VolDescSuppl.RootDirRecord.RecDateTime);
+		MakeDateTime(ImageCreate,m_VolDescSuppl.root_dir_record.rec_timestamp);
 
-		MakeDateTime(ImageCreate,m_VolDescSuppl.CreateDateTime);
-		memcpy(&m_VolDescSuppl.ModDateTime,&m_VolDescSuppl.CreateDateTime,sizeof(tVolDescDateTime));
+		MakeDateTime(ImageCreate,m_VolDescSuppl.create_time);
+		memcpy(&m_VolDescSuppl.modify_time,&m_VolDescSuppl.create_time,sizeof(tiso_voldesc_datetime));
 
-		memset(&m_VolDescSuppl.ExpDateTime,'0',sizeof(tVolDescDateTime));
-		m_VolDescSuppl.ExpDateTime.ucZone = 0x00;
-		memset(&m_VolDescSuppl.EffectiveDateTime,'0',sizeof(tVolDescDateTime));
-		m_VolDescSuppl.EffectiveDateTime.ucZone = 0x00;
+		memset(&m_VolDescSuppl.expr_time,'0',sizeof(tiso_voldesc_datetime));
+		m_VolDescSuppl.expr_time.zone = 0x00;
+		memset(&m_VolDescSuppl.effect_time,'0',sizeof(tiso_voldesc_datetime));
+		m_VolDescSuppl.effect_time.zone = 0x00;
 
 		// Write the supplementary volume descriptor.
 		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescSuppl,sizeof(m_VolDescSuppl));
@@ -170,14 +170,14 @@ namespace ckfilesystem
 		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iLabelCopyLen = iLabelLen < 16 ? iLabelLen : 16;
 
-		EmptyStrBuffer(m_VolDescSuppl.ucVolIdentifier,sizeof(m_VolDescSuppl.ucVolIdentifier));
+		EmptyStrBuffer(m_VolDescSuppl.vol_ident,sizeof(m_VolDescSuppl.vol_ident));
 
 	#ifdef _UNICODE
-		MemStrCopy(m_VolDescSuppl.ucVolIdentifier,szLabel,iLabelCopyLen);
+		MemStrCopy(m_VolDescSuppl.vol_ident,szLabel,iLabelCopyLen);
 	#else
 		wchar_t szWideLabel[17];
 		ckcore::string::ansi_to_utf16(szLabel,szWideLabel,sizeof(szWideLabel) / sizeof(wchar_t));
-		MemStrCopy(m_VolDescSuppl.ucVolIdentifier,szWideLabel,iLabelCopyLen);
+		MemStrCopy(m_VolDescSuppl.vol_ident,szWideLabel,iLabelCopyLen);
 	#endif
 	}
 
@@ -194,16 +194,16 @@ namespace ckfilesystem
 		size_t iPublIdentCopyLen = iPublIdentLen < 64 ? iPublIdentLen : 64;
 		size_t iPrepIdentCopyLen = iPrepIdentLen < 64 ? iPrepIdentLen : 64;
 
-		EmptyStrBuffer(m_VolDescSuppl.ucSysIdentifier,sizeof(m_VolDescSuppl.ucSysIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucVolSetIdentifier,sizeof(m_VolDescSuppl.ucVolSetIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucPublIdentifier,sizeof(m_VolDescSuppl.ucPublIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucPrepIdentifier,sizeof(m_VolDescSuppl.ucPrepIdentifier));
+		EmptyStrBuffer(m_VolDescSuppl.sys_ident,sizeof(m_VolDescSuppl.sys_ident));
+		EmptyStrBuffer(m_VolDescSuppl.volset_ident,sizeof(m_VolDescSuppl.volset_ident));
+		EmptyStrBuffer(m_VolDescSuppl.publ_ident,sizeof(m_VolDescSuppl.publ_ident));
+		EmptyStrBuffer(m_VolDescSuppl.prep_ident,sizeof(m_VolDescSuppl.prep_ident));
 
 	#ifdef _UNICODE
-		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szSystem,iSystemCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szVolSetIdent,iVolSetIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szPublIdent,iPublIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szPrepIdent,iPrepIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.sys_ident,szSystem,iSystemCopyLen);
+		MemStrCopy(m_VolDescSuppl.volset_ident,szVolSetIdent,iVolSetIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.publ_ident,szPublIdent,iPublIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.prep_ident,szPrepIdent,iPrepIdentCopyLen);
 	#else
 		wchar_t szWideSystem[17];
 		wchar_t szWideVolSetIdent[65];
@@ -215,10 +215,10 @@ namespace ckfilesystem
 		ckcore::string::ansi_to_utf16(szPublIdent,szWidePublIdent,sizeof(szWidePublIdent) / sizeof(wchar_t));
 		ckcore::string::ansi_to_utf16(szPrepIdent,szWidePrepIdent,sizeof(szWidePrepIdent) / sizeof(wchar_t));
 
-		MemStrCopy(m_VolDescSuppl.ucSysIdentifier,szWideSystem,iSystemCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucVolSetIdentifier,szWideVolSetIdent,iVolSetIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucPublIdentifier,szWidePublIdent,iPublIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucPrepIdentifier,szWidePrepIdent,iPrepIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.sys_ident,szWideSystem,iSystemCopyLen);
+		MemStrCopy(m_VolDescSuppl.volset_ident,szWideVolSetIdent,iVolSetIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.publ_ident,szWidePublIdent,iPublIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.prep_ident,szWidePrepIdent,iPrepIdentCopyLen);
 	#endif
 	}
 
@@ -234,14 +234,14 @@ namespace ckfilesystem
 		size_t iAbstFileIdentCopyLen = iAbstFileIdentLen < 18 ? iAbstFileIdentLen : 18;
 		size_t iBiblFileIdentCopyLen = iBiblFileIdentLen < 18 ? iBiblFileIdentLen : 18;
 
-		EmptyStrBuffer(m_VolDescSuppl.ucCopyFileIdentifier,sizeof(m_VolDescSuppl.ucCopyFileIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucAbstFileIdentifier,sizeof(m_VolDescSuppl.ucAbstFileIdentifier));
-		EmptyStrBuffer(m_VolDescSuppl.ucBiblFileIdentifier,sizeof(m_VolDescSuppl.ucBiblFileIdentifier));
+		EmptyStrBuffer(m_VolDescSuppl.copy_file_ident,sizeof(m_VolDescSuppl.copy_file_ident));
+		EmptyStrBuffer(m_VolDescSuppl.abst_file_ident,sizeof(m_VolDescSuppl.abst_file_ident));
+		EmptyStrBuffer(m_VolDescSuppl.bibl_file_ident,sizeof(m_VolDescSuppl.bibl_file_ident));
 
 	#ifdef _UNICODE
-		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szCopyFileIdent,iCopyFileIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szAbstFileIdent,iAbstFileIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szBiblFileIdent,iBiblFileIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.copy_file_ident,szCopyFileIdent,iCopyFileIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.abst_file_ident,szAbstFileIdent,iAbstFileIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.bibl_file_ident,szBiblFileIdent,iBiblFileIdentCopyLen);
 	#else
 		wchar_t szWideCopyFileIdent[19];
 		wchar_t szWideAbstFileIdent[19];
@@ -251,9 +251,9 @@ namespace ckfilesystem
 		ckcore::string::ansi_to_utf16(szAbstFileIdent,szWideAbstFileIdent,sizeof(szWideAbstFileIdent) / sizeof(wchar_t));
 		ckcore::string::ansi_to_utf16(szBiblFileIdent,szWideBiblFileIdent,sizeof(szWideBiblFileIdent) / sizeof(wchar_t));
 
-		MemStrCopy(m_VolDescSuppl.ucCopyFileIdentifier,szWideCopyFileIdent,iCopyFileIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucAbstFileIdentifier,szWideAbstFileIdent,iAbstFileIdentCopyLen);
-		MemStrCopy(m_VolDescSuppl.ucBiblFileIdentifier,szWideBiblFileIdent,iBiblFileIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.copy_file_ident,szWideCopyFileIdent,iCopyFileIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.abst_file_ident,szWideAbstFileIdent,iAbstFileIdentCopyLen);
+		MemStrCopy(m_VolDescSuppl.bibl_file_ident,szWideBiblFileIdent,iBiblFileIdentCopyLen);
 	#endif
 	}
 

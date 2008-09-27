@@ -171,90 +171,90 @@ namespace ckfilesystem
 		return uiSectors;
 	}
 
-	void MakeDateTime(struct tm &Time,tVolDescDateTime &DateTime)
+	void MakeDateTime(struct tm &Time,tiso_voldesc_datetime &DateTime)
 	{
 		char szBuffer[5];
 		sprintf(szBuffer,"%.4u",Time.tm_year + 1900);
-		memcpy(&DateTime.uiYear,szBuffer,4);
+		memcpy(&DateTime.year,szBuffer,4);
 
 		sprintf(szBuffer,"%.2u",Time.tm_mon + 1);
-		memcpy(&DateTime.usMonth,szBuffer,2);
+		memcpy(&DateTime.mon,szBuffer,2);
 
 		sprintf(szBuffer,"%.2u",Time.tm_mday);
-		memcpy(&DateTime.usDay,szBuffer,2);
+		memcpy(&DateTime.day,szBuffer,2);
 
 		sprintf(szBuffer,"%.2u",Time.tm_hour);
-		memcpy(&DateTime.usHour,szBuffer,2);
+		memcpy(&DateTime.hour,szBuffer,2);
 
 		sprintf(szBuffer,"%.2u",Time.tm_min);
-		memcpy(&DateTime.usMinute,szBuffer,2);
+		memcpy(&DateTime.min,szBuffer,2);
 
         if (Time.tm_sec > 59)
             sprintf(szBuffer,"%.2u",59);
         else
             sprintf(szBuffer,"%.2u",Time.tm_sec);
-		memcpy(&DateTime.usSecond,szBuffer,2);
+		memcpy(&DateTime.sec,szBuffer,2);
 
 		sprintf(szBuffer,"%.2u",0);
-		memcpy(&DateTime.usHundreds,szBuffer,2);
+		memcpy(&DateTime.hundreds,szBuffer,2);
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.ucZone = -(unsigned char)(tzi.Bias/15);
+		DateTime.zone = -(unsigned char)(tzi.Bias/15);
 #else
         // FIXME: Add support for Unix time zone information.
-        DateTime.ucZone = 0;
+        DateTime.zone = 0;
 #endif
 	}
 
-	void MakeDateTime(struct tm &Time,tDirRecordDateTime &DateTime)
+	void MakeDateTime(struct tm &Time,tiso_dir_record_datetime &DateTime)
 	{
-		DateTime.ucYear = (unsigned char)Time.tm_year;
-		DateTime.ucMonth = (unsigned char)Time.tm_mon + 1;
-		DateTime.ucDay = (unsigned char)Time.tm_mday;
-		DateTime.ucHour = (unsigned char)Time.tm_hour;
-		DateTime.ucMinute = (unsigned char)Time.tm_min;
-        DateTime.ucSecond = Time.tm_sec > 59 ? 59 : (unsigned char)Time.tm_sec;
+		DateTime.year = (unsigned char)Time.tm_year;
+		DateTime.mon = (unsigned char)Time.tm_mon + 1;
+		DateTime.day = (unsigned char)Time.tm_mday;
+		DateTime.hour = (unsigned char)Time.tm_hour;
+		DateTime.min = (unsigned char)Time.tm_min;
+        DateTime.sec = Time.tm_sec > 59 ? 59 : (unsigned char)Time.tm_sec;
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.ucZone = -(unsigned char)(tzi.Bias/15);
+		DateTime.zone = -(unsigned char)(tzi.Bias/15);
 #else
-        // FIXME: Add support for Unix time zone information.
-        DateTime.ucZone = 0;
+        // FIXME: Add support for UNIX time zone information.
+        DateTime.zone = 0;
 #endif
 	}
 
-	void MakeDateTime(unsigned short usDate,unsigned short usTime,tDirRecordDateTime &DateTime)
+	void MakeDateTime(unsigned short usDate,unsigned short usTime,tiso_dir_record_datetime &DateTime)
 	{
-		DateTime.ucYear = ((usDate >> 9) & 0x7F) + 80;
-		DateTime.ucMonth = (usDate >> 5) & 0x0F;
-		DateTime.ucDay = usDate & 0x1F;
-		DateTime.ucHour = (usTime >> 11) & 0x1F;
-		DateTime.ucMinute = (usTime >> 5) & 0x3F;
-		DateTime.ucSecond = (usTime & 0x1F) << 1;
+		DateTime.year = ((usDate >> 9) & 0x7F) + 80;
+		DateTime.mon = (usDate >> 5) & 0x0F;
+		DateTime.day = usDate & 0x1F;
+		DateTime.hour = (usTime >> 11) & 0x1F;
+		DateTime.min = (usTime >> 5) & 0x3F;
+		DateTime.sec = (usTime & 0x1F) << 1;
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.ucZone = -(unsigned char)(tzi.Bias/15);
+		DateTime.zone = -(unsigned char)(tzi.Bias/15);
 #else
         // FIXME: Add support for Unix time zone information.
-        DateTime.ucZone = 0;
+        DateTime.zone = 0;
 #endif
 	}
 
-	void MakeDosDateTime(tDirRecordDateTime &DateTime,unsigned short &usDate,unsigned short &usTime)
+	void MakeDosDateTime(tiso_dir_record_datetime &DateTime,unsigned short &usDate,unsigned short &usTime)
 	{
-		usDate = ((DateTime.ucYear - 80) & 0x7F) << 9;
-		usDate |= (DateTime.ucMonth & 0x7F) << 5;
-		usDate |= (DateTime.ucDay & 0x1F);
+		usDate = ((DateTime.year - 80) & 0x7F) << 9;
+		usDate |= (DateTime.mon & 0x7F) << 5;
+		usDate |= (DateTime.day & 0x1F);
 
-		usTime = (DateTime.ucHour & 0x1F) << 11;
-		usTime |= (DateTime.ucMinute & 0x3F) << 5;
-		usTime |= (DateTime.ucSecond & 0x1F) >> 1;
+		usTime = (DateTime.hour & 0x1F) << 11;
+		usTime |= (DateTime.min & 0x3F) << 5;
+		usTime |= (DateTime.sec & 0x1F) >> 1;
 	}
 
 	Iso9660::Iso9660()
@@ -263,8 +263,8 @@ namespace ckfilesystem
 		m_bRelaxMaxDirLevel = false;
 		m_bIncFileVerInfo = true;	// Include ";1" file version information.
 
-		InitVolDescPrimary();
-		InitVolDescSetTerm();
+		Initiso_voldesc_primary();
+		Initiso_voldesc_setterm();
 	}
 
 	Iso9660::~Iso9660()
@@ -568,49 +568,49 @@ namespace ckfilesystem
 		return ISO9660_MAX_NAMELEN_1999;
 	}
 
-	void Iso9660::InitVolDescPrimary()
+	void Iso9660::Initiso_voldesc_primary()
 	{
 		// Clear memory.
 		memset(&m_VolDescPrimary,0,sizeof(m_VolDescPrimary));
-		memset(m_VolDescPrimary.ucSysIdentifier,0x20,sizeof(m_VolDescPrimary.ucSysIdentifier));
-		memset(m_VolDescPrimary.ucVolIdentifier,0x20,sizeof(m_VolDescPrimary.ucVolIdentifier));
-		memset(m_VolDescPrimary.ucVolSetIdentifier,0x20,sizeof(m_VolDescPrimary.ucVolSetIdentifier));
-		memset(m_VolDescPrimary.ucPublIdentifier,0x20,sizeof(m_VolDescPrimary.ucPublIdentifier));
-		memset(m_VolDescPrimary.ucPrepIdentifier,0x20,sizeof(m_VolDescPrimary.ucPrepIdentifier));
-		memset(m_VolDescPrimary.ucAppIdentifier,0x20,sizeof(m_VolDescPrimary.ucAppIdentifier));
-		memset(m_VolDescPrimary.ucCopyFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucCopyFileIdentifier));
-		memset(m_VolDescPrimary.ucAbstFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucAbstFileIdentifier));
-		memset(m_VolDescPrimary.ucBiblFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucBiblFileIdentifier));
+		memset(m_VolDescPrimary.sys_ident,0x20,sizeof(m_VolDescPrimary.sys_ident));
+		memset(m_VolDescPrimary.vol_ident,0x20,sizeof(m_VolDescPrimary.vol_ident));
+		memset(m_VolDescPrimary.volset_ident,0x20,sizeof(m_VolDescPrimary.volset_ident));
+		memset(m_VolDescPrimary.publ_ident,0x20,sizeof(m_VolDescPrimary.publ_ident));
+		memset(m_VolDescPrimary.prep_ident,0x20,sizeof(m_VolDescPrimary.prep_ident));
+		memset(m_VolDescPrimary.app_ident,0x20,sizeof(m_VolDescPrimary.app_ident));
+		memset(m_VolDescPrimary.copy_file_ident,0x20,sizeof(m_VolDescPrimary.copy_file_ident));
+		memset(m_VolDescPrimary.abst_file_ident,0x20,sizeof(m_VolDescPrimary.abst_file_ident));
+		memset(m_VolDescPrimary.bibl_file_ident,0x20,sizeof(m_VolDescPrimary.bibl_file_ident));
 
 		// Set primary volume descriptor header.
-		m_VolDescPrimary.ucType = VOLDESCTYPE_PRIM_VOL_DESC;
-		m_VolDescPrimary.ucVersion = 1;
-		m_VolDescPrimary.ucFileStructVer = 1;
-		memcpy(m_VolDescPrimary.ucIdentifier,g_IdentCD,sizeof(m_VolDescPrimary.ucIdentifier));	
+		m_VolDescPrimary.type = VOLDESCTYPE_PRIM_VOL_DESC;
+		m_VolDescPrimary.version = 1;
+		m_VolDescPrimary.file_struct_ver = 1;
+		memcpy(m_VolDescPrimary.ident,g_IdentCD,sizeof(m_VolDescPrimary.ident));	
 
 		// Set the root directory record.
-		m_VolDescPrimary.RootDirRecord.ucDirRecordLen = 34;
-		m_VolDescPrimary.RootDirRecord.ucFileFlags = DIRRECORD_FILEFLAG_DIRECTORY;
-		m_VolDescPrimary.RootDirRecord.ucFileIdentifierLen = 1;	// One byte is always allocated in the tDirRecord structure.
+		m_VolDescPrimary.root_dir_record.dir_record_len = 34;
+		m_VolDescPrimary.root_dir_record.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
+		m_VolDescPrimary.root_dir_record.file_ident_len = 1;	// One byte is always allocated in the tiso_dir_record structure.
 
 		// Set application identifier.
-		memset(m_VolDescPrimary.ucAppData,0x20,sizeof(m_VolDescPrimary.ucAppData));
+		memset(m_VolDescPrimary.app_data,0x20,sizeof(m_VolDescPrimary.app_data));
 		char szAppIdentifier[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,
 			0x52,0x44,0x45,0x52,0x20,0x28,0x43,0x29,0x20,0x32,0x30,0x30,0x36,0x2D,
 			0x32,0x30,0x30,0x38,0x20,0x43,0x48,0x52,0x49,0x53,0x54,0x49,0x41,0x4E,
 			0x20,0x4B,0x49,0x4E,0x44,0x41,0x48,0x4C };
-		memcpy(m_VolDescPrimary.ucAppIdentifier,szAppIdentifier,45);
+		memcpy(m_VolDescPrimary.app_ident,szAppIdentifier,45);
 	}
 
-	void Iso9660::InitVolDescSetTerm()
+	void Iso9660::Initiso_voldesc_setterm()
 	{
 		// Clear memory.
 		memset(&m_VolDescSetTerm,0,sizeof(m_VolDescSetTerm));
 
 		// Set volume descriptor set terminator header.
-		m_VolDescSetTerm.ucType = VOLDESCTYPE_VOL_DESC_SET_TERM;
-		m_VolDescSetTerm.ucVersion = 1;
-		memcpy(m_VolDescSetTerm.ucIdentifier,g_IdentCD,sizeof(m_VolDescSetTerm.ucIdentifier));
+		m_VolDescSetTerm.type = VOLDESCTYPE_VOL_DESC_SET_TERM;
+		m_VolDescSetTerm.version = 1;
+		memcpy(m_VolDescSetTerm.ident,g_IdentCD,sizeof(m_VolDescSetTerm.ident));
 	}
 
 	void Iso9660::SetVolumeLabel(const ckcore::tchar *szLabel)
@@ -618,14 +618,14 @@ namespace ckfilesystem
 		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iLabelCopyLen = iLabelLen < 32 ? iLabelLen : 32;
 
-		memset(m_VolDescPrimary.ucVolIdentifier,0x20,sizeof(m_VolDescPrimary.ucVolIdentifier));
+		memset(m_VolDescPrimary.vol_ident,0x20,sizeof(m_VolDescPrimary.vol_ident));
 
 	#ifdef _UNICODE
 		char szMultiLabel[33];
 		ckcore::string::utf16_to_ansi(szLabel,szMultiLabel,sizeof(szMultiLabel));
-		MemStrCopyD(m_VolDescPrimary.ucVolIdentifier,szMultiLabel,iLabelCopyLen);
+		MemStrCopyD(m_VolDescPrimary.vol_ident,szMultiLabel,iLabelCopyLen);
 	#else
-		MemStrCopyD(m_VolDescPrimary.ucVolIdentifier,szLabel,iLabelCopyLen);
+		MemStrCopyD(m_VolDescPrimary.vol_ident,szLabel,iLabelCopyLen);
 	#endif
 	}
 
@@ -642,10 +642,10 @@ namespace ckfilesystem
 		size_t iPublIdentCopyLen = iPublIdentLen < 128 ? iPublIdentLen : 128;
 		size_t iPrepIdentCopyLen = iPrepIdentLen < 128 ? iPrepIdentLen : 128;
 
-		memset(m_VolDescPrimary.ucSysIdentifier,0x20,sizeof(m_VolDescPrimary.ucSysIdentifier));
-		memset(m_VolDescPrimary.ucVolSetIdentifier,0x20,sizeof(m_VolDescPrimary.ucVolSetIdentifier));
-		memset(m_VolDescPrimary.ucPublIdentifier,0x20,sizeof(m_VolDescPrimary.ucPublIdentifier));
-		memset(m_VolDescPrimary.ucPrepIdentifier,0x20,sizeof(m_VolDescPrimary.ucPrepIdentifier));
+		memset(m_VolDescPrimary.sys_ident,0x20,sizeof(m_VolDescPrimary.sys_ident));
+		memset(m_VolDescPrimary.volset_ident,0x20,sizeof(m_VolDescPrimary.volset_ident));
+		memset(m_VolDescPrimary.publ_ident,0x20,sizeof(m_VolDescPrimary.publ_ident));
+		memset(m_VolDescPrimary.prep_ident,0x20,sizeof(m_VolDescPrimary.prep_ident));
 
 	#ifdef _UNICODE
 		char szMultiSystem[33];
@@ -658,15 +658,15 @@ namespace ckfilesystem
 		ckcore::string::utf16_to_ansi(szPublIdent,szMultiPublIdent,sizeof(szMultiPublIdent));
 		ckcore::string::utf16_to_ansi(szPrepIdent,szMultiPrepIdent,sizeof(szMultiPrepIdent));
 
-		MemStrCopyA(m_VolDescPrimary.ucSysIdentifier,szMultiSystem,iSystemCopyLen);
-		MemStrCopyD(m_VolDescPrimary.ucVolSetIdentifier,szMultiVolSetIdent,iVolSetIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.ucPublIdentifier,szMultiPublIdent,iPublIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.ucPrepIdentifier,szMultiPrepIdent,iPrepIdentCopyLen);
+		MemStrCopyA(m_VolDescPrimary.sys_ident,szMultiSystem,iSystemCopyLen);
+		MemStrCopyD(m_VolDescPrimary.volset_ident,szMultiVolSetIdent,iVolSetIdentCopyLen);
+		MemStrCopyA(m_VolDescPrimary.publ_ident,szMultiPublIdent,iPublIdentCopyLen);
+		MemStrCopyA(m_VolDescPrimary.prep_ident,szMultiPrepIdent,iPrepIdentCopyLen);
 	#else
-		MemStrCopyA(m_VolDescPrimary.ucSysIdentifier,szSystem,iSystemCopyLen);
-		MemStrCopyD(m_VolDescPrimary.ucVolSetIdentifier,szVolSetIdent,iVolSetIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.ucPublIdentifier,szPublIdent,iPublIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.ucPrepIdentifier,szPrepIdent,iPrepIdentCopyLen);
+		MemStrCopyA(m_VolDescPrimary.sys_ident,szSystem,iSystemCopyLen);
+		MemStrCopyD(m_VolDescPrimary.volset_ident,szVolSetIdent,iVolSetIdentCopyLen);
+		MemStrCopyA(m_VolDescPrimary.publ_ident,szPublIdent,iPublIdentCopyLen);
+		MemStrCopyA(m_VolDescPrimary.prep_ident,szPrepIdent,iPrepIdentCopyLen);
 	#endif
 	}
 
@@ -682,9 +682,9 @@ namespace ckfilesystem
 		size_t iAbstFileIdentCopyLen = iAbstFileIdentLen < 37 ? iAbstFileIdentLen : 37;
 		size_t iBiblFileIdentCopyLen = iBiblFileIdentLen < 37 ? iBiblFileIdentLen : 37;
 
-		memset(m_VolDescPrimary.ucCopyFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucCopyFileIdentifier));
-		memset(m_VolDescPrimary.ucAbstFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucAbstFileIdentifier));
-		memset(m_VolDescPrimary.ucBiblFileIdentifier,0x20,sizeof(m_VolDescPrimary.ucBiblFileIdentifier));
+		memset(m_VolDescPrimary.copy_file_ident,0x20,sizeof(m_VolDescPrimary.copy_file_ident));
+		memset(m_VolDescPrimary.abst_file_ident,0x20,sizeof(m_VolDescPrimary.abst_file_ident));
+		memset(m_VolDescPrimary.bibl_file_ident,0x20,sizeof(m_VolDescPrimary.bibl_file_ident));
 
 	#ifdef _UNICODE
 		char szMultiCopyFileIdent[38];
@@ -695,13 +695,13 @@ namespace ckfilesystem
 		ckcore::string::utf16_to_ansi(szAbstFileIdent,szMultiAbstFileIdent,sizeof(szMultiAbstFileIdent));
 		ckcore::string::utf16_to_ansi(szBiblFileIdent,szMultiBiblFileIdent,sizeof(szMultiBiblFileIdent));
 
-		MemStrCopyD(m_VolDescPrimary.ucCopyFileIdentifier,szMultiCopyFileIdent,iCopyFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.ucAbstFileIdentifier,szMultiAbstFileIdent,iAbstFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.ucBiblFileIdentifier,szMultiBiblFileIdent,iBiblFileIdentCopyLen);
+		MemStrCopyD(m_VolDescPrimary.copy_file_ident,szMultiCopyFileIdent,iCopyFileIdentCopyLen);
+		MemStrCopyD(m_VolDescPrimary.abst_file_ident,szMultiAbstFileIdent,iAbstFileIdentCopyLen);
+		MemStrCopyD(m_VolDescPrimary.bibl_file_ident,szMultiBiblFileIdent,iBiblFileIdentCopyLen);
 	#else
-		MemStrCopyD(m_VolDescPrimary.ucCopyFileIdentifier,szCopyFileIdent,iCopyFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.ucAbstFileIdentifier,szAbstFileIdent,iAbstFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.ucBiblFileIdentifier,szBiblFileIdent,iBiblFileIdentCopyLen);
+		MemStrCopyD(m_VolDescPrimary.copy_file_ident,szCopyFileIdent,iCopyFileIdentCopyLen);
+		MemStrCopyD(m_VolDescPrimary.abst_file_ident,szAbstFileIdent,iAbstFileIdentCopyLen);
+		MemStrCopyD(m_VolDescPrimary.bibl_file_ident,szBiblFileIdent,iBiblFileIdentCopyLen);
 	#endif
 	}
 
@@ -725,28 +725,28 @@ namespace ckfilesystem
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
 		// Initialize the primary volume descriptor.
-		Write733(m_VolDescPrimary.ucVolSpaceSize,ulVolSpaceSize);		// Volume size in sectors.
-		Write723(m_VolDescPrimary.ucVolSetSize,1);		// Only one disc in the volume set.
-		Write723(m_VolDescPrimary.ucVolSeqNumber,1);	// This is the first disc in the volume set.
-		Write723(m_VolDescPrimary.ucLogicalBlockSize,ISO9660_SECTOR_SIZE);
-		Write733(m_VolDescPrimary.ucPathTableSize,ulPathTableSize);	// Path table size in bytes.
-		Write731(m_VolDescPrimary.ucPathTableTypeL,ulPosPathTableL);	// Start sector of LSBF path table.
-		Write732(m_VolDescPrimary.ucPathTableTypeM,ulPosPathTableM);	// Start sector of MSBF path table.
+		Write733(m_VolDescPrimary.vol_space_size,ulVolSpaceSize);		// Volume size in sectors.
+		Write723(m_VolDescPrimary.volset_size,1);		// Only one disc in the volume set.
+		Write723(m_VolDescPrimary.volseq_num,1);	// This is the first disc in the volume set.
+		Write723(m_VolDescPrimary.logical_block_size,ISO9660_SECTOR_SIZE);
+		Write733(m_VolDescPrimary.path_table_size,ulPathTableSize);	// Path table size in bytes.
+		Write731(m_VolDescPrimary.path_table_type_l,ulPosPathTableL);	// Start sector of LSBF path table.
+		Write732(m_VolDescPrimary.path_table_type_m,ulPosPathTableM);	// Start sector of MSBF path table.
 
-		Write733(m_VolDescPrimary.RootDirRecord.ucExtentLocation,ulRootExtentLoc);
-		Write733(m_VolDescPrimary.RootDirRecord.ucDataLen,ulDataLen);
-		Write723(m_VolDescPrimary.RootDirRecord.ucVolSeqNumber,1);	// The file extent is on the first volume set.
+		Write733(m_VolDescPrimary.root_dir_record.extent_loc,ulRootExtentLoc);
+		Write733(m_VolDescPrimary.root_dir_record.data_len,ulDataLen);
+		Write723(m_VolDescPrimary.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 		// Time information.
-		MakeDateTime(ImageCreate,m_VolDescPrimary.RootDirRecord.RecDateTime);
+		MakeDateTime(ImageCreate,m_VolDescPrimary.root_dir_record.rec_timestamp);
 
-		MakeDateTime(ImageCreate,m_VolDescPrimary.CreateDateTime);
-		memcpy(&m_VolDescPrimary.ModDateTime,&m_VolDescPrimary.CreateDateTime,sizeof(tVolDescDateTime));
+		MakeDateTime(ImageCreate,m_VolDescPrimary.create_time);
+		memcpy(&m_VolDescPrimary.modify_time,&m_VolDescPrimary.create_time,sizeof(tiso_voldesc_datetime));
 
-		memset(&m_VolDescPrimary.ExpDateTime,'0',sizeof(tVolDescDateTime));
-		m_VolDescPrimary.ExpDateTime.ucZone = 0x00;
-		memset(&m_VolDescPrimary.EffectiveDateTime,'0',sizeof(tVolDescDateTime));
-		m_VolDescPrimary.EffectiveDateTime.ucZone = 0x00;
+		memset(&m_VolDescPrimary.expr_time,'0',sizeof(tiso_voldesc_datetime));
+		m_VolDescPrimary.expr_time.zone = 0x00;
+		memset(&m_VolDescPrimary.effect_time,'0',sizeof(tiso_voldesc_datetime));
+		m_VolDescPrimary.effect_time.zone = 0x00;
 
 		// Write the primary volume descriptor.
 		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescPrimary,sizeof(m_VolDescPrimary));
@@ -764,39 +764,39 @@ namespace ckfilesystem
 	{
 		if (m_InterLevel == ISO9660_1999)
 		{
-			tVolDescSuppl SupplDesc;
-			memcpy(&SupplDesc,&m_VolDescPrimary,sizeof(tVolDescSuppl));
+			tiso_voldesc_suppl SupplDesc;
+			memcpy(&SupplDesc,&m_VolDescPrimary,sizeof(tiso_voldesc_suppl));
 
 			// Update the version information.
-			m_VolDescPrimary.ucType = VOLDESCTYPE_SUPPL_VOL_DESC;
-			m_VolDescPrimary.ucVersion = 2;			// ISO9660:1999
-			m_VolDescPrimary.ucFileStructVer = 2;	// ISO9660:1999
+			m_VolDescPrimary.type = VOLDESCTYPE_SUPPL_VOL_DESC;
+			m_VolDescPrimary.version = 2;			// ISO9660:1999
+			m_VolDescPrimary.file_struct_ver = 2;	// ISO9660:1999
 
 			// Rewrite the values from the primary volume descriptor. We can't guarantee that
 			// WriteVolDescPrimary has been called before this function call, even though it
 			// should have.
-			Write733(SupplDesc.ucVolSpaceSize,ulVolSpaceSize);		// Volume size in sectors.
-			Write723(SupplDesc.ucVolSetSize,1);		// Only one disc in the volume set.
-			Write723(SupplDesc.ucVolSeqNumber,1);	// This is the first disc in the volume set.
-			Write723(SupplDesc.ucLogicalBlockSize,ISO9660_SECTOR_SIZE);
-			Write733(SupplDesc.ucPathTableSize,ulPathTableSize);	// Path table size in bytes.
-			Write731(SupplDesc.ucPathTableTypeL,ulPosPathTableL);	// Start sector of LSBF path table.
-			Write732(SupplDesc.ucPathTableTypeM,ulPosPathTableM);	// Start sector of MSBF path table.
+			Write733(SupplDesc.vol_space_size,ulVolSpaceSize);		// Volume size in sectors.
+			Write723(SupplDesc.volset_size,1);		// Only one disc in the volume set.
+			Write723(SupplDesc.volseq_num,1);	// This is the first disc in the volume set.
+			Write723(SupplDesc.logical_block_size,ISO9660_SECTOR_SIZE);
+			Write733(SupplDesc.path_table_size,ulPathTableSize);	// Path table size in bytes.
+			Write731(SupplDesc.path_table_type_l,ulPosPathTableL);	// Start sector of LSBF path table.
+			Write732(SupplDesc.path_table_type_m,ulPosPathTableM);	// Start sector of MSBF path table.
 
-			Write733(SupplDesc.RootDirRecord.ucExtentLocation,ulRootExtentLoc);
-			Write733(SupplDesc.RootDirRecord.ucDataLen,ulDataLen);
-			Write723(SupplDesc.RootDirRecord.ucVolSeqNumber,1);	// The file extent is on the first volume set.
+			Write733(SupplDesc.root_dir_record.extent_loc,ulRootExtentLoc);
+			Write733(SupplDesc.root_dir_record.data_len,ulDataLen);
+			Write723(SupplDesc.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 			// Time information.
-			MakeDateTime(ImageCreate,SupplDesc.RootDirRecord.RecDateTime);
+			MakeDateTime(ImageCreate,SupplDesc.root_dir_record.rec_timestamp);
 
-			MakeDateTime(ImageCreate,SupplDesc.CreateDateTime);
-			memcpy(&SupplDesc.ModDateTime,&SupplDesc.CreateDateTime,sizeof(tVolDescDateTime));
+			MakeDateTime(ImageCreate,SupplDesc.create_time);
+			memcpy(&SupplDesc.modify_time,&SupplDesc.create_time,sizeof(tiso_voldesc_datetime));
 
-			memset(&SupplDesc.ExpDateTime,'0',sizeof(tVolDescDateTime));
-			SupplDesc.ExpDateTime.ucZone = 0x00;
-			memset(&SupplDesc.EffectiveDateTime,'0',sizeof(tVolDescDateTime));
-			SupplDesc.EffectiveDateTime.ucZone = 0x00;
+			memset(&SupplDesc.expr_time,'0',sizeof(tiso_voldesc_datetime));
+			SupplDesc.expr_time.zone = 0x00;
+			memset(&SupplDesc.effect_time,'0',sizeof(tiso_voldesc_datetime));
+			SupplDesc.effect_time.zone = 0x00;
 
 			// Write the primary volume descriptor.
 			ckcore::tint64 iProcessed = out_stream.Write(&SupplDesc,sizeof(SupplDesc));

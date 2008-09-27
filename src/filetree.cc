@@ -229,7 +229,7 @@ namespace ckfilesystem
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				DirNodeStack.push_back(std::make_pair(*itFile,iIndent));
 			}

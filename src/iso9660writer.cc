@@ -96,7 +96,7 @@ namespace ckfilesystem
 		// we're dealing with a file.
 		if (iDelimiter == -1)
 		{
-			if (!(pNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) &&
+			if (!(pNode->file_flags_ & FileTreeNode::FLAG_DIRECTORY) &&
 				joliet_.IncludesFileVerInfo())
 				ucFileNameEnd = ucFileNameLen - 2;
 			else
@@ -209,7 +209,7 @@ namespace ckfilesystem
 		// we're dealing with a file.
 		if (iDelimiter == -1)
 		{
-			if (!(pNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) &&
+			if (!(pNode->file_flags_ & FileTreeNode::FLAG_DIRECTORY) &&
 				iso9660_.IncludesFileVerInfo())
 				ucFileNameEnd = ucFileNameSize - 2;
 			else
@@ -335,7 +335,7 @@ namespace ckfilesystem
 		ckcore::tuint64 &uiPathTableSize,ckcore::Progress &Progress)
 	{
 		// Root record + 1 padding byte since the root record size is odd.
-		uiPathTableSize = sizeof(tPathTableRecord) + 1;
+		uiPathTableSize = sizeof(tiso_pathtable_record) + 1;
 
 		// Write all other path table records.
 		std::set<ckcore::tstring> PathDirList;		// To help keep track of which records that have already been counted.
@@ -407,7 +407,7 @@ namespace ckfilesystem
 							unsigned char ucNameLen = bJolietTable ?
 								joliet_.CalcFileNameLen(CurDirName.c_str(),true) << 1 : 
 								iso9660_.CalcFileNameLen(CurDirName.c_str(),true);
-							unsigned char ucPathTableRecLen = sizeof(tPathTableRecord) + ucNameLen - 1;
+							unsigned char ucPathTableRecLen = sizeof(tiso_pathtable_record) + ucNameLen - 1;
 
 							// If the record length is not even padd it with a 0 byte.
 							if (ucPathTableRecLen % 2 == 1)
@@ -439,13 +439,13 @@ namespace ckfilesystem
 
 		// The number of bytes of data in the current sector.
 		// Each directory always includes '.' and '..'.
-		unsigned long ulDirSecData = sizeof(tDirRecord) << 1;
+		unsigned long ulDirSecData = sizeof(tiso_dir_record) << 1;
 
 		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= iso9660_.GetMaxDirLevel())
@@ -466,7 +466,7 @@ namespace ckfilesystem
 				ulFactor++;
 			}
 
-			bool bIsFolder = (*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY;
+			bool bIsFolder = (*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY;
 
 			unsigned char ucNameLen;	// FIXME: Rename to Size?
 			/*if (bJoliet)
@@ -526,7 +526,7 @@ namespace ckfilesystem
 				}
 			}
 
-			unsigned char ucCurRecSize = sizeof(tDirRecord) + ucNameLen - 1;
+			unsigned char ucCurRecSize = sizeof(tiso_dir_record) + ucNameLen - 1;
 
 			// If the record length is not even padd it with a 0 byte.
 			if (ucCurRecSize % 2 == 1)
@@ -564,7 +564,7 @@ namespace ckfilesystem
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= iso9660_.GetMaxDirLevel())
@@ -615,19 +615,19 @@ namespace ckfilesystem
 	{
 		FileTreeNode *pCurNode = file_tree.GetRoot();
 
-		tPathTableRecord RootRecord,PathRecord;
+		tiso_pathtable_record RootRecord,PathRecord;
 		memset(&RootRecord,0,sizeof(RootRecord));
 
-		RootRecord.ucDirIdentifierLen = 1;					// Always 1 for the root record.
-		RootRecord.ucExtAttrRecordLen = 0;
+		RootRecord.dir_ident_len = 1;					// Always 1 for the root record.
+		RootRecord.ext_attr_record_len = 0;
 
 		if (bJolietTable)
-			Write73(RootRecord.ucExtentLocation,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);	// Start sector of extent data.
+			Write73(RootRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);	// Start sector of extent data.
 		else
-			Write73(RootRecord.ucExtentLocation,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);	// Start sector of extent data.
+			Write73(RootRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);	// Start sector of extent data.
 
-		Write72(RootRecord.ucParentDirNumber,0x01,bMSBF);	// The root has itself as parent.
-		RootRecord.ucDirIdentifier[0] = 0;					// The file name is set to zero.
+		Write72(RootRecord.parent_dir_num,0x01,bMSBF);	// The root has itself as parent.
+		RootRecord.dir_ident[0] = 0;					// The file name is set to zero.
 
 		// Write the root record.
 		ckcore::tint64 iProcessed = out_stream_.Write(&RootRecord,sizeof(RootRecord));
@@ -637,7 +637,7 @@ namespace ckfilesystem
 			return false;
 
 		// We need to pad the root record since it's size is otherwise odd.
-		iProcessed = out_stream_.Write(RootRecord.ucDirIdentifier,1);
+		iProcessed = out_stream_.Write(RootRecord.dir_ident,1);
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != 1)
@@ -720,16 +720,16 @@ namespace ckfilesystem
 							if (ucNameLen % 2 == 1)
 								bPadByte = true;
 
-							PathRecord.ucDirIdentifierLen = ucNameLen;
-							PathRecord.ucExtAttrRecordLen = 0;
+							PathRecord.dir_ident_len = ucNameLen;
+							PathRecord.ext_attr_record_len = 0;
 
 							if (bJolietTable)
-								Write73(PathRecord.ucExtentLocation,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);
+								Write73(PathRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);
 							else
-								Write73(PathRecord.ucExtentLocation,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);
+								Write73(PathRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);
 
-							Write72(PathRecord.ucParentDirNumber,usParent,bMSBF);
-							PathRecord.ucDirIdentifier[0] = 0;
+							Write72(PathRecord.parent_dir_num,usParent,bMSBF);
+							PathRecord.dir_ident[0] = 0;
 
 							PathDirNumMap[PathBuffer] = usParent = usRecordNumber++;
 
@@ -777,17 +777,17 @@ namespace ckfilesystem
 	bool Iso9660Writer::WriteSysDirectory(FileTreeNode *pParent,SysDirType Type,
 		unsigned long ulDataPos,unsigned long ulDataSize)
 	{
-		tDirRecord DirRecord;
+		tiso_dir_record DirRecord;
 		memset(&DirRecord,0,sizeof(DirRecord));
 
-		DirRecord.ucDirRecordLen = 0x22;
-		Write733(DirRecord.ucExtentLocation,ulDataPos);
-		Write733(DirRecord.ucDataLen,/*ISO9660_SECTOR_SIZE*/ulDataSize);
-		MakeDateTime(m_ImageCreate,DirRecord.RecDateTime);
-		DirRecord.ucFileFlags = DIRRECORD_FILEFLAG_DIRECTORY;
-		Write723(DirRecord.ucVolSeqNumber,0x01);	// The directory is on the first volume set.
-		DirRecord.ucFileIdentifierLen = 1;
-		DirRecord.ucFileIdentifier[0] = Type == TYPE_CURRENT ? 0 : 1;
+		DirRecord.dir_record_len = 0x22;
+		Write733(DirRecord.extent_loc,ulDataPos);
+		Write733(DirRecord.data_len,/*ISO9660_SECTOR_SIZE*/ulDataSize);
+		MakeDateTime(m_ImageCreate,DirRecord.rec_timestamp);
+		DirRecord.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
+		Write723(DirRecord.volseq_num,0x01);	// The directory is on the first volume set.
+		DirRecord.file_ident_len = 1;
+		DirRecord.file_ident[0] = Type == TYPE_CURRENT ? 0 : 1;
 
 		ckcore::tint64 iProcessed = out_stream_.Write(&DirRecord,sizeof(DirRecord));
 		if (iProcessed == -1)
@@ -805,7 +805,7 @@ namespace ckfilesystem
 		for (itFile = pNode->m_Children.begin(); itFile !=
 			pNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				if (iLevel >= iso9660_.GetMaxDirLevel())
 					return false;
@@ -845,13 +845,13 @@ namespace ckfilesystem
 	int Iso9660Writer::AllocateHeader()
 	{
 		// Allocate volume descriptor.
-		unsigned long ulVolDescSize = sizeof(tVolDescPrimary) + sizeof(tVolDescSetTerm);
+		unsigned long ulVolDescSize = sizeof(tiso_voldesc_primary) + sizeof(tiso_voldesc_setterm);
 		if (eltorito_.GetBootImageCount() > 0)
-			ulVolDescSize += sizeof(tVolDescElToritoRecord);
+			ulVolDescSize += sizeof(tiso_voldesc_eltorito_record);
 		if (iso9660_.HasVolDescSuppl())
-			ulVolDescSize += sizeof(tVolDescSuppl);
+			ulVolDescSize += sizeof(tiso_voldesc_suppl);
 		if (m_bUseJoliet)
-			ulVolDescSize += sizeof(tVolDescSuppl);
+			ulVolDescSize += sizeof(tiso_voldesc_suppl);
 
 		sec_manager_.AllocateBytes(this,SR_DESCRIPTORS,ulVolDescSize);
 
@@ -1089,7 +1089,7 @@ namespace ckfilesystem
 	int Iso9660Writer::WriteLocalDirEntry(ckcore::Progress &Progress,FileTreeNode *pLocalNode,
 		bool bJoliet,int iLevel)
 	{
-		tDirRecord DirRecord;
+		tiso_dir_record DirRecord;
 
 		// Write the '.' and '..' directories.
 		FileTreeNode *pParentNode = pLocalNode->GetParent();
@@ -1117,7 +1117,7 @@ namespace ckfilesystem
 
 		// The number of bytes of data in the current sector.
 		// Each directory always includes '.' and '..'.
-		unsigned long ulDirSecData = sizeof(tDirRecord) << 1;
+		unsigned long ulDirSecData = sizeof(tiso_dir_record) << 1;
 
 		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
@@ -1127,7 +1127,7 @@ namespace ckfilesystem
 			if (Progress.Cancelled())
 				return RESULT_CANCEL;
 
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= iso9660_.GetMaxDirLevel())
@@ -1154,7 +1154,7 @@ namespace ckfilesystem
 				unsigned char ucNameLen;	// FIXME: Rename to ucNameSize;
 				unsigned char szFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 4]; // Large enough for level 1, 2 and even Joliet.
 
-				bool bIsFolder = (*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY;
+				bool bIsFolder = (*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY;
 				if (bJoliet)
 				{
 					ucNameLen = joliet_.WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder) << 1;
@@ -1175,13 +1175,13 @@ namespace ckfilesystem
 					ucDirRecSize++;
 				}
 
-				DirRecord.ucDirRecordLen = ucDirRecSize;	// FIXME: Rename member.
-				DirRecord.ucExtAttrRecordLen = 0;
+				DirRecord.dir_record_len = ucDirRecSize;	// FIXME: Rename member.
+				DirRecord.ext_attr_record_len = 0;
 
-				Write733(DirRecord.ucExtentLocation,(unsigned long)uiExtentLoc);
-				Write733(DirRecord.ucDataLen,(unsigned long)ulExtentSize);
+				Write733(DirRecord.extent_loc,(unsigned long)uiExtentLoc);
+				Write733(DirRecord.data_len,(unsigned long)ulExtentSize);
 
-				if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_IMPORTED)
+				if ((*itFile)->file_flags_ & FileTreeNode::FLAG_IMPORTED)
 				{
 					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->m_pData;
 					if (pImportNode == NULL)
@@ -1191,12 +1191,12 @@ namespace ckfilesystem
 						return RESULT_FAIL;
 					}
 
-					memcpy(&DirRecord.RecDateTime,&pImportNode->m_RecDateTime,sizeof(tDirRecordDateTime));
+					memcpy(&DirRecord.rec_timestamp,&pImportNode->rec_timestamp_,sizeof(tiso_dir_record_datetime));
 
-					DirRecord.ucFileFlags = pImportNode->m_ucFileFlags;
-					DirRecord.ucFileUnitSize = pImportNode->m_ucFileUnitSize;
-					DirRecord.ucInterleaveGapSize = pImportNode->m_ucInterleaveGapSize;
-					Write723(DirRecord.ucVolSeqNumber,pImportNode->m_usVolSeqNumber);
+					DirRecord.file_flags = pImportNode->file_flags_;
+					DirRecord.file_unit_size = pImportNode->file_unit_size_;
+					DirRecord.interleave_gap_size = pImportNode->interleave_gap_size_;
+					Write723(DirRecord.volseq_num,pImportNode->volseq_num_);
 				}
 				else
 				{
@@ -1206,7 +1206,7 @@ namespace ckfilesystem
 						struct tm AccessTime,ModifyTime,CreateTime;
 						bool bResult = true;
 
-						if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+						if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 						{
 							bResult = ckcore::Directory::Time((*itFile)->m_FileFullPath.c_str(),
 															  AccessTime,ModifyTime,CreateTime);
@@ -1222,35 +1222,35 @@ namespace ckfilesystem
 						ckcore::convert::tm_to_dostime(ModifyTime,usFileDate,usFileTime);
 
 						if (bResult)
-							MakeDateTime(usFileDate,usFileTime,DirRecord.RecDateTime);
+							MakeDateTime(usFileDate,usFileTime,DirRecord.rec_timestamp);
 						else
-							MakeDateTime(m_ImageCreate,DirRecord.RecDateTime);
+							MakeDateTime(m_ImageCreate,DirRecord.rec_timestamp);
 					}
 					else
 					{
 						// The time when the disc image creation was initialized.
-						MakeDateTime(m_ImageCreate,DirRecord.RecDateTime);
+						MakeDateTime(m_ImageCreate,DirRecord.rec_timestamp);
 					}
 
 					// File flags.
-					DirRecord.ucFileFlags = 0;
-					if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
-						DirRecord.ucFileFlags |= DIRRECORD_FILEFLAG_DIRECTORY;
+					DirRecord.file_flags = 0;
+					if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
+						DirRecord.file_flags |= DIRRECORD_FILEFLAG_DIRECTORY;
 
 					if (ckcore::File::Hidden((*itFile)->m_FileFullPath.c_str()))
-						DirRecord.ucFileFlags |= DIRRECORD_FILEFLAG_HIDDEN;
+						DirRecord.file_flags |= DIRRECORD_FILEFLAG_HIDDEN;
 
-					DirRecord.ucFileUnitSize = 0;
-					DirRecord.ucInterleaveGapSize = 0;
-					Write723(DirRecord.ucVolSeqNumber,0x01);
+					DirRecord.file_unit_size = 0;
+					DirRecord.interleave_gap_size = 0;
+					Write723(DirRecord.volseq_num,0x01);
 				}
 
 				// Remaining bytes, before checking if we're dealing with the last segment.
 				uiFileRemain -= ulExtentSize;
 				if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && uiFileRemain > 0)
-					DirRecord.ucFileFlags |= DIRRECORD_FILEFLAG_MULTIEXTENT;
+					DirRecord.file_flags |= DIRRECORD_FILEFLAG_MULTIEXTENT;
 
-				DirRecord.ucFileIdentifierLen = ucNameLen;
+				DirRecord.file_ident_len = ucNameLen;
 
 				// Pad the sector with zeros if we can not fit the complete
 				// directory entry on this sector.
@@ -1313,7 +1313,7 @@ namespace ckfilesystem
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= iso9660_.GetMaxDirLevel())

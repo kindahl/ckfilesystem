@@ -55,7 +55,7 @@ namespace ckfilesystem
 		for (it = local_node->m_Children.begin(); it !=
 			local_node->m_Children.end(); it++)
 		{
-			if ((*it)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 				dir_node_stack.push_back(*it);
 			else
 			{
@@ -125,7 +125,7 @@ namespace ckfilesystem
 			local_node->m_uiUdfLinkTot += CalcNodeLinksTotal(*it);
 		}
 
-		return (local_node->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) ? 1 : 0;
+		return (local_node->file_flags_ & FileTreeNode::FLAG_DIRECTORY) ? 1 : 0;
 	}
 
 	/**
@@ -196,7 +196,7 @@ namespace ckfilesystem
 			// Push the item to the temporary stack.
 			tmp_stack.push_back(*it);
 
-			if ((*it)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				if (!udf_.WriteFileIdent(out_stream_,cur_part_sec,next_entry_sec,true,(*it)->m_FileName.c_str()))
 					return false;
@@ -264,7 +264,7 @@ namespace ckfilesystem
 			}
 #endif
 
-			if (cur_node->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
+			if (cur_node->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				if (!WriteLocalParitionDir(dir_node_stack,cur_node,cur_part_sec,unique_ident))
 					return false;

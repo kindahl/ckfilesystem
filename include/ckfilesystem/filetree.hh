@@ -39,7 +39,7 @@ namespace ckfilesystem
 			FLAG_IMPORTED = 0x02
 		};
 
-		unsigned char m_ucFileFlags;
+		unsigned char file_flags_;
 		ckcore::tuint64 m_uiFileSize;
 		ckcore::tstring m_FileName;			// File name in disc image (requested name not actual, using ISO9660 may cripple the name).
 		ckcore::tstring m_FileFullPath;		// Place on hard drive.
@@ -71,7 +71,7 @@ namespace ckfilesystem
 		{
 			m_pParent = pParent;
 
-			m_ucFileFlags = ucFileFlags;
+			file_flags_ = ucFileFlags;
 			m_uiFileSize = uiFileSize;
 			m_FileName = szFileName;
 			m_FileFullPath = szFileFullPath;

@@ -35,14 +35,14 @@ namespace ckfilesystem
 	public:
 		std::vector<Iso9660TreeNode *> m_Children;
 
-		unsigned char m_ucFileFlags;
-		unsigned char m_ucFileUnitSize;
-		unsigned char m_ucInterleaveGapSize;
-		unsigned short m_usVolSeqNumber;
-		unsigned long m_ulExtentLocation;
-		unsigned long m_ulExtentLength;
+		unsigned char file_flags_;
+		unsigned char file_unit_size_;
+		unsigned char interleave_gap_size_;
+		unsigned short volseq_num_;
+		unsigned long extent_loc_;
+		unsigned long extent_len_;
 
-		tDirRecordDateTime m_RecDateTime;
+		tiso_dir_record_datetime m_RecDateTime;
 
 		ckcore::tstring m_FileName;
 
@@ -50,16 +50,16 @@ namespace ckfilesystem
 			unsigned long ulExtentLocation,unsigned long ulExtentLength,
 			unsigned short usVolSeqNumber,unsigned char ucFileFlags,
 			unsigned char ucFileUnitSize,unsigned char ucInterleaveGapSize,
-			tDirRecordDateTime &RecDateTime) : m_pParent(pParent)
+			tiso_dir_record_datetime &RecDateTime) : m_pParent(pParent)
 		{
-			m_ucFileFlags = ucFileFlags;
-			m_ucFileUnitSize = ucFileUnitSize;
-			m_ucInterleaveGapSize = ucInterleaveGapSize;
-			m_usVolSeqNumber = usVolSeqNumber;
-			m_ulExtentLocation = ulExtentLocation;
-			m_ulExtentLength = ulExtentLength;
+			file_flags_ = ucFileFlags;
+			file_unit_size_ = ucFileUnitSize;
+			interleave_gap_size_ = ucInterleaveGapSize;
+			volseq_num_ = usVolSeqNumber;
+			extent_loc_ = ulExtentLocation;
+			extent_len_ = ulExtentLength;
 
-			memcpy(&m_RecDateTime,&RecDateTime,sizeof(tDirRecordDateTime));
+			memcpy(&m_RecDateTime,&RecDateTime,sizeof(tiso_dir_record_datetime));
 
 			if (szFileName != NULL)
 				m_FileName = szFileName;

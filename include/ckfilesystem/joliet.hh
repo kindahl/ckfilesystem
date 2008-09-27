@@ -32,7 +32,7 @@ namespace ckfilesystem
 		bool m_bIncFileVerInfo;
 		int m_iMaxNameLen;
 
-		tVolDescSuppl m_VolDescSuppl;
+		tiso_voldesc_suppl m_VolDescSuppl;
 
 		wchar_t MakeChar(wchar_t c);
         int LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter);

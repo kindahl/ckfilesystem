@@ -44,7 +44,7 @@ namespace ckfilesystem
 		Iso9660TreeNode *pParentNode,bool bJoliet)
 	{
 		// Search to the extent location.
-		InStream.Seek(pParentNode->m_ulExtentLocation * ISO9660_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
+		InStream.Seek(pParentNode->extent_loc_ * ISO9660_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
 
 		unsigned char ucFileNameBuffer[ISO9660WRITER_FILENAME_BUFFER_SIZE];
 		ckcore::tchar szFileName[(ISO9660WRITER_FILENAME_BUFFER_SIZE / sizeof(ckcore::tchar)) + 1];
@@ -72,47 +72,47 @@ namespace ckfilesystem
 			ulRead += ulSysDirRecLen;
 		}
 
-		tDirRecord CurDirRecord;
+		tiso_dir_record CurDirRecord;
 
 		// Read all other records.
-		while (ulRead < pParentNode->m_ulExtentLength)
+		while (ulRead < pParentNode->extent_len_)
 		{
 			// Check if we can read further.
-			if (ulRead + sizeof(tDirRecord) > pParentNode->m_ulExtentLength)
+			if (ulRead + sizeof(tiso_dir_record) > pParentNode->extent_len_)
 				break;
 
 			unsigned long ulDirRecProcessed = 0;
 
-			memset(&CurDirRecord,0,sizeof(tDirRecord));
-			iProcessed = InStream.Read(&CurDirRecord,sizeof(tDirRecord) - 1);
+			memset(&CurDirRecord,0,sizeof(tiso_dir_record));
+			iProcessed = InStream.Read(&CurDirRecord,sizeof(tiso_dir_record) - 1);
 			if (iProcessed == -1)
 			{
 				log_.PrintLine(ckT("Error: Unable to read directory record."));
 				return false;
 			}
-			if (iProcessed != sizeof(tDirRecord) - 1)
+			if (iProcessed != sizeof(tiso_dir_record) - 1)
 			{
 				log_.PrintLine(ckT("Error: Unable to read directory record (size mismatch: %u vs. %u)."),
-					(unsigned long)iProcessed,sizeof(tDirRecord) - 1);
+					(unsigned long)iProcessed,sizeof(tiso_dir_record) - 1);
 				return false;
 			}
 			ulDirRecProcessed += (unsigned long)iProcessed;
 
-			if (CurDirRecord.ucFileIdentifierLen > ISO9660WRITER_FILENAME_BUFFER_SIZE)
+			if (CurDirRecord.file_ident_len > ISO9660WRITER_FILENAME_BUFFER_SIZE)
 			{
 				log_.PrintLine(ckT("Error: Directory record file identifier is too large: %u bytes."),
-					CurDirRecord.ucFileIdentifierLen);
+					CurDirRecord.file_ident_len);
 				return false;
 			}
 
 			// Read identifier.
-			iProcessed = InStream.Read(ucFileNameBuffer,CurDirRecord.ucFileIdentifierLen);
+			iProcessed = InStream.Read(ucFileNameBuffer,CurDirRecord.file_ident_len);
 			if (iProcessed == -1)
 			{
 				log_.PrintLine(ckT("Error: Unable to read directory record file identifier."));
 				return false;
 			}
-			if (iProcessed != CurDirRecord.ucFileIdentifierLen)
+			if (iProcessed != CurDirRecord.file_ident_len)
 			{
 				log_.PrintLine(ckT("Error: Unable to read directory record file identifier (size mismatch)."));
 				return false;
@@ -127,7 +127,7 @@ namespace ckfilesystem
 #else
 				wchar_t szWideFileName[(ISO9660WRITER_FILENAME_BUFFER_SIZE >> 1) + 1];
 #endif
-				unsigned char ucFileNameLen = CurDirRecord.ucFileIdentifierLen >> 1;
+				unsigned char ucFileNameLen = CurDirRecord.file_ident_len >> 1;
 				unsigned char ucFileNamePos = 0;
 
 				for (unsigned int i = 0; i < ucFileNameLen; i++)
@@ -147,25 +147,25 @@ namespace ckfilesystem
 #ifdef _UNICODE
 				ckcore::string::ansi_to_utf16((const char *)ucFileNameBuffer,szFileName,sizeof(szFileName) / sizeof(ckcore::tchar));
 #else
-				memcpy(szFileName,ucFileNameBuffer,CurDirRecord.ucFileIdentifierLen);
+				memcpy(szFileName,ucFileNameBuffer,CurDirRecord.file_ident_len);
 #endif
-				szFileName[CurDirRecord.ucFileIdentifierLen] = '\0';
+				szFileName[CurDirRecord.file_ident_len] = '\0';
 			}
 
 			// Remove any version information.
-			unsigned char ucLength = bJoliet ? CurDirRecord.ucFileIdentifierLen >> 1 :
-				CurDirRecord.ucFileIdentifierLen;
+			unsigned char ucLength = bJoliet ? CurDirRecord.file_ident_len >> 1 :
+				CurDirRecord.file_ident_len;
 			if (szFileName[ucLength - 2] == ';')
 				szFileName[ucLength - 2] = '\0';
 
-			//log_.PrintLine(ckT("  %s: %u"),szFileName,Read733(CurDirRecord.ucExtentLocation));
+			//log_.PrintLine(ckT("  %s: %u"),szFileName,Read733(CurDirRecord.extent_loc));
 
 			Iso9660TreeNode *pNewNode = new Iso9660TreeNode(pParentNode,szFileName,
-					Read733(CurDirRecord.ucExtentLocation),Read733(CurDirRecord.ucDataLen),
-					Read723(CurDirRecord.ucVolSeqNumber),CurDirRecord.ucFileFlags,
-					CurDirRecord.ucFileUnitSize,CurDirRecord.ucInterleaveGapSize,CurDirRecord.RecDateTime);
+					Read733(CurDirRecord.extent_loc),Read733(CurDirRecord.data_len),
+					Read723(CurDirRecord.volseq_num),CurDirRecord.file_flags,
+					CurDirRecord.file_unit_size,CurDirRecord.interleave_gap_size,CurDirRecord.rec_timestamp);
 
-			if (CurDirRecord.ucFileFlags & DIRRECORD_FILEFLAG_DIRECTORY)
+			if (CurDirRecord.file_flags & DIRRECORD_FILEFLAG_DIRECTORY)
 			{
 				DirEntries.push_back(pNewNode);
 			}
@@ -173,17 +173,17 @@ namespace ckfilesystem
 			pParentNode->m_Children.push_back(pNewNode);
 
 			// Skip any extra data.
-			if (CurDirRecord.ucDirRecordLen - ulDirRecProcessed > 0)
+			if (CurDirRecord.dir_record_len - ulDirRecProcessed > 0)
 			{
-				InStream.Seek(CurDirRecord.ucDirRecordLen - ulDirRecProcessed,ckcore::InStream::ckSTREAM_CURRENT);
-				ulDirRecProcessed = CurDirRecord.ucDirRecordLen;
+				InStream.Seek(CurDirRecord.dir_record_len - ulDirRecProcessed,ckcore::InStream::ckSTREAM_CURRENT);
+				ulDirRecProcessed = CurDirRecord.dir_record_len;
 			}
 
 			ulRead += ulDirRecProcessed;
 
 			// Skip any extended attribute record.
-			InStream.Seek(CurDirRecord.ucExtAttrRecordLen,ckcore::InStream::ckSTREAM_CURRENT);
-			ulRead += CurDirRecord.ucExtAttrRecordLen;
+			InStream.Seek(CurDirRecord.ext_attr_record_len,ckcore::InStream::ckSTREAM_CURRENT);
+			ulRead += CurDirRecord.ext_attr_record_len;
 
 			// Ignore any zeroes.
 			unsigned char ucNext;
@@ -216,7 +216,7 @@ namespace ckfilesystem
 				}
 			}
 
-			InStream.Seek(pParentNode->m_ulExtentLocation * ISO9660_SECTOR_SIZE + ulRead,ckcore::InStream::ckSTREAM_BEGIN);
+			InStream.Seek(pParentNode->extent_loc_ * ISO9660_SECTOR_SIZE + ulRead,ckcore::InStream::ckSTREAM_BEGIN);
 		}
 
 		return true;
@@ -240,77 +240,77 @@ namespace ckfilesystem
 		ckcore::tint64 iProcessed = 0;
 
 		// Read the primary volume descriptor.
-		tVolDescPrimary VolDescPrim;
-		memset(&VolDescPrim,0,sizeof(tVolDescPrimary));
-		iProcessed = InStream.Read(&VolDescPrim,sizeof(tVolDescPrimary));
+		tiso_voldesc_primary VolDescPrim;
+		memset(&VolDescPrim,0,sizeof(tiso_voldesc_primary));
+		iProcessed = InStream.Read(&VolDescPrim,sizeof(tiso_voldesc_primary));
 		if (iProcessed == -1)
 		{
 			log_.PrintLine(ckT("  Error: Unable to read ISO9660 file system."));
 			return false;
 		}
-		if (iProcessed != sizeof(tVolDescPrimary))
+		if (iProcessed != sizeof(tiso_voldesc_primary))
 		{
 			log_.PrintLine(ckT("  Error: Unable to read ISO9660 primary volume descriptor."));
 			return false;
 		}
 
 		// Validate primary volume descriptor.
-		if (VolDescPrim.ucType != VOLDESCTYPE_PRIM_VOL_DESC)
+		if (VolDescPrim.type != VOLDESCTYPE_PRIM_VOL_DESC)
 		{
 			log_.PrintLine(ckT("  Error: Primary volume decsriptor not found at sector 16."));
 			return false;
 		}
 
-		if (VolDescPrim.ucVersion != 1)
+		if (VolDescPrim.version != 1)
 		{
 			log_.PrintLine(ckT("  Error: Bad primary volume descriptor version."));
 			return false;
 		}
 
-		if (VolDescPrim.ucFileStructVer != 1)
+		if (VolDescPrim.file_struct_ver != 1)
 		{
 			log_.PrintLine(ckT("  Error: Bad primary volume descriptor structure version."));
 			return false;
 		}
 
-		if (memcmp(VolDescPrim.ucIdentifier,g_IdentCD,sizeof(VolDescPrim.ucIdentifier)))
+		if (memcmp(VolDescPrim.ident,g_IdentCD,sizeof(VolDescPrim.ident)))
 		{
 			log_.PrintLine(ckT("  Error: Bad primary volume descriptor identifer."));
 			return false;
 		}
 
 		// Search all other volume descriptors for a Joliet descriptor (we only search 99 maximum).
-		tVolDescSuppl VolDescSuppl;
+		tiso_voldesc_suppl VolDescSuppl;
 		bool bJoliet = false;
 		for (unsigned int i = 0; i < 99; i++)
 		{
-			memset(&VolDescSuppl,0,sizeof(tVolDescSuppl));
-			iProcessed = InStream.Read(&VolDescSuppl,sizeof(tVolDescSuppl));
+			memset(&VolDescSuppl,0,sizeof(tiso_voldesc_suppl));
+			iProcessed = InStream.Read(&VolDescSuppl,sizeof(tiso_voldesc_suppl));
 			if (iProcessed == -1)
 			{
 				log_.PrintLine(ckT("  Error: Unable to read ISO9660 file system."));
 				return false;
 			}
-			if (iProcessed != sizeof(tVolDescSuppl))
+			if (iProcessed != sizeof(tiso_voldesc_suppl))
 			{
 				log_.PrintLine(ckT("  Error: Unable to read additional ISO9660 volume descriptor."));
 				return false;
 			}
 
 			// Check if we found the terminator.
-			if (VolDescSuppl.ucType == VOLDESCTYPE_VOL_DESC_SET_TERM)
+			if (VolDescSuppl.type == VOLDESCTYPE_VOL_DESC_SET_TERM)
 				break;
 
 			// Check if we found a supplementary volume descriptor.
-			if (VolDescSuppl.ucType == VOLDESCTYPE_SUPPL_VOL_DESC)
+			if (VolDescSuppl.type == VOLDESCTYPE_SUPPL_VOL_DESC)
 			{
 				// Check if Joliet.
-				if (VolDescSuppl.ucEscapeSeq[0] == 0x25 &&
-					VolDescSuppl.ucEscapeSeq[1] == 0x2F)
+				if (VolDescSuppl.esc_sec[0] == 0x25 &&
+					VolDescSuppl.esc_sec[1] == 0x2F)
 				{
-					if (VolDescSuppl.ucEscapeSeq[2] == 0x45 ||
-						VolDescSuppl.ucEscapeSeq[2] == 0x43 ||
-						VolDescSuppl.ucEscapeSeq[2] == 0x40)
+					if (VolDescSuppl.esc_sec[2] == 0x45 ||
+						VolDescSuppl.esc_sec[2] == 0x43 ||
+						VolDescSuppl.esc_sec[2] == 0x40)
 					{
 						log_.PrintLine(ckT("  Found Joliet file system extension."));
 						bJoliet = true;
@@ -326,13 +326,13 @@ namespace ckfilesystem
 
 		if (bJoliet)
 		{
-			ulRootExtentLoc = Read733(VolDescSuppl.RootDirRecord.ucExtentLocation);
-			ulRootExtentLen = Read733(VolDescSuppl.RootDirRecord.ucDataLen);
+			ulRootExtentLoc = Read733(VolDescSuppl.root_dir_record.extent_loc);
+			ulRootExtentLen = Read733(VolDescSuppl.root_dir_record.data_len);
 		}
 		else
 		{
-			ulRootExtentLoc = Read733(VolDescPrim.RootDirRecord.ucExtentLocation);
-			ulRootExtentLen = Read733(VolDescPrim.RootDirRecord.ucDataLen);
+			ulRootExtentLoc = Read733(VolDescPrim.root_dir_record.extent_loc);
+			ulRootExtentLen = Read733(VolDescPrim.root_dir_record.data_len);
 		}
 
 		log_.PrintLine(ckT("  Location of root directory extent: %u."),ulRootExtentLoc);
@@ -342,9 +342,9 @@ namespace ckfilesystem
 			delete m_pRootNode;
 
 		m_pRootNode = new Iso9660TreeNode(NULL,NULL,ulRootExtentLoc,ulRootExtentLen,
-			Read723(VolDescSuppl.RootDirRecord.ucVolSeqNumber),VolDescSuppl.RootDirRecord.ucFileFlags,
-			VolDescSuppl.RootDirRecord.ucFileUnitSize,VolDescSuppl.RootDirRecord.ucInterleaveGapSize,
-			VolDescSuppl.RootDirRecord.RecDateTime);
+			Read723(VolDescSuppl.root_dir_record.volseq_num),VolDescSuppl.root_dir_record.file_flags,
+			VolDescSuppl.root_dir_record.file_unit_size,VolDescSuppl.root_dir_record.interleave_gap_size,
+			VolDescSuppl.root_dir_record.rec_timestamp);
 
 		std::vector<Iso9660TreeNode *> DirEntries;
 		if (!ReadDirEntry(InStream,DirEntries,m_pRootNode,bJoliet))
@@ -360,7 +360,7 @@ namespace ckfilesystem
 
 			if (!ReadDirEntry(InStream,DirEntries,pParentNode,bJoliet))
 			{
-				log_.PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),pParentNode->m_ulExtentLocation);
+				log_.PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),pParentNode->extent_loc_);
 				return false;
 			}
 		}
@@ -376,7 +376,7 @@ namespace ckfilesystem
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & DIRRECORD_FILEFLAG_DIRECTORY)
+			if ((*itFile)->file_flags_ & DIRRECORD_FILEFLAG_DIRECTORY)
 			{
 				DirNodeStack.push_back(std::make_pair(*itFile,iIndent));
 			}
@@ -387,7 +387,7 @@ namespace ckfilesystem
 
 				log_.Print(ckT("<f>"));
 				log_.Print((*itFile)->m_FileName.c_str());
-				log_.PrintLine(ckT(" (%u:%u)"),(*itFile)->m_ulExtentLocation,(*itFile)->m_ulExtentLength);
+				log_.PrintLine(ckT(" (%u:%u)"),(*itFile)->extent_loc_,(*itFile)->extent_len_);
 			}
 		}
 	}
@@ -402,9 +402,9 @@ namespace ckfilesystem
 
 		log_.PrintLine(ckT("Iso9660Reader::PrintTree"));
 #ifdef _WINDOWS
-		log_.PrintLine(ckT("  <root> (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+		log_.PrintLine(ckT("  <root> (%I64u:%I64u)"),pCurNode->extent_loc_,pCurNode->extent_len_);
 #else
-		log_.PrintLine(ckT("  <root> (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+		log_.PrintLine(ckT("  <root> (%llu:%llu)"),pCurNode->extent_loc_,pCurNode->extent_len_);
 #endif
 
 		std::vector<std::pair<Iso9660TreeNode *,int> > DirNodeStack;
@@ -424,9 +424,9 @@ namespace ckfilesystem
 			log_.Print(ckT("<d>"));
 			log_.Print(pCurNode->m_FileName.c_str());
 #ifdef _WINDOWS
-			log_.PrintLine(ckT(" (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+			log_.PrintLine(ckT(" (%I64u:%I64u)"),pCurNode->extent_loc_,pCurNode->extent_len_);
 #else
-			log_.PrintLine(ckT(" (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+			log_.PrintLine(ckT(" (%llu:%llu)"),pCurNode->extent_loc_,pCurNode->extent_len_);
 #endif
 
 			PrintLocalTree(DirNodeStack,pCurNode,iIndent + 2);

@@ -35,25 +35,25 @@ namespace ckfilesystem
 	class Iso9660ImportData
 	{
 	public:
-		unsigned char m_ucFileFlags;
-		unsigned char m_ucFileUnitSize;
-		unsigned char m_ucInterleaveGapSize;
-		unsigned short m_usVolSeqNumber;
-		unsigned long m_ulExtentLocation;
-		unsigned long m_ulExtentLength;
+		unsigned char file_flags_;
+		unsigned char file_unit_size_;
+		unsigned char interleave_gap_size_;
+		unsigned short volseq_num_;
+		unsigned long extent_loc_;
+		unsigned long extent_len_;
 
-		ckfilesystem::tDirRecordDateTime m_RecDateTime;
+		ckfilesystem::tiso_dir_record_datetime rec_timestamp_;
 
 		Iso9660ImportData()
 		{
-			m_ucFileFlags = 0;
-			m_ucFileUnitSize = 0;
-			m_ucInterleaveGapSize = 0;
-			m_usVolSeqNumber = 0;
-			m_ulExtentLocation = 0;
-			m_ulExtentLength = 0;
+			file_flags_ = 0;
+			file_unit_size_ = 0;
+			interleave_gap_size_ = 0;
+			volseq_num_ = 0;
+			extent_loc_ = 0;
+			extent_len_ = 0;
 
-			memset(&m_RecDateTime,0,sizeof(ckfilesystem::tDirRecordDateTime));
+			memset(&rec_timestamp_,0,sizeof(ckfilesystem::tiso_dir_record_datetime));
 		}
 	};
 

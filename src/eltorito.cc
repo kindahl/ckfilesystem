@@ -36,7 +36,7 @@ namespace ckfilesystem
 		m_BootImages.clear();
 	}
 
-	bool ElTorito::ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &ucSysType)
+	bool ElTorito::ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &sys_type)
 	{
 		// Find the system type in the path table located in the MBR.
 		ckcore::FileInStream InFile(szFullPath);
@@ -46,13 +46,13 @@ namespace ckfilesystem
 			return false;
 		}
 
-		tMasterBootRec MBR;
+		teltorito_mbr MBR;
 
-		ckcore::tint64 iProcessed = InFile.Read(&MBR,sizeof(tMasterBootRec));
+		ckcore::tint64 iProcessed = InFile.Read(&MBR,sizeof(teltorito_mbr));
 		if (iProcessed == -1)
 			return false;
-		if (iProcessed != sizeof(tMasterBootRec) ||
-			(MBR.ucSignature1 != 0x55 || MBR.ucSignature2 != 0xAA))
+		if (iProcessed != sizeof(teltorito_mbr) ||
+			(MBR.signature1 != 0x55 || MBR.signature2 != 0xAA))
 		{
 			log_.PrintLine(ckT("  Error: Unable to locate MBR in default boot image."));
 			return false;
@@ -62,7 +62,7 @@ namespace ckfilesystem
 		for (size_t i = 0; i < MBR_PARTITION_COUNT; i++)
 		{
 			// Look for the first used partition.
-			if (MBR.Partitions[i].ucPartType != 0)
+			if (MBR.partitions[i].part_type != 0)
 			{
 				if (iUsedPartition != -1)
 				{
@@ -76,20 +76,20 @@ namespace ckfilesystem
 			}
 		}
 
-		ucSysType = MBR.Partitions[iUsedPartition].ucPartType;
+		sys_type = MBR.partitions[iUsedPartition].part_type;
 		return true;
 	}
 
 	bool ElTorito::WriteBootRecord(SectorOutStream &out_stream,unsigned long ulBootCatSecPos)
 	{
-		tVolDescElToritoRecord BootRecord;
-		memset(&BootRecord,0,sizeof(tVolDescElToritoRecord));
+		tiso_voldesc_eltorito_record BootRecord;
+		memset(&BootRecord,0,sizeof(tiso_voldesc_eltorito_record));
 
-		BootRecord.ucType = 0;
-		memcpy(BootRecord.ucIdentifier,g_IdentCD,sizeof(BootRecord.ucIdentifier));
-		BootRecord.ucVersion = 1;
-		memcpy(BootRecord.ucBootSysIdentifier,g_IdentElTorito,strlen(g_IdentElTorito));
-		BootRecord.uiBootCatalogPtr = ulBootCatSecPos;
+		BootRecord.type = 0;
+		memcpy(BootRecord.ident,g_IdentCD,sizeof(BootRecord.ident));
+		BootRecord.version = 1;
+		memcpy(BootRecord.boot_sys_ident,g_IdentElTorito,strlen(g_IdentElTorito));
+		BootRecord.boot_cat_ptr = ulBootCatSecPos;
 
 		ckcore::tint64 iProcessed = out_stream.Write(&BootRecord,sizeof(BootRecord));
 		if (iProcessed == -1)
@@ -103,24 +103,24 @@ namespace ckfilesystem
 	bool ElTorito::WriteBootCatalog(SectorOutStream &out_stream)
 	{
 		char szManufacturer[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,0x52,0x44,0x45,0x52 };
-		tElToritoValiEntry ValidationEntry;
-		memset(&ValidationEntry,0,sizeof(tElToritoValiEntry));
+		teltorito_valientry ValidationEntry;
+		memset(&ValidationEntry,0,sizeof(teltorito_valientry));
 
-		ValidationEntry.ucHeader = 0x01;
-		ValidationEntry.ucPlatform = ELTORITO_PLATFORM_80X86;
-		memcpy(ValidationEntry.ucManufacturer,szManufacturer,13);
-		ValidationEntry.ucKeyByte1 = 0x55;
-		ValidationEntry.ucKeyByte2 = 0xAA;
+		ValidationEntry.header = 0x01;
+		ValidationEntry.platform = ELTORITO_PLATFORM_80X86;
+		memcpy(ValidationEntry.manufacturer,szManufacturer,13);
+		ValidationEntry.key_byte1 = 0x55;
+		ValidationEntry.key_byte2 = 0xAA;
 
 		// Calculate check sum.
 		int iCheckSum = 0;
 		unsigned char *pEntryPtr = (unsigned char *)&ValidationEntry;
-		for (size_t i = 0; i < sizeof(tElToritoValiEntry); i += 2) {
+		for (size_t i = 0; i < sizeof(teltorito_valientry); i += 2) {
 			iCheckSum += (unsigned int)pEntryPtr[i];
 			iCheckSum += ((unsigned int)pEntryPtr[i + 1]) << 8;
 		}
 
-		ValidationEntry.usCheckSum = -iCheckSum;
+		ValidationEntry.checksum = -iCheckSum;
 
 		ckcore::tint64 iProcessed = out_stream.Write(&ValidationEntry,sizeof(ValidationEntry));
 		if (iProcessed == -1)
@@ -134,45 +134,45 @@ namespace ckfilesystem
 
 		ElToritoImage *pDefImage = m_BootImages[0];
 
-		tElToritoDefEntry DefBootEntry;
-		memset(&DefBootEntry,0,sizeof(tElToritoDefEntry));
+		teltorito_defentry DefBootEntry;
+		memset(&DefBootEntry,0,sizeof(teltorito_defentry));
 
-		DefBootEntry.ucBootIndicator = pDefImage->m_bBootable ?
+		DefBootEntry.boot_indicator = pDefImage->m_bBootable ?
 			ELTORITO_BOOTINDICATOR_BOOTABLE : ELTORITO_BOOTINDICATOR_NONBOOTABLE;
-		DefBootEntry.usLoadSegment = pDefImage->m_usLoadSegment;
-		DefBootEntry.usSectorCount = pDefImage->m_usSectorCount;
-		DefBootEntry.ulLoadSecAddr = pDefImage->m_ulDataSecPos;
+		DefBootEntry.load_segment = pDefImage->m_load_segment;
+		DefBootEntry.sec_count = pDefImage->m_sec_count;
+		DefBootEntry.load_sec_addr = pDefImage->m_ulDataSecPos;
 
 		switch (pDefImage->m_Emulation)
 		{
 			case ElToritoImage::EMULATION_NONE:
-				DefBootEntry.ucEmulation = ELTORITO_EMULATION_NONE;
-				DefBootEntry.ucSysType = 0;
+				DefBootEntry.emulation = ELTORITO_EMULATION_NONE;
+				DefBootEntry.sys_type = 0;
 				break;
 
 			case ElToritoImage::EMULATION_FLOPPY:
 				switch (ckcore::File::Size(pDefImage->m_FullPath.c_str()))
 				{
 					case 1200 * 1024:
-						DefBootEntry.ucEmulation = ELTORITO_EMULATION_DISKETTE12;
+						DefBootEntry.emulation = ELTORITO_EMULATION_DISKETTE12;
 						break;
 					case 1440 * 1024:
-						DefBootEntry.ucEmulation = ELTORITO_EMULATION_DISKETTE144;
+						DefBootEntry.emulation = ELTORITO_EMULATION_DISKETTE144;
 						break;
 					case 2880 * 1024:
-						DefBootEntry.ucEmulation = ELTORITO_EMULATION_DISKETTE288;
+						DefBootEntry.emulation = ELTORITO_EMULATION_DISKETTE288;
 						break;
 					default:
 						return false;
 				}
 
-				DefBootEntry.ucSysType = 0;
+				DefBootEntry.sys_type = 0;
 				break;
 
 			case ElToritoImage::EMULATION_HARDDISK:
-				DefBootEntry.ucEmulation = ELTORITO_EMULATION_HARDDISK;
+				DefBootEntry.emulation = ELTORITO_EMULATION_HARDDISK;
 
-				if (!ReadSysTypeMBR(pDefImage->m_FullPath.c_str(),DefBootEntry.ucSysType))
+				if (!ReadSysTypeMBR(pDefImage->m_FullPath.c_str(),DefBootEntry.sys_type))
 					return false;
 				break;
 		}
@@ -184,8 +184,8 @@ namespace ckfilesystem
 			return false;
 
 		// Write the rest of the boot images.
-		tElToritoSecHeader SecHeader;
-		tElToritoSecEntry SecEntry;
+		teltorito_sec_header SecHeader;
+		teltorito_sec_entry SecEntry;
 
 		unsigned short usNumImages = (unsigned short)m_BootImages.size();
 		for (unsigned short i = 1; i < usNumImages; i++)
@@ -193,16 +193,16 @@ namespace ckfilesystem
 			ElToritoImage *pCurImage = m_BootImages[i];
 
 			// Write section header.
-			memset(&SecHeader,0,sizeof(tElToritoSecHeader));
+			memset(&SecHeader,0,sizeof(teltorito_sec_header));
 
-			SecHeader.ucHeader = i == (usNumImages - 1) ?
+			SecHeader.header = i == (usNumImages - 1) ?
 				ELTORITO_HEADER_FINAL : ELTORITO_HEADER_NORMAL;
-			SecHeader.ucPlatform = ELTORITO_PLATFORM_80X86;
-			SecHeader.usNumSecEntries = 1;
+			SecHeader.platform = ELTORITO_PLATFORM_80X86;
+			SecHeader.num_sec_entries = 1;
 
 			char szIdentifier[16];
 			sprintf(szIdentifier,"IMAGE%u",i + 1);
-			memcpy(SecHeader.ucIndentifier,szIdentifier,strlen(szIdentifier));
+			memcpy(SecHeader.ident,szIdentifier,strlen(szIdentifier));
 
 			iProcessed = out_stream.Write(&SecHeader,sizeof(SecHeader));
 			if (iProcessed == -1)
@@ -211,44 +211,44 @@ namespace ckfilesystem
 				return false;
 
 			// Write the section entry.
-			memset(&SecEntry,0,sizeof(tElToritoSecEntry));
+			memset(&SecEntry,0,sizeof(teltorito_sec_entry));
 
-			SecEntry.ucBootIndicator = pCurImage->m_bBootable ?
+			SecEntry.boot_indicator = pCurImage->m_bBootable ?
 				ELTORITO_BOOTINDICATOR_BOOTABLE : ELTORITO_BOOTINDICATOR_NONBOOTABLE;
-			SecEntry.usLoadSegment = pCurImage->m_usLoadSegment;
-			SecEntry.usSectorCount = pCurImage->m_usSectorCount;
-			SecEntry.ulLoadSecAddr = pCurImage->m_ulDataSecPos;
+			SecEntry.load_segment = pCurImage->m_load_segment;
+			SecEntry.sec_count = pCurImage->m_sec_count;
+			SecEntry.load_sec_addr = pCurImage->m_ulDataSecPos;
 
 			switch (pCurImage->m_Emulation)
 			{
 				case ElToritoImage::EMULATION_NONE:
-					SecEntry.ucEmulation = ELTORITO_EMULATION_NONE;
-					SecEntry.ucSysType = 0;
+					SecEntry.emulation = ELTORITO_EMULATION_NONE;
+					SecEntry.sys_type = 0;
 					break;
 
 				case ElToritoImage::EMULATION_FLOPPY:
 					switch (ckcore::File::Size(pCurImage->m_FullPath.c_str()))
 					{
 						case 1200 * 1024:
-							SecEntry.ucEmulation = ELTORITO_EMULATION_DISKETTE12;
+							SecEntry.emulation = ELTORITO_EMULATION_DISKETTE12;
 							break;
 						case 1440 * 1024:
-							SecEntry.ucEmulation = ELTORITO_EMULATION_DISKETTE144;
+							SecEntry.emulation = ELTORITO_EMULATION_DISKETTE144;
 							break;
 						case 2880 * 1024:
-							SecEntry.ucEmulation = ELTORITO_EMULATION_DISKETTE288;
+							SecEntry.emulation = ELTORITO_EMULATION_DISKETTE288;
 							break;
 						default:
 							return false;
 					}
 
-					SecEntry.ucSysType = 0;
+					SecEntry.sys_type = 0;
 					break;
 
 				case ElToritoImage::EMULATION_HARDDISK:
-					SecEntry.ucEmulation = ELTORITO_EMULATION_HARDDISK;
+					SecEntry.emulation = ELTORITO_EMULATION_HARDDISK;
 
-					if (!ReadSysTypeMBR(pCurImage->m_FullPath.c_str(),SecEntry.ucSysType))
+					if (!ReadSysTypeMBR(pCurImage->m_FullPath.c_str(),SecEntry.sys_type))
 						return false;
 					break;
 			}
@@ -313,7 +313,7 @@ namespace ckfilesystem
 	}
 
 	bool ElTorito::AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
-		unsigned short usLoadSegment,unsigned short usSectorCount)
+		unsigned short load_segment,unsigned short sec_count)
 	{
 		if (m_BootImages.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
 			return false;
@@ -322,7 +322,7 @@ namespace ckfilesystem
 			return false;
 
 		m_BootImages.push_back(new ElToritoImage(
-			szFullPath,bBootable,ElToritoImage::EMULATION_NONE,usLoadSegment,usSectorCount));
+			szFullPath,bBootable,ElToritoImage::EMULATION_NONE,load_segment,sec_count));
 		return true;
 	}
 
@@ -341,7 +341,7 @@ namespace ckfilesystem
 			return false;
 		}
 
-		// usSectorCount = 1, only load one sector for floppies.
+		// sec_count = 1, only load one sector for floppies.
 		m_BootImages.push_back(new ElToritoImage(
 			szFullPath,bBootable,ElToritoImage::EMULATION_FLOPPY,0,1));
 		return true;
@@ -359,7 +359,7 @@ namespace ckfilesystem
 		if (!ReadSysTypeMBR(szFullPath,ucDummy))
 			return false;
 
-		// usSectorCount = 1, Only load the MBR.
+		// sec_count = 1, Only load the MBR.
 		m_BootImages.push_back(new ElToritoImage(
 			szFullPath,bBootable,ElToritoImage::EMULATION_HARDDISK,0,1));
 		return true;

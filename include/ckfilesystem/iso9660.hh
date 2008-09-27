@@ -59,199 +59,198 @@ namespace ckfilesystem
 
 	typedef struct
 	{
-		unsigned char ucYear;		// Number of years since 1900.
-		unsigned char ucMonth;		// Month of the year from 1 to 12.
-		unsigned char ucDay;		// Day of the month from 1 to 31.
-		unsigned char ucHour;		// Hour of the day from 0 to 23.
-		unsigned char ucMinute;		// Minute of the hour from 0 to 59.
-		unsigned char ucSecond;		// Second of the minute from 0 to 59.
-		unsigned char ucZone;		// Offset from Greenwich Mean Time in number of
-									// 15 min intervals from -48 (West) to + 52 (East)
-									// recorded according to 7.1.2.
-	} tDirRecordDateTime;
+		unsigned char year;		// Number of years since 1900.
+		unsigned char mon;		// Month of the year from 1 to 12.
+		unsigned char day;		// Day of the month from 1 to 31.
+		unsigned char hour;		// Hour of the day from 0 to 23.
+		unsigned char min;		// Minute of the hour from 0 to 59.
+		unsigned char sec;		// Second of the minute from 0 to 59.
+		unsigned char zone;		// Offset from Greenwich Mean Time in number of
+								// 15 min intervals from -48 (West) to + 52 (East)
+								// recorded according to 7.1.2.
+	} tiso_dir_record_datetime;
 
 	typedef struct
 	{
-		unsigned char ucDirRecordLen;
-		unsigned char ucExtAttrRecordLen;
-		unsigned char ucExtentLocation[8];	// 7.3.3.
-		unsigned char ucDataLen[8];			// 7.3.3.
-		tDirRecordDateTime RecDateTime;
-		unsigned char ucFileFlags;
-		unsigned char ucFileUnitSize;
-		unsigned char ucInterleaveGapSize;
-		unsigned char ucVolSeqNumber[4];	// 7.2.3.
-		unsigned char ucFileIdentifierLen;
-		unsigned char ucFileIdentifier[1];	// Actually of size ucFileIdentifierLen.
-	} tDirRecord;
+		unsigned char dir_record_len;
+		unsigned char ext_attr_record_len;
+		unsigned char extent_loc[8];	// 7.3.3.
+		unsigned char data_len[8];		// 7.3.3.
+		tiso_dir_record_datetime rec_timestamp;
+		unsigned char file_flags;
+		unsigned char file_unit_size;
+		unsigned char interleave_gap_size;
+		unsigned char volseq_num[4];	// 7.2.3.
+		unsigned char file_ident_len;
+		unsigned char file_ident[1];	// Actually of size file_ident_len.
+	} tiso_dir_record;
 
 	typedef struct
 	{
-		unsigned char ucDirIdentifierLen;
-		unsigned char ucExtAttrRecordLen;
-		unsigned char ucExtentLocation[4];	// 7.3.?.
-		unsigned char ucParentDirNumber[2];	// 7.2.?.
-		unsigned char ucDirIdentifier[1];	// Actually consumes the rest of the
+		unsigned char dir_ident_len;
+		unsigned char ext_attr_record_len;
+		unsigned char extent_loc[4];		// 7.3.?.
+		unsigned char parent_dir_num[2];	// 7.2.?.
+		unsigned char dir_ident[1];			// Actually consumes the rest of the
 											// available path table record size.
-	} tPathTableRecord;
+	} tiso_pathtable_record;
 
 	typedef struct
 	{
-		unsigned char ucOwnerIdentification[4];	// 7.2.3.
-		unsigned char ucGroupIdentification[4];	// 7.2.3.
-		unsigned short usPermissions;
-		tDirRecordDateTime CreateDateTime;
-		tDirRecordDateTime ModDateTime;
-		tDirRecordDateTime ExpDateTime;
-		tDirRecordDateTime EffectiveDateTime;
-		unsigned char ucRecFormat;
-		unsigned char ucRecAttr;
-		unsigned char ucRecLen[4];				// 7.2.3.
-		unsigned char ucSysIndetifier[32];
-		unsigned char ucSysData[64];
-		unsigned char ucExtAttrRecordVersion;
-		unsigned char ucEscLen;
-		unsigned char ucReserved[64];
-		unsigned char ucAppDataLen[4];			// 7.2.3.
-		unsigned char ucAppDate[1];				// Actually of size uiAppDataLen.
-	} tExtAttrRecord;
+		unsigned char owner_ident[4];		// 7.2.3.
+		unsigned char group_ident[4];		// 7.2.3.
+		unsigned short permissions;
+		tiso_dir_record_datetime create_time;
+		tiso_dir_record_datetime modify_time;
+		tiso_dir_record_datetime expr_time;
+		tiso_dir_record_datetime effect_time;
+		unsigned char rec_format;
+		unsigned char rec_attr;
+		unsigned char rec_len[4];			// 7.2.3.
+		unsigned char sys_ident[32];
+		unsigned char sys_data[64];
+		unsigned char ext_attr_record_ver;
+		unsigned char esc_len;
+		unsigned char res1[64];
+		unsigned char app_data_len[4];		// 7.2.3.
+		unsigned char app_data[1];			// Actually of size uiAppDataLen.
+	} tiso_ext_attr_record;
 
 	/*
 		Volume Descriptors.
 	*/
 	typedef struct
 	{
-		unsigned int uiYear;			// Year from I to 9999.
-		unsigned short usMonth;			// Month of the year from 1 to 12.
-		unsigned short usDay;			// Day of the month from 1 to 31.
-		unsigned short usHour;			// Hour of the day from 0 to 23.
-		unsigned short usMinute;		// Minute of the hour from 0 to 59.
-		unsigned short usSecond;		// Second of the minute from 0 to 59.
-		unsigned short usHundreds;		// Hundredths of a second.
-		unsigned char ucZone;			// Offset from Greenwich Mean Time in number of
-										// 15 min intervals from -48 (West) to +52 (East)
-										// recorded according to 7.1.2.
-	} tVolDescDateTime;
+		unsigned int year;			// Year from I to 9999.
+		unsigned short mon;			// Month of the year from 1 to 12.
+		unsigned short day;			// Day of the month from 1 to 31.
+		unsigned short hour;		// Hour of the day from 0 to 23.
+		unsigned short min;			// Minute of the hour from 0 to 59.
+		unsigned short sec;			// Second of the minute from 0 to 59.
+		unsigned short hundreds;	// Hundredths of a second.
+		unsigned char zone;			// Offset from Greenwich Mean Time in number of
+									// 15 min intervals from -48 (West) to +52 (East)
+									// recorded according to 7.1.2.
+	} tiso_voldesc_datetime;
 
 	typedef struct
 	{
-		unsigned char ucType;						// 0.
-		unsigned char ucIdentifier[5];				// "CD001".
-		unsigned char ucVersion;
-		unsigned char ucBootSysIdentifier[32];
-		unsigned char ucBootIdentifier[32];
-		unsigned char ucBootSysData[1977];
-	} tVolDescBootRecord;		// Must be 2048 bytes in size.
+		unsigned char type;			// 0.
+		unsigned char ident[5];		// "CD001".
+		unsigned char version;
+		unsigned char boot_sys_ident[32];
+		unsigned char boot_ident[32];
+		unsigned char boot_sys_data[1977];
+	} tiso_voldesc_boot_record;		// Must be 2048 bytes in size.
 
 	typedef struct
 	{
-		unsigned char ucType;						// 0.
-		unsigned char ucIdentifier[5];				// "CD001".
-		unsigned char ucVersion;					// Must be 1.
-		unsigned char ucBootSysIdentifier[32];		// Must be "EL TORITO SPECIFICATION" padded with 0s.
-		unsigned char Unused1[32];					// Must be 0.
-		unsigned int uiBootCatalogPtr;				// Absolute pointer to first sector of Boot Catalog.
-		unsigned char ucBootSysData[1973];
-	} tVolDescElToritoRecord;	// Must be 2048 bytes in size.
+		unsigned char type;					// 0.
+		unsigned char ident[5];				// "CD001".
+		unsigned char version;				// Must be 1.
+		unsigned char boot_sys_ident[32];	// Must be "EL TORITO SPECIFICATION" padded with 0s.
+		unsigned char unused1[32];			// Must be 0.
+		unsigned int boot_cat_ptr;			// Absolute pointer to first sector of Boot Catalog.
+		unsigned char boot_sys_data[1973];
+	} tiso_voldesc_eltorito_record;	// Must be 2048 bytes in size.
 
 	typedef struct
 	{
-		unsigned char ucType;
-		unsigned char ucIdentifier[5];					// "CD001".
-		unsigned char ucVersion;
-		unsigned char ucUnused1;
-		unsigned char ucSysIdentifier[32];
-		unsigned char ucVolIdentifier[32];
-		unsigned char ucUnused2[8];
-		unsigned char ucVolSpaceSize[8];				// 7.3.3.
-		unsigned char ucUnused3[32];
-		unsigned char ucVolSetSize[4];					// 7.2.3.
-		unsigned char ucVolSeqNumber[4];				// 7.2.3.
-		unsigned char ucLogicalBlockSize[4];			// 7.2.3.
-		unsigned char ucPathTableSize[8];				// 7.3.3.
-		unsigned char ucPathTableTypeL[4];				// 7.3.1.
-		unsigned char ucOptPathTableTypeL[4];			// 7.3.1.
-		unsigned char ucPathTableTypeM[4];				// 7.3.2.
-		unsigned char ucOptPathTableTypeM[4];			// 7.3.2.
-		tDirRecord RootDirRecord;
-		unsigned char ucVolSetIdentifier[128];
-		unsigned char ucPublIdentifier[128];
-		unsigned char ucPrepIdentifier[128];
-		unsigned char ucAppIdentifier[128];
-		unsigned char ucCopyFileIdentifier[37];
-		unsigned char ucAbstFileIdentifier[37];
-		unsigned char ucBiblFileIdentifier[37];
-		tVolDescDateTime CreateDateTime;
-		tVolDescDateTime ModDateTime;
-		tVolDescDateTime ExpDateTime;
-		tVolDescDateTime EffectiveDateTime;
-		unsigned char ucFileStructVer;
-		unsigned char ucUnused4;
-		unsigned char ucAppData[512];
-		unsigned char ucUnused5[653];
-	} tVolDescPrimary;		// Must be 2048 bytes in size.
+		unsigned char type;
+		unsigned char ident[5];					// "CD001".
+		unsigned char version;
+		unsigned char unused1;
+		unsigned char sys_ident[32];
+		unsigned char vol_ident[32];
+		unsigned char unused2[8];
+		unsigned char vol_space_size[8];		// 7.3.3.
+		unsigned char unused3[32];
+		unsigned char volset_size[4];			// 7.2.3.
+		unsigned char volseq_num[4];			// 7.2.3.
+		unsigned char logical_block_size[4];	// 7.2.3.
+		unsigned char path_table_size[8];		// 7.3.3.
+		unsigned char path_table_type_l[4];		// 7.3.1.
+		unsigned char opt_path_table_type_l[4];	// 7.3.1.
+		unsigned char path_table_type_m[4];		// 7.3.2.
+		unsigned char opt_path_table_type_m[4];	// 7.3.2.
+		tiso_dir_record root_dir_record;
+		unsigned char volset_ident[128];
+		unsigned char publ_ident[128];
+		unsigned char prep_ident[128];
+		unsigned char app_ident[128];
+		unsigned char copy_file_ident[37];
+		unsigned char abst_file_ident[37];
+		unsigned char bibl_file_ident[37];
+		tiso_voldesc_datetime create_time;
+		tiso_voldesc_datetime modify_time;
+		tiso_voldesc_datetime expr_time;
+		tiso_voldesc_datetime effect_time;
+		unsigned char file_struct_ver;
+		unsigned char unused4;
+		unsigned char app_data[512];
+		unsigned char unused5[653];
+	} tiso_voldesc_primary;		// Must be 2048 bytes in size.
 
 	typedef struct
 	{
-		unsigned char ucType;
-		unsigned char ucIdentifier[5];					// "CD001".
-		unsigned char ucVersion;
-		unsigned char ucVolFlags;
-		unsigned char ucSysIdentifier[32];
-		unsigned char ucVolIdentifier[32];
-		unsigned char ucUnused1[8];
-		unsigned char ucVolSpaceSize[8];				// 7.3.3.
-		unsigned char ucEscapeSeq[32];
-		unsigned char ucVolSetSize[4];					// 7.2.3.
-		unsigned char ucVolSeqNumber[4];				// 7.2.3.
-		unsigned char ucLogicalBlockSize[4];			// 7.2.3.
-		unsigned char ucPathTableSize[8];				// 7.3.3.
-		unsigned char ucPathTableTypeL[4];				// 7.3.1.
-		unsigned char ucOptPathTableTypeL[4];			// 7.3.1.
-		unsigned char ucPathTableTypeM[4];				// 7.3.2.
-		unsigned char ucOptPathTableTypeM[4];			// 7.3.2.
-		tDirRecord RootDirRecord;
-		unsigned char ucVolSetIdentifier[128];
-		unsigned char ucPublIdentifier[128];
-		unsigned char ucPrepIdentifier[128];
-		unsigned char ucAppIdentifier[128];
-		unsigned char ucCopyFileIdentifier[37];
-		unsigned char ucAbstFileIdentifier[37];
-		unsigned char ucBiblFileIdentifier[37];
-		tVolDescDateTime CreateDateTime;
-		tVolDescDateTime ModDateTime;
-		tVolDescDateTime ExpDateTime;
-		tVolDescDateTime EffectiveDateTime;
-		unsigned char ucFileStructVer;
-		unsigned char ucUnused2;
-		unsigned char ucAppData[512];
-		unsigned char ucUnused3[653];
-	} tVolDescSuppl;		// Must be 2048 bytes in size.
+		unsigned char type;
+		unsigned char ident[5];					// "CD001".
+		unsigned char version;
+		unsigned char vol_flags;
+		unsigned char sys_ident[32];
+		unsigned char vol_ident[32];
+		unsigned char unused1[8];
+		unsigned char vol_space_size[8];		// 7.3.3.
+		unsigned char esc_sec[32];
+		unsigned char volset_size[4];			// 7.2.3.
+		unsigned char volseq_num[4];			// 7.2.3.
+		unsigned char logical_block_size[4];	// 7.2.3.
+		unsigned char path_table_size[8];		// 7.3.3.
+		unsigned char path_table_type_l[4];		// 7.3.1.
+		unsigned char opt_path_table_type_l[4];	// 7.3.1.
+		unsigned char path_table_type_m[4];		// 7.3.2.
+		unsigned char opt_path_table_type_m[4];	// 7.3.2.
+		tiso_dir_record root_dir_record;
+		unsigned char volset_ident[128];
+		unsigned char publ_ident[128];
+		unsigned char prep_ident[128];
+		unsigned char app_ident[128];
+		unsigned char copy_file_ident[37];
+		unsigned char abst_file_ident[37];
+		unsigned char bibl_file_ident[37];
+		tiso_voldesc_datetime create_time;
+		tiso_voldesc_datetime modify_time;
+		tiso_voldesc_datetime expr_time;
+		tiso_voldesc_datetime effect_time;
+		unsigned char file_struct_ver;
+		unsigned char unused2;
+		unsigned char app_data[512];
+		unsigned char unused3[653];
+	} tiso_voldesc_suppl;		// Must be 2048 bytes in size.
 
 	typedef struct
 	{
-		unsigned char ucType;						// 3.
-		unsigned char ucIdentifier[5];				// "CD001".
-		unsigned char ucVersion;
-		unsigned char ucUnused1;
-		unsigned char ucSysIdentifier[32];
-		unsigned char ucPartitionIdentifier[32];
-		unsigned char ucPartitionLocation[8];		// 7.3.3.
-		unsigned char ucPartitionSize[8];			// 7.3.3.
-		unsigned char ucSysData[1960];
-	} tVolDescPartition;	// Must be 2048 bytes in size.
+		unsigned char type;				// 3.
+		unsigned char ident[5];			// "CD001".
+		unsigned char version;
+		unsigned char unused1;
+		unsigned char sys_ident[32];
+		unsigned char part_ident[32];
+		unsigned char part_loc[8];		// 7.3.3.
+		unsigned char part_size[8];		// 7.3.3.
+		unsigned char sys_data[1960];
+	} tiso_voldesc_part;	// Must be 2048 bytes in size.
 
 	typedef struct
 	{
-		unsigned char ucType;						// 255.
-		unsigned char ucIdentifier[5];				// "CD001".
-		unsigned char ucVersion;
-		unsigned char ucReserved[2041];
-	} tVolDescSetTerm;		// Must be 2048 bytes in size.
+		unsigned char type;		// 255.
+		unsigned char ident[5];	// "CD001".
+		unsigned char version;
+		unsigned char res1[2041];
+	} tiso_voldesc_setterm;		// Must be 2048 bytes in size.
 
 #pragma pack()	// Switch back to normal alignment.
 
-	/// Class for handling ISO9660 file systems.
 	/**
 		Implements functionallity for creating parts of ISO9660 file systems.
 		For example writing certain descriptors and for generating ISO9660
@@ -274,8 +273,8 @@ namespace ckfilesystem
 
 		InterLevel m_InterLevel;
 
-		tVolDescPrimary m_VolDescPrimary;
-		tVolDescSetTerm m_VolDescSetTerm;
+		tiso_voldesc_primary m_VolDescPrimary;
+		tiso_voldesc_setterm m_VolDescSetTerm;
 
 		char MakeCharA(char c);
 		char MakeCharD(char c);
@@ -298,8 +297,8 @@ namespace ckfilesystem
 		unsigned char CalcDirNameLenL2(const ckcore::tchar *szFileName);
 		unsigned char CalcDirNameLen1999(const ckcore::tchar *szFileName);
 
-		void InitVolDescPrimary();
-		void InitVolDescSetTerm();
+		void Initiso_voldesc_primary();
+		void Initiso_voldesc_setterm();
 
 	public:
 		Iso9660();
@@ -357,8 +356,8 @@ namespace ckfilesystem
 	unsigned long BytesToSector(ckcore::tuint64 uiBytes);
 	ckcore::tuint64 BytesToSector64(ckcore::tuint64 uiBytes);
 
-	void MakeDateTime(struct tm &Time,tVolDescDateTime &DateTime);
-	void MakeDateTime(struct tm &Time,tDirRecordDateTime &DateTime);
-	void MakeDateTime(unsigned short usDate,unsigned short usTime,tDirRecordDateTime &DateTime);
-	void MakeDosDateTime(tDirRecordDateTime &DateTime,unsigned short &usDate,unsigned short &usTime);
+	void MakeDateTime(struct tm &Time,tiso_voldesc_datetime &DateTime);
+	void MakeDateTime(struct tm &Time,tiso_dir_record_datetime &DateTime);
+	void MakeDateTime(unsigned short usDate,unsigned short usTime,tiso_dir_record_datetime &DateTime);
+	void MakeDosDateTime(tiso_dir_record_datetime &DateTime,unsigned short &usDate,unsigned short &usTime);
 };

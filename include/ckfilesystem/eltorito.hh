@@ -39,14 +39,14 @@
 
 typedef struct
 {
-	unsigned char ucHeader;
-	unsigned char ucPlatform;
-	unsigned short usReserved1;
-	unsigned char ucManufacturer[24];
-	unsigned short usCheckSum;
-	unsigned char ucKeyByte1;		// Must be 0x55.
-	unsigned char ucKeyByte2;		// Must be 0xAA.
-} tElToritoValiEntry;
+	unsigned char header;
+	unsigned char platform;
+	unsigned short res1;
+	unsigned char manufacturer[24];
+	unsigned short checksum;
+	unsigned char key_byte1;		// Must be 0x55.
+	unsigned char key_byte2;		// Must be 0xAA.
+} teltorito_valientry;
 
 #define ELTORITO_BOOTINDICATOR_BOOTABLE			0x88
 #define ELTORITO_BOOTINDICATOR_NONBOOTABLE		0x00
@@ -59,39 +59,39 @@ typedef struct
 
 typedef struct
 {
-	unsigned char ucBootIndicator;
-	unsigned char ucEmulation;
-	unsigned short usLoadSegment;
-	unsigned char ucSysType;		// Must be a copy of byte 5 (System Type) from boot image partition table.
-	unsigned char ucUnused1;
-	unsigned short usSectorCount;
-	unsigned long ulLoadSecAddr;
-	unsigned char ucUnused2[20];
-} tElToritoDefEntry;
+	unsigned char boot_indicator;
+	unsigned char emulation;
+	unsigned short load_segment;
+	unsigned char sys_type;		// Must be a copy of byte 5 (System Type) from boot image partition table.
+	unsigned char unused1;
+	unsigned short sec_count;
+	unsigned long load_sec_addr;
+	unsigned char unused2[20];
+} teltorito_defentry;
 
 #define ELTORITO_HEADER_NORMAL					0x90
 #define ELTORITO_HEADER_FINAL					0x91
 
 typedef struct
 {
-	unsigned char ucHeader;
-	unsigned char ucPlatform;
-	unsigned short usNumSecEntries;
-	unsigned char ucIndentifier[28];
-} tElToritoSecHeader;
+	unsigned char header;
+	unsigned char platform;
+	unsigned short num_sec_entries;
+	unsigned char ident[28];
+} teltorito_sec_header;
 
 typedef struct
 {
-	unsigned char ucBootIndicator;
-	unsigned char ucEmulation;
-	unsigned short usLoadSegment;
-	unsigned char ucSysType;		// Must be a copy of byte 5 (System Type) from boot image partition table.
-	unsigned char ucUnused1;
-	unsigned short usSectorCount;
-	unsigned long ulLoadSecAddr;
-	unsigned char ucSelCriteria;
-	unsigned char ucUnused2[19];
-} tElToritoSecEntry;
+	unsigned char boot_indicator;
+	unsigned char emulation;
+	unsigned short load_segment;
+	unsigned char sys_type;		// Must be a copy of byte 5 (System Type) from boot image partition table.
+	unsigned char unused1;
+	unsigned short sec_count;
+	unsigned long load_sec_addr;
+	unsigned char sel_criteria;
+	unsigned char unused2[19];
+} teltorito_sec_entry;
 
 /*
 	Structures for reading the master boot record of a boot image.
@@ -100,23 +100,23 @@ typedef struct
 
 typedef struct
 {
-	unsigned char ucBootIndicator;
-	unsigned char ucPartStartCHS[3];
-	unsigned char ucPartType;
-	unsigned char ucPartEndCHS[3];
-	unsigned long ulStartLBA;
-	unsigned long ulSecCount;
-} tMasterBootRecPart;
+	unsigned char boot_indicator;
+	unsigned char part_start_chs[3];
+	unsigned char part_type;
+	unsigned char part_end_chs[3];
+	unsigned long start_lba;
+	unsigned long sec_count;
+} teltorito_mbr_part;
 
 typedef struct
 {
-	unsigned char ucCodeArea[440];
-	unsigned long ulOptDiscSig;
-	unsigned short usPad;
-	tMasterBootRecPart Partitions[MBR_PARTITION_COUNT];
-	unsigned char ucSignature1;
-	unsigned char ucSignature2;
-} tMasterBootRec;
+	unsigned char code_area[440];
+	unsigned long opt_disc_sig;
+	unsigned short pad;
+	teltorito_mbr_part partitions[MBR_PARTITION_COUNT];
+	unsigned char signature1;
+	unsigned char signature2;
+} teltorito_mbr;
 
 #pragma pack()	// Switch back to normal alignment.
 
@@ -135,20 +135,20 @@ namespace ckfilesystem
 		ckcore::tstring m_FullPath;
 		bool m_bBootable;
 		Emulation m_Emulation;
-		unsigned short m_usLoadSegment;
-		unsigned short m_usSectorCount;
+		unsigned short m_load_segment;
+		unsigned short m_sec_count;
 
 		// Needs to be calculated in a separate pass.
 		unsigned long m_ulDataSecPos;	// Sector number of first sector containing data.
 
 		ElToritoImage(const ckcore::tchar *szFullPath,bool bBootable,Emulation emulation,
-			unsigned short usLoadSegment,unsigned short usSectorCount)
+			unsigned short load_segment,unsigned short sec_count)
 		{
 			m_FullPath = szFullPath;
 			m_bBootable = bBootable;
 			m_Emulation = emulation;
-			m_usLoadSegment = usLoadSegment;
-			m_usSectorCount = usSectorCount;
+			m_load_segment = load_segment;
+			m_sec_count = sec_count;
 
 			m_ulDataSecPos = 0;
 		}
@@ -161,7 +161,7 @@ namespace ckfilesystem
 
 		std::vector<ElToritoImage *> m_BootImages;
 
-		bool ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &ucSysType);
+		bool ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &sys_type);
 
 		bool WriteBootImage(SectorOutStream &out_stream,const ckcore::tchar *szFileName);
 
@@ -174,7 +174,7 @@ namespace ckfilesystem
 		bool WriteBootImages(SectorOutStream &out_stream);
 
 		bool AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
-			unsigned short usLoadSegment,unsigned short usSectorCount);
+			unsigned short load_segment,unsigned short sec_count);
 		bool AddBootImageFloppy(const ckcore::tchar *szFullPath,bool bBootable);
 		bool AddBootImageHardDisk(const ckcore::tchar *szFullPath,bool bBootable);
 

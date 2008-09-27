@@ -22,12 +22,12 @@
 
 namespace ckFileSystem
 {
-	CIfoReader::CIfoReader(const ckcore::tchar *szFullPath) : m_InStream(szFullPath)
+	IfoReader::IfoReader(const ckcore::tchar *szFullPath) : m_InStream(szFullPath)
 	{
 		m_IfoType = IT_UNKNOWN;
 	}
 
-	CIfoReader::~CIfoReader()
+	IfoReader::~IfoReader()
 	{
 		Close();
 	}
@@ -38,7 +38,7 @@ namespace ckFileSystem
 		@return true if the file was successfully opened and identified, false
 		otherwise.
 	*/
-	bool CIfoReader::Open()
+	bool IfoReader::Open()
 	{
 		if (!m_InStream.Open())
 			return false;
@@ -65,13 +65,13 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIfoReader::Close()
+	bool IfoReader::Close()
 	{
 		m_IfoType = IT_UNKNOWN;
 		return m_InStream.Close();
 	}
 
-	bool CIfoReader::ReadVmg(CIfoVmgData &VmgData)
+	bool IfoReader::ReadVmg(IfoVmgData &VmgData)
 	{
 		// Read last sector of VMG.
 		unsigned long ulSector = 0;
@@ -138,7 +138,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIfoReader::ReadVts(CIfoVtsData &VtsData)
+	bool IfoReader::ReadVts(IfoVtsData &VtsData)
 	{
 		// Read last sector of VTS.
 		unsigned long ulSector = 0;
@@ -177,7 +177,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	CIfoReader::eIfoType CIfoReader::GetType()
+	IfoReader::eIfoType IfoReader::GetType()
 	{
 		return m_IfoType;
 	}

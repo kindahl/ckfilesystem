@@ -27,7 +27,7 @@
 
 namespace ckFileSystem
 {
-	class CIfoVmgData
+	class IfoVmgData
 	{
 	public:
 		unsigned long ulLastVmgSector;
@@ -39,7 +39,7 @@ namespace ckFileSystem
 		std::vector<unsigned long> Titles;
 	};
 
-	class CIfoVtsData
+	class IfoVtsData
 	{
 	public:
 		unsigned long ulLastVtsSector;
@@ -48,7 +48,7 @@ namespace ckFileSystem
 		unsigned long ulVtsVobSector;
 	};
 
-	class CIfoReader
+	class IfoReader
 	{
 	public:
 		enum eIfoType
@@ -65,14 +65,14 @@ namespace ckFileSystem
 
 	public:
 
-		CIfoReader(const ckcore::tchar *szFullPath);
-		~CIfoReader();
+		IfoReader(const ckcore::tchar *szFullPath);
+		~IfoReader();
 
 		bool Open();
 		bool Close();
 
-		bool ReadVmg(CIfoVmgData &VmgData);
-		bool ReadVts(CIfoVtsData &VtsData);
+		bool ReadVmg(IfoVmgData &VmgData);
+		bool ReadVts(IfoVtsData &VtsData);
 
 		eIfoType GetType();
 	};

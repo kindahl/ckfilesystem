@@ -24,7 +24,7 @@
 
 namespace ckFileSystem
 {
-	class CSectorOutStream : public ckcore::BufferedOutStream
+	class SectorOutStream : public ckcore::BufferedOutStream
 	{
 	private:
 		unsigned long m_ulSectorSize;
@@ -32,9 +32,9 @@ namespace ckFileSystem
 		ckcore::tuint64 m_uiWritten;
 
 	public:
-		CSectorOutStream(ckcore::OutStream &OutStream,
+		SectorOutStream(ckcore::OutStream &OutStream,
 			unsigned long ulSectorSize = ISO9660_SECTOR_SIZE);
-		~CSectorOutStream();
+		~SectorOutStream();
 
 		ckcore::tint64 Write(void *pBuffer,ckcore::tuint32 uiCount);
 

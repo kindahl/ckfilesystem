@@ -24,8 +24,8 @@
 
 namespace ckFileSystem
 {
-	CUdfWriter::CUdfWriter(ckcore::Log *pLog,CSectorOutStream *pOutStream,
-		CSectorManager *pSectorManager,CUdf *pUdf,bool bUseFileTimes) :
+	UdfWriter::UdfWriter(ckcore::Log *pLog,SectorOutStream *pOutStream,
+		CSectorManager *pSectorManager,Udf *pUdf,bool bUseFileTimes) :
 		m_pLog(pLog),m_pOutStream(pOutStream),m_pSectorManager(pSectorManager),
 		m_pUdf(pUdf),m_bUseFileTimes(bUseFileTimes),m_uiPartLength(0)
 	{
@@ -39,23 +39,23 @@ namespace ckFileSystem
 		m_ImageCreate = *localtime(&CurrentTime);
 	}
 
-	CUdfWriter::~CUdfWriter()
+	UdfWriter::~UdfWriter()
 	{
 	}
 
-	void CUdfWriter::CalcLocalNodeLengths(std::vector<CFileTreeNode *> &DirNodeStack,
-		CFileTreeNode *pLocalNode)
+	void UdfWriter::CalcLocalNodeLengths(std::vector<FileTreeNode *> &DirNodeStack,
+		FileTreeNode *pLocalNode)
 	{
 		pLocalNode->m_uiUdfSize = 0;
 		pLocalNode->m_uiUdfSize += BytesToSector(m_pUdf->CalcFileEntrySize());
 		pLocalNode->m_uiUdfSize += BytesToSector(CalcIdentSize(pLocalNode));
 		pLocalNode->m_uiUdfSizeTot = pLocalNode->m_uiUdfSize;
 
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 				DirNodeStack.push_back(*itFile);
 			else
 			{
@@ -65,11 +65,11 @@ namespace ckFileSystem
 		}
 	}
 
-	void CUdfWriter::CalcNodeLengths(CFileTree &FileTree)
+	void UdfWriter::CalcNodeLengths(FileTree &file_tree)
 	{
-		CFileTreeNode *pCurNode = FileTree.GetRoot();
+		FileTreeNode *pCurNode = file_tree.GetRoot();
 
-		std::vector<CFileTreeNode *> DirNodeStack;
+		std::vector<FileTreeNode *> DirNodeStack;
 		CalcLocalNodeLengths(DirNodeStack,pCurNode);
 
 		while (DirNodeStack.size() > 0)
@@ -81,10 +81,10 @@ namespace ckFileSystem
 		}
 	}
 
-	ckcore::tuint64 CUdfWriter::CalcIdentSize(CFileTreeNode *pLocalNode)
+	ckcore::tuint64 UdfWriter::CalcIdentSize(FileTreeNode *pLocalNode)
 	{
 		ckcore::tuint64 uiTotalIdentSize = 0;
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
@@ -101,9 +101,9 @@ namespace ckFileSystem
 		FIXME: This function uses recursion, it should be converted to an
 		iterative function to avoid the risk of running out of memory.
 	*/
-	ckcore::tuint64 CUdfWriter::CalcNodeSizeTotal(CFileTreeNode *pLocalNode)
+	ckcore::tuint64 UdfWriter::CalcNodeSizeTotal(FileTreeNode *pLocalNode)
 	{
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
@@ -117,42 +117,42 @@ namespace ckFileSystem
 		FIXME: This function uses recursion, it should be converted to an
 		iterative function to avoid the risk of running out of memory.
 	*/
-	ckcore::tuint64 CUdfWriter::CalcNodeLinksTotal(CFileTreeNode *pLocalNode)
+	ckcore::tuint64 UdfWriter::CalcNodeLinksTotal(FileTreeNode *pLocalNode)
 	{
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
 			pLocalNode->m_uiUdfLinkTot += CalcNodeLinksTotal(*itFile);
 		}
 
-		return (pLocalNode->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY) ? 1 : 0;
+		return (pLocalNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) ? 1 : 0;
 	}
 
 	/**
 		Calculates the number of bytes needed to store the UDF partition.
 	*/
-	ckcore::tuint64 CUdfWriter::CalcParitionLength(CFileTree &FileTree)
+	ckcore::tuint64 UdfWriter::CalcParitionLength(FileTree &file_tree)
 	{
 		// First wee need to calculate the individual sizes of each records.
-		CalcNodeLengths(FileTree);
+		CalcNodeLengths(file_tree);
 
 		// Calculate the number of directory links associated with each directory node.
-		CalcNodeLinksTotal(FileTree.GetRoot());
+		CalcNodeLinksTotal(file_tree.GetRoot());
 
 		// The update the compelte tree (unfortunately recursively).
-		return CalcNodeSizeTotal(FileTree.GetRoot());
+		return CalcNodeSizeTotal(file_tree.GetRoot());
 	}
 
-	bool CUdfWriter::WriteLocalParitionDir(std::deque<CFileTreeNode *> &DirNodeQueue,
-		CFileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent)
+	bool UdfWriter::WriteLocalParitionDir(std::deque<FileTreeNode *> &DirNodeQueue,
+		FileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent)
 	{
 		unsigned long ulEntrySec = ulCurPartSec++;
 		unsigned long ulIdentSec = ulCurPartSec;	// On folders the identifiers will follow immediately.
 
 		// Calculate the size of all identifiers.
 		ckcore::tuint64 uiTotalIdentSize = 0;
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
@@ -190,14 +190,14 @@ namespace ckFileSystem
 		// Keep track on how many bytes we have in our sector.
 		unsigned long ulSectorBytes = m_pUdf->CalcFileIdentParentSize();
 
-		std::vector<CFileTreeNode *> TempStack;
+		std::vector<FileTreeNode *> TempStack;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
 			// Push the item to the temporary stack.
 			TempStack.push_back(*itFile);
 
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				if (!m_pUdf->WriteFileIdent(m_pOutStream,ulCurPartSec,ulNextEntrySec,true,(*itFile)->m_FileName.c_str()))
 					return false;
@@ -225,7 +225,7 @@ namespace ckFileSystem
 		}
 
 		// Insert the elements from the temporary stack into the queue.
-		std::vector<CFileTreeNode *>::reverse_iterator itStackNode;
+		std::vector<FileTreeNode *>::reverse_iterator itStackNode;
 		for (itStackNode = TempStack.rbegin(); itStackNode != TempStack.rend(); itStackNode++)
 			DirNodeQueue.push_front(*itStackNode);
 
@@ -238,7 +238,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdfWriter::WritePartitionEntries(CFileTree &FileTree)
+	bool UdfWriter::WritePartitionEntries(FileTree &file_tree)
 	{
 		// We start at partition sector 1, sector 0 is the parition anchor descriptor.
 		unsigned long ulCurPartSec = 1;
@@ -247,10 +247,10 @@ namespace ckFileSystem
 		// increase it for every file or folder added.
 		ckcore::tuint64 uiUniqueIdent = 0;
 
-		CFileTreeNode *pCurNode = FileTree.GetRoot();
+		FileTreeNode *pCurNode = file_tree.GetRoot();
 		pCurNode->m_ulUdfPartLoc = ulCurPartSec;
 
-		std::deque<CFileTreeNode *> DirNodeStack;
+		std::deque<FileTreeNode *> DirNodeStack;
 		if (!WriteLocalParitionDir(DirNodeStack,pCurNode,ulCurPartSec,uiUniqueIdent))
 			return false;
 
@@ -269,9 +269,9 @@ namespace ckFileSystem
 			}
 #endif
 
-			if (pCurNode->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if (pCurNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
-				if (!WriteLocalParitionDir(DirNodeStack,pCurNode,ulCurPartSec,/*ulParentEntrySec,*/uiUniqueIdent))
+				if (!WriteLocalParitionDir(DirNodeStack,pCurNode,ulCurPartSec,uiUniqueIdent))
 					return false;
 			}
 			else
@@ -301,26 +301,26 @@ namespace ckFileSystem
 		return true;
 	}
 
-	int CUdfWriter::AllocateHeader()
+	int UdfWriter::AllocateHeader()
 	{
 		m_pSectorManager->AllocateBytes(this,SR_INITIALDESCRIPTORS,m_pUdf->GetVolDescInitialSize());
 		return RESULT_OK;
 	}
 
-	int CUdfWriter::AllocatePartition(CFileTree &FileTree)
+	int UdfWriter::AllocatePartition(FileTree &file_tree)
 	{
 		// Allocate everything up to sector 258.
 		m_pSectorManager->AllocateSectors(this,SR_MAINDESCRIPTORS,258 - m_pSectorManager->GetNextFree());
 
 		// Allocate memory for the file set contents.
-		m_uiPartLength = CalcParitionLength(FileTree);
+		m_uiPartLength = CalcParitionLength(file_tree);
 
 		m_pSectorManager->AllocateSectors(this,SR_FILESETCONTENTS,m_uiPartLength);
 
 		return RESULT_OK;
 	}
 
-	int CUdfWriter::WriteHeader()
+	int UdfWriter::WriteHeader()
 	{
 		if (!m_pUdf->WriteVolDescInitial(m_pOutStream))
 		{
@@ -331,7 +331,7 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CUdfWriter::WritePartition(CFileTree &FileTree)
+	int UdfWriter::WritePartition(FileTree &file_tree)
 	{
 		if (m_uiPartLength == 0)
 		{
@@ -379,14 +379,14 @@ namespace ckFileSystem
 
 		// Assign a unique identifier that's larger than any unique identifier of a
 		// file entry + 16 for the reserved numbers.
-		ckcore::tuint64 uiUniqueIdent = FileTree.GetDirCount() + FileTree.GetFileCount() + 1 + UDF_UNIQUEIDENT_MIN;
+		ckcore::tuint64 uiUniqueIdent = file_tree.GetDirCount() + file_tree.GetFileCount() + 1 + UDF_UNIQUEIDENT_MIN;
 
 		tUdfExtentAd IntegritySeqExtent;
 		IntegritySeqExtent.ulExtentLen = UDF_SECTOR_SIZE;
 		IntegritySeqExtent.ulExtentLoc = ulUdfCurSec;
 
-		if (!m_pUdf->WriteVolDescLogIntegrity(m_pOutStream,ulUdfCurSec,FileTree.GetFileCount(),
-			FileTree.GetDirCount() + 1,ulPartLength,uiUniqueIdent,m_ImageCreate))
+		if (!m_pUdf->WriteVolDescLogIntegrity(m_pOutStream,ulUdfCurSec,file_tree.GetFileCount(),
+			file_tree.GetDirCount() + 1,ulPartLength,uiUniqueIdent,m_ImageCreate))
 		{
 			m_pLog->PrintLine(ckT("  Error: Failed to write UDF logical integrity descriptor."));
 			return RESULT_FAIL;
@@ -483,7 +483,7 @@ namespace ckFileSystem
 			return RESULT_FAIL;
 		}
 
-		if (!WritePartitionEntries(FileTree))
+		if (!WritePartitionEntries(file_tree))
 		{
 			m_pLog->PrintLine(ckT("  Error: Failed to write file UDF partition."));
 			return RESULT_FAIL;
@@ -492,7 +492,7 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CUdfWriter::WriteTail()
+	int UdfWriter::WriteTail()
 	{
 		ckcore::tuint64 uiLastDataSector = m_pSectorManager->GetDataStart() +
 			m_pSectorManager->GetDataLength();

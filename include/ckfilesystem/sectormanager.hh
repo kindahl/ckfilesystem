@@ -22,9 +22,7 @@
 
 namespace ckFileSystem
 {
-	class CSectorManager;
-
-	class ISectorClient
+	class SectorClient
 	{
 	};
 
@@ -34,21 +32,21 @@ namespace ckFileSystem
 		ckcore::tuint64 m_uiNextFreeSector;
 		ckcore::tuint64 m_uiDataStart;
 		ckcore::tuint64 m_uiDataLength;
-		std::map<std::pair<ISectorClient *,unsigned char>,ckcore::tuint64> m_ClientMap;
+		std::map<std::pair<SectorClient *,unsigned char>,ckcore::tuint64> m_ClientMap;
 
 	public:
 		CSectorManager(ckcore::tuint64 uiStartSector);
 		~CSectorManager();
 
-		void AllocateSectors(ISectorClient *pClient,unsigned char ucIdentifier,
+		void AllocateSectors(SectorClient *pClient,unsigned char ucIdentifier,
 			ckcore::tuint64 uiNumSectors);
-		void AllocateBytes(ISectorClient *pClient,unsigned char ucIdentifier,
+		void AllocateBytes(SectorClient *pClient,unsigned char ucIdentifier,
 			ckcore::tuint64 uiNumBytes);
 
 		void AllocateDataSectors(ckcore::tuint64 uiNumSectors);
 		void AllocateDataBytes(ckcore::tuint64 uiNumBytes);
 
-		ckcore::tuint64 GetStart(ISectorClient *pClient,unsigned char ucIdentifier);
+		ckcore::tuint64 GetStart(SectorClient *pClient,unsigned char ucIdentifier);
 		ckcore::tuint64 GetNextFree();
 
 		ckcore::tuint64 GetDataStart();

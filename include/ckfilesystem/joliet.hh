@@ -26,7 +26,7 @@
 
 namespace ckFileSystem
 {
-	class CJoliet
+	class Joliet
 	{
 	private:
 		bool m_bIncFileVerInfo;
@@ -42,8 +42,8 @@ namespace ckFileSystem
 		void InitVolDesc();
 
 	public:
-		CJoliet();
-		~CJoliet();
+		Joliet();
+		~Joliet();
 
 		// Change of internal state functions.
 		void SetVolumeLabel(const ckcore::tchar *szLabel);

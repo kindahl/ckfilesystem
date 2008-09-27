@@ -613,7 +613,7 @@ namespace ckFileSystem
 
 #pragma pack()	// Switch back to normal alignment.
 
-	class CUdf
+	class Udf
 	{
 	public:
 		enum ePartAccessType
@@ -674,8 +674,8 @@ namespace ckFileSystem
 		unsigned short MakeExtAddrChecksum(unsigned char *pBuffer);
 
 	public:
-		CUdf(bool bDvdVideo);
-		~CUdf();
+		Udf(bool bDvdVideo);
+		~Udf();
 
 		// Change of internal state functions.
 		void SetVolumeLabel(const ckcore::tchar *szLabel);

@@ -24,13 +24,13 @@
 
 namespace ckFileSystem
 {
-	class CFileTreeNode
+	class FileTreeNode
 	{
 	private:
-		CFileTreeNode *m_pParent;
+		FileTreeNode *m_pParent;
 
 	public:
-		std::vector<CFileTreeNode *> m_Children;
+		std::vector<FileTreeNode *> m_Children;
 
 		// File information.
 		enum
@@ -64,7 +64,7 @@ namespace ckFileSystem
 
 		void *m_pData;						// Pointer to a user-defined structure, designed for CIso9660TreeNode
 
-		CFileTreeNode(CFileTreeNode *pParent,const ckcore::tchar *szFileName,
+		FileTreeNode(FileTreeNode *pParent,const ckcore::tchar *szFileName,
 			const ckcore::tchar *szFileFullPath,ckcore::tuint64 uiFileSize,
 			bool bLastFragment,unsigned long ulFragmentIndex,
 			unsigned char ucFileFlags = 0,void *pData = NULL)
@@ -90,48 +90,48 @@ namespace ckFileSystem
 			m_pData = pData;
 		}
 
-		~CFileTreeNode()
+		~FileTreeNode()
 		{
 			// Free the children.
-			std::vector<CFileTreeNode *>::iterator itNode;
+			std::vector<FileTreeNode *>::iterator itNode;
 			for (itNode = m_Children.begin(); itNode != m_Children.end(); itNode++)
 				delete *itNode;
 
 			m_Children.clear();
 		}
 
-		CFileTreeNode *GetParent()
+		FileTreeNode *GetParent()
 		{
 			return m_pParent;
 		}
 	};
 
-	class CFileTree
+	class FileTree
 	{
 	private:
 		ckcore::Log *m_pLog;
-		CFileTreeNode *m_pRootNode;
+		FileTreeNode *m_pRootNode;
 
 		// File tree information.
 		unsigned long m_ulDirCount;
 		unsigned long m_ulFileCount;
 
-		CFileTreeNode *GetChildFromFileName(CFileTreeNode *pParent,const ckcore::tchar *szFileName);
-		bool AddFileFromPath(const CFileDescriptor &File);
+		FileTreeNode *GetChildFromFileName(FileTreeNode *pParent,const ckcore::tchar *szFileName);
+		bool AddFileFromPath(const FileDescriptor &File);
 
 	public:
-		CFileTree(ckcore::Log *pLog);
-		~CFileTree();
+		FileTree(ckcore::Log *pLog);
+		~FileTree();
 
-		CFileTreeNode *GetRoot();
+		FileTreeNode *GetRoot();
 		
-		bool CreateFromFileSet(const CFileSet &Files);
-		CFileTreeNode *GetNodeFromPath(const CFileDescriptor &File);
-		CFileTreeNode *GetNodeFromPath(const ckcore::tchar *szInternalPath);
+		bool CreateFromFileSet(const FileSet &Files);
+		FileTreeNode *GetNodeFromPath(const FileDescriptor &File);
+		FileTreeNode *GetNodeFromPath(const ckcore::tchar *szInternalPath);
 
 	#ifdef _DEBUG
-		void PrintLocalTree(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-			CFileTreeNode *pLocalNode,int iIndent);
+		void PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+			FileTreeNode *pLocalNode,int iIndent);
 		void PrintTree();
 	#endif
 

@@ -25,15 +25,15 @@
 
 namespace ckFileSystem
 {
-	// A CIso9660TreeNode tree node contains every information needed to write
+	// A Iso9660TreeNode tree node contains every information needed to write
 	// an ISO9660 directory record.
-	class CIso9660TreeNode
+	class Iso9660TreeNode
 	{
 	private:
-		CIso9660TreeNode *m_pParent;
+		Iso9660TreeNode *m_pParent;
 
 	public:
-		std::vector<CIso9660TreeNode *> m_Children;
+		std::vector<Iso9660TreeNode *> m_Children;
 
 		unsigned char m_ucFileFlags;
 		unsigned char m_ucFileUnitSize;
@@ -46,7 +46,7 @@ namespace ckFileSystem
 
 		ckcore::tstring m_FileName;
 
-		CIso9660TreeNode(CIso9660TreeNode *pParent,const ckcore::tchar *szFileName,
+		Iso9660TreeNode(Iso9660TreeNode *pParent,const ckcore::tchar *szFileName,
 			unsigned long ulExtentLocation,unsigned long ulExtentLength,
 			unsigned short usVolSeqNumber,unsigned char ucFileFlags,
 			unsigned char ucFileUnitSize,unsigned char ucInterleaveGapSize,
@@ -65,47 +65,47 @@ namespace ckFileSystem
 				m_FileName = szFileName;
 		}
 
-		~CIso9660TreeNode()
+		~Iso9660TreeNode()
 		{
 			// Free the children.
-			std::vector<CIso9660TreeNode *>::iterator itNode;
+			std::vector<Iso9660TreeNode *>::iterator itNode;
 			for (itNode = m_Children.begin(); itNode != m_Children.end(); itNode++)
 				delete *itNode;
 
 			m_Children.clear();
 		}
 
-		CIso9660TreeNode *GetParent()
+		Iso9660TreeNode *GetParent()
 		{
 			return m_pParent;
 		}
 	};
 
-	class CIso9660Reader
+	class Iso9660Reader
 	{
 	private:
 		ckcore::Log *m_pLog;
 
-		CIso9660TreeNode *m_pRootNode;
+		Iso9660TreeNode *m_pRootNode;
 
 		bool ReadDirEntry(ckcore::InStream &InStream,
-			std::vector<CIso9660TreeNode *> &DirEntries,
-			CIso9660TreeNode *pParentNode,bool bJoliet);
+			std::vector<Iso9660TreeNode *> &DirEntries,
+			Iso9660TreeNode *pParentNode,bool bJoliet);
 
 	public:
-		CIso9660Reader(ckcore::Log *pLog);
-		~CIso9660Reader();
+		Iso9660Reader(ckcore::Log *pLog);
+		~Iso9660Reader();
 
 		bool Read(ckcore::InStream &InStream,unsigned long ulStartSector);
 
-		CIso9660TreeNode *GetRoot()
+		Iso9660TreeNode *GetRoot()
 		{
 			return m_pRootNode;
 		}
 
 	#ifdef _DEBUG
-		void PrintLocalTree(std::vector<std::pair<CIso9660TreeNode *,int> > &DirNodeStack,
-			CIso9660TreeNode *pLocalNode,int iIndent);
+		void PrintLocalTree(std::vector<std::pair<Iso9660TreeNode *,int> > &DirNodeStack,
+			Iso9660TreeNode *pLocalNode,int iIndent);
 		void PrintTree();
 	#endif
 	};

@@ -20,14 +20,14 @@
 
 namespace ckFileSystem
 {
-	CFileTree::CFileTree(ckcore::Log *pLog) :
+	FileTree::FileTree(ckcore::Log *pLog) :
 		m_pLog(pLog),m_pRootNode(NULL)
 	{
 		m_ulDirCount = 0;
 		m_ulFileCount = 0;
 	}
 
-	CFileTree::~CFileTree()
+	FileTree::~FileTree()
 	{
 		if (m_pRootNode != NULL)
 		{
@@ -36,14 +36,14 @@ namespace ckFileSystem
 		}
 	}
 
-	CFileTreeNode *CFileTree::GetRoot()
+	FileTreeNode *FileTree::GetRoot()
 	{
 		return m_pRootNode;
 	}
 
-	CFileTreeNode *CFileTree::GetChildFromFileName(CFileTreeNode *pParent,const ckcore::tchar *szFileName)
+	FileTreeNode *FileTree::GetChildFromFileName(FileTreeNode *pParent,const ckcore::tchar *szFileName)
 	{
-		std::vector<CFileTreeNode *>::const_iterator itChild;
+		std::vector<FileTreeNode *>::const_iterator itChild;
 		for (itChild = pParent->m_Children.begin(); itChild !=
 			pParent->m_Children.end(); itChild++)
 		{
@@ -54,11 +54,11 @@ namespace ckFileSystem
 		return NULL;
 	}
 
-	bool CFileTree::AddFileFromPath(const CFileDescriptor &File)
+	bool FileTree::AddFileFromPath(const FileDescriptor &File)
 	{
 		size_t iDirPathLen = File.m_InternalPath.length(),iPrevDelim = 0,iPos;
 		ckcore::tstring CurDirName;
-		CFileTreeNode *pCurNode = m_pRootNode;
+		FileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
 		{
@@ -90,23 +90,23 @@ namespace ckFileSystem
 		// Check if imported.
 		unsigned char ucImportFlag = 0;
 		void *pImportData = NULL;
-		if (File.m_ucFlags & CFileDescriptor::FLAG_IMPORTED)
+		if (File.m_ucFlags & FileDescriptor::FLAG_IMPORTED)
 		{
-			ucImportFlag = CFileTreeNode::FLAG_IMPORTED;
+			ucImportFlag = FileTreeNode::FLAG_IMPORTED;
 			pImportData = File.m_pData;
 		}
 
-		if (File.m_ucFlags & CFileDescriptor::FLAG_DIRECTORY)
+		if (File.m_ucFlags & FileDescriptor::FLAG_DIRECTORY)
 		{
-			pCurNode->m_Children.push_back(new CFileTreeNode(pCurNode,szFileName,
-				File.m_ExternalPath.c_str(),0,true,0,CFileTreeNode::FLAG_DIRECTORY | ucImportFlag,
+			pCurNode->m_Children.push_back(new FileTreeNode(pCurNode,szFileName,
+				File.m_ExternalPath.c_str(),0,true,0,FileTreeNode::FLAG_DIRECTORY | ucImportFlag,
 				pImportData));
 
 			m_ulDirCount++;
 		}
 		else
 		{
-			pCurNode->m_Children.push_back(new CFileTreeNode(pCurNode,szFileName,
+			pCurNode->m_Children.push_back(new FileTreeNode(pCurNode,szFileName,
 				File.m_ExternalPath.c_str(),File.m_uiFileSize,true,0,ucImportFlag,pImportData));
 
 			m_ulFileCount++;
@@ -115,15 +115,15 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CFileTree::CreateFromFileSet(const CFileSet &Files)
+	bool FileTree::CreateFromFileSet(const FileSet &Files)
 	{
 		if (m_pRootNode != NULL)
 			delete m_pRootNode;
 
-		m_pRootNode = new CFileTreeNode(NULL,ckT(""),ckT(""),0,true,0,
-			CFileTreeNode::FLAG_DIRECTORY);
+		m_pRootNode = new FileTreeNode(NULL,ckT(""),ckT(""),0,true,0,
+			FileTreeNode::FLAG_DIRECTORY);
 
-		CFileSet::const_iterator itFile;
+		FileSet::const_iterator itFile;
 		for (itFile = Files.begin(); itFile != Files.end(); itFile++)
 		{
 			if (!AddFileFromPath(*itFile))
@@ -133,12 +133,12 @@ namespace ckFileSystem
 		return true;
 	}
 
-	CFileTreeNode *CFileTree::GetNodeFromPath(const CFileDescriptor &File)
+	FileTreeNode *FileTree::GetNodeFromPath(const FileDescriptor &File)
 	{
 		//m_pLog->PrintLine(ckT("BEGIN: %s"),File.m_ExternalPath.c_str());
 		size_t iDirPathLen = File.m_InternalPath.length(),iPrevDelim = 0,iPos;
 		ckcore::tstring CurDirName;
-		CFileTreeNode *pCurNode = m_pRootNode;
+		FileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
 		{
@@ -170,11 +170,11 @@ namespace ckFileSystem
 		return GetChildFromFileName(pCurNode,szFileName);
 	}
 
-	CFileTreeNode *CFileTree::GetNodeFromPath(const ckcore::tchar *szInternalPath)
+	FileTreeNode *FileTree::GetNodeFromPath(const ckcore::tchar *szInternalPath)
 	{
 		size_t iDirPathLen = ckcore::string::astrlen(szInternalPath),iPrevDelim = 0,iPos;
 		ckcore::tstring CurDirName;
-		CFileTreeNode *pCurNode = m_pRootNode;
+		FileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
 		{
@@ -208,7 +208,7 @@ namespace ckFileSystem
 	/**
 		@eturn the number of files in the tree, fragmented files are counted once.
 	*/
-	unsigned long CFileTree::GetDirCount()
+	unsigned long FileTree::GetDirCount()
 	{
 		return m_ulDirCount;
 	}
@@ -216,20 +216,20 @@ namespace ckFileSystem
 	/**
 		@return the number of directories in the tree, the root is not included.
 	*/
-	unsigned long CFileTree::GetFileCount()
+	unsigned long FileTree::GetFileCount()
 	{
 		return m_ulFileCount;
 	}
 
 #ifdef _DEBUG
-	void CFileTree::PrintLocalTree(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-								   CFileTreeNode *pLocalNode,int iIndent)
+	void FileTree::PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+								   FileTreeNode *pLocalNode,int iIndent)
 	{
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				DirNodeStack.push_back(std::make_pair(*itFile,iIndent));
 			}
@@ -251,15 +251,15 @@ namespace ckFileSystem
 		}
 	}
 
-	void CFileTree::PrintTree()
+	void FileTree::PrintTree()
 	{
 		if (m_pRootNode == NULL)
 			return;
 
-		CFileTreeNode *pCurNode = m_pRootNode;
+		FileTreeNode *pCurNode = m_pRootNode;
 		int iIndent = 0;
 
-		m_pLog->PrintLine(ckT("CFileTree::PrintTree"));
+		m_pLog->PrintLine(ckT("FileTree::PrintTree"));
 #ifdef _WINDOWS
 		m_pLog->PrintLine(ckT("  <root> (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
 #else
@@ -268,7 +268,7 @@ namespace ckFileSystem
 				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
 				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
 
-		std::vector<std::pair<CFileTreeNode *,int> > DirNodeStack;
+		std::vector<std::pair<FileTreeNode *,int> > DirNodeStack;
 		PrintLocalTree(DirNodeStack,pCurNode,4);
 
 		while (DirNodeStack.size() > 0)

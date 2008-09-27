@@ -86,7 +86,7 @@ namespace ckFileSystem
 	const char *g_IdentPartContentCdw = "+CDW02";	// As if it were a volume recorded according to ECMA-168.
 	const char *g_IdentPartContentNsr = "+NSR02";	// According to Part 4 of this ECMA Standard.
 
-	CUdf::CUdf(bool bDvdVideo) : m_CrcStream(ckcore::CrcStream::ckCRC_CCITT),m_bDvdVideo(bDvdVideo)
+	Udf::Udf(bool bDvdVideo) : m_CrcStream(ckcore::CrcStream::ckCRC_CCITT),m_bDvdVideo(bDvdVideo)
 	{
 		// Intialize the byte buffer.
 		m_pByteBuffer = NULL;
@@ -100,7 +100,7 @@ namespace ckFileSystem
 		InitVolDescLogical();
 	}
 
-	CUdf::~CUdf()
+	Udf::~Udf()
 	{
 		if (m_pByteBuffer != NULL)
 		{
@@ -111,7 +111,7 @@ namespace ckFileSystem
 		}
 	}
 
-	void CUdf::AllocateByteBuffer(unsigned long ulMinSize)
+	void Udf::AllocateByteBuffer(unsigned long ulMinSize)
 	{
 		if (m_ulByteBufferSize < ulMinSize)
 		{
@@ -138,7 +138,7 @@ namespace ckFileSystem
 		CS0 string, including the compression ID. -1 is returned if the
 		compression ID is invalid.
 	*/
-	size_t CUdf::CompressUnicodeStr(size_t iNumChars,unsigned char ucCompID,
+	size_t Udf::CompressUnicodeStr(size_t iNumChars,unsigned char ucCompID,
 		const wchar_t *pInString,unsigned char *pOutString)
 	{
 		if (ucCompID != 8 && ucCompID != 16)
@@ -166,7 +166,7 @@ namespace ckFileSystem
 	/*
 		Helper function for filling a tUdfCharSpec structure.
 	*/
-	void CUdf::MakeCharSpec(tUdfCharSpec &CharSpec)
+	void Udf::MakeCharSpec(tUdfCharSpec &CharSpec)
 	{
 		memset(&CharSpec,0,sizeof(tUdfCharSpec));
 		CharSpec.ucCharSetType = 0;
@@ -176,7 +176,7 @@ namespace ckFileSystem
 	/*
 		Helper function for filling a tUdfEntityIdent structure.
 	*/
-	void CUdf::MakeIdent(tUdfEntityIdent &ImplIdent,eIdentType IdentType)
+	void Udf::MakeIdent(tUdfEntityIdent &ImplIdent,eIdentType IdentType)
 	{
 		ImplIdent.ucFlags = 0;
 		memset(ImplIdent.ucIdentifier,0,sizeof(ImplIdent.ucIdentifier));
@@ -232,7 +232,7 @@ namespace ckFileSystem
 	/*
 		Helper function for creating a tag.
 	*/
-	void CUdf::MakeTag(tUdfTag &Tag,unsigned short usIdentifier)
+	void Udf::MakeTag(tUdfTag &Tag,unsigned short usIdentifier)
 	{
 		memset(&Tag,0,sizeof(tUdfTag));
 		Tag.usTagIdentifier = usIdentifier;
@@ -245,7 +245,7 @@ namespace ckFileSystem
 	/*
 		Helper function for calculating descriptor CRC and tag checksum.
 	*/
-	void CUdf::MakeTagChecksums(tUdfTag &Tag,unsigned char *pBuffer)
+	void Udf::MakeTagChecksums(tUdfTag &Tag,unsigned char *pBuffer)
 	{
 		m_CrcStream.Reset();
 		m_CrcStream.Write(pBuffer,Tag.usDescriptorCrcLen);
@@ -259,7 +259,7 @@ namespace ckFileSystem
 		Tag.ucTagChecksum = ucChecksum;
 	}
 
-	unsigned short CUdf::MakeExtAddrChecksum(unsigned char *pBuffer)
+	unsigned short Udf::MakeExtAddrChecksum(unsigned char *pBuffer)
 	{
 		unsigned short usChecksum = 0;
 		for (unsigned int i = 0; i < 48; i++)
@@ -272,7 +272,7 @@ namespace ckFileSystem
 		Generates a unique volume set indentifer to identify a particular
 		volume. pVolSysIdent is assumed to hold 128 bytes.
 	*/
-	void CUdf::MakeVolSetIdent(unsigned char *pVolSetIdent,size_t iVolSetIdentSize)
+	void Udf::MakeVolSetIdent(unsigned char *pVolSetIdent,size_t iVolSetIdentSize)
 	{
 		if (iVolSetIdentSize < 18)
 			return;
@@ -291,7 +291,7 @@ namespace ckFileSystem
 		pVolSetIdent[iVolSetIdentSize - 1] = ucByteLen;
 	}
 
-	void CUdf::MakeDateTime(struct tm &Time,tUdfTimeStamp &DateTime)
+	void Udf::MakeDateTime(struct tm &Time,tUdfTimeStamp &DateTime)
 	{
 		DateTime.usTypeAndTimezone = 1 << 12;		// Type: local time.
 
@@ -314,14 +314,14 @@ namespace ckFileSystem
 		DateTime.ucMicrosec = 0;
 	}
 
-	void CUdf::MakeOsIdentifiers(unsigned char &ucOsClass,unsigned char &ucOsIdent)
+	void Udf::MakeOsIdentifiers(unsigned char &ucOsClass,unsigned char &ucOsIdent)
 	{
 		// UDF 1.02 does not support any Windows identification.
 		ucOsClass = UDF_OSCLASS_UNDEFINED;
 		ucOsIdent = UDF_OSIDENT_UNDEFINED;
 	}
 
-	unsigned char CUdf::MakeFileIdent(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
+	unsigned char Udf::MakeFileIdent(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
 	{
 		size_t iNameLen = ckcore::string::astrlen(szFileName);
 		size_t iCopyLen = iNameLen < (254 >> 1) ? iNameLen : (254 >> 1);		// One byte is reserved for compression descriptor.
@@ -342,7 +342,7 @@ namespace ckFileSystem
 		return ucByteLen;
 	}
 
-	void CUdf::InitVolDescPrimary()
+	void Udf::InitVolDescPrimary()
 	{
 		memset(&m_PrimVolDesc,0,sizeof(tUdfPrimVolDesc));
 
@@ -356,7 +356,7 @@ namespace ckFileSystem
 		MakeVolSetIdent(m_PrimVolDesc.ucVolSetIdent,sizeof(m_PrimVolDesc.ucVolSetIdent));
 	}
 
-	void CUdf::InitVolDescPartition()
+	void Udf::InitVolDescPartition()
 	{
 		memset(&m_PartVolDesc,0,sizeof(tUdfPartVolDesc));
 
@@ -390,7 +390,7 @@ namespace ckFileSystem
 		MakeIdent(m_PartVolDesc.ImplIdent,IT_DEVELOPER);
 	}
 
-	void CUdf::InitVolDescLogical()
+	void Udf::InitVolDescLogical()
 	{
 		memset(&m_LogicalVolDesc,0,sizeof(tUdfLogicalVolDesc));
 
@@ -405,7 +405,7 @@ namespace ckFileSystem
 		Write731(m_LogicalVolDesc.ucLogicalVolContentsUse,UDF_SECTOR_SIZE);	// ?
 	}
 
-	void CUdf::SetVolumeLabel(const ckcore::tchar *szLabel)
+	void Udf::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
 		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iPrimaryCopyLen = iLabelLen < 15 ? iLabelLen : 15;	// Two bytes are reserved for string format.
@@ -442,7 +442,7 @@ namespace ckFileSystem
 	#endif
 	}
 
-	void CUdf::SetPartAccessType(ePartAccessType AccessType)
+	void Udf::SetPartAccessType(ePartAccessType AccessType)
 	{
 		m_PartAccessType = AccessType;
 	}
@@ -451,7 +451,7 @@ namespace ckFileSystem
 		Write the initial volume descriptors. They're of the same format as the
 		ISO9660 volume descriptors.
 	*/
-	bool CUdf::WriteVolDescInitial(ckcore::OutStream *pOutStream)
+	bool Udf::WriteVolDescInitial(ckcore::OutStream *pOutStream)
 	{
 		tUdfVolStructDesc VolStructDesc;
 		memset(&VolStructDesc,0,sizeof(tUdfVolStructDesc));
@@ -482,7 +482,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdf::WriteVolDescPrimary(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescPrimary(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation,struct tm &ImageCreate)
 	{
 		// Make the tag.
@@ -521,7 +521,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdf::WriteVolDescImplUse(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescImplUse(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation)
 	{	
 		tUdfImplUseVolDesc ImplUseVolDesc;
@@ -561,7 +561,7 @@ namespace ckFileSystem
 	/**
 		@param ulPartLen is the partition size in sectors.
 	*/
-	bool CUdf::WriteVolDescPartition(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescPartition(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation,unsigned long ulPartStartLoc,unsigned long ulPartLen)
 	{
 		// Make the tag.
@@ -590,7 +590,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdf::WriteVolDescLogical(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescLogical(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation,tUdfExtentAd &IntegritySeqExtent)
 	{
 		// Make the tag.
@@ -645,7 +645,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdf::WriteVolDescUnalloc(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescUnalloc(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation)
 	{
 		tUdfUnallocSpaceDesc UnallocSpaceDesc;
@@ -677,7 +677,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdf::WriteVolDescTerm(ckcore::OutStream *pOutStream,unsigned long ulSecLocation)
+	bool Udf::WriteVolDescTerm(ckcore::OutStream *pOutStream,unsigned long ulSecLocation)
 	{
 		tUdfTermVolDesc TermDesc;
 		memset(&TermDesc,0,sizeof(tUdfTermVolDesc));
@@ -711,7 +711,7 @@ namespace ckFileSystem
 		@param uiUniqueIdent must be larger than the unique udentifiers of any
 		file entry.
 	*/
-	bool CUdf::WriteVolDescLogIntegrity(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteVolDescLogIntegrity(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
 		ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate)
 	{
@@ -759,7 +759,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CUdf::WriteAnchorVolDescPtr(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteAnchorVolDescPtr(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		tUdfExtentAd &MainVolDescSeqExtent,tUdfExtentAd &ReserveVolDescSeqExtent)
 	{
 		tUdfAnchorVolDescPtr AnchorVolDescPtr;
@@ -795,7 +795,7 @@ namespace ckFileSystem
 		Writes a file set decsriptor structure to the output stream.
 		@param ulSecLocation sector position relative to the first logical block of the partition.
 	*/
-	bool CUdf::WriteFileSetDesc(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileSetDesc(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		unsigned long ulRootSecLocation,struct tm &ImageCreate)
 	{
 		tUdfFileSetDesc FileSetDesc;
@@ -848,7 +848,7 @@ namespace ckFileSystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool CUdf::WriteFileIdentParent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileIdentParent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		unsigned long ulFileEntrySecLoc)
 	{
 		tUdfFileIdentDesc FileIdentDesc;
@@ -894,7 +894,7 @@ namespace ckFileSystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool CUdf::WriteFileIdent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileIdent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName)
 	{
 		tUdfFileIdentDesc FileIdentDesc;
@@ -951,7 +951,7 @@ namespace ckFileSystem
 		@param uiInfoLength the length of all file identifiers in bytes for
 		directories and the size of the file on files.
 	*/
-	bool CUdf::WriteFileEntry(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileEntry(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
 		bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
 		unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
 		struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime)
@@ -1163,12 +1163,12 @@ namespace ckFileSystem
 		return true;
 	}
 
-	unsigned long CUdf::CalcFileIdentParentSize()
+	unsigned long Udf::CalcFileIdentParentSize()
 	{
 		return sizeof(tUdfFileIdentDesc) + 2;
 	}
 
-	unsigned long CUdf::CalcFileIdentSize(const ckcore::tchar *szFileName)
+	unsigned long Udf::CalcFileIdentSize(const ckcore::tchar *szFileName)
 	{
 		unsigned long ulFileNameLen = (unsigned long)ckcore::string::astrlen(szFileName);
 		if (ulFileNameLen > 254)
@@ -1183,7 +1183,7 @@ namespace ckFileSystem
 		return sizeof(tUdfFileIdentDesc) + ulFileIdentLen + ulFileImplUseLen + ulPadSize;
 	}
 
-	unsigned long CUdf::CalcFileEntrySize()
+	unsigned long Udf::CalcFileEntrySize()
 	{
 		return UDF_SECTOR_SIZE;
 	}
@@ -1192,7 +1192,7 @@ namespace ckFileSystem
 		Returns the number of bytes needed for the initial volume recognition
 		sequence.
 	*/
-	unsigned long CUdf::GetVolDescInitialSize()
+	unsigned long Udf::GetVolDescInitialSize()
 	{
 		return sizeof(tUdfVolStructDesc) * 3;
 	}

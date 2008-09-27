@@ -122,7 +122,7 @@ typedef struct
 
 namespace ckFileSystem
 {
-	class CElToritoImage
+	class ElToritoImage
 	{
 	public:
 		enum eEmulation
@@ -141,7 +141,7 @@ namespace ckFileSystem
 		// Needs to be calculated in a separate pass.
 		unsigned long m_ulDataSecPos;	// Sector number of first sector containing data.
 
-		CElToritoImage(const ckcore::tchar *szFullPath,bool bBootable,eEmulation Emulation,
+		ElToritoImage(const ckcore::tchar *szFullPath,bool bBootable,eEmulation Emulation,
 			unsigned short usLoadSegment,unsigned short usSectorCount)
 		{
 			m_FullPath = szFullPath;
@@ -154,24 +154,24 @@ namespace ckFileSystem
 		}
 	};
 
-	class CElTorito
+	class ElTorito
 	{
 	private:
 		ckcore::Log *m_pLog;
 
-		std::vector<CElToritoImage *> m_BootImages;
+		std::vector<ElToritoImage *> m_BootImages;
 
 		bool ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &ucSysType);
 
-		bool WriteBootImage(CSectorOutStream *pOutStream,const ckcore::tchar *szFileName);
+		bool WriteBootImage(SectorOutStream *pOutStream,const ckcore::tchar *szFileName);
 
 	public:
-		CElTorito(ckcore::Log *pLog);
-		~CElTorito();
+		ElTorito(ckcore::Log *pLog);
+		~ElTorito();
 
-		bool WriteBootRecord(CSectorOutStream *pOutStream,unsigned long ulBootCatSecPos);
-		bool WriteBootCatalog(CSectorOutStream *pOutStream);
-		bool WriteBootImages(CSectorOutStream *pOutStream);
+		bool WriteBootRecord(SectorOutStream *pOutStream,unsigned long ulBootCatSecPos);
+		bool WriteBootCatalog(SectorOutStream *pOutStream);
+		bool WriteBootImages(SectorOutStream *pOutStream);
 
 		bool AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
 			unsigned short usLoadSegment,unsigned short usSectorCount);

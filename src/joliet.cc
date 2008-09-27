@@ -22,7 +22,7 @@
 
 namespace ckFileSystem
 {
-	CJoliet::CJoliet()
+	Joliet::Joliet()
 	{
 		m_bIncFileVerInfo = true;	// Include ";1" file version information.
 		m_iMaxNameLen = 64;			// According to Joliet specification.
@@ -30,14 +30,14 @@ namespace ckFileSystem
 		InitVolDesc();
 	}
 
-	CJoliet::~CJoliet()
+	Joliet::~Joliet()
 	{
 	}
 
 	/*
 		Guaraties that the returned character is allowed by the Joliet file system.
 	*/
-	wchar_t CJoliet::MakeChar(wchar_t c)
+	wchar_t Joliet::MakeChar(wchar_t c)
 	{
 		if (c == '*' || c == '/' || c == ':' || c == ';' || c == '?' || c == '\\')
 			return '_';
@@ -48,7 +48,7 @@ namespace ckFileSystem
     /*
      * Find the last delimiter of the specified kind in the specified string.
      */
-    int CJoliet::LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter)
+    int Joliet::LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter)
     {    
         int iLength = (int)wcslen(szString);
 
@@ -66,7 +66,7 @@ namespace ckFileSystem
 		in the source string are allowed by the Joliet file system. iLen should
 		be the length of the source string in wchar_t characters.
 	*/
-	void CJoliet::MemStrCopy(unsigned char *szTarget,const wchar_t *szSource,size_t iLen)
+	void Joliet::MemStrCopy(unsigned char *szTarget,const wchar_t *szSource,size_t iLen)
 	{
 		for (size_t i = 0,j = 0; j < iLen; j++)
 		{
@@ -77,7 +77,7 @@ namespace ckFileSystem
 		}
 	}
 
-	void CJoliet::EmptyStrBuffer(unsigned char *szBuffer,size_t iBufferLen)
+	void Joliet::EmptyStrBuffer(unsigned char *szBuffer,size_t iBufferLen)
 	{
 		for (size_t i = 0; i < iBufferLen; i += 2)
 		{
@@ -86,7 +86,7 @@ namespace ckFileSystem
 		}
 	}
 
-	void CJoliet::InitVolDesc()
+	void Joliet::InitVolDesc()
 	{
 		// Clear memory.
 		memset(&m_VolDescSuppl,0,sizeof(m_VolDescSuppl));
@@ -127,7 +127,7 @@ namespace ckFileSystem
 		memcpy(m_VolDescSuppl.ucAppIdentifier,szAppIdentifier,90);
 	}
 
-	bool CJoliet::WriteVolDesc(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+	bool Joliet::WriteVolDesc(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -165,7 +165,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	void CJoliet::SetVolumeLabel(const ckcore::tchar *szLabel)
+	void Joliet::SetVolumeLabel(const ckcore::tchar *szLabel)
 	{
 		size_t iLabelLen = ckcore::string::astrlen(szLabel);
 		size_t iLabelCopyLen = iLabelLen < 16 ? iLabelLen : 16;
@@ -181,7 +181,7 @@ namespace ckFileSystem
 	#endif
 	}
 
-	void CJoliet::SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
+	void Joliet::SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
 										 const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent)
 	{
 		size_t iSystemLen = ckcore::string::astrlen(szSystem);
@@ -222,7 +222,7 @@ namespace ckFileSystem
 	#endif
 	}
 
-	void CJoliet::SetFileFields(const ckcore::tchar *szCopyFileIdent,
+	void Joliet::SetFileFields(const ckcore::tchar *szCopyFileIdent,
 										 const ckcore::tchar *szAbstFileIdent,
 										 const ckcore::tchar *szBiblFileIdent)
 	{
@@ -257,12 +257,12 @@ namespace ckFileSystem
 	#endif
 	}
 
-	void CJoliet::SetIncludeFileVerInfo(bool bIncludeInfo)
+	void Joliet::SetIncludeFileVerInfo(bool bIncludeInfo)
 	{
 		m_bIncFileVerInfo = bIncludeInfo;
 	}
 
-	void CJoliet::SetRelaxMaxNameLen(bool bRelaxRestriction)
+	void Joliet::SetRelaxMaxNameLen(bool bRelaxRestriction)
 	{
 		if (bRelaxRestriction)
 			m_iMaxNameLen = JOLIET_MAX_NAMELEN_RELAXED;
@@ -270,7 +270,7 @@ namespace ckFileSystem
 			m_iMaxNameLen = JOLIET_MAX_NAMELEN_NORMAL;
 	}
 
-	unsigned char CJoliet::WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir)
+	unsigned char Joliet::WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir)
 	{
 #ifndef _UNICODE
 		wchar_t szWideFileName[JOLIET_MAX_NAMELEN_RELAXED + 1];
@@ -332,7 +332,7 @@ namespace ckFileSystem
 		return iMax;
 	}
 
-	unsigned char CJoliet::CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir)
+	unsigned char Joliet::CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir)
 	{
 		/*size_t iNameLen = ckcore::string::astrlen(szFileName);
 		if (iNameLen < m_iMaxNameLen)
@@ -354,7 +354,7 @@ namespace ckFileSystem
 		Returns true if the file names includes the two character file version
 		information (;1).
 	*/
-	bool CJoliet::IncludesFileVerInfo()
+	bool Joliet::IncludesFileVerInfo()
 	{
 		return m_bIncFileVerInfo;
 	}

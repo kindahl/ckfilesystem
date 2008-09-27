@@ -21,8 +21,8 @@
 
 namespace ckFileSystem
 {
-	CDiscImageHelper::CDiscImageHelper(CDiscImageWriter::eFileSystem FileSystem,
-		bool bIncludeInfo,bool bLongJolietNames,CIso9660::eInterLevel InterLevel) :
+	DiscImageHelper::DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
+		bool bIncludeInfo,bool bLongJolietNames,Iso9660::eInterLevel InterLevel) :
 		m_FileSystem(FileSystem)
 	{
 		// Joliet.
@@ -34,21 +34,21 @@ namespace ckFileSystem
 		m_Iso9660.SetInterchangeLevel(InterLevel);
 	}
 
-	CDiscImageHelper::~CDiscImageHelper()
+	DiscImageHelper::~DiscImageHelper()
 	{
 	}
 
 	// Warning: This function duplicates some functionality in CUdf.
 	// szFileName is assumed to be at least as long as szReqFileName.
-	void CDiscImageHelper::CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir)
+	void DiscImageHelper::CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir)
 	{
-		bool bUseIso = m_FileSystem != CDiscImageWriter::FS_UDF;
-		bool bUseUdf = m_FileSystem == CDiscImageWriter::FS_ISO9660_UDF ||
-			m_FileSystem == CDiscImageWriter::FS_ISO9660_UDF_JOLIET ||
-			m_FileSystem == CDiscImageWriter::FS_UDF ||
-			m_FileSystem == CDiscImageWriter::FS_DVDVIDEO;
-		bool bUseJoliet = m_FileSystem == CDiscImageWriter::FS_ISO9660_JOLIET ||
-			m_FileSystem == CDiscImageWriter::FS_ISO9660_UDF_JOLIET;
+		bool bUseIso = m_FileSystem != DiscImageWriter::FS_UDF;
+		bool bUseUdf = m_FileSystem == DiscImageWriter::FS_ISO9660_UDF ||
+			m_FileSystem == DiscImageWriter::FS_ISO9660_UDF_JOLIET ||
+			m_FileSystem == DiscImageWriter::FS_UDF ||
+			m_FileSystem == DiscImageWriter::FS_DVDVIDEO;
+		bool bUseJoliet = m_FileSystem == DiscImageWriter::FS_ISO9660_JOLIET ||
+			m_FileSystem == DiscImageWriter::FS_ISO9660_UDF_JOLIET;
 
 		if (bUseUdf)
 		{
@@ -102,7 +102,7 @@ namespace ckFileSystem
 		}
 	}
 
-	void CDiscImageHelper::CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath)
+	void DiscImageHelper::CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath)
 	{
 		size_t iDirPathLen = ckcore::string::astrlen(szReqFilePath),iPrevDelim = 0,iPos = 0;
 		ckcore::tstring CurDirName;

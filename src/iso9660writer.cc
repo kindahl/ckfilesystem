@@ -26,9 +26,9 @@
 
 namespace ckFileSystem
 {
-	CIso9660Writer::CIso9660Writer(ckcore::Log *pLog,CSectorOutStream *pOutStream,
-		CSectorManager *pSectorManager,CIso9660 *pIso9660,CJoliet *pJoliet,
-		CElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet) :
+	Iso9660Writer::Iso9660Writer(ckcore::Log *pLog,SectorOutStream *pOutStream,
+		CSectorManager *pSectorManager,Iso9660 *pIso9660,Joliet *pJoliet,
+		ElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet) :
 		m_pLog(pLog),m_pOutStream(pOutStream),m_pSectorManager(pSectorManager),
 		m_pIso9660(pIso9660),m_pJoliet(pJoliet),m_pElTorito(pElTorito),
 		m_bUseFileTimes(bUseFileTimes),m_bUseJoliet(bUseJoliet),
@@ -41,7 +41,7 @@ namespace ckFileSystem
         m_ImageCreate = *localtime(&CurrentTime);
 	}
 
-	CIso9660Writer::~CIso9660Writer()
+	Iso9660Writer::~Iso9660Writer()
 	{
 	}
 
@@ -50,9 +50,9 @@ namespace ckFileSystem
 		are supported. If any more collisions occur duplicate file names will be
 		written to the file system.
 	*/
-	void CIso9660Writer::MakeUniqueJoliet(CFileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize)
+	void Iso9660Writer::MakeUniqueJoliet(FileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize)
 	{
-		CFileTreeNode *pParentNode = pNode->GetParent();
+		FileTreeNode *pParentNode = pNode->GetParent();
 		if (pParentNode == NULL)
 			return;
 
@@ -96,7 +96,7 @@ namespace ckFileSystem
 		// we're dealing with a file.
 		if (iDelimiter == -1)
 		{
-			if (!(pNode->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY) &&
+			if (!(pNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) &&
 				m_pJoliet->IncludesFileVerInfo())
 				ucFileNameEnd = ucFileNameLen - 2;
 			else
@@ -126,7 +126,7 @@ namespace ckFileSystem
 		unsigned char ucNextNumber = 1;
 		wchar_t szNextNumber[4];
 
-		std::vector<CFileTreeNode *>::const_iterator itSibling;
+		std::vector<FileTreeNode *>::const_iterator itSibling;
 		for (itSibling = pParentNode->m_Children.begin(); itSibling != pParentNode->m_Children.end();)
 		{
 			// Ignore any siblings that has not yet been assigned an ISO9660 compatible file name.
@@ -181,9 +181,9 @@ namespace ckFileSystem
 		are supported. If any more collisions occur duplicate file names will be
 		written to the file system.
 	*/
-	void CIso9660Writer::MakeUniqueIso9660(CFileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize)
+	void Iso9660Writer::MakeUniqueIso9660(FileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize)
 	{
-		CFileTreeNode *pParentNode = pNode->GetParent();
+		FileTreeNode *pParentNode = pNode->GetParent();
 		if (pParentNode == NULL)
 			return;
 
@@ -209,7 +209,7 @@ namespace ckFileSystem
 		// we're dealing with a file.
 		if (iDelimiter == -1)
 		{
-			if (!(pNode->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY) &&
+			if (!(pNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) &&
 				m_pIso9660->IncludesFileVerInfo())
 				ucFileNameEnd = ucFileNameSize - 2;
 			else
@@ -237,7 +237,7 @@ namespace ckFileSystem
 		unsigned char ucNextNumber = 1;
 		char szNextNumber[4];
 
-		std::vector<CFileTreeNode *>::const_iterator itSibling;
+		std::vector<FileTreeNode *>::const_iterator itSibling;
 		for (itSibling = pParentNode->m_Children.begin(); itSibling != pParentNode->m_Children.end();)
 		{
 			// Ignore any siblings that has not yet been assigned an ISO9660 compatible file name.
@@ -286,7 +286,7 @@ namespace ckFileSystem
 		memcpy(pFileName,szFileName,ucFileNameSize);
 	}
 
-	bool CIso9660Writer::CompareStrings(const char *szString1,const ckcore::tchar *szString2,unsigned char ucLength)
+	bool Iso9660Writer::CompareStrings(const char *szString1,const ckcore::tchar *szString2,unsigned char ucLength)
 	{
 #ifdef _WINDOWS
 #ifdef _UNICODE
@@ -303,7 +303,7 @@ namespace ckFileSystem
 #endif
 	}
 
-	bool CIso9660Writer::CompareStrings(const unsigned char *pWideString1,const ckcore::tchar *szString2,unsigned char ucLength)
+	bool Iso9660Writer::CompareStrings(const unsigned char *pWideString1,const ckcore::tchar *szString2,unsigned char ucLength)
 	{
 #ifdef _UNICODE
 		unsigned char ucFileNamePos = 0;
@@ -331,7 +331,7 @@ namespace ckFileSystem
 #endif
 	}
 
-	bool CIso9660Writer::CalcPathTableSize(CFileSet &Files,bool bJolietTable,
+	bool Iso9660Writer::CalcPathTableSize(FileSet &Files,bool bJolietTable,
 		ckcore::tuint64 &uiPathTableSize,ckcore::Progress &Progress)
 	{
 		// Root record + 1 padding byte since the root record size is odd.
@@ -346,11 +346,11 @@ namespace ckFileSystem
 		// once.
 		bool bFoundDeep = false;
 
-		CFileSet::const_iterator itFile;
+		FileSet::const_iterator itFile;
 		for (itFile = Files.begin(); itFile != Files.end(); itFile++)
 		{
 			// We're do not have to add the root record once again.
-			int iLevel = CFileComparator::Level(*itFile);
+			int iLevel = FileComparator::Level(*itFile);
 			if (iLevel <= 1)
 				continue;
 
@@ -372,7 +372,7 @@ namespace ckFileSystem
 			}
 
 			// We're only interested in directories.
-			if (!(itFile->m_ucFlags & CFileDescriptor::FLAG_DIRECTORY))
+			if (!(itFile->m_ucFlags & FileDescriptor::FLAG_DIRECTORY))
 				continue;
 
 			// Make sure that the path to the current file or folder exists.
@@ -431,7 +431,7 @@ namespace ckFileSystem
 		Calculates the size of a directory entry in sectors. This size does not include the size
 		of the extend data of the directory contents.
 	*/
-	bool CIso9660Writer::CalcLocalDirEntryLength(CFileTreeNode *pLocalNode,bool bJoliet,
+	bool Iso9660Writer::CalcLocalDirEntryLength(FileTreeNode *pLocalNode,bool bJoliet,
 		int iLevel,unsigned long &ulDirLength)
 	{
 		ulDirLength = 0;
@@ -440,11 +440,11 @@ namespace ckFileSystem
 		// Each directory always includes '.' and '..'.
 		unsigned long ulDirSecData = sizeof(tDirRecord) << 1;
 
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= m_pIso9660->GetMaxDirLevel())
@@ -465,7 +465,7 @@ namespace ckFileSystem
 				ulFactor++;
 			}
 
-			bool bIsFolder = (*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY;
+			bool bIsFolder = (*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY;
 
 			unsigned char ucNameLen;	// FIXME: Rename to Size?
 			/*if (bJoliet)
@@ -548,8 +548,8 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660Writer::CalcLocalDirEntriesLength(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-		CFileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress)
+	bool Iso9660Writer::CalcLocalDirEntriesLength(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+		FileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress)
 	{
 		unsigned long ulDirLenNormal = 0;
 		if (!CalcLocalDirEntryLength(pLocalNode,false,iLevel,ulDirLenNormal))
@@ -559,11 +559,11 @@ namespace ckFileSystem
 		if (m_bUseJoliet && !CalcLocalDirEntryLength(pLocalNode,true,iLevel,ulDirLenJoliet))
 			return false;
 
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= m_pIso9660->GetMaxDirLevel())
@@ -585,13 +585,13 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660Writer::CalcDirEntriesLength(CFileTree &FileTree,ckcore::Progress &Progress,
+	bool Iso9660Writer::CalcDirEntriesLength(FileTree &file_tree,ckcore::Progress &Progress,
 		ckcore::tuint64 uiStartSector,ckcore::tuint64 &uiLength)
 	{
-		CFileTreeNode *pCurNode = FileTree.GetRoot();
+		FileTreeNode *pCurNode = file_tree.GetRoot();
 		ckcore::tuint64 uiSecOffset = uiStartSector;
 
-		std::vector<std::pair<CFileTreeNode *,int> > DirNodeStack;
+		std::vector<std::pair<FileTreeNode *,int> > DirNodeStack;
 		if (!CalcLocalDirEntriesLength(DirNodeStack,pCurNode,0,uiSecOffset,Progress))
 			return false;
 
@@ -609,10 +609,10 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660Writer::WritePathTable(CFileSet &Files,CFileTree &FileTree,
+	bool Iso9660Writer::WritePathTable(FileSet &Files,FileTree &file_tree,
 		bool bJolietTable,bool bMSBF,ckcore::Progress &Progress)
 	{
-		CFileTreeNode *pCurNode = FileTree.GetRoot();
+		FileTreeNode *pCurNode = file_tree.GetRoot();
 
 		tPathTableRecord RootRecord,PathRecord;
 		memset(&RootRecord,0,sizeof(RootRecord));
@@ -649,11 +649,11 @@ namespace ckFileSystem
 		// Counters for all records.
 		unsigned short usRecordNumber = 2;	// Root has number 1.
 
-		CFileSet::const_iterator itFile;
+		FileSet::const_iterator itFile;
 		for (itFile = Files.begin(); itFile != Files.end(); itFile++)
 		{
 			// We're do not have to add the root record once again.
-			int iLevel = CFileComparator::Level(*itFile);
+			int iLevel = FileComparator::Level(*itFile);
 			if (iLevel <= 1)
 				continue;
 
@@ -661,11 +661,11 @@ namespace ckFileSystem
 				continue;
 
 			// We're only interested in directories.
-			if (!(itFile->m_ucFlags & CFileDescriptor::FLAG_DIRECTORY))
+			if (!(itFile->m_ucFlags & FileDescriptor::FLAG_DIRECTORY))
 				continue;
 
 			// Locate the node in the file tree.
-			pCurNode = FileTree.GetNodeFromPath(*itFile);
+			pCurNode = file_tree.GetNodeFromPath(*itFile);
 			if (pCurNode == NULL)
 				return false;
 
@@ -773,7 +773,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660Writer::WriteSysDirectory(CFileTreeNode *pParent,eSysDirType Type,
+	bool Iso9660Writer::WriteSysDirectory(FileTreeNode *pParent,eSysDirType Type,
 		unsigned long ulDataPos,unsigned long ulDataSize)
 	{
 		tDirRecord DirRecord;
@@ -797,14 +797,14 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660Writer::ValidateTreeNode(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-		CFileTreeNode *pNode,int iLevel)
+	bool Iso9660Writer::ValidateTreeNode(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+		FileTreeNode *pNode,int iLevel)
 	{
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pNode->m_Children.begin(); itFile !=
 			pNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				if (iLevel >= m_pIso9660->GetMaxDirLevel())
 					return false;
@@ -820,11 +820,11 @@ namespace ckFileSystem
 		Returns true if the specified file tree conforms to the configuration
 		used to create the disc image.
 	*/
-	bool CIso9660Writer::ValidateTree(CFileTree &FileTree)
+	bool Iso9660Writer::ValidateTree(FileTree &file_tree)
 	{
-		CFileTreeNode *pCurNode = FileTree.GetRoot();
+		FileTreeNode *pCurNode = file_tree.GetRoot();
 
-		std::vector<std::pair<CFileTreeNode *,int> > DirNodeStack;
+		std::vector<std::pair<FileTreeNode *,int> > DirNodeStack;
 		if (!ValidateTreeNode(DirNodeStack,pCurNode,1))
 			return false;
 
@@ -841,7 +841,7 @@ namespace ckFileSystem
 		return true;
 	}
 
-	int CIso9660Writer::AllocateHeader()
+	int Iso9660Writer::AllocateHeader()
 	{
 		// Allocate volume descriptor.
 		unsigned long ulVolDescSize = sizeof(tVolDescPrimary) + sizeof(tVolDescSetTerm);
@@ -864,7 +864,7 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::AllocatePathTables(ckcore::Progress &Progress,CFileSet &Files)
+	int Iso9660Writer::AllocatePathTables(ckcore::Progress &Progress,FileSet &Files)
 	{
 		// Calculate path table sizes.
 		m_uiPathTableSizeNormal = 0;
@@ -901,10 +901,10 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::AllocateDirEntries(CFileTree &FileTree,ckcore::Progress &Progress)
+	int Iso9660Writer::AllocateDirEntries(FileTree &file_tree,ckcore::Progress &Progress)
 	{
 		ckcore::tuint64 uiDirEntriesLen = 0;
-		if (!CalcDirEntriesLength(FileTree,Progress,m_pSectorManager->GetNextFree(),uiDirEntriesLen))
+		if (!CalcDirEntriesLength(file_tree,Progress,m_pSectorManager->GetNextFree(),uiDirEntriesLen))
 			return RESULT_FAIL;
 
 		m_pSectorManager->AllocateSectors(this,SR_DIRENTRIES,uiDirEntriesLen);
@@ -917,7 +917,7 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::WriteHeader(CFileSet &Files,CFileTree &FileTree,ckcore::Progress &Progress)
+	int Iso9660Writer::WriteHeader(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress)
 	{
 		// Make sure that everything has been allocated.
 		if (m_uiPathTableSizeNormal == 0)
@@ -969,7 +969,7 @@ namespace ckFileSystem
 
 		if (!m_pIso9660->WriteVolDescPrimary(m_pOutStream,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeNormal,ulPosPathTableNormalL,ulPosPathTableNormalM,
-				(unsigned long)uiDirEntriesSector,(unsigned long)FileTree.GetRoot()->m_uiDataSizeNormal))
+				(unsigned long)uiDirEntriesSector,(unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal))
 		{
 			return RESULT_FAIL;
 		}
@@ -996,7 +996,7 @@ namespace ckFileSystem
 		{
 			if (!m_pIso9660->WriteVolDescSuppl(m_pOutStream,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeNormal,ulPosPathTableNormalL,ulPosPathTableNormalM,
-				(unsigned long)uiDirEntriesSector,(unsigned long)FileTree.GetRoot()->m_uiDataSizeNormal))
+				(unsigned long)uiDirEntriesSector,(unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal))
 			{
 				m_pLog->PrintLine(ckT("  Error: Failed to write supplementary volume descriptor."));
 				return RESULT_FAIL;
@@ -1006,23 +1006,23 @@ namespace ckFileSystem
 		// Write the Joliet header.
 		if (m_bUseJoliet)
 		{
-			if (FileTree.GetRoot()->m_uiDataSizeNormal > 0xFFFFFFFF)
+			if (file_tree.GetRoot()->m_uiDataSizeNormal > 0xFFFFFFFF)
 			{
 #ifdef _WINDOWS
 				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%I64u) than the ISO9660 file system can handle."),
 #else
 				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%llu) than the ISO9660 file system can handle."),
 #endif
-					FileTree.GetRoot()->m_uiDataSizeNormal);
+				file_tree.GetRoot()->m_uiDataSizeNormal);
 				return RESULT_FAIL;
 			}
 
 			unsigned long ulRootExtentLocJoliet = (unsigned long)uiDirEntriesSector +
-				BytesToSector((unsigned long)FileTree.GetRoot()->m_uiDataSizeNormal);
+				BytesToSector((unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal);
 
 			if (!m_pJoliet->WriteVolDesc(m_pOutStream,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeJoliet,ulPosPathTableJolietL,ulPosPathTableJolietM,
-				ulRootExtentLocJoliet,(unsigned long)FileTree.GetRoot()->m_uiDataSizeJoliet))
+				ulRootExtentLocJoliet,(unsigned long)file_tree.GetRoot()->m_uiDataSizeJoliet))
 			{
 				return false;
 			}
@@ -1050,17 +1050,17 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::WritePathTables(CFileSet &Files,CFileTree &FileTree,ckcore::Progress &Progress)
+	int Iso9660Writer::WritePathTables(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress)
 	{
 		Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEISOTABLE));
 
 		// Write the path tables.
-		if (!WritePathTable(Files,FileTree,false,false,Progress))
+		if (!WritePathTable(Files,file_tree,false,false,Progress))
 		{
 			m_pLog->PrintLine(ckT("  Error: Failed to write path table (LSBF)."));
 			return RESULT_FAIL;
 		}
-		if (!WritePathTable(Files,FileTree,false,true,Progress))
+		if (!WritePathTable(Files,file_tree,false,true,Progress))
 		{
 			m_pLog->PrintLine(ckT("  Error: Failed to write path table (MSBF)."));
 			return RESULT_FAIL;
@@ -1070,12 +1070,12 @@ namespace ckFileSystem
 		{
 			Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEJOLIETTABLE));
 
-			if (!WritePathTable(Files,FileTree,true,false,Progress))
+			if (!WritePathTable(Files,file_tree,true,false,Progress))
 			{
 				m_pLog->PrintLine(ckT("  Error: Failed to write Joliet path table (LSBF)."));
 				return RESULT_FAIL;
 			}
-			if (!WritePathTable(Files,FileTree,true,true,Progress))
+			if (!WritePathTable(Files,file_tree,true,true,Progress))
 			{
 				m_pLog->PrintLine(ckT("  Error: Failed to write Joliet path table (MSBF)."));
 				return RESULT_FAIL;
@@ -1085,13 +1085,13 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::WriteLocalDirEntry(ckcore::Progress &Progress,CFileTreeNode *pLocalNode,
+	int Iso9660Writer::WriteLocalDirEntry(ckcore::Progress &Progress,FileTreeNode *pLocalNode,
 		bool bJoliet,int iLevel)
 	{
 		tDirRecord DirRecord;
 
 		// Write the '.' and '..' directories.
-		CFileTreeNode *pParentNode = pLocalNode->GetParent();
+		FileTreeNode *pParentNode = pLocalNode->GetParent();
 		if (pParentNode == NULL)
 			pParentNode = pLocalNode;
 
@@ -1118,7 +1118,7 @@ namespace ckFileSystem
 		// Each directory always includes '.' and '..'.
 		unsigned long ulDirSecData = sizeof(tDirRecord) << 1;
 
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
@@ -1126,7 +1126,7 @@ namespace ckFileSystem
 			if (Progress.Cancelled())
 				return RESULT_CANCEL;
 
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= m_pIso9660->GetMaxDirLevel())
@@ -1153,7 +1153,7 @@ namespace ckFileSystem
 				unsigned char ucNameLen;	// FIXME: Rename to ucNameSize;
 				unsigned char szFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 4]; // Large enough for level 1, 2 and even Joliet.
 
-				bool bIsFolder = (*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY;
+				bool bIsFolder = (*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY;
 				if (bJoliet)
 				{
 					ucNameLen = m_pJoliet->WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder) << 1;
@@ -1180,9 +1180,9 @@ namespace ckFileSystem
 				Write733(DirRecord.ucExtentLocation,(unsigned long)uiExtentLoc);
 				Write733(DirRecord.ucDataLen,(unsigned long)ulExtentSize);
 
-				if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_IMPORTED)
+				if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_IMPORTED)
 				{
-					CIso9660ImportData *pImportNode = (CIso9660ImportData *)(*itFile)->m_pData;
+					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->m_pData;
 					if (pImportNode == NULL)
 					{
 						m_pLog->PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
@@ -1205,7 +1205,7 @@ namespace ckFileSystem
 						struct tm AccessTime,ModifyTime,CreateTime;
 						bool bResult = true;
 
-						if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+						if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 						{
 							bResult = ckcore::Directory::Time((*itFile)->m_FileFullPath.c_str(),
 															  AccessTime,ModifyTime,CreateTime);
@@ -1233,7 +1233,7 @@ namespace ckFileSystem
 
 					// File flags.
 					DirRecord.ucFileFlags = 0;
-					if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+					if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 						DirRecord.ucFileFlags |= DIRRECORD_FILEFLAG_DIRECTORY;
 
 					if (ckcore::File::Hidden((*itFile)->m_FileFullPath.c_str()))
@@ -1305,14 +1305,14 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::WriteLocalDirEntries(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-		ckcore::Progress &Progress,CFileTreeNode *pLocalNode,int iLevel)
+	int Iso9660Writer::WriteLocalDirEntries(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+		ckcore::Progress &Progress,FileTreeNode *pLocalNode,int iLevel)
 	{
-		std::vector<CFileTreeNode *>::const_iterator itFile;
+		std::vector<FileTreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
-			if ((*itFile)->m_ucFileFlags & CFileTreeNode::FLAG_DIRECTORY)
+			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
 				if (iLevel >= m_pIso9660->GetMaxDirLevel())
@@ -1336,13 +1336,13 @@ namespace ckFileSystem
 		return RESULT_OK;
 	}
 
-	int CIso9660Writer::WriteDirEntries(CFileTree &FileTree,ckcore::Progress &Progress)
+	int Iso9660Writer::WriteDirEntries(FileTree &file_tree,ckcore::Progress &Progress)
 	{
 		Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEDIRENTRIES));
 
-		CFileTreeNode *pCurNode = FileTree.GetRoot();
+		FileTreeNode *pCurNode = file_tree.GetRoot();
 
-		std::vector<std::pair<CFileTreeNode *,int> > DirNodeStack;
+		std::vector<std::pair<FileTreeNode *,int> > DirNodeStack;
 		if (!WriteLocalDirEntries(DirNodeStack,Progress,pCurNode,1))
 			return RESULT_FAIL;
 

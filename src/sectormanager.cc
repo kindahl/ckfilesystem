@@ -41,7 +41,7 @@ namespace ckFileSystem
 		requested sector range.
 		@param uiNumSectors the number of sectors to allocate.
 	*/
-	void CSectorManager::AllocateSectors(ISectorClient *pClient,unsigned char ucIdentifier,
+	void CSectorManager::AllocateSectors(SectorClient *pClient,unsigned char ucIdentifier,
 		ckcore::tuint64 uiNumSectors)
 	{
 		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
@@ -49,7 +49,7 @@ namespace ckFileSystem
 		m_uiNextFreeSector += uiNumSectors;
 	}
 
-	void CSectorManager::AllocateBytes(ISectorClient *pClient,unsigned char ucIdentifier,
+	void CSectorManager::AllocateBytes(SectorClient *pClient,unsigned char ucIdentifier,
 		ckcore::tuint64 uiNumBytes)
 	{
 		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
@@ -86,7 +86,7 @@ namespace ckFileSystem
 		allocating.
 		@return the start sector.
 	*/
-	ckcore::tuint64 CSectorManager::GetStart(ISectorClient *pClient,unsigned char ucIdentifier)
+	ckcore::tuint64 CSectorManager::GetStart(SectorClient *pClient,unsigned char ucIdentifier)
 	{
 		return m_ClientMap[std::make_pair(pClient,ucIdentifier)];
 	}

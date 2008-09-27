@@ -26,7 +26,7 @@ namespace ckFileSystem
 	/*
 		Describes a file that should be included in the disc image.
 	*/
-	class CFileDescriptor
+	class FileDescriptor
 	{
 	public:
 		enum
@@ -35,7 +35,7 @@ namespace ckFileSystem
 			FLAG_IMPORTED = 0x02
 		};
 
-		CFileDescriptor(const ckcore::tchar *szInternalPath,const ckcore::tchar *szExternalPath,
+		FileDescriptor(const ckcore::tchar *szInternalPath,const ckcore::tchar *szExternalPath,
 			ckcore::tuint64 uiFileSize,unsigned char ucFlags = 0,void *pData = NULL)
 		{
 			m_ucFlags = ucFlags;
@@ -56,7 +56,7 @@ namespace ckFileSystem
 	/*
 		Sorts the set of files according to the ECMA-119 standard.
 	*/
-	class CFileComparator
+	class FileComparator
 	{
 	private:
 		bool m_bDvdVideo;
@@ -130,11 +130,11 @@ namespace ckFileSystem
 		/*
 			@param bDvdVideo set to true to use DVD-Video compatible sorting.
 		*/
-		CFileComparator(bool bDvdVideo) : m_bDvdVideo(bDvdVideo)
+		FileComparator(bool bDvdVideo) : m_bDvdVideo(bDvdVideo)
 		{
 		}
 
-		static int Level(const CFileDescriptor &Item)
+		static int Level(const FileDescriptor &Item)
 		{
 			const ckcore::tchar *szFullPath = Item.m_InternalPath.c_str();
 
@@ -145,13 +145,13 @@ namespace ckFileSystem
 					iLevel++;
 			}
 
-			if (Item.m_ucFlags & CFileDescriptor::FLAG_DIRECTORY)
+			if (Item.m_ucFlags & FileDescriptor::FLAG_DIRECTORY)
 				iLevel++;
 
 			return iLevel;
 		}
 
-		bool operator() (const CFileDescriptor &Item1,const CFileDescriptor &Item2) const
+		bool operator() (const FileDescriptor &Item1,const FileDescriptor &Item2) const
 		{
 			if (m_bDvdVideo)
 			{
@@ -179,5 +179,5 @@ namespace ckFileSystem
 		}
 	};
 
-	typedef std::set<ckFileSystem::CFileDescriptor,ckFileSystem::CFileComparator> CFileSet;
+	typedef std::set<ckFileSystem::FileDescriptor,ckFileSystem::FileComparator> FileSet;
 };

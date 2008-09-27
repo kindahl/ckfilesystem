@@ -22,12 +22,12 @@
 
 namespace ckFileSystem
 {
-	CIso9660Reader::CIso9660Reader(ckcore::Log *pLog) : m_pLog(pLog),
+	Iso9660Reader::Iso9660Reader(ckcore::Log *pLog) : m_pLog(pLog),
 		m_pRootNode(NULL)
 	{
 	}
 
-	CIso9660Reader::~CIso9660Reader()
+	Iso9660Reader::~Iso9660Reader()
 	{
 		if (m_pRootNode != NULL)
 		{
@@ -39,9 +39,9 @@ namespace ckFileSystem
 	/**
 		Reads an entire directory entry.
 	*/
-	bool CIso9660Reader::ReadDirEntry(ckcore::InStream &InStream,
-		std::vector<CIso9660TreeNode *> &DirEntries,
-		CIso9660TreeNode *pParentNode,bool bJoliet)
+	bool Iso9660Reader::ReadDirEntry(ckcore::InStream &InStream,
+		std::vector<Iso9660TreeNode *> &DirEntries,
+		Iso9660TreeNode *pParentNode,bool bJoliet)
 	{
 		// Search to the extent location.
 		InStream.Seek(pParentNode->m_ulExtentLocation * ISO9660_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
@@ -160,7 +160,7 @@ namespace ckFileSystem
 
 			//m_pLog->PrintLine(ckT("  %s: %u"),szFileName,Read733(CurDirRecord.ucExtentLocation));
 
-			CIso9660TreeNode *pNewNode = new CIso9660TreeNode(pParentNode,szFileName,
+			Iso9660TreeNode *pNewNode = new Iso9660TreeNode(pParentNode,szFileName,
 					Read733(CurDirRecord.ucExtentLocation),Read733(CurDirRecord.ucDataLen),
 					Read723(CurDirRecord.ucVolSeqNumber),CurDirRecord.ucFileFlags,
 					CurDirRecord.ucFileUnitSize,CurDirRecord.ucInterleaveGapSize,CurDirRecord.RecDateTime);
@@ -222,9 +222,9 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CIso9660Reader::Read(ckcore::InStream &InStream,unsigned long ulStartSector)
+	bool Iso9660Reader::Read(ckcore::InStream &InStream,unsigned long ulStartSector)
 	{
-		m_pLog->PrintLine(ckT("CIso9660Reader::Read"));
+		m_pLog->PrintLine(ckT("Iso9660Reader::Read"));
 
 		// Seek to the start sector.
 		//InStream.Seek(ulStartSector * ISO9660_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
@@ -341,12 +341,12 @@ namespace ckFileSystem
 		if (m_pRootNode != NULL)
 			delete m_pRootNode;
 
-		m_pRootNode = new CIso9660TreeNode(NULL,NULL,ulRootExtentLoc,ulRootExtentLen,
+		m_pRootNode = new Iso9660TreeNode(NULL,NULL,ulRootExtentLoc,ulRootExtentLen,
 			Read723(VolDescSuppl.RootDirRecord.ucVolSeqNumber),VolDescSuppl.RootDirRecord.ucFileFlags,
 			VolDescSuppl.RootDirRecord.ucFileUnitSize,VolDescSuppl.RootDirRecord.ucInterleaveGapSize,
 			VolDescSuppl.RootDirRecord.RecDateTime);
 
-		std::vector<CIso9660TreeNode *> DirEntries;
+		std::vector<Iso9660TreeNode *> DirEntries;
 		if (!ReadDirEntry(InStream,DirEntries,m_pRootNode,bJoliet))
 		{
 			m_pLog->PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),ulRootExtentLoc);
@@ -355,7 +355,7 @@ namespace ckFileSystem
 
 		while (DirEntries.size() > 0)
 		{
-			CIso9660TreeNode *pParentNode = DirEntries.back();
+			Iso9660TreeNode *pParentNode = DirEntries.back();
 			DirEntries.pop_back();
 
 			if (!ReadDirEntry(InStream,DirEntries,pParentNode,bJoliet))
@@ -369,10 +369,10 @@ namespace ckFileSystem
 	}
 
 	#ifdef _DEBUG
-	void CIso9660Reader::PrintLocalTree(std::vector<std::pair<CIso9660TreeNode *,int> > &DirNodeStack,
-		CIso9660TreeNode *pLocalNode,int iIndent)
+	void Iso9660Reader::PrintLocalTree(std::vector<std::pair<Iso9660TreeNode *,int> > &DirNodeStack,
+		Iso9660TreeNode *pLocalNode,int iIndent)
 	{
-		std::vector<CIso9660TreeNode *>::const_iterator itFile;
+		std::vector<Iso9660TreeNode *>::const_iterator itFile;
 		for (itFile = pLocalNode->m_Children.begin(); itFile !=
 			pLocalNode->m_Children.end(); itFile++)
 		{
@@ -392,22 +392,22 @@ namespace ckFileSystem
 		}
 	}
 
-	void CIso9660Reader::PrintTree()
+	void Iso9660Reader::PrintTree()
 	{
 		if (m_pRootNode == NULL)
 			return;
 
-		CIso9660TreeNode *pCurNode = m_pRootNode;
+		Iso9660TreeNode *pCurNode = m_pRootNode;
 		int iIndent = 0;
 
-		m_pLog->PrintLine(ckT("CIso9660Reader::PrintTree"));
+		m_pLog->PrintLine(ckT("Iso9660Reader::PrintTree"));
 #ifdef _WINDOWS
 		m_pLog->PrintLine(ckT("  <root> (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
 #else
 		m_pLog->PrintLine(ckT("  <root> (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
 #endif
 
-		std::vector<std::pair<CIso9660TreeNode *,int> > DirNodeStack;
+		std::vector<std::pair<Iso9660TreeNode *,int> > DirNodeStack;
 		PrintLocalTree(DirNodeStack,pCurNode,4);
 
 		while (DirNodeStack.size() > 0)

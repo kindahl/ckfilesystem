@@ -24,18 +24,18 @@
 
 namespace ckFileSystem
 {
-	class CDiscImageHelper
+	class DiscImageHelper
 	{
 	private:
-		CDiscImageWriter::eFileSystem m_FileSystem;
+		DiscImageWriter::eFileSystem m_FileSystem;
 
-		CJoliet m_Joliet;
-		CIso9660 m_Iso9660;
+		Joliet m_Joliet;
+		Iso9660 m_Iso9660;
 
 	public:
-		CDiscImageHelper(CDiscImageWriter::eFileSystem FileSystem,
-			bool bIncludeInfo,bool bLongJolietNames,CIso9660::eInterLevel InterLevel);
-		~CDiscImageHelper();
+		DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
+			bool bIncludeInfo,bool bLongJolietNames,Iso9660::eInterLevel InterLevel);
+		~DiscImageHelper();
 
 		void CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir);
 		void CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath);

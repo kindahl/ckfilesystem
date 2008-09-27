@@ -20,9 +20,9 @@
 
 namespace ckFileSystem
 {
-	CDynStringTable g_StringTable;
+	DynStringTable g_StringTable;
 
-	CDynStringTable::CDynStringTable()
+	DynStringTable::DynStringTable()
 	{
 		m_Strings[WARNING_FSDIRLEVEL] = ckT("The directory structure is deeper than %d levels. Deep files and folders will be ignored.");
 		m_Strings[WARNING_SKIPFILE] = ckT("Skipping \"%s\".");
@@ -38,7 +38,7 @@ namespace ckFileSystem
 		m_Strings[STATUS_WRITEDIRENTRIES] = ckT("Writing directory entries.");
 	}
 
-	const ckcore::tchar *CDynStringTable::GetString(eStrings StringID)
+	const ckcore::tchar *DynStringTable::GetString(eStrings StringID)
 	{
 		return m_Strings[StringID];
 	}
@@ -46,7 +46,7 @@ namespace ckFileSystem
 	/*
 		For translation purposes.
 	*/
-	void CDynStringTable::SetString(eStrings StringID,const ckcore::tchar *szString)
+	void DynStringTable::SetString(eStrings StringID,const ckcore::tchar *szString)
 	{
 		m_Strings[StringID] = szString;
 	}

@@ -23,20 +23,20 @@
 
 namespace ckFileSystem
 {
-	CDvdVideo::CDvdVideo(ckcore::Log *pLog) : m_pLog(pLog)
+	DvdVideo::DvdVideo(ckcore::Log *pLog) : m_pLog(pLog)
 	{
 	}
 
-	CDvdVideo::~CDvdVideo()
+	DvdVideo::~DvdVideo()
 	{
 	}
 
-	ckcore::tuint64 CDvdVideo::SizeToDvdLen(ckcore::tuint64 uiFileSize)
+	ckcore::tuint64 DvdVideo::SizeToDvdLen(ckcore::tuint64 uiFileSize)
 	{
 		return uiFileSize / DVDVIDEO_BLOCK_SIZE;
 	}
 
-	CFileTreeNode *CDvdVideo::FindVideoNode(CFileTree &FileTree,eFileSetType Type,unsigned long ulNumber)
+	FileTreeNode *DvdVideo::FindVideoNode(FileTree &file_tree,eFileSetType Type,unsigned long ulNumber)
 	{
 		ckcore::tstring InternalPath = ckT("/VIDEO_TS/");
 
@@ -86,7 +86,7 @@ namespace ckFileSystem
 					if (ulNumber == 0)
 						return NULL;
 
-					CFileTreeNode *pLastNode = NULL;
+					FileTreeNode *pLastNode = NULL;
 
 					// We find the last title node. There may be many of them.
 					ckcore::tchar szFileName[13];
@@ -96,7 +96,7 @@ namespace ckFileSystem
 						ckcore::convert::sprintf(szFileName,sizeof(szFileName),ckT("VTS_%02d_%d.VOB"),ulNumber,i + 1);
 						InternalPath.append(szFileName);
 
-						CFileTreeNode *pNode = FileTree.GetNodeFromPath(InternalPath.c_str());
+						FileTreeNode *pNode = file_tree.GetNodeFromPath(InternalPath.c_str());
 						if (pNode == NULL)
 							break;
 
@@ -114,10 +114,10 @@ namespace ckFileSystem
 				return NULL;
 		}
 
-		return FileTree.GetNodeFromPath(InternalPath.c_str());
+		return file_tree.GetNodeFromPath(InternalPath.c_str());
 	}
 
-	bool CDvdVideo::GetTotalTitlesSize(ckcore::tstring &FilePath,eFileSetType Type,
+	bool DvdVideo::GetTotalTitlesSize(ckcore::tstring &FilePath,eFileSetType Type,
 		unsigned long ulNumber,ckcore::tuint64 &uiFileSize)
 	{
 		ckcore::tstring FullPath = FilePath;
@@ -146,20 +146,20 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CDvdVideo::ReadFileSetInfoRoot(CFileTree &FileTree,CIfoVmgData &VmgData,
+	bool DvdVideo::ReadFileSetInfoRoot(FileTree &file_tree,IfoVmgData &VmgData,
 		std::vector<unsigned long> &TitleSetSectors)
 	{
 		ckcore::tuint64 uiMenuSize = 0,uiInfoSize = 0;
 
-		CFileTreeNode *pInfoNode = FindVideoNode(FileTree,FST_INFO,0);
+		FileTreeNode *pInfoNode = FindVideoNode(file_tree,FST_INFO,0);
 		if (pInfoNode != NULL)
 			uiInfoSize = pInfoNode->m_uiFileSize;
 
-		CFileTreeNode *pMenuNode = FindVideoNode(FileTree,FST_MENU,0);
+		FileTreeNode *pMenuNode = FindVideoNode(file_tree,FST_MENU,0);
 		if (pMenuNode != NULL)
 			uiMenuSize = pMenuNode->m_uiFileSize;
 
-		CFileTreeNode *pBackupNode = FindVideoNode(FileTree,FST_BACKUP,0);
+		FileTreeNode *pBackupNode = FindVideoNode(file_tree,FST_BACKUP,0);
 
 		// Verify the information.
 		if ((VmgData.ulLastVmgSector + 1) < (SizeToDvdLen(uiInfoSize) << 1))
@@ -240,35 +240,35 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CDvdVideo::ReadFileSetInfo(CFileTree &FileTree,std::vector<unsigned long> &TitleSetSectors)
+	bool DvdVideo::ReadFileSetInfo(FileTree &file_tree,std::vector<unsigned long> &TitleSetSectors)
 	{
 		unsigned long ulCounter = 1;
 
 		std::vector<unsigned long>::const_iterator itTitleSet;
 		for (itTitleSet = TitleSetSectors.begin(); itTitleSet != TitleSetSectors.end(); itTitleSet++)
 		{
-			CFileTreeNode *pInfoNode = FindVideoNode(FileTree,FST_INFO,ulCounter);
+			FileTreeNode *pInfoNode = FindVideoNode(file_tree,FST_INFO,ulCounter);
 			if (pInfoNode == NULL)
 			{
 				m_pLog->PrintLine(ckT("  Error: Unable to find IFO file in file tree."));
 				return false;
 			}
 
-			CIfoReader IfoReader(pInfoNode->m_FileFullPath.c_str());
-			if (!IfoReader.Open())
+			IfoReader ifo_reader(pInfoNode->m_FileFullPath.c_str());
+			if (!ifo_reader.Open())
 			{
 				m_pLog->PrintLine(ckT("  Error: Unable to open and identify %s."),pInfoNode->m_FileName.c_str());
 				return false;
 			}
 
-			if (IfoReader.GetType() != CIfoReader::IT_VTS)
+			if (ifo_reader.GetType() != IfoReader::IT_VTS)
 			{
 				m_pLog->PrintLine(ckT("  Error: %s is not of VTS format."),pInfoNode->m_FileName.c_str());
 				return false;
 			}
 
-			CIfoVtsData VtsData;
-			if (!IfoReader.ReadVts(VtsData))
+			IfoVtsData VtsData;
+			if (!ifo_reader.ReadVts(VtsData))
 			{
 				m_pLog->PrintLine(ckT("  Error: Unable to read VTS data from %s."),pInfoNode->m_FileName.c_str());
 				return false;
@@ -276,7 +276,7 @@ namespace ckFileSystem
 
 			// Test if VTS_XX_0.VOB is present.
 			ckcore::tuint64 uiMenuSize = 0;
-			CFileTreeNode *pMenuNode = FindVideoNode(FileTree,FST_MENU,ulCounter);
+			FileTreeNode *pMenuNode = FindVideoNode(file_tree,FST_MENU,ulCounter);
 			if (pMenuNode != NULL)
 				uiMenuSize = pMenuNode->m_uiFileSize;
 
@@ -386,7 +386,7 @@ namespace ckFileSystem
 				}
 
 				// We only pad the last title node (not sure if that is correct).
-				CFileTreeNode *pLastTitleNode = FindVideoNode(FileTree,FST_TITLE,ulCounter);
+				FileTreeNode *pLastTitleNode = FindVideoNode(file_tree,FST_TITLE,ulCounter);
 				if (pLastTitleNode != NULL)
 					pLastTitleNode->m_ulDataPadLen = (unsigned long)uiTitleLength - (unsigned long)SizeToDvdLen(uiTitleSize);
 			}
@@ -408,12 +408,12 @@ namespace ckFileSystem
 				return false;
 			}
 
-			CFileTreeNode *pBackupNode = FindVideoNode(FileTree,FST_BACKUP,ulCounter);
+			FileTreeNode *pBackupNode = FindVideoNode(file_tree,FST_BACKUP,ulCounter);
 			if (pBackupNode != NULL)
 				pBackupNode->m_ulDataPadLen = (unsigned long)uiBupLength - (unsigned long)SizeToDvdLen(uiInfoSize);
 
 			// We're done.
-			IfoReader.Close();
+			ifo_reader.Close();
 
 			// Increase the counter.
 			ulCounter++;
@@ -422,18 +422,18 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CDvdVideo::PrintFilePadding(CFileTree &FileTree)
+	bool DvdVideo::PrintFilePadding(FileTree &file_tree)
 	{
-		m_pLog->PrintLine(ckT("CDvdVideo::PrintFilePadding"));
+		m_pLog->PrintLine(ckT("DvdVideo::PrintFilePadding"));
 
-		CFileTreeNode *pVideoTsNode = FileTree.GetNodeFromPath(ckT("/VIDEO_TS"));
+		FileTreeNode *pVideoTsNode = file_tree.GetNodeFromPath(ckT("/VIDEO_TS"));
 		if (pVideoTsNode == NULL)
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to locate VIDEO_TS folder in file tree."));
 			return false;
 		}
 
-		std::vector<CFileTreeNode *>::const_iterator itVideoFile;;
+		std::vector<FileTreeNode *>::const_iterator itVideoFile;;
 		for (itVideoFile = pVideoTsNode->m_Children.begin(); itVideoFile !=
 			pVideoTsNode->m_Children.end(); itVideoFile++)
 		{
@@ -444,10 +444,10 @@ namespace ckFileSystem
 		return true;
 	}
 
-	bool CDvdVideo::CalcFilePadding(CFileTree &FileTree)
+	bool DvdVideo::CalcFilePadding(FileTree &file_tree)
 	{
 		// First locate VIDEO_TS.IFO.
-		CFileTreeNode *pVideoTsNode = FileTree.GetNodeFromPath(ckT("/VIDEO_TS/VIDEO_TS.IFO"));
+		FileTreeNode *pVideoTsNode = file_tree.GetNodeFromPath(ckT("/VIDEO_TS/VIDEO_TS.IFO"));
 		if (pVideoTsNode == NULL)
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to locate VIDEO_TS.IFO in file tree."));
@@ -455,21 +455,21 @@ namespace ckFileSystem
 		}
 
 		// Read and validate VIDEO_TS.INFO.
-		CIfoReader IfoReader(pVideoTsNode->m_FileFullPath.c_str());
-		if (!IfoReader.Open())
+		IfoReader ifo_reader(pVideoTsNode->m_FileFullPath.c_str());
+		if (!ifo_reader.Open())
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to open and identify VIDEO_TS.IFO."));
 			return false;
 		}
 
-		if (IfoReader.GetType() != CIfoReader::IT_VMG)
+		if (ifo_reader.GetType() != IfoReader::IT_VMG)
 		{
 			m_pLog->PrintLine(ckT("  Error: VIDEO_TS.IFO is not of VMG format."));
 			return false;
 		}
 
-		CIfoVmgData VmgData;
-		if (!IfoReader.ReadVmg(VmgData))
+		IfoVmgData VmgData;
+		if (!ifo_reader.ReadVmg(VmgData))
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to read VIDEO_TS.IFO VMG data."));
 			return false;
@@ -484,13 +484,13 @@ namespace ckFileSystem
 		// Sort the titles according to the start of the vectors.
 		std::sort(TitleSetSectors.begin(),TitleSetSectors.end());
 
-		if (!ReadFileSetInfoRoot(FileTree,VmgData,TitleSetSectors))
+		if (!ReadFileSetInfoRoot(file_tree,VmgData,TitleSetSectors))
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to obtain necessary information from VIDEO_TS.* files."));
 			return false;
 		}
 
-		if (!ReadFileSetInfo(FileTree,TitleSetSectors))
+		if (!ReadFileSetInfo(file_tree,TitleSetSectors))
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to obtain necessary information from DVD-Video files."));
 			return false;

@@ -27,7 +27,7 @@
 
 namespace ckFileSystem
 {
-	class CDvdVideo
+	class DvdVideo
 	{
 	private:
 		enum eFileSetType
@@ -42,20 +42,20 @@ namespace ckFileSystem
 
 		ckcore::tuint64 SizeToDvdLen(ckcore::tuint64 uiFileSize);
 
-		CFileTreeNode *FindVideoNode(CFileTree &FileTree,eFileSetType Type,unsigned long ulNumber);
+		FileTreeNode *FindVideoNode(FileTree &file_tree,eFileSetType Type,unsigned long ulNumber);
 
 		bool GetTotalTitlesSize(ckcore::tstring &FilePath,eFileSetType Type,unsigned long ulNumber,
 			ckcore::tuint64 &uiFileSize);
-		bool ReadFileSetInfoRoot(CFileTree &FileTree,CIfoVmgData &VmgData,
+		bool ReadFileSetInfoRoot(FileTree &file_tree,IfoVmgData &VmgData,
 			std::vector<unsigned long> &TitleSetSectors);
-		bool ReadFileSetInfo(CFileTree &FileTree,std::vector<unsigned long> &TitleSetSectors);
+		bool ReadFileSetInfo(FileTree &file_tree,std::vector<unsigned long> &TitleSetSectors);
 
 	public:
-		CDvdVideo(ckcore::Log *pLog);
-		~CDvdVideo();
+		DvdVideo(ckcore::Log *pLog);
+		~DvdVideo();
 
-		bool PrintFilePadding(CFileTree &FileTree);
+		bool PrintFilePadding(FileTree &file_tree);
 
-		bool CalcFilePadding(CFileTree &FileTree);
+		bool CalcFilePadding(FileTree &file_tree);
 	};
 };

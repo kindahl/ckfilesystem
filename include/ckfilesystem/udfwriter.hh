@@ -28,7 +28,7 @@
 
 namespace ckFileSystem
 {
-	class CUdfWriter : public ISectorClient
+	class UdfWriter : public SectorClient
 	{
 	private:
 		// Identifiers of different sector ranges.
@@ -40,14 +40,14 @@ namespace ckFileSystem
 		};
 
 		ckcore::Log *m_pLog;
-		CSectorOutStream *m_pOutStream;
+		SectorOutStream *m_pOutStream;
 		CSectorManager *m_pSectorManager;
 
 		// File system attributes.
 		bool m_bUseFileTimes;
 
 		// Different standard implementations.
-		CUdf *m_pUdf;
+		Udf *m_pUdf;
 
 		// Sizes of different structures.
 		ckcore::tuint64 m_uiPartLength;
@@ -58,30 +58,30 @@ namespace ckFileSystem
 		struct tm m_ImageCreate;
 
 		// File system preparation functions.
-		void CalcLocalNodeLengths(std::vector<CFileTreeNode *> &DirNodeStack,
-			CFileTreeNode *pLocalNode);
-		void CalcNodeLengths(CFileTree &FileTree);
+		void CalcLocalNodeLengths(std::vector<FileTreeNode *> &DirNodeStack,
+			FileTreeNode *pLocalNode);
+		void CalcNodeLengths(FileTree &file_tree);
 
-		ckcore::tuint64 CalcIdentSize(CFileTreeNode *pLocalNode);
-		ckcore::tuint64 CalcNodeSizeTotal(CFileTreeNode *pLocalNode);
-		ckcore::tuint64 CalcNodeLinksTotal(CFileTreeNode *pLocalNode);
-		ckcore::tuint64 CalcParitionLength(CFileTree &FileTree);
+		ckcore::tuint64 CalcIdentSize(FileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcNodeSizeTotal(FileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcNodeLinksTotal(FileTreeNode *pLocalNode);
+		ckcore::tuint64 CalcParitionLength(FileTree &file_tree);
 
 		// Write functions.
-		bool WriteLocalParitionDir(std::deque<CFileTreeNode *> &DirNodeQueue,
-			CFileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent);
-		bool WritePartitionEntries(CFileTree &FileTree);
+		bool WriteLocalParitionDir(std::deque<FileTreeNode *> &DirNodeQueue,
+			FileTreeNode *pLocalNode,unsigned long &ulCurPartSec,ckcore::tuint64 &uiUniqueIdent);
+		bool WritePartitionEntries(FileTree &file_tree);
 
 	public:
-		CUdfWriter(ckcore::Log *pLog,CSectorOutStream *pOutStream,
-			CSectorManager *pSectorManager,CUdf *pUdf,bool bUseFileTimes);
-		~CUdfWriter();
+		UdfWriter(ckcore::Log *pLog,SectorOutStream *pOutStream,
+			CSectorManager *pSectorManager,Udf *pUdf,bool bUseFileTimes);
+		~UdfWriter();
 
 		int AllocateHeader();
-		int AllocatePartition(CFileTree &FileTree);
+		int AllocatePartition(FileTree &file_tree);
 
 		int WriteHeader();
-		int WritePartition(CFileTree &FileTree);
+		int WritePartition(FileTree &file_tree);
 		int WriteTail();
 	};
 };

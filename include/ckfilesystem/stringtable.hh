@@ -38,17 +38,17 @@ namespace ckFileSystem
 		STATUS_WRITEDIRENTRIES
 	};
 
-	class CDynStringTable
+	class DynStringTable
 	{
 	private:
 		std::map<eStrings,const ckcore::tchar *> m_Strings;
 
 	public:
-		CDynStringTable();
+		DynStringTable();
 
 		const ckcore::tchar *GetString(eStrings StringID);
 		void SetString(eStrings StringID,const ckcore::tchar *szString);
 	};
 
-	extern CDynStringTable g_StringTable;
+	extern DynStringTable g_StringTable;
 };

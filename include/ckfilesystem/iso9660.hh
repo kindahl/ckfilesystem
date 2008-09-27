@@ -257,7 +257,7 @@ namespace ckFileSystem
 		For example writing certain descriptors and for generating ISO9660
 		compatible file names.
 	*/
-	class CIso9660
+	class Iso9660
 	{
 	public:
 		enum eInterLevel
@@ -302,8 +302,8 @@ namespace ckFileSystem
 		void InitVolDescSetTerm();
 
 	public:
-		CIso9660();
-		~CIso9660();
+		Iso9660();
+		~Iso9660();
 
 		// Change of internal state functions.
 		void SetVolumeLabel(const ckcore::tchar *szLabel);

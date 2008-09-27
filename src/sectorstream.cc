@@ -23,7 +23,7 @@ namespace ckFileSystem
 	/*
 		COutBufferedStream
 	*/
-	CSectorOutStream::CSectorOutStream(ckcore::OutStream &OutStream,
+	SectorOutStream::SectorOutStream(ckcore::OutStream &OutStream,
 									   unsigned long ulSectorSize) :
 		ckcore::BufferedOutStream(OutStream)
 	{
@@ -32,11 +32,11 @@ namespace ckFileSystem
 		m_uiWritten = 0;
 	}
 
-	CSectorOutStream::~CSectorOutStream()
+	SectorOutStream::~SectorOutStream()
 	{
 	}
 
-	ckcore::tint64 CSectorOutStream::Write(void *pBuffer,ckcore::tuint32 uiCount)
+	ckcore::tint64 SectorOutStream::Write(void *pBuffer,ckcore::tuint32 uiCount)
 	{
 		ckcore::tint64 iResult = ckcore::BufferedOutStream::Write(pBuffer,uiCount);
 		m_uiWritten += iResult;
@@ -53,7 +53,7 @@ namespace ckFileSystem
 	/*
 		Returns the current sector number.
 	*/
-	ckcore::tuint64 CSectorOutStream::GetSector()
+	ckcore::tuint64 SectorOutStream::GetSector()
 	{
 		return m_uiSector;
 	}
@@ -61,7 +61,7 @@ namespace ckFileSystem
 	/*
 		Returns the number of buytes that's allocated in the current sector.
 	*/
-	unsigned long CSectorOutStream::GetAllocated()
+	unsigned long SectorOutStream::GetAllocated()
 	{
 		return (unsigned long)m_uiWritten;
 	}
@@ -69,7 +69,7 @@ namespace ckFileSystem
 	/*
 		Returns the remaining unallocated bytes in the current sector.
 	*/
-	unsigned long CSectorOutStream::GetRemaining()
+	unsigned long SectorOutStream::GetRemaining()
 	{
 		return m_ulSectorSize - (unsigned long)m_uiWritten;
 	}
@@ -77,7 +77,7 @@ namespace ckFileSystem
 	/*
 		Pads the remaining bytes of the current sector with 0s.
 	*/
-	void CSectorOutStream::PadSector()
+	void SectorOutStream::PadSector()
 	{
 		char szTemp[1] = { 0 };
 

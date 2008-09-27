@@ -32,7 +32,7 @@
 															// any of the supported file system extensions.
 namespace ckFileSystem
 {
-	class CIso9660ImportData
+	class Iso9660ImportData
 	{
 	public:
 		unsigned char m_ucFileFlags;
@@ -44,7 +44,7 @@ namespace ckFileSystem
 
 		ckFileSystem::tDirRecordDateTime m_RecDateTime;
 
-		CIso9660ImportData()
+		Iso9660ImportData()
 		{
 			m_ucFileFlags = 0;
 			m_ucFileUnitSize = 0;
@@ -57,7 +57,7 @@ namespace ckFileSystem
 		}
 	};
 
-	class CIso9660Writer : public ISectorClient
+	class Iso9660Writer : public SectorClient
 	{
 	private:
 		// Identifiers of different sector ranges.
@@ -81,13 +81,13 @@ namespace ckFileSystem
 		};
 
 		ckcore::Log *m_pLog;
-		CSectorOutStream *m_pOutStream;
+		SectorOutStream *m_pOutStream;
 		CSectorManager *m_pSectorManager;
 
 		// Different standard implementations.
-		CIso9660 *m_pIso9660;
-		CJoliet *m_pJoliet;
-		CElTorito *m_pElTorito;
+		Iso9660 *m_pIso9660;
+		Joliet *m_pJoliet;
+		ElTorito *m_pElTorito;
 
 		// File system attributes.
 		bool m_bUseJoliet;
@@ -101,48 +101,48 @@ namespace ckFileSystem
 		struct tm m_ImageCreate;
 
 		// File system preparation functions.
-		void MakeUniqueJoliet(CFileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
-		void MakeUniqueIso9660(CFileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
+		void MakeUniqueJoliet(FileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
+		void MakeUniqueIso9660(FileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
 
 		bool CompareStrings(const char *szString1,const ckcore::tchar *szString2,unsigned char ucLength);
 		bool CompareStrings(const unsigned char *pWideString1,const ckcore::tchar *szString2,unsigned char ucLength);
 
-		bool CalcPathTableSize(CFileSet &Files,bool bJolietTable,
+		bool CalcPathTableSize(FileSet &Files,bool bJolietTable,
 			ckcore::tuint64 &uiPathTableSize,ckcore::Progress &Progress);
-		bool CalcLocalDirEntryLength(CFileTreeNode *pLocalNode,bool bJoliet,int iLevel,
+		bool CalcLocalDirEntryLength(FileTreeNode *pLocalNode,bool bJoliet,int iLevel,
 			unsigned long &ulDirLength);
-		bool CalcLocalDirEntriesLength(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-			CFileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress);
-		bool CalcDirEntriesLength(CFileTree &FileTree,ckcore::Progress &Progress,
+		bool CalcLocalDirEntriesLength(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+			FileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress);
+		bool CalcDirEntriesLength(FileTree &file_tree,ckcore::Progress &Progress,
 			ckcore::tuint64 uiStartSector,ckcore::tuint64 &uiLength);
 
 		// Write functions.
-		bool WritePathTable(CFileSet &Files,CFileTree &FileTree,bool bJolietTable,
+		bool WritePathTable(FileSet &Files,FileTree &file_tree,bool bJolietTable,
 			bool bMSBF,ckcore::Progress &Progress);
-		bool WriteSysDirectory(CFileTreeNode *pParent,eSysDirType Type,
+		bool WriteSysDirectory(FileTreeNode *pParent,eSysDirType Type,
 			unsigned long ulDataPos,unsigned long ulDataSize);
-		int WriteLocalDirEntry(ckcore::Progress &Progress,CFileTreeNode *pLocalNode,
+		int WriteLocalDirEntry(ckcore::Progress &Progress,FileTreeNode *pLocalNode,
 			bool bJoliet,int iLevel);
-		int WriteLocalDirEntries(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-			ckcore::Progress &Progress,CFileTreeNode *pLocalNode,int iLevel);
+		int WriteLocalDirEntries(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+			ckcore::Progress &Progress,FileTreeNode *pLocalNode,int iLevel);
 
 	public:
-		CIso9660Writer(ckcore::Log *pLog,CSectorOutStream *pOutStream,
-			CSectorManager *pSectorManager,CIso9660 *pIso9660,CJoliet *pJoliet,
-			CElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet);
-		~CIso9660Writer();
+		Iso9660Writer(ckcore::Log *pLog,SectorOutStream *pOutStream,
+			CSectorManager *pSectorManager,Iso9660 *pIso9660,Joliet *pJoliet,
+			ElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet);
+		~Iso9660Writer();
 
 		int AllocateHeader();
-		int AllocatePathTables(ckcore::Progress &Progress,CFileSet &Files);
-		int AllocateDirEntries(CFileTree &FileTree,ckcore::Progress &Progress);
+		int AllocatePathTables(ckcore::Progress &Progress,FileSet &Files);
+		int AllocateDirEntries(FileTree &file_tree,ckcore::Progress &Progress);
 
-		int WriteHeader(CFileSet &Files,CFileTree &FileTree,ckcore::Progress &Progress);
-		int WritePathTables(CFileSet &Files,CFileTree &FileTree,ckcore::Progress &Progress);
-		int WriteDirEntries(CFileTree &FileTree,ckcore::Progress &Progress);
+		int WriteHeader(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress);
+		int WritePathTables(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress);
+		int WriteDirEntries(FileTree &file_tree,ckcore::Progress &Progress);
 
 		// Helper functions.
-		bool ValidateTreeNode(std::vector<std::pair<CFileTreeNode *,int> > &DirNodeStack,
-			CFileTreeNode *pNode,int iLevel);
-		bool ValidateTree(CFileTree &FileTree);
+		bool ValidateTreeNode(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
+			FileTreeNode *pNode,int iLevel);
+		bool ValidateTree(FileTree &file_tree);
 	};
 };

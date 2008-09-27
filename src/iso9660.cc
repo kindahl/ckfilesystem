@@ -25,246 +25,241 @@
 namespace ckfilesystem
 {
 	/*
-		Identifiers.
+		Global Identifiers.
 	*/
-	const char *g_IdentCD = "CD001";
-	const char *g_IdentElTorito = "EL TORITO SPECIFICATION";
+	const char *iso_ident_cd = "CD001";
+	const char *iso_ident_eltorito = "EL TORITO SPECIFICATION";
 
 	/*
 		Helper Functions.
 	*/
-	void Write721(unsigned char *pOut,unsigned short usValue)		// Least significant byte first.
+	void write721(unsigned char *buffer,unsigned short val)		// Least significant byte first.
 	{
-		pOut[0] = usValue & 0xFF;
-		pOut[1] = (usValue >> 8) & 0xFF;
+		buffer[0] = val & 0xFF;
+		buffer[1] = (val >> 8) & 0xFF;
 	}
 
-	void Write722(unsigned char *pOut,unsigned short usValue)		// Most significant byte first.
+	void write722(unsigned char *buffer,unsigned short val)		// Most significant byte first.
 	{
-		pOut[0] = (usValue >> 8) & 0xFF;
-		pOut[1] = usValue & 0xFF;
+		buffer[0] = (val >> 8) & 0xFF;
+		buffer[1] = val & 0xFF;
 	}
 
-	void Write723(unsigned char *pOut,unsigned short usValue)		// Both-byte orders.
+	void write723(unsigned char *buffer,unsigned short val)		// Both-byte orders.
 	{
-		pOut[3] = pOut[0] = usValue & 0xFF;
-		pOut[2] = pOut[1] = (usValue >> 8) & 0xFF;
+		buffer[3] = buffer[0] = val & 0xFF;
+		buffer[2] = buffer[1] = (val >> 8) & 0xFF;
 	}
 
-	void Write731(unsigned char *pOut,unsigned long ulValue)		// Least significant byte first.
+	void write731(unsigned char *buffer,unsigned long val)		// Least significant byte first.
 	{
-		pOut[0] = (unsigned char)(ulValue & 0xFF);
-		pOut[1] = (unsigned char)((ulValue >> 8) & 0xFF);
-		pOut[2] = (unsigned char)((ulValue >> 16) & 0xFF);
-		pOut[3] = (unsigned char)((ulValue >> 24) & 0xFF);
+		buffer[0] = (unsigned char)(val & 0xFF);
+		buffer[1] = (unsigned char)((val >> 8) & 0xFF);
+		buffer[2] = (unsigned char)((val >> 16) & 0xFF);
+		buffer[3] = (unsigned char)((val >> 24) & 0xFF);
 	}
 
-	void Write732(unsigned char *pOut,unsigned long ulValue)		// Most significant byte first.
+	void write732(unsigned char *buffer,unsigned long val)		// Most significant byte first.
 	{
-		pOut[0] = (unsigned char)((ulValue >> 24) & 0xFF);
-		pOut[1] = (unsigned char)((ulValue >> 16) & 0xFF);
-		pOut[2] = (unsigned char)((ulValue >> 8) & 0xFF);
-		pOut[3] = (unsigned char)(ulValue & 0xFF);
+		buffer[0] = (unsigned char)((val >> 24) & 0xFF);
+		buffer[1] = (unsigned char)((val >> 16) & 0xFF);
+		buffer[2] = (unsigned char)((val >> 8) & 0xFF);
+		buffer[3] = (unsigned char)(val & 0xFF);
 	}
 
-	void Write733(unsigned char *pOut,unsigned long ulValue)		// Both-byte orders.
+	void write733(unsigned char *buffer,unsigned long val)		// Both-byte orders.
 	{
-		pOut[7] = pOut[0] = (unsigned char)(ulValue & 0xFF);
-		pOut[6] = pOut[1] = (unsigned char)((ulValue >> 8) & 0xFF);
-		pOut[5] = pOut[2] = (unsigned char)((ulValue >> 16) & 0xFF);
-		pOut[4] = pOut[3] = (unsigned char)((ulValue >> 24) & 0xFF);
+		buffer[7] = buffer[0] = (unsigned char)(val & 0xFF);
+		buffer[6] = buffer[1] = (unsigned char)((val >> 8) & 0xFF);
+		buffer[5] = buffer[2] = (unsigned char)((val >> 16) & 0xFF);
+		buffer[4] = buffer[3] = (unsigned char)((val >> 24) & 0xFF);
 	}
 
-	void Write72(unsigned char *pOut,unsigned short usValue,bool bMSBF)
+	void write72(unsigned char *buffer,unsigned short val,bool msbf)
 	{
-		if (bMSBF)
-			Write722(pOut,usValue);
+		if (msbf)
+			write722(buffer,val);
 		else
-			Write721(pOut,usValue);
+			write721(buffer,val);
 	}
 
-	void Write73(unsigned char *pOut,unsigned long ulValue,bool bMSBF)
+	void write73(unsigned char *buffer,unsigned long val,bool msbf)
 	{
-		if (bMSBF)
-			Write732(pOut,ulValue);
+		if (msbf)
+			write732(buffer,val);
 		else
-			Write731(pOut,ulValue);
+			write731(buffer,val);
 	}
 
-	unsigned short Read721(unsigned char *pOut)		// Least significant byte first.
+	unsigned short read721(unsigned char *buffer)		// Least significant byte first.
 	{
-		return ((unsigned short)pOut[1] << 8) | pOut[0];
+		return ((unsigned short)buffer[1] << 8) | buffer[0];
 	}
 
-	unsigned short Read722(unsigned char *pOut)		// Most significant byte first.
+	unsigned short read722(unsigned char *buffer)		// Most significant byte first.
 	{
-		return ((unsigned short)pOut[0] << 8) | pOut[1];
+		return ((unsigned short)buffer[0] << 8) | buffer[1];
 	}
 
-	unsigned short Read723(unsigned char *pOut)		// Both-byte orders.
+	unsigned short read723(unsigned char *buffer)		// Both-byte orders.
 	{
-		return Read721(pOut);
+		return read721(buffer);
 	}
 
-	unsigned long Read731(unsigned char *pOut)			// Least significant byte first.
+	unsigned long read731(unsigned char *buffer)			// Least significant byte first.
 	{
-		return ((unsigned long)pOut[3] << 24) | ((unsigned long)pOut[2] << 16) |
-			((unsigned long)pOut[1] << 8) | pOut[0];
+		return ((unsigned long)buffer[3] << 24) | ((unsigned long)buffer[2] << 16) |
+			((unsigned long)buffer[1] << 8) | buffer[0];
 	}
 
-	unsigned long Read732(unsigned char *pOut)			// Most significant byte first.
+	unsigned long read732(unsigned char *buffer)			// Most significant byte first.
 	{
-		return ((unsigned long)pOut[0] << 24) | ((unsigned long)pOut[1] << 16) |
-			((unsigned long)pOut[2] << 8) | pOut[3];
+		return ((unsigned long)buffer[0] << 24) | ((unsigned long)buffer[1] << 16) |
+			((unsigned long)buffer[2] << 8) | buffer[3];
 	}
 
-	unsigned long Read733(unsigned char *pOut)			// Both-byte orders.
+	unsigned long read733(unsigned char *buffer)			// Both-byte orders.
 	{
-		return Read731(pOut);
+		return read731(buffer);
 	}
 
-	unsigned long BytesToSector(unsigned long ulBytes)
+	unsigned long bytes_to_sec(unsigned long bytes)
 	{
-		if (ulBytes == 0)
+		if (bytes == 0)
 			return 0;
 
-		unsigned long ulSectors = 1;
-
-		while (ulBytes > ISO9660_SECTOR_SIZE)
+		unsigned long sectors = 1;
+		while (bytes > ISO9660_SECTOR_SIZE)
 		{
-			ulBytes -= ISO9660_SECTOR_SIZE;
-			ulSectors++;
+			bytes -= ISO9660_SECTOR_SIZE;
+			sectors++;
 		}
 
-		return ulSectors;
+		return sectors;
 	}
 
-	unsigned long BytesToSector(ckcore::tuint64 uiBytes)
+	unsigned long bytes_to_sec(ckcore::tuint64 bytes)
 	{
-		if (uiBytes == 0)
+		if (bytes == 0)
 			return 0;
 
-		unsigned long ulSectors = 1;
-
-		while (uiBytes > ISO9660_SECTOR_SIZE)
+		unsigned long sectors = 1;
+		while (bytes > ISO9660_SECTOR_SIZE)
 		{
-			uiBytes -= ISO9660_SECTOR_SIZE;
-			ulSectors++;
+			bytes -= ISO9660_SECTOR_SIZE;
+			sectors++;
 		}
 
-		return ulSectors;
+		return sectors;
 	}
 
-	ckcore::tuint64 BytesToSector64(ckcore::tuint64 uiBytes)
+	ckcore::tuint64 bytes_to_sec64(ckcore::tuint64 bytes)
 	{
-		if (uiBytes == 0)
+		if (bytes == 0)
 			return 0;
 
-		ckcore::tuint64 uiSectors = 1;
-
-		while (uiBytes > ISO9660_SECTOR_SIZE)
+		ckcore::tuint64 sectors = 1;
+		while (bytes > ISO9660_SECTOR_SIZE)
 		{
-			uiBytes -= ISO9660_SECTOR_SIZE;
-			uiSectors++;
+			bytes -= ISO9660_SECTOR_SIZE;
+			sectors++;
 		}
 
-		return uiSectors;
+		return sectors;
 	}
 
-	void MakeDateTime(struct tm &Time,tiso_voldesc_datetime &DateTime)
+	void iso_make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time)
 	{
-		char szBuffer[5];
-		sprintf(szBuffer,"%.4u",Time.tm_year + 1900);
-		memcpy(&DateTime.year,szBuffer,4);
+		char buffer[5];
+		sprintf(buffer,"%.4u",time.tm_year + 1900);
+		memcpy(&iso_time.year,buffer,4);
 
-		sprintf(szBuffer,"%.2u",Time.tm_mon + 1);
-		memcpy(&DateTime.mon,szBuffer,2);
+		sprintf(buffer,"%.2u",time.tm_mon + 1);
+		memcpy(&iso_time.mon,buffer,2);
 
-		sprintf(szBuffer,"%.2u",Time.tm_mday);
-		memcpy(&DateTime.day,szBuffer,2);
+		sprintf(buffer,"%.2u",time.tm_mday);
+		memcpy(&iso_time.day,buffer,2);
 
-		sprintf(szBuffer,"%.2u",Time.tm_hour);
-		memcpy(&DateTime.hour,szBuffer,2);
+		sprintf(buffer,"%.2u",time.tm_hour);
+		memcpy(&iso_time.hour,buffer,2);
 
-		sprintf(szBuffer,"%.2u",Time.tm_min);
-		memcpy(&DateTime.min,szBuffer,2);
+		sprintf(buffer,"%.2u",time.tm_min);
+		memcpy(&iso_time.min,buffer,2);
 
-        if (Time.tm_sec > 59)
-            sprintf(szBuffer,"%.2u",59);
+        if (time.tm_sec > 59)
+            sprintf(buffer,"%.2u",59);
         else
-            sprintf(szBuffer,"%.2u",Time.tm_sec);
-		memcpy(&DateTime.sec,szBuffer,2);
+            sprintf(buffer,"%.2u",time.tm_sec);
+		memcpy(&iso_time.sec,buffer,2);
 
-		sprintf(szBuffer,"%.2u",0);
-		memcpy(&DateTime.hundreds,szBuffer,2);
+		sprintf(buffer,"%.2u",0);
+		memcpy(&iso_time.hundreds,buffer,2);
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.zone = -(unsigned char)(tzi.Bias/15);
+		iso_time.zone = -(unsigned char)(tzi.Bias/15);
 #else
         // FIXME: Add support for Unix time zone information.
-        DateTime.zone = 0;
+        iso_time.zone = 0;
 #endif
 	}
 
-	void MakeDateTime(struct tm &Time,tiso_dir_record_datetime &DateTime)
+	void iso_make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time)
 	{
-		DateTime.year = (unsigned char)Time.tm_year;
-		DateTime.mon = (unsigned char)Time.tm_mon + 1;
-		DateTime.day = (unsigned char)Time.tm_mday;
-		DateTime.hour = (unsigned char)Time.tm_hour;
-		DateTime.min = (unsigned char)Time.tm_min;
-        DateTime.sec = Time.tm_sec > 59 ? 59 : (unsigned char)Time.tm_sec;
+		iso_time.year = (unsigned char)time.tm_year;
+		iso_time.mon = (unsigned char)time.tm_mon + 1;
+		iso_time.day = (unsigned char)time.tm_mday;
+		iso_time.hour = (unsigned char)time.tm_hour;
+		iso_time.min = (unsigned char)time.tm_min;
+        iso_time.sec = time.tm_sec > 59 ? 59 : (unsigned char)time.tm_sec;
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.zone = -(unsigned char)(tzi.Bias/15);
+		iso_time.zone = -(unsigned char)(tzi.Bias/15);
 #else
         // FIXME: Add support for UNIX time zone information.
-        DateTime.zone = 0;
+        iso_time.zone = 0;
 #endif
 	}
 
-	void MakeDateTime(unsigned short usDate,unsigned short usTime,tiso_dir_record_datetime &DateTime)
+	void iso_make_datetime(unsigned short date,unsigned short time,
+						   tiso_dir_record_datetime &iso_time)
 	{
-		DateTime.year = ((usDate >> 9) & 0x7F) + 80;
-		DateTime.mon = (usDate >> 5) & 0x0F;
-		DateTime.day = usDate & 0x1F;
-		DateTime.hour = (usTime >> 11) & 0x1F;
-		DateTime.min = (usTime >> 5) & 0x3F;
-		DateTime.sec = (usTime & 0x1F) << 1;
+		iso_time.year = ((date >> 9) & 0x7F) + 80;
+		iso_time.mon = (date >> 5) & 0x0F;
+		iso_time.day = date & 0x1F;
+		iso_time.hour = (time >> 11) & 0x1F;
+		iso_time.min = (time >> 5) & 0x3F;
+		iso_time.sec = (time & 0x1F) << 1;
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
 		GetTimeZoneInformation(&tzi);
-		DateTime.zone = -(unsigned char)(tzi.Bias/15);
+		iso_time.zone = -(unsigned char)(tzi.Bias/15);
 #else
         // FIXME: Add support for Unix time zone information.
-        DateTime.zone = 0;
+        iso_time.zone = 0;
 #endif
 	}
 
-	void MakeDosDateTime(tiso_dir_record_datetime &DateTime,unsigned short &usDate,unsigned short &usTime)
+	void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,unsigned short &date,unsigned short &time)
 	{
-		usDate = ((DateTime.year - 80) & 0x7F) << 9;
-		usDate |= (DateTime.mon & 0x7F) << 5;
-		usDate |= (DateTime.day & 0x1F);
+		date = ((iso_time.year - 80) & 0x7F) << 9;
+		date |= (iso_time.mon & 0x7F) << 5;
+		date |= (iso_time.day & 0x1F);
 
-		usTime = (DateTime.hour & 0x1F) << 11;
-		usTime |= (DateTime.min & 0x3F) << 5;
-		usTime |= (DateTime.sec & 0x1F) >> 1;
+		time = (iso_time.hour & 0x1F) << 11;
+		time |= (iso_time.min & 0x3F) << 5;
+		time |= (iso_time.sec & 0x1F) >> 1;
 	}
 
-	Iso9660::Iso9660()
+	Iso9660::Iso9660() : relax_max_dir_level_(false),inc_file_ver_info_(true),
+		inter_level_(LEVEL_1)
 	{
-		m_InterLevel = LEVEL_1;
-		m_bRelaxMaxDirLevel = false;
-		m_bIncFileVerInfo = true;	// Include ";1" file version information.
-
-		Initiso_voldesc_primary();
-		Initiso_voldesc_setterm();
+		InitVolDescPrimary();
+		InitVolDescSetTerm();
 	}
 
 	Iso9660::~Iso9660()
@@ -276,13 +271,13 @@ namespace ckfilesystem
 	*/
 	char Iso9660::MakeCharA(char c)
 	{
-		char cResult = toupper(c);
+		char res = toupper(c);
 
 		// Make sure that it's a valid character, otherwise return '_'.
-		if ((cResult >= 0x20 && cResult <= 0x22) ||
-			(cResult >= 0x25 && cResult <= 0x39) ||
-			(cResult >= 0x41 && cResult <= 0x5A) || cResult == 0x5F)
-			return cResult;
+		if ((res >= 0x20 && res <= 0x22) ||
+			(res >= 0x25 && res <= 0x39) ||
+			(res >= 0x41 && res <= 0x5A) || res == 0x5F)
+			return res;
 
 		return '_';
 	}
@@ -292,12 +287,12 @@ namespace ckfilesystem
 	*/
 	char Iso9660::MakeCharD(char c)
 	{
-		char cResult = toupper(c);
+		char res = toupper(c);
 
 		// Make sure that it's a valid character, otherwise return '_'.
-		if ((cResult >= 0x30 && cResult <= 0x39) ||
-			(cResult >= 0x41 && cResult <= 0x5A) || cResult == 0x5F)
-			return cResult;
+		if ((res >= 0x30 && res <= 0x39) ||
+			(res >= 0x41 && res <= 0x5A) || res == 0x5F)
+			return res;
 
 		return '_';
 	}
@@ -305,13 +300,12 @@ namespace ckfilesystem
     /*
      * Fins the last specified delimiter in the specified string.
      */
-    int Iso9660::LastDelimiterA(const char *szString,char cDelimiter)
+    int Iso9660::LastDelimiterA(const char *str,char delim)
     {    
-        int iLength = (int)strlen(szString);
-
-        for (int i = iLength - 1; i >= 0; i--)
+        int len = (int)strlen(str);
+        for (int i = len - 1; i >= 0; i--)
         {
-            if (szString[i] == cDelimiter)
+            if (str[i] == delim)
                 return i;
         }
 
@@ -319,23 +313,23 @@ namespace ckfilesystem
     }
 
 	/*
-		Performs a memory copy from szSource to szTarget, all characters
-		in szTarget will be A-characters.
+		Performs a memory copy from source to target, all characters
+		in target will be A-characters.
 	*/
-	void Iso9660::MemStrCopyA(unsigned char *szTarget,const char *szSource,size_t iLength)
+	void Iso9660::MemStrCopyA(unsigned char *target,const char *source,size_t len)
 	{
-		for (size_t i = 0; i < iLength; i++)
-			szTarget[i] = MakeCharA(szSource[i]);
+		for (size_t i = 0; i < len; i++)
+			target[i] = MakeCharA(source[i]);
 	}
 
 	/*
-		Performs a memory copy from szSource to szTarget, all characters
-		in szTarget will be D-characters.
+		Performs a memory copy from source to target, all characters
+		in target will be D-characters.
 	*/
-	void Iso9660::MemStrCopyD(unsigned char *szTarget,const char *szSource,size_t iLength)
+	void Iso9660::MemStrCopyD(unsigned char *target,const char *source,size_t len)
 	{
-		for (size_t i = 0; i < iLength; i++)
-			szTarget[i] = MakeCharD(szSource[i]);
+		for (size_t i = 0; i < len; i++)
+			target[i] = MakeCharD(source[i]);
 	}
 
 	/*
@@ -344,465 +338,467 @@ namespace ckfilesystem
 		 - A file extension of at most 3 characters.
 		 - A file name of at most 8 characters.
 	*/
-	unsigned char Iso9660::WriteFileNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
+	unsigned char Iso9660::WriteFileNameL1(unsigned char *buffer,const ckcore::tchar *file_name)
 	{
-		int iFileNameLen = (int)ckcore::string::astrlen(szFileName);
-		unsigned char ucLength = 0;
+		int file_name_len = (int)ckcore::string::astrlen(file_name);
+		unsigned char len = 0;
 
-		char *szMultiFileName;
+		char *ansi_file_name;
 	#ifdef _UNICODE
-		szMultiFileName = new char [iFileNameLen + 1];
-		ckcore::string::utf16_to_ansi(szFileName,szMultiFileName,iFileNameLen + 1);
+		ansi_file_name = new char [file_name_len + 1];
+		ckcore::string::utf16_to_ansi(file_name,ansi_file_name,file_name_len + 1);
 	#else
-		szMultiFileName = (char *)szFileName;
+		ansi_file_name = (char *)file_name;
 	#endif
 
-		int iExtDelimiter = LastDelimiterA(szMultiFileName,'.');
-		if (iExtDelimiter == -1)
+		int ext_delim = LastDelimiterA(ansi_file_name,'.');
+		if (ext_delim == -1)
 		{
-			size_t iMax = iFileNameLen < 8 ? iFileNameLen : 8;
-			for (size_t i = 0; i < iMax; i++)
-				pOutBuffer[i] = MakeCharD(szMultiFileName[i]);
+			size_t max = file_name_len < 8 ? file_name_len : 8;
+			for (size_t i = 0; i < max; i++)
+				buffer[i] = MakeCharD(ansi_file_name[i]);
 			
-			ucLength = (unsigned char)iMax;
-			pOutBuffer[iMax] = '\0';
+			len = (unsigned char)max;
+			buffer[max] = '\0';
 		}
 		else
 		{
-			int iExtLen = (int)iFileNameLen - iExtDelimiter - 1;
-			if (iExtLen > 3)	// Level one support a maxmimum file extension of length 3.
-				iExtLen = 3;
+			int ext_len = (int)file_name_len - ext_delim - 1;
+			if (ext_len > 3)	// Level one support a maxmimum file extension of length 3.
+				ext_len = 3;
 
-			size_t iMax = iExtDelimiter < 8 ? iExtDelimiter : 8;
-			for (size_t i = 0; i < iMax; i++)
-				pOutBuffer[i] = MakeCharD(szMultiFileName[i]);
+			size_t max = ext_delim < 8 ? ext_delim : 8;
+			for (size_t i = 0; i < max; i++)
+				buffer[i] = MakeCharD(ansi_file_name[i]);
 
-			pOutBuffer[iMax] = '.';
+			buffer[max] = '.';
 
 			// Copy the extension.
-			for (size_t i = iMax + 1; i < iMax + iExtLen + 1; i++)
-				pOutBuffer[i] = MakeCharD(szMultiFileName[++iExtDelimiter]);
+			for (size_t i = max + 1; i < max + ext_len + 1; i++)
+				buffer[i] = MakeCharD(ansi_file_name[++ext_delim]);
 
-			ucLength = (unsigned char)iMax + (unsigned char)iExtLen + 1;
-			pOutBuffer[ucLength] = '\0';
+			len = (unsigned char)max + (unsigned char)ext_len + 1;
+			buffer[len] = '\0';
 		}
 
 	#ifdef _UNICODE
-		delete [] szMultiFileName;
+		delete [] ansi_file_name;
 	#endif
 
-		return ucLength;
+		return len;
 	}
 
-	unsigned char Iso9660::WriteFileNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,
-												 int iMaxLen)
+	unsigned char Iso9660::WriteFileNameGeneric(unsigned char *buffer,const ckcore::tchar *file_name,
+												int max_len)
 	{
-		int iFileNameLen = (int)ckcore::string::astrlen(szFileName);
-		unsigned char ucLength = 0;
+		int file_name_len = (int)ckcore::string::astrlen(file_name);
+		unsigned char len = 0;
 
 	#ifdef _UNICODE
-		char *szMultiFileName = new char [iFileNameLen + 1];
-		ckcore::string::utf16_to_ansi(szFileName,szMultiFileName,iFileNameLen + 1);
+		char *ansi_file_name = new char [file_name_len + 1];
+		ckcore::string::utf16_to_ansi(file_name,ansi_file_name,file_name_len + 1);
 	#else
-		char *szMultiFileName = (char *)szFileName;
+		char *ansi_file_name = (char *)file_name;
 	#endif
 
-		int iExtDelimiter = LastDelimiterA(szMultiFileName,'.');
-		if (iExtDelimiter == -1)
+		int ext_delim = LastDelimiterA(ansi_file_name,'.');
+		if (ext_delim == -1)
 		{
-			size_t iMax = iFileNameLen < iMaxLen ? iFileNameLen : iMaxLen;
-			for (size_t i = 0; i < iMax; i++)
-				pOutBuffer[i] = MakeCharD(szMultiFileName[i]);
+			size_t max = file_name_len < max_len ? file_name_len : max_len;
+			for (size_t i = 0; i < max; i++)
+				buffer[i] = MakeCharD(ansi_file_name[i]);
 			
-			ucLength = (unsigned char)iMax;
-			pOutBuffer[iMax] = '\0';
+			len = (unsigned char)max;
+			buffer[max] = '\0';
 		}
 		else
 		{
-			int iExtLen = (int)iFileNameLen - iExtDelimiter - 1;
-			if (iExtLen > iMaxLen - 1)	// The file can at most contain an extension of length iMaxLen - 1 characters.
-				iExtLen = iMaxLen - 1;
+			int ext_len = (int)file_name_len - ext_delim - 1;
+			if (ext_len > max_len - 1)	// The file can at most contain an extension of length max_len - 1 characters.
+				ext_len = max_len - 1;
 
-			size_t iMax = iExtDelimiter < (iMaxLen - iExtLen) ? iExtDelimiter : (iMaxLen - 1 - iExtLen);
-			for (size_t i = 0; i < iMax; i++)
-				pOutBuffer[i] = MakeCharD(szMultiFileName[i]);
+			size_t max = ext_delim < (max_len - ext_len) ? ext_delim : (max_len - 1 - ext_len);
+			for (size_t i = 0; i < max; i++)
+				buffer[i] = MakeCharD(ansi_file_name[i]);
 
-			pOutBuffer[iMax] = '.';
+			buffer[max] = '.';
 
 			// Copy the extension.
-			for (size_t i = iMax + 1; i < iMax + iExtLen + 1; i++)
-				pOutBuffer[i] = MakeCharD(szMultiFileName[++iExtDelimiter]);
+			for (size_t i = max + 1; i < max + ext_len + 1; i++)
+				buffer[i] = MakeCharD(ansi_file_name[++ext_delim]);
 
-			ucLength = (unsigned char)iMax + (unsigned char)iExtLen + 1;
-			pOutBuffer[ucLength] = '\0';
+			len = (unsigned char)max + (unsigned char)ext_len + 1;
+			buffer[len] = '\0';
 		}
 
 	#ifdef _UNICODE
-		delete [] szMultiFileName;
+		delete [] ansi_file_name;
 	#endif
 
-		return ucLength;
+		return len;
 	}
 
 	/*
 		Converts the input file name to a valid ISO level 2 and above file name. This means:
 		 - A maximum of 31 characters.
 	*/
-	unsigned char Iso9660::WriteFileNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
+	unsigned char Iso9660::WriteFileNameL2(unsigned char *buffer,const ckcore::tchar *file_name)
 	{
-		return WriteFileNameGeneric(pOutBuffer,szFileName,31);
+		return WriteFileNameGeneric(buffer,file_name,31);
 	}
 
-	unsigned char Iso9660::WriteFileName1999(unsigned char *pOutBuffer,const ckcore::tchar *szFileName)
+	unsigned char Iso9660::WriteFileName1999(unsigned char *buffer,const ckcore::tchar *file_name)
 	{
-		return WriteFileNameGeneric(pOutBuffer,szFileName,ISO9660_MAX_NAMELEN_1999);
+		return WriteFileNameGeneric(buffer,file_name,ISO9660_MAX_NAMELEN_1999);
 	}
 
-	unsigned char Iso9660::WriteDirNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szDirName)
+	unsigned char Iso9660::WriteDirNameL1(unsigned char *buffer,const ckcore::tchar *dir_name)
 	{
-		int iDirNameLen = (int)ckcore::string::astrlen(szDirName);
-		int iMax = iDirNameLen < 8 ? iDirNameLen : 8;
+		int dir_name_len = (int)ckcore::string::astrlen(dir_name);
+		int max = dir_name_len < 8 ? dir_name_len : 8;
 
 	#ifdef _UNICODE
-		char *szMultiDirName = new char [iDirNameLen + 1];
-		ckcore::string::utf16_to_ansi(szDirName,szMultiDirName,iDirNameLen + 1);
+		char *ansi_dir_name = new char [dir_name_len + 1];
+		ckcore::string::utf16_to_ansi(dir_name,ansi_dir_name,dir_name_len + 1);
 	#else
-		char *szMultiDirName = (char *)szDirName;
+		char *ansi_dir_name = (char *)dir_name;
 	#endif
 
-		for (size_t i = 0; i < (size_t)iMax; i++)
-			pOutBuffer[i] = MakeCharD(szMultiDirName[i]);
+		for (size_t i = 0; i < (size_t)max; i++)
+			buffer[i] = MakeCharD(ansi_dir_name[i]);
 			
-		pOutBuffer[iMax] = '\0';
+		buffer[max] = '\0';
 
 	#ifdef _UNICODE
-		delete [] szMultiDirName;
+		delete [] ansi_dir_name;
 	#endif
 
-		return iMax;
+		return max;
 	}
 
-	unsigned char Iso9660::WriteDirNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szDirName,
-												int iMaxLen)
+	unsigned char Iso9660::WriteDirNameGeneric(unsigned char *buffer,const ckcore::tchar *dir_name,
+											   int max_len)
 	{
-		int iDirNameLen = (int)ckcore::string::astrlen(szDirName);
-		int iMax = iDirNameLen < iMaxLen ? iDirNameLen : iMaxLen;
+		int dir_name_len = (int)ckcore::string::astrlen(dir_name);
+		int max = dir_name_len < max_len ? dir_name_len : max_len;
 
 	#ifdef _UNICODE
-		char *szMultiDirName = new char [iDirNameLen + 1];
-		ckcore::string::utf16_to_ansi(szDirName,szMultiDirName,iDirNameLen + 1);
+		char *ansi_dir_name = new char [dir_name_len + 1];
+		ckcore::string::utf16_to_ansi(dir_name,ansi_dir_name,dir_name_len + 1);
 	#else
-		char *szMultiDirName = (char *)szDirName;
+		char *ansi_dir_name = (char *)dir_name;
 	#endif
 
-		for (size_t i = 0; i < (size_t)iMax; i++)
-			pOutBuffer[i] = MakeCharD(szMultiDirName[i]);
+		for (size_t i = 0; i < (size_t)max; i++)
+			buffer[i] = MakeCharD(ansi_dir_name[i]);
 			
-		pOutBuffer[iMax] = '\0';
+		buffer[max] = '\0';
 
 	#ifdef _UNICODE
-		delete [] szMultiDirName;
+		delete [] ansi_dir_name;
 	#endif
 
-		return iMax;
+		return max;
 	}
 
-	unsigned char Iso9660::WriteDirNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szDirName)
+	unsigned char Iso9660::WriteDirNameL2(unsigned char *buffer,const ckcore::tchar *dir_name)
 	{
-		return WriteDirNameGeneric(pOutBuffer,szDirName,31);
+		return WriteDirNameGeneric(buffer,dir_name,31);
 	}
 
-	unsigned char Iso9660::WriteDirName1999(unsigned char *pOutBuffer,const ckcore::tchar *szDirName)
+	unsigned char Iso9660::WriteDirName1999(unsigned char *buffer,const ckcore::tchar *dir_name)
 	{
-		return WriteDirNameGeneric(pOutBuffer,szDirName,ISO9660_MAX_NAMELEN_1999);
+		return WriteDirNameGeneric(buffer,dir_name,ISO9660_MAX_NAMELEN_1999);
 	}
 
-	unsigned char Iso9660::CalcFileNameLenL1(const ckcore::tchar *szFileName)
+	unsigned char Iso9660::CalcFileNameLenL1(const ckcore::tchar *file_name)
 	{
 		unsigned char szTempBuffer[13];
-		return WriteFileNameL1(szTempBuffer,szFileName);
+		return WriteFileNameL1(szTempBuffer,file_name);
 	}
 
-	unsigned char Iso9660::CalcFileNameLenL2(const ckcore::tchar *szFileName)
+	unsigned char Iso9660::CalcFileNameLenL2(const ckcore::tchar *file_name)
 	{
-		size_t iFileNameLen = ckcore::string::astrlen(szFileName);
-		if (iFileNameLen < 31)
-			return (unsigned char)iFileNameLen;
+		size_t file_name_len = ckcore::string::astrlen(file_name);
+		if (file_name_len < 31)
+			return (unsigned char)file_name_len;
 
 		return 31;
 	}
 
-	unsigned char Iso9660::CalcFileNameLen1999(const ckcore::tchar *szFileName)
+	unsigned char Iso9660::CalcFileNameLen1999(const ckcore::tchar *file_name)
 	{
-		size_t iFileNameLen = ckcore::string::astrlen(szFileName);
-		if (iFileNameLen < ISO9660_MAX_NAMELEN_1999)
-			return (unsigned char)iFileNameLen;
+		size_t file_name_len = ckcore::string::astrlen(file_name);
+		if (file_name_len < ISO9660_MAX_NAMELEN_1999)
+			return (unsigned char)file_name_len;
 
 		return ISO9660_MAX_NAMELEN_1999;
 	}
 
-	unsigned char Iso9660::CalcDirNameLenL1(const ckcore::tchar *szDirName)
+	unsigned char Iso9660::CalcDirNameLenL1(const ckcore::tchar *dir_name)
 	{
-		size_t iDirNameLen = ckcore::string::astrlen(szDirName);
-		if (iDirNameLen < 8)
-			return (unsigned char)iDirNameLen;
+		size_t dir_name_len = ckcore::string::astrlen(dir_name);
+		if (dir_name_len < 8)
+			return (unsigned char)dir_name_len;
 
 		return 8;
 	}
 
-	unsigned char Iso9660::CalcDirNameLenL2(const ckcore::tchar *szDirName)
+	unsigned char Iso9660::CalcDirNameLenL2(const ckcore::tchar *dir_name)
 	{
-		size_t iDirNameLen = ckcore::string::astrlen(szDirName);
-		if (iDirNameLen < 31)
-			return (unsigned char)iDirNameLen;
+		size_t dir_name_len = ckcore::string::astrlen(dir_name);
+		if (dir_name_len < 31)
+			return (unsigned char)dir_name_len;
 
 		return 31;
 	}
 
-	unsigned char Iso9660::CalcDirNameLen1999(const ckcore::tchar *szDirName)
+	unsigned char Iso9660::CalcDirNameLen1999(const ckcore::tchar *dir_name)
 	{
-		size_t iDirNameLen = ckcore::string::astrlen(szDirName);
-		if (iDirNameLen < ISO9660_MAX_NAMELEN_1999)
-			return (unsigned char)iDirNameLen;
+		size_t dir_name_len = ckcore::string::astrlen(dir_name);
+		if (dir_name_len < ISO9660_MAX_NAMELEN_1999)
+			return (unsigned char)dir_name_len;
 
 		return ISO9660_MAX_NAMELEN_1999;
 	}
 
-	void Iso9660::Initiso_voldesc_primary()
+	void Iso9660::InitVolDescPrimary()
 	{
 		// Clear memory.
-		memset(&m_VolDescPrimary,0,sizeof(m_VolDescPrimary));
-		memset(m_VolDescPrimary.sys_ident,0x20,sizeof(m_VolDescPrimary.sys_ident));
-		memset(m_VolDescPrimary.vol_ident,0x20,sizeof(m_VolDescPrimary.vol_ident));
-		memset(m_VolDescPrimary.volset_ident,0x20,sizeof(m_VolDescPrimary.volset_ident));
-		memset(m_VolDescPrimary.publ_ident,0x20,sizeof(m_VolDescPrimary.publ_ident));
-		memset(m_VolDescPrimary.prep_ident,0x20,sizeof(m_VolDescPrimary.prep_ident));
-		memset(m_VolDescPrimary.app_ident,0x20,sizeof(m_VolDescPrimary.app_ident));
-		memset(m_VolDescPrimary.copy_file_ident,0x20,sizeof(m_VolDescPrimary.copy_file_ident));
-		memset(m_VolDescPrimary.abst_file_ident,0x20,sizeof(m_VolDescPrimary.abst_file_ident));
-		memset(m_VolDescPrimary.bibl_file_ident,0x20,sizeof(m_VolDescPrimary.bibl_file_ident));
+		memset(&voldesc_primary_,0,sizeof(voldesc_primary_));
+		memset(voldesc_primary_.sys_ident,0x20,sizeof(voldesc_primary_.sys_ident));
+		memset(voldesc_primary_.vol_ident,0x20,sizeof(voldesc_primary_.vol_ident));
+		memset(voldesc_primary_.volset_ident,0x20,sizeof(voldesc_primary_.volset_ident));
+		memset(voldesc_primary_.publ_ident,0x20,sizeof(voldesc_primary_.publ_ident));
+		memset(voldesc_primary_.prep_ident,0x20,sizeof(voldesc_primary_.prep_ident));
+		memset(voldesc_primary_.app_ident,0x20,sizeof(voldesc_primary_.app_ident));
+		memset(voldesc_primary_.copy_file_ident,0x20,sizeof(voldesc_primary_.copy_file_ident));
+		memset(voldesc_primary_.abst_file_ident,0x20,sizeof(voldesc_primary_.abst_file_ident));
+		memset(voldesc_primary_.bibl_file_ident,0x20,sizeof(voldesc_primary_.bibl_file_ident));
 
 		// Set primary volume descriptor header.
-		m_VolDescPrimary.type = VOLDESCTYPE_PRIM_VOL_DESC;
-		m_VolDescPrimary.version = 1;
-		m_VolDescPrimary.file_struct_ver = 1;
-		memcpy(m_VolDescPrimary.ident,g_IdentCD,sizeof(m_VolDescPrimary.ident));	
+		voldesc_primary_.type = VOLDESCTYPE_PRIM_VOL_DESC;
+		voldesc_primary_.version = 1;
+		voldesc_primary_.file_struct_ver = 1;
+		memcpy(voldesc_primary_.ident,iso_ident_cd,sizeof(voldesc_primary_.ident));	
 
 		// Set the root directory record.
-		m_VolDescPrimary.root_dir_record.dir_record_len = 34;
-		m_VolDescPrimary.root_dir_record.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
-		m_VolDescPrimary.root_dir_record.file_ident_len = 1;	// One byte is always allocated in the tiso_dir_record structure.
+		voldesc_primary_.root_dir_record.dir_record_len = 34;
+		voldesc_primary_.root_dir_record.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
+		voldesc_primary_.root_dir_record.file_ident_len = 1;	// One byte is always allocated in the tiso_dir_record structure.
 
 		// Set application identifier.
-		memset(m_VolDescPrimary.app_data,0x20,sizeof(m_VolDescPrimary.app_data));
-		char szAppIdentifier[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,
+		memset(voldesc_primary_.app_data,0x20,sizeof(voldesc_primary_.app_data));
+		char app_ident[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,
 			0x52,0x44,0x45,0x52,0x20,0x28,0x43,0x29,0x20,0x32,0x30,0x30,0x36,0x2D,
 			0x32,0x30,0x30,0x38,0x20,0x43,0x48,0x52,0x49,0x53,0x54,0x49,0x41,0x4E,
 			0x20,0x4B,0x49,0x4E,0x44,0x41,0x48,0x4C };
-		memcpy(m_VolDescPrimary.app_ident,szAppIdentifier,45);
+		memcpy(voldesc_primary_.app_ident,app_ident,45);
 	}
 
-	void Iso9660::Initiso_voldesc_setterm()
+	void Iso9660::InitVolDescSetTerm()
 	{
 		// Clear memory.
-		memset(&m_VolDescSetTerm,0,sizeof(m_VolDescSetTerm));
+		memset(&voldesc_setterm_,0,sizeof(voldesc_setterm_));
 
 		// Set volume descriptor set terminator header.
-		m_VolDescSetTerm.type = VOLDESCTYPE_VOL_DESC_SET_TERM;
-		m_VolDescSetTerm.version = 1;
-		memcpy(m_VolDescSetTerm.ident,g_IdentCD,sizeof(m_VolDescSetTerm.ident));
+		voldesc_setterm_.type = VOLDESCTYPE_VOL_DESC_SET_TERM;
+		voldesc_setterm_.version = 1;
+		memcpy(voldesc_setterm_.ident,iso_ident_cd,sizeof(voldesc_setterm_.ident));
 	}
 
-	void Iso9660::SetVolumeLabel(const ckcore::tchar *szLabel)
+	void Iso9660::SetVolumeLabel(const ckcore::tchar *label)
 	{
-		size_t iLabelLen = ckcore::string::astrlen(szLabel);
-		size_t iLabelCopyLen = iLabelLen < 32 ? iLabelLen : 32;
+		size_t label_len = ckcore::string::astrlen(label);
+		size_t label_copy_len = label_len < 32 ? label_len : 32;
 
-		memset(m_VolDescPrimary.vol_ident,0x20,sizeof(m_VolDescPrimary.vol_ident));
+		memset(voldesc_primary_.vol_ident,0x20,sizeof(voldesc_primary_.vol_ident));
 
 	#ifdef _UNICODE
-		char szMultiLabel[33];
-		ckcore::string::utf16_to_ansi(szLabel,szMultiLabel,sizeof(szMultiLabel));
-		MemStrCopyD(m_VolDescPrimary.vol_ident,szMultiLabel,iLabelCopyLen);
+		char ansi_label[33];
+		ckcore::string::utf16_to_ansi(label,ansi_label,sizeof(ansi_label));
+		MemStrCopyD(voldesc_primary_.vol_ident,ansi_label,label_copy_len);
 	#else
-		MemStrCopyD(m_VolDescPrimary.vol_ident,szLabel,iLabelCopyLen);
+		MemStrCopyD(voldesc_primary_.vol_ident,label,label_copy_len);
 	#endif
 	}
 
-	void Iso9660::SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
-								 const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent)
+	void Iso9660::SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
+								const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident)
 	{
-		size_t iSystemLen = ckcore::string::astrlen(szSystem);
-		size_t iVolSetIdentLen = ckcore::string::astrlen(szVolSetIdent);
-		size_t iPublIdentLen = ckcore::string::astrlen(szPublIdent);
-		size_t iPrepIdentLen = ckcore::string::astrlen(szPrepIdent);
+		size_t sys_ident_len = ckcore::string::astrlen(sys_ident);
+		size_t volset_ident_len = ckcore::string::astrlen(volset_ident);
+		size_t publ_ident_len = ckcore::string::astrlen(publ_ident);
+		size_t prep_ident_len = ckcore::string::astrlen(prep_ident);
 
-		size_t iSystemCopyLen = iSystemLen < 32 ? iSystemLen : 32;
-		size_t iVolSetIdentCopyLen = iVolSetIdentLen < 128 ? iVolSetIdentLen : 128;
-		size_t iPublIdentCopyLen = iPublIdentLen < 128 ? iPublIdentLen : 128;
-		size_t iPrepIdentCopyLen = iPrepIdentLen < 128 ? iPrepIdentLen : 128;
+		size_t sys_ident_copy_len = sys_ident_len < 32 ? sys_ident_len : 32;
+		size_t volset_ident_copy_len = volset_ident_len < 128 ? volset_ident_len : 128;
+		size_t publ_ident_copy_len = publ_ident_len < 128 ? publ_ident_len : 128;
+		size_t prep_ident_copy_len = prep_ident_len < 128 ? prep_ident_len : 128;
 
-		memset(m_VolDescPrimary.sys_ident,0x20,sizeof(m_VolDescPrimary.sys_ident));
-		memset(m_VolDescPrimary.volset_ident,0x20,sizeof(m_VolDescPrimary.volset_ident));
-		memset(m_VolDescPrimary.publ_ident,0x20,sizeof(m_VolDescPrimary.publ_ident));
-		memset(m_VolDescPrimary.prep_ident,0x20,sizeof(m_VolDescPrimary.prep_ident));
+		memset(voldesc_primary_.sys_ident,0x20,sizeof(voldesc_primary_.sys_ident));
+		memset(voldesc_primary_.volset_ident,0x20,sizeof(voldesc_primary_.volset_ident));
+		memset(voldesc_primary_.publ_ident,0x20,sizeof(voldesc_primary_.publ_ident));
+		memset(voldesc_primary_.prep_ident,0x20,sizeof(voldesc_primary_.prep_ident));
 
 	#ifdef _UNICODE
-		char szMultiSystem[33];
-		char szMultiVolSetIdent[129];
-		char szMultiPublIdent[129];
-		char szMultiPrepIdent[129];
+		char ansi_sys_ident[33];
+		char ansi_volset_ident[129];
+		char ansi_publ_ident[129];
+		char ansi_prep_ident[129];
 
-		ckcore::string::utf16_to_ansi(szSystem,szMultiSystem,sizeof(szMultiSystem));
-		ckcore::string::utf16_to_ansi(szVolSetIdent,szMultiVolSetIdent,sizeof(szMultiVolSetIdent));
-		ckcore::string::utf16_to_ansi(szPublIdent,szMultiPublIdent,sizeof(szMultiPublIdent));
-		ckcore::string::utf16_to_ansi(szPrepIdent,szMultiPrepIdent,sizeof(szMultiPrepIdent));
+		ckcore::string::utf16_to_ansi(sys_ident,ansi_sys_ident,sizeof(ansi_sys_ident));
+		ckcore::string::utf16_to_ansi(volset_ident,ansi_volset_ident,sizeof(ansi_volset_ident));
+		ckcore::string::utf16_to_ansi(publ_ident,ansi_publ_ident,sizeof(ansi_publ_ident));
+		ckcore::string::utf16_to_ansi(prep_ident,ansi_prep_ident,sizeof(ansi_prep_ident));
 
-		MemStrCopyA(m_VolDescPrimary.sys_ident,szMultiSystem,iSystemCopyLen);
-		MemStrCopyD(m_VolDescPrimary.volset_ident,szMultiVolSetIdent,iVolSetIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.publ_ident,szMultiPublIdent,iPublIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.prep_ident,szMultiPrepIdent,iPrepIdentCopyLen);
+		MemStrCopyA(voldesc_primary_.sys_ident,ansi_sys_ident,sys_ident_copy_len);
+		MemStrCopyD(voldesc_primary_.volset_ident,ansi_volset_ident,volset_ident_copy_len);
+		MemStrCopyA(voldesc_primary_.publ_ident,ansi_publ_ident,publ_ident_copy_len);
+		MemStrCopyA(voldesc_primary_.prep_ident,ansi_prep_ident,prep_ident_copy_len);
 	#else
-		MemStrCopyA(m_VolDescPrimary.sys_ident,szSystem,iSystemCopyLen);
-		MemStrCopyD(m_VolDescPrimary.volset_ident,szVolSetIdent,iVolSetIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.publ_ident,szPublIdent,iPublIdentCopyLen);
-		MemStrCopyA(m_VolDescPrimary.prep_ident,szPrepIdent,iPrepIdentCopyLen);
+		MemStrCopyA(voldesc_primary_.sys_ident,system,sys_ident_copy_len);
+		MemStrCopyD(voldesc_primary_.volset_ident,volset_ident,volset_ident_copy_len);
+		MemStrCopyA(voldesc_primary_.publ_ident,publ_ident,publ_ident_copy_len);
+		MemStrCopyA(voldesc_primary_.prep_ident,prep_ident,prep_ident_copy_len);
 	#endif
 	}
 
-	void Iso9660::SetFileFields(const ckcore::tchar *szCopyFileIdent,
-								 const ckcore::tchar *szAbstFileIdent,
-								 const ckcore::tchar *szBiblFileIdent)
+	void Iso9660::SetFileFields(const ckcore::tchar *copy_file_ident,
+								const ckcore::tchar *abst_file_ident,
+								const ckcore::tchar *bibl_file_ident)
 	{
-		size_t iCopyFileIdentLen = ckcore::string::astrlen(szCopyFileIdent);
-		size_t iAbstFileIdentLen = ckcore::string::astrlen(szAbstFileIdent);
-		size_t iBiblFileIdentLen = ckcore::string::astrlen(szBiblFileIdent);
+		size_t copy_file_ident_len = ckcore::string::astrlen(copy_file_ident);
+		size_t abst_file_ident_len = ckcore::string::astrlen(abst_file_ident);
+		size_t bibl_file_ident_len = ckcore::string::astrlen(bibl_file_ident);
 
-		size_t iCopyFileIdentCopyLen = iCopyFileIdentLen < 37 ? iCopyFileIdentLen : 37;
-		size_t iAbstFileIdentCopyLen = iAbstFileIdentLen < 37 ? iAbstFileIdentLen : 37;
-		size_t iBiblFileIdentCopyLen = iBiblFileIdentLen < 37 ? iBiblFileIdentLen : 37;
+		size_t copy_file_ident_copy_len = copy_file_ident_len < 37 ? copy_file_ident_len : 37;
+		size_t abst_file_ident_copy_len = abst_file_ident_len < 37 ? abst_file_ident_len : 37;
+		size_t bibl_file_ident_copy_len = bibl_file_ident_len < 37 ? bibl_file_ident_len : 37;
 
-		memset(m_VolDescPrimary.copy_file_ident,0x20,sizeof(m_VolDescPrimary.copy_file_ident));
-		memset(m_VolDescPrimary.abst_file_ident,0x20,sizeof(m_VolDescPrimary.abst_file_ident));
-		memset(m_VolDescPrimary.bibl_file_ident,0x20,sizeof(m_VolDescPrimary.bibl_file_ident));
+		memset(voldesc_primary_.copy_file_ident,0x20,sizeof(voldesc_primary_.copy_file_ident));
+		memset(voldesc_primary_.abst_file_ident,0x20,sizeof(voldesc_primary_.abst_file_ident));
+		memset(voldesc_primary_.bibl_file_ident,0x20,sizeof(voldesc_primary_.bibl_file_ident));
 
 	#ifdef _UNICODE
-		char szMultiCopyFileIdent[38];
-		char szMultiAbstFileIdent[38];
-		char szMultiBiblFileIdent[38];
+		char ansi_copy_file_ident[38];
+		char ansi_abst_file_ident[38];
+		char ansi_bibl_file_ident[38];
 
-		ckcore::string::utf16_to_ansi(szCopyFileIdent,szMultiCopyFileIdent,sizeof(szMultiCopyFileIdent));
-		ckcore::string::utf16_to_ansi(szAbstFileIdent,szMultiAbstFileIdent,sizeof(szMultiAbstFileIdent));
-		ckcore::string::utf16_to_ansi(szBiblFileIdent,szMultiBiblFileIdent,sizeof(szMultiBiblFileIdent));
+		ckcore::string::utf16_to_ansi(copy_file_ident,ansi_copy_file_ident,sizeof(ansi_copy_file_ident));
+		ckcore::string::utf16_to_ansi(abst_file_ident,ansi_abst_file_ident,sizeof(ansi_abst_file_ident));
+		ckcore::string::utf16_to_ansi(bibl_file_ident,ansi_bibl_file_ident,sizeof(ansi_bibl_file_ident));
 
-		MemStrCopyD(m_VolDescPrimary.copy_file_ident,szMultiCopyFileIdent,iCopyFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.abst_file_ident,szMultiAbstFileIdent,iAbstFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.bibl_file_ident,szMultiBiblFileIdent,iBiblFileIdentCopyLen);
+		MemStrCopyD(voldesc_primary_.copy_file_ident,ansi_copy_file_ident,copy_file_ident_copy_len);
+		MemStrCopyD(voldesc_primary_.abst_file_ident,ansi_abst_file_ident,abst_file_ident_copy_len);
+		MemStrCopyD(voldesc_primary_.bibl_file_ident,ansi_bibl_file_ident,bibl_file_ident_copy_len);
 	#else
-		MemStrCopyD(m_VolDescPrimary.copy_file_ident,szCopyFileIdent,iCopyFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.abst_file_ident,szAbstFileIdent,iAbstFileIdentCopyLen);
-		MemStrCopyD(m_VolDescPrimary.bibl_file_ident,szBiblFileIdent,iBiblFileIdentCopyLen);
+		MemStrCopyD(voldesc_primary_.copy_file_ident,copy_file_ident,copy_file_ident_copy_len);
+		MemStrCopyD(voldesc_primary_.abst_file_ident,abst_file_ident,abst_file_ident_copy_len);
+		MemStrCopyD(voldesc_primary_.bibl_file_ident,bibl_file_ident,bibl_file_ident_copy_len);
 	#endif
 	}
 
 	void Iso9660::SetInterchangeLevel(InterLevel inter_level)
 	{
-		m_InterLevel = inter_level;
+		inter_level_ = inter_level;
 	}
 
-	void Iso9660::SetRelaxMaxDirLevel(bool bRelaxRestriction)
+	void Iso9660::SetRelaxMaxDirLevel(bool relax)
 	{
-		m_bRelaxMaxDirLevel = bRelaxRestriction;
+		relax_max_dir_level_ = relax;
 	}
 
-	void Iso9660::SetIncludeFileVerInfo(bool bIncludeInfo)
+	void Iso9660::SetIncludeFileVerInfo(bool include)
 	{
-		m_bIncFileVerInfo = bIncludeInfo;
+		inc_file_ver_info_ = include;
 	}
 
-	bool Iso9660::WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &ImageCreate,
-		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
-		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
+	bool Iso9660::WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &create_time,
+									  unsigned long vol_space_size,unsigned long pathtable_size,
+									  unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+									  unsigned long root_extent_loc,unsigned long data_len)
 	{
 		// Initialize the primary volume descriptor.
-		Write733(m_VolDescPrimary.vol_space_size,ulVolSpaceSize);		// Volume size in sectors.
-		Write723(m_VolDescPrimary.volset_size,1);		// Only one disc in the volume set.
-		Write723(m_VolDescPrimary.volseq_num,1);	// This is the first disc in the volume set.
-		Write723(m_VolDescPrimary.logical_block_size,ISO9660_SECTOR_SIZE);
-		Write733(m_VolDescPrimary.path_table_size,ulPathTableSize);	// Path table size in bytes.
-		Write731(m_VolDescPrimary.path_table_type_l,ulPosPathTableL);	// Start sector of LSBF path table.
-		Write732(m_VolDescPrimary.path_table_type_m,ulPosPathTableM);	// Start sector of MSBF path table.
+		write733(voldesc_primary_.vol_space_size,vol_space_size);		// Volume size in sectors.
+		write723(voldesc_primary_.volset_size,1);						// Only one disc in the volume set.
+		write723(voldesc_primary_.volseq_num,1);						// This is the first disc in the volume set.
+		write723(voldesc_primary_.logical_block_size,ISO9660_SECTOR_SIZE);
+		write733(voldesc_primary_.path_table_size,pathtable_size);		// Path table size in bytes.
+		write731(voldesc_primary_.path_table_type_l,pos_pathtable_l);	// Start sector of LSBF path table.
+		write732(voldesc_primary_.path_table_type_m,pos_pathtable_m);	// Start sector of MSBF path table.
 
-		Write733(m_VolDescPrimary.root_dir_record.extent_loc,ulRootExtentLoc);
-		Write733(m_VolDescPrimary.root_dir_record.data_len,ulDataLen);
-		Write723(m_VolDescPrimary.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
+		write733(voldesc_primary_.root_dir_record.extent_loc,root_extent_loc);
+		write733(voldesc_primary_.root_dir_record.data_len,data_len);
+		write723(voldesc_primary_.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 		// Time information.
-		MakeDateTime(ImageCreate,m_VolDescPrimary.root_dir_record.rec_timestamp);
+		iso_make_datetime(create_time,voldesc_primary_.root_dir_record.rec_timestamp);
 
-		MakeDateTime(ImageCreate,m_VolDescPrimary.create_time);
-		memcpy(&m_VolDescPrimary.modify_time,&m_VolDescPrimary.create_time,sizeof(tiso_voldesc_datetime));
+		iso_make_datetime(create_time,voldesc_primary_.create_time);
+		memcpy(&voldesc_primary_.modify_time,&voldesc_primary_.create_time,sizeof(tiso_voldesc_datetime));
 
-		memset(&m_VolDescPrimary.expr_time,'0',sizeof(tiso_voldesc_datetime));
-		m_VolDescPrimary.expr_time.zone = 0x00;
-		memset(&m_VolDescPrimary.effect_time,'0',sizeof(tiso_voldesc_datetime));
-		m_VolDescPrimary.effect_time.zone = 0x00;
+		memset(&voldesc_primary_.expr_time,'0',sizeof(tiso_voldesc_datetime));
+		voldesc_primary_.expr_time.zone = 0x00;
+		memset(&voldesc_primary_.effect_time,'0',sizeof(tiso_voldesc_datetime));
+		voldesc_primary_.effect_time.zone = 0x00;
 
 		// Write the primary volume descriptor.
-		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescPrimary,sizeof(m_VolDescPrimary));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&voldesc_primary_,sizeof(voldesc_primary_));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(m_VolDescPrimary))
+		if (processed != sizeof(voldesc_primary_))
 			return false;
 
 		return true;
 	}
 
-	bool Iso9660::WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &ImageCreate,
-		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
-		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
+	bool Iso9660::WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &create_time,
+								    unsigned long vol_space_size,unsigned long pathtable_size,
+									unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+									unsigned long root_extent_loc,unsigned long data_len)
 	{
-		if (m_InterLevel == ISO9660_1999)
+		if (inter_level_ == ISO9660_1999)
 		{
-			tiso_voldesc_suppl SupplDesc;
-			memcpy(&SupplDesc,&m_VolDescPrimary,sizeof(tiso_voldesc_suppl));
+			tiso_voldesc_suppl sd;
+			memcpy(&sd,&voldesc_primary_,sizeof(tiso_voldesc_suppl));
 
 			// Update the version information.
-			m_VolDescPrimary.type = VOLDESCTYPE_SUPPL_VOL_DESC;
-			m_VolDescPrimary.version = 2;			// ISO9660:1999
-			m_VolDescPrimary.file_struct_ver = 2;	// ISO9660:1999
+			voldesc_primary_.type = VOLDESCTYPE_SUPPL_VOL_DESC;
+			voldesc_primary_.version = 2;			// ISO9660:1999
+			voldesc_primary_.file_struct_ver = 2;	// ISO9660:1999
 
 			// Rewrite the values from the primary volume descriptor. We can't guarantee that
 			// WriteVolDescPrimary has been called before this function call, even though it
 			// should have.
-			Write733(SupplDesc.vol_space_size,ulVolSpaceSize);		// Volume size in sectors.
-			Write723(SupplDesc.volset_size,1);		// Only one disc in the volume set.
-			Write723(SupplDesc.volseq_num,1);	// This is the first disc in the volume set.
-			Write723(SupplDesc.logical_block_size,ISO9660_SECTOR_SIZE);
-			Write733(SupplDesc.path_table_size,ulPathTableSize);	// Path table size in bytes.
-			Write731(SupplDesc.path_table_type_l,ulPosPathTableL);	// Start sector of LSBF path table.
-			Write732(SupplDesc.path_table_type_m,ulPosPathTableM);	// Start sector of MSBF path table.
+			write733(sd.vol_space_size,vol_space_size);		// Volume size in sectors.
+			write723(sd.volset_size,1);		// Only one disc in the volume set.
+			write723(sd.volseq_num,1);	// This is the first disc in the volume set.
+			write723(sd.logical_block_size,ISO9660_SECTOR_SIZE);
+			write733(sd.path_table_size,pathtable_size);	// Path table size in bytes.
+			write731(sd.path_table_type_l,pos_pathtable_l);	// Start sector of LSBF path table.
+			write732(sd.path_table_type_m,pos_pathtable_m);	// Start sector of MSBF path table.
 
-			Write733(SupplDesc.root_dir_record.extent_loc,ulRootExtentLoc);
-			Write733(SupplDesc.root_dir_record.data_len,ulDataLen);
-			Write723(SupplDesc.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
+			write733(sd.root_dir_record.extent_loc,root_extent_loc);
+			write733(sd.root_dir_record.data_len,data_len);
+			write723(sd.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 			// Time information.
-			MakeDateTime(ImageCreate,SupplDesc.root_dir_record.rec_timestamp);
+			iso_make_datetime(create_time,sd.root_dir_record.rec_timestamp);
 
-			MakeDateTime(ImageCreate,SupplDesc.create_time);
-			memcpy(&SupplDesc.modify_time,&SupplDesc.create_time,sizeof(tiso_voldesc_datetime));
+			iso_make_datetime(create_time,sd.create_time);
+			memcpy(&sd.modify_time,&sd.create_time,sizeof(tiso_voldesc_datetime));
 
-			memset(&SupplDesc.expr_time,'0',sizeof(tiso_voldesc_datetime));
-			SupplDesc.expr_time.zone = 0x00;
-			memset(&SupplDesc.effect_time,'0',sizeof(tiso_voldesc_datetime));
-			SupplDesc.effect_time.zone = 0x00;
+			memset(&sd.expr_time,'0',sizeof(tiso_voldesc_datetime));
+			sd.expr_time.zone = 0x00;
+			memset(&sd.effect_time,'0',sizeof(tiso_voldesc_datetime));
+			sd.effect_time.zone = 0x00;
 
 			// Write the primary volume descriptor.
-			ckcore::tint64 iProcessed = out_stream.Write(&SupplDesc,sizeof(SupplDesc));
-			if (iProcessed == -1)
+			ckcore::tint64 processed = out_stream.Write(&sd,sizeof(sd));
+			if (processed == -1)
 				return false;
-			if (iProcessed != sizeof(SupplDesc))
+			if (processed != sizeof(sd))
 				return false;
 
 			return true;
@@ -814,63 +810,64 @@ namespace ckfilesystem
 	bool Iso9660::WriteVolDescSetTerm(ckcore::OutStream &out_stream)
 	{
 		// Write volume descriptor set terminator.
-		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescSetTerm,sizeof(m_VolDescSetTerm));
-		if (iProcessed == -1)
+		ckcore::tint64 processed = out_stream.Write(&voldesc_setterm_,sizeof(voldesc_setterm_));
+		if (processed == -1)
 			return false;
-		if (iProcessed != sizeof(m_VolDescSetTerm))
+		if (processed != sizeof(voldesc_setterm_))
 			return false;
 
 		return true;
 	}
 
-	unsigned char Iso9660::WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir)
+	unsigned char Iso9660::WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,
+										 bool is_dir)
 	{
-		switch (m_InterLevel)
+		switch (inter_level_)
 		{
 			case LEVEL_1:
 			default:
-				if (bIsDir)
+				if (is_dir)
 				{
-					return WriteDirNameL1(pOutBuffer,szFileName);
+					return WriteDirNameL1(buffer,file_name);
 				}
 				else
 				{
-					unsigned char ucFileNameLen = WriteFileNameL1(pOutBuffer,szFileName);
+					unsigned char file_name_len = WriteFileNameL1(buffer,file_name);
 
-					if (m_bIncFileVerInfo)
+					if (inc_file_ver_info_)
 					{
-						pOutBuffer[ucFileNameLen++] = ';';
-						pOutBuffer[ucFileNameLen++] = '1';
+						buffer[file_name_len++] = ';';
+						buffer[file_name_len++] = '1';
 					}
 
-					return ucFileNameLen;
+					return file_name_len;
 				}
 				break;
 
 			case LEVEL_2:
-				if (bIsDir)
+				if (is_dir)
 				{
-					return WriteDirNameL2(pOutBuffer,szFileName);
+					return WriteDirNameL2(buffer,file_name);
 				}
 				else
 				{
-					unsigned char ucFileNameLen = WriteFileNameL2(pOutBuffer,szFileName);
+					unsigned char file_name_len = WriteFileNameL2(buffer,file_name);
 
-					if (m_bIncFileVerInfo)
+					if (inc_file_ver_info_)
 					{
-						pOutBuffer[ucFileNameLen++] = ';';
-						pOutBuffer[ucFileNameLen++] = '1';
+						buffer[file_name_len++] = ';';
+						buffer[file_name_len++] = '1';
 					}
 
-					return ucFileNameLen;
+					return file_name_len;
 				}
 				break;
 
 			case ISO9660_1999:
-				if (bIsDir)
-					return WriteDirName1999(pOutBuffer,szFileName);
+				if (is_dir)
+					return WriteDirName1999(buffer,file_name);
 				else
-					return WriteFileName1999(pOutBuffer,szFileName);
+					return WriteFileName1999(buffer,file_name);
 		}
 	}
 
@@ -879,52 +876,52 @@ namespace ckfilesystem
 		specified file name. A compatible file name is a file name that is
 		generated from the specified file name that is supported by the current
 		file system configuration.
-		@param szFileName the origial file name.
-		@param bIsDir if true, szFileName is assumed to be a directory name.
+		@param file_name the origial file name.
+		@param is_dir if true, file_name is assumed to be a directory name.
 		@return the length of the compatible file name.
 	*/
-	unsigned char Iso9660::CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir)
+	unsigned char Iso9660::CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir)
 	{
-		switch (m_InterLevel)
+		switch (inter_level_)
 		{
 			case LEVEL_1:
 			default:
-				if (bIsDir)
+				if (is_dir)
 				{
-					return CalcDirNameLenL1(szFileName);
+					return CalcDirNameLenL1(file_name);
 				}
 				else
 				{
-					unsigned char ucFileNameLen = CalcFileNameLenL1(szFileName);
+					unsigned char file_name_len = CalcFileNameLenL1(file_name);
 
-					if (m_bIncFileVerInfo)
-						ucFileNameLen += 2;
+					if (inc_file_ver_info_)
+						file_name_len += 2;
 
-					return ucFileNameLen;
+					return file_name_len;
 				}
 				break;
 
 			case LEVEL_2:
-				if (bIsDir)
+				if (is_dir)
 				{
-					return CalcDirNameLenL2(szFileName);
+					return CalcDirNameLenL2(file_name);
 				}
 				else
 				{
-					unsigned char ucFileNameLen = CalcFileNameLenL2(szFileName);
+					unsigned char file_name_len = CalcFileNameLenL2(file_name);
 
-					if (m_bIncFileVerInfo)
-						ucFileNameLen += 2;
+					if (inc_file_ver_info_)
+						file_name_len += 2;
 
-					return ucFileNameLen;
+					return file_name_len;
 				}
 				break;
 
 			case ISO9660_1999:
-				if (bIsDir)
-					return CalcDirNameLen1999(szFileName);
+				if (is_dir)
+					return CalcDirNameLen1999(file_name);
 				else
-					return CalcFileNameLen1999(szFileName);
+					return CalcFileNameLen1999(file_name);
 		}
 	}
 
@@ -935,13 +932,13 @@ namespace ckfilesystem
 	*/
 	unsigned char Iso9660::GetMaxDirLevel()
 	{
-		if (m_bRelaxMaxDirLevel)
+		if (relax_max_dir_level_)
 		{
 			return ISO9660_MAX_DIRLEVEL_1999;
 		}
 		else
 		{
-			switch (m_InterLevel)
+			switch (inter_level_)
 			{
 				case LEVEL_1:
 				case LEVEL_2:
@@ -960,7 +957,7 @@ namespace ckfilesystem
 	*/
 	bool Iso9660::HasVolDescSuppl()
 	{
-		return m_InterLevel == ISO9660_1999;
+		return inter_level_ == ISO9660_1999;
 	}
 
 	/**
@@ -970,7 +967,7 @@ namespace ckfilesystem
 	*/
 	bool Iso9660::AllowsFragmentation()
 	{
-		return m_InterLevel == LEVEL_3;
+		return inter_level_ == LEVEL_3;
 	}
 
 	/**
@@ -979,6 +976,6 @@ namespace ckfilesystem
 	*/
 	bool Iso9660::IncludesFileVerInfo()
 	{
-		return m_bIncFileVerInfo;
+		return inc_file_ver_info_;
 	}
 };

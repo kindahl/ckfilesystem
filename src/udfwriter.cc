@@ -47,8 +47,8 @@ namespace ckfilesystem
 		FileTreeNode *local_node)
 	{
 		local_node->m_uiUdfSize = 0;
-		local_node->m_uiUdfSize += BytesToSector(udf_.CalcFileEntrySize());
-		local_node->m_uiUdfSize += BytesToSector(CalcIdentSize(local_node));
+		local_node->m_uiUdfSize += bytes_to_sec(udf_.CalcFileEntrySize());
+		local_node->m_uiUdfSize += bytes_to_sec(CalcIdentSize(local_node));
 		local_node->m_uiUdfSizeTot = local_node->m_uiUdfSize;
 
 		std::vector<FileTreeNode *>::const_iterator it;
@@ -59,7 +59,7 @@ namespace ckfilesystem
 				dir_node_stack.push_back(*it);
 			else
 			{
-				(*it)->m_uiUdfSize = BytesToSector(udf_.CalcFileEntrySize());
+				(*it)->m_uiUdfSize = bytes_to_sec(udf_.CalcFileEntrySize());
 				(*it)->m_uiUdfSizeTot = (*it)->m_uiUdfSize;
 			}
 		}
@@ -144,7 +144,8 @@ namespace ckfilesystem
 	}
 
 	bool UdfWriter::WriteLocalParitionDir(std::deque<FileTreeNode *> &dir_node_queue,
-		FileTreeNode *local_node,unsigned long &cur_part_sec,ckcore::tuint64 &unique_ident)
+										  FileTreeNode *local_node,unsigned long &cur_part_sec,
+										  ckcore::tuint64 &unique_ident)
 	{
 		unsigned long entry_sec = cur_part_sec++;
 		unsigned long ident_sec = cur_part_sec;	// On folders the identifiers will follow immediately.
@@ -161,7 +162,7 @@ namespace ckfilesystem
 		// Don't forget to add the '..' item to the total.
 		tot_ident_size += udf_.CalcFileIdentParentSize();
 
-		unsigned long next_entry_sec = ident_sec + BytesToSector(tot_ident_size);
+		unsigned long next_entry_sec = ident_sec + bytes_to_sec(tot_ident_size);
 
 		// Get file modified dates.
 		struct tm access_time,modify_time,create_time;

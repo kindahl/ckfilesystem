@@ -622,11 +622,11 @@ namespace ckfilesystem
 		RootRecord.ext_attr_record_len = 0;
 
 		if (bJolietTable)
-			Write73(RootRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);	// Start sector of extent data.
+			write73(RootRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);	// Start sector of extent data.
 		else
-			Write73(RootRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);	// Start sector of extent data.
+			write73(RootRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);	// Start sector of extent data.
 
-		Write72(RootRecord.parent_dir_num,0x01,bMSBF);	// The root has itself as parent.
+		write72(RootRecord.parent_dir_num,0x01,bMSBF);	// The root has itself as parent.
 		RootRecord.dir_ident[0] = 0;					// The file name is set to zero.
 
 		// Write the root record.
@@ -724,11 +724,11 @@ namespace ckfilesystem
 							PathRecord.ext_attr_record_len = 0;
 
 							if (bJolietTable)
-								Write73(PathRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);
+								write73(PathRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosJoliet,bMSBF);
 							else
-								Write73(PathRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);
+								write73(PathRecord.extent_loc,(unsigned long)pCurNode->m_uiDataPosNormal,bMSBF);
 
-							Write72(PathRecord.parent_dir_num,usParent,bMSBF);
+							write72(PathRecord.parent_dir_num,usParent,bMSBF);
 							PathRecord.dir_ident[0] = 0;
 
 							PathDirNumMap[PathBuffer] = usParent = usRecordNumber++;
@@ -781,11 +781,11 @@ namespace ckfilesystem
 		memset(&DirRecord,0,sizeof(DirRecord));
 
 		DirRecord.dir_record_len = 0x22;
-		Write733(DirRecord.extent_loc,ulDataPos);
-		Write733(DirRecord.data_len,/*ISO9660_SECTOR_SIZE*/ulDataSize);
-		MakeDateTime(m_ImageCreate,DirRecord.rec_timestamp);
+		write733(DirRecord.extent_loc,ulDataPos);
+		write733(DirRecord.data_len,/*ISO9660_SECTOR_SIZE*/ulDataSize);
+		iso_make_datetime(m_ImageCreate,DirRecord.rec_timestamp);
 		DirRecord.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
-		Write723(DirRecord.volseq_num,0x01);	// The directory is on the first volume set.
+		write723(DirRecord.volseq_num,0x01);	// The directory is on the first volume set.
 		DirRecord.file_ident_len = 1;
 		DirRecord.file_ident[0] = Type == TYPE_CURRENT ? 0 : 1;
 
@@ -931,7 +931,7 @@ namespace ckfilesystem
 		if (eltorito_.GetBootImageCount() > 0)
 		{
 			ckcore::tuint64 uiBootDataSector = sec_manager_.GetStart(this,SR_BOOTDATA);
-			ckcore::tuint64 uiBootDataLength = BytesToSector64(eltorito_.GetBootDataSize());
+			ckcore::tuint64 uiBootDataLength = bytes_to_sec64(eltorito_.GetBootDataSize());
 			ckcore::tuint64 uiBootDataEnd = uiBootDataSector + uiBootDataLength;
 
 			if (uiBootDataSector > 0xFFFFFFFF || uiBootDataEnd > 0xFFFFFFFF)
@@ -1019,7 +1019,7 @@ namespace ckfilesystem
 			}
 
 			unsigned long ulRootExtentLocJoliet = (unsigned long)uiDirEntriesSector +
-				BytesToSector((unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal);
+				bytes_to_sec((unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal);
 
 			if (!joliet_.WriteVolDesc(out_stream_,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeJoliet,ulPosPathTableJolietL,ulPosPathTableJolietM,
@@ -1178,8 +1178,8 @@ namespace ckfilesystem
 				DirRecord.dir_record_len = ucDirRecSize;	// FIXME: Rename member.
 				DirRecord.ext_attr_record_len = 0;
 
-				Write733(DirRecord.extent_loc,(unsigned long)uiExtentLoc);
-				Write733(DirRecord.data_len,(unsigned long)ulExtentSize);
+				write733(DirRecord.extent_loc,(unsigned long)uiExtentLoc);
+				write733(DirRecord.data_len,(unsigned long)ulExtentSize);
 
 				if ((*itFile)->file_flags_ & FileTreeNode::FLAG_IMPORTED)
 				{
@@ -1196,7 +1196,7 @@ namespace ckfilesystem
 					DirRecord.file_flags = pImportNode->file_flags_;
 					DirRecord.file_unit_size = pImportNode->file_unit_size_;
 					DirRecord.interleave_gap_size = pImportNode->interleave_gap_size_;
-					Write723(DirRecord.volseq_num,pImportNode->volseq_num_);
+					write723(DirRecord.volseq_num,pImportNode->volseq_num_);
 				}
 				else
 				{
@@ -1222,14 +1222,14 @@ namespace ckfilesystem
 						ckcore::convert::tm_to_dostime(ModifyTime,usFileDate,usFileTime);
 
 						if (bResult)
-							MakeDateTime(usFileDate,usFileTime,DirRecord.rec_timestamp);
+							iso_make_datetime(usFileDate,usFileTime,DirRecord.rec_timestamp);
 						else
-							MakeDateTime(m_ImageCreate,DirRecord.rec_timestamp);
+							iso_make_datetime(m_ImageCreate,DirRecord.rec_timestamp);
 					}
 					else
 					{
 						// The time when the disc image creation was initialized.
-						MakeDateTime(m_ImageCreate,DirRecord.rec_timestamp);
+						iso_make_datetime(m_ImageCreate,DirRecord.rec_timestamp);
 					}
 
 					// File flags.
@@ -1242,7 +1242,7 @@ namespace ckfilesystem
 
 					DirRecord.file_unit_size = 0;
 					DirRecord.interleave_gap_size = 0;
-					Write723(DirRecord.volseq_num,0x01);
+					write723(DirRecord.volseq_num,0x01);
 				}
 
 				// Remaining bytes, before checking if we're dealing with the last segment.
@@ -1295,7 +1295,7 @@ namespace ckfilesystem
 				}
 
 				// Update location of the next extent.
-				uiExtentLoc += BytesToSector(ulExtentSize);
+				uiExtentLoc += bytes_to_sec(ulExtentSize);
 			}
 			while (uiFileRemain > 0);
 		}

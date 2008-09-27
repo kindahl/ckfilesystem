@@ -49,8 +49,8 @@ namespace ckfilesystem
 	/*
 		Identifiers.
 	*/
-	extern const char *g_IdentCD;
-	extern const char *g_IdentElTorito;
+	extern const char *iso_ident_cd;
+	extern const char *iso_ident_eltorito;
 
 	/*
 		File and Directory Descriptors.
@@ -268,66 +268,65 @@ namespace ckfilesystem
 		};
 
 	private:
-		bool m_bRelaxMaxDirLevel;
-		bool m_bIncFileVerInfo;
+		bool relax_max_dir_level_;
+		bool inc_file_ver_info_;
+		InterLevel inter_level_;
 
-		InterLevel m_InterLevel;
-
-		tiso_voldesc_primary m_VolDescPrimary;
-		tiso_voldesc_setterm m_VolDescSetTerm;
+		tiso_voldesc_primary voldesc_primary_;
+		tiso_voldesc_setterm voldesc_setterm_;
 
 		char MakeCharA(char c);
 		char MakeCharD(char c);
-        int LastDelimiterA(const char *szString,char cDelimiter);
-		void MemStrCopyA(unsigned char *szTarget,const char *szSource,size_t iLength);
-		void MemStrCopyD(unsigned char *szTarget,const char *szSource,size_t iLength);
+        int LastDelimiterA(const char *str,char delim);
+		void MemStrCopyA(unsigned char *target,const char *source,size_t len);
+		void MemStrCopyD(unsigned char *target,const char *source,size_t len);
 
-		unsigned char WriteFileNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
-		unsigned char WriteFileNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,int iMaxLen);
-		unsigned char WriteFileNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
-		unsigned char WriteFileName1999(unsigned char *pOutBuffer,const ckcore::tchar *szFileName);
-		unsigned char WriteDirNameL1(unsigned char *pOutBuffer,const ckcore::tchar *szDirName);
-		unsigned char WriteDirNameGeneric(unsigned char *pOutBuffer,const ckcore::tchar *szDirName,int iMaxLen);
-		unsigned char WriteDirNameL2(unsigned char *pOutBuffer,const ckcore::tchar *szDirName);
-		unsigned char WriteDirName1999(unsigned char *pOutBuffer,const ckcore::tchar *szDirName);
-		unsigned char CalcFileNameLenL1(const ckcore::tchar *szFileName);
-		unsigned char CalcFileNameLenL2(const ckcore::tchar *szFileName);
-		unsigned char CalcFileNameLen1999(const ckcore::tchar *szFileName);
-		unsigned char CalcDirNameLenL1(const ckcore::tchar *szFileName);
-		unsigned char CalcDirNameLenL2(const ckcore::tchar *szFileName);
-		unsigned char CalcDirNameLen1999(const ckcore::tchar *szFileName);
+		unsigned char WriteFileNameL1(unsigned char *buffer,const ckcore::tchar *file_name);
+		unsigned char WriteFileNameGeneric(unsigned char *buffer,const ckcore::tchar *file_name,int max_len);
+		unsigned char WriteFileNameL2(unsigned char *buffer,const ckcore::tchar *file_name);
+		unsigned char WriteFileName1999(unsigned char *buffer,const ckcore::tchar *file_name);
+		unsigned char WriteDirNameL1(unsigned char *buffer,const ckcore::tchar *dir_name);
+		unsigned char WriteDirNameGeneric(unsigned char *buffer,const ckcore::tchar *dir_name,int max_len);
+		unsigned char WriteDirNameL2(unsigned char *buffer,const ckcore::tchar *dir_name);
+		unsigned char WriteDirName1999(unsigned char *buffer,const ckcore::tchar *dir_name);
+		unsigned char CalcFileNameLenL1(const ckcore::tchar *file_name);
+		unsigned char CalcFileNameLenL2(const ckcore::tchar *file_name);
+		unsigned char CalcFileNameLen1999(const ckcore::tchar *file_name);
+		unsigned char CalcDirNameLenL1(const ckcore::tchar *file_name);
+		unsigned char CalcDirNameLenL2(const ckcore::tchar *file_name);
+		unsigned char CalcDirNameLen1999(const ckcore::tchar *file_name);
 
-		void Initiso_voldesc_primary();
-		void Initiso_voldesc_setterm();
+		void InitVolDescPrimary();
+		void InitVolDescSetTerm();
 
 	public:
 		Iso9660();
 		~Iso9660();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const ckcore::tchar *szLabel);
-		void SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
-			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
-		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
-			const ckcore::tchar *ucBiblIdent);
+		void SetVolumeLabel(const ckcore::tchar *label);
+		void SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
+			const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
+		void SetFileFields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
+			const ckcore::tchar *bibl_file_ident);
 		void SetInterchangeLevel(InterLevel inter_level);
-		void SetRelaxMaxDirLevel(bool bRelaxRestriction);
-		void SetIncludeFileVerInfo(bool bIncludeInfo);
+		void SetRelaxMaxDirLevel(bool relax);
+		void SetIncludeFileVerInfo(bool include);
 
 		// Write functions.
-		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &ImageCreate,
-				unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
-				unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
-				unsigned long ulRootExtentLoc,unsigned long ulDataLen);
-		bool WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &ImageCreate,
-				unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
-				unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
-				unsigned long ulRootExtentLoc,unsigned long ulDataLen);
+		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &create_time,
+				unsigned long vol_space_size,unsigned long pathtable_size,
+				unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+				unsigned long root_extent_loc,unsigned long data_len);
+		bool WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &create_time,
+				unsigned long vol_space_size,unsigned long pathtable_size,
+				unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+				unsigned long root_extent_loc,unsigned long data_len);
 		bool WriteVolDescSetTerm(ckcore::OutStream &out_stream);
 
 		// Helper functions.
-		unsigned char WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir);
-		unsigned char CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir);
+		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
+		unsigned char CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir);
 		unsigned char GetMaxDirLevel();
 		bool HasVolDescSuppl();
 		bool AllowsFragmentation();
@@ -337,27 +336,27 @@ namespace ckfilesystem
 	/*
 		Helper Functions.
 	*/
-	void Write721(unsigned char *pOut,unsigned short usValue);				// Least significant byte first.
-	void Write722(unsigned char *pOut,unsigned short usValue);				// Most significant byte first.
-	void Write723(unsigned char *pOut,unsigned short usValue);				// Both-byte orders.
-	void Write72(unsigned char *pOut,unsigned short usValue,bool bMSBF);	// 7.2.1 or 7.2.2 is decided by parameter.
-	void Write731(unsigned char *pOut,unsigned long ulValue);				// Least significant byte first.
-	void Write732(unsigned char *pOut,unsigned long ulValue);				// Most significant byte first.
-	void Write733(unsigned char *pOut,unsigned long ulValue);				// Both-byte orders.
-	void Write73(unsigned char *pOut,unsigned long ulValue,bool bMSBF);		// 7.3.1 or 7.3.2 is decided by parameter.
-	unsigned short Read721(unsigned char *pOut);
-	unsigned short Read722(unsigned char *pOut);
-	unsigned short Read723(unsigned char *pOut);
-	unsigned long Read731(unsigned char *pOut);
-	unsigned long Read732(unsigned char *pOut);
-	unsigned long Read733(unsigned char *pOut);
+	void write721(unsigned char *buffer,unsigned short val);			// Least significant byte first.
+	void write722(unsigned char *buffer,unsigned short val);			// Most significant byte first.
+	void write723(unsigned char *buffer,unsigned short val);			// Both-byte orders.
+	void write72(unsigned char *buffer,unsigned short val,bool msbf);	// 7.2.1 or 7.2.2 is decided by parameter.
+	void write731(unsigned char *buffer,unsigned long val);				// Least significant byte first.
+	void write732(unsigned char *buffer,unsigned long val);				// Most significant byte first.
+	void write733(unsigned char *buffer,unsigned long val);				// Both-byte orders.
+	void write73(unsigned char *buffer,unsigned long val,bool msbf);	// 7.3.1 or 7.3.2 is decided by parameter.
+	unsigned short read721(unsigned char *buffer);
+	unsigned short read722(unsigned char *buffer);
+	unsigned short read723(unsigned char *buffer);
+	unsigned long read731(unsigned char *buffer);
+	unsigned long read732(unsigned char *buffer);
+	unsigned long read733(unsigned char *buffer);
 
-	unsigned long BytesToSector(unsigned long ulBytes);
-	unsigned long BytesToSector(ckcore::tuint64 uiBytes);
-	ckcore::tuint64 BytesToSector64(ckcore::tuint64 uiBytes);
+	unsigned long bytes_to_sec(unsigned long bytes);
+	unsigned long bytes_to_sec(ckcore::tuint64 bytes);
+	ckcore::tuint64 bytes_to_sec64(ckcore::tuint64 bytes);
 
-	void MakeDateTime(struct tm &Time,tiso_voldesc_datetime &DateTime);
-	void MakeDateTime(struct tm &Time,tiso_dir_record_datetime &DateTime);
-	void MakeDateTime(unsigned short usDate,unsigned short usTime,tiso_dir_record_datetime &DateTime);
-	void MakeDosDateTime(tiso_dir_record_datetime &DateTime,unsigned short &usDate,unsigned short &usTime);
+	void iso_make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time);
+	void iso_make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time);
+	void iso_make_datetime(unsigned short date,unsigned short time,tiso_dir_record_datetime &iso_time);
+	void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,unsigned short &date,unsigned short &time);
 };

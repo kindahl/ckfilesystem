@@ -158,11 +158,11 @@ namespace ckfilesystem
 			if (szFileName[ucLength - 2] == ';')
 				szFileName[ucLength - 2] = '\0';
 
-			//log_.PrintLine(ckT("  %s: %u"),szFileName,Read733(CurDirRecord.extent_loc));
+			//log_.PrintLine(ckT("  %s: %u"),szFileName,read733(CurDirRecord.extent_loc));
 
 			Iso9660TreeNode *pNewNode = new Iso9660TreeNode(pParentNode,szFileName,
-					Read733(CurDirRecord.extent_loc),Read733(CurDirRecord.data_len),
-					Read723(CurDirRecord.volseq_num),CurDirRecord.file_flags,
+					read733(CurDirRecord.extent_loc),read733(CurDirRecord.data_len),
+					read723(CurDirRecord.volseq_num),CurDirRecord.file_flags,
 					CurDirRecord.file_unit_size,CurDirRecord.interleave_gap_size,CurDirRecord.rec_timestamp);
 
 			if (CurDirRecord.file_flags & DIRRECORD_FILEFLAG_DIRECTORY)
@@ -273,7 +273,7 @@ namespace ckfilesystem
 			return false;
 		}
 
-		if (memcmp(VolDescPrim.ident,g_IdentCD,sizeof(VolDescPrim.ident)))
+		if (memcmp(VolDescPrim.ident,iso_ident_cd,sizeof(VolDescPrim.ident)))
 		{
 			log_.PrintLine(ckT("  Error: Bad primary volume descriptor identifer."));
 			return false;
@@ -326,13 +326,13 @@ namespace ckfilesystem
 
 		if (bJoliet)
 		{
-			ulRootExtentLoc = Read733(VolDescSuppl.root_dir_record.extent_loc);
-			ulRootExtentLen = Read733(VolDescSuppl.root_dir_record.data_len);
+			ulRootExtentLoc = read733(VolDescSuppl.root_dir_record.extent_loc);
+			ulRootExtentLen = read733(VolDescSuppl.root_dir_record.data_len);
 		}
 		else
 		{
-			ulRootExtentLoc = Read733(VolDescPrim.root_dir_record.extent_loc);
-			ulRootExtentLen = Read733(VolDescPrim.root_dir_record.data_len);
+			ulRootExtentLoc = read733(VolDescPrim.root_dir_record.extent_loc);
+			ulRootExtentLen = read733(VolDescPrim.root_dir_record.data_len);
 		}
 
 		log_.PrintLine(ckT("  Location of root directory extent: %u."),ulRootExtentLoc);
@@ -342,7 +342,7 @@ namespace ckfilesystem
 			delete m_pRootNode;
 
 		m_pRootNode = new Iso9660TreeNode(NULL,NULL,ulRootExtentLoc,ulRootExtentLen,
-			Read723(VolDescSuppl.root_dir_record.volseq_num),VolDescSuppl.root_dir_record.file_flags,
+			read723(VolDescSuppl.root_dir_record.volseq_num),VolDescSuppl.root_dir_record.file_flags,
 			VolDescSuppl.root_dir_record.file_unit_size,VolDescSuppl.root_dir_record.interleave_gap_size,
 			VolDescSuppl.root_dir_record.rec_timestamp);
 

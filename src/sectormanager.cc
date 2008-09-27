@@ -54,7 +54,7 @@ namespace ckfilesystem
 	{
 		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
 
-		m_uiNextFreeSector += BytesToSector64(uiNumBytes);
+		m_uiNextFreeSector += bytes_to_sec64(uiNumBytes);
 	}
 
 	/**
@@ -73,7 +73,7 @@ namespace ckfilesystem
 	void SectorManager::AllocateDataBytes(ckcore::tuint64 uiNumBytes)
 	{
 		m_uiDataStart = m_uiNextFreeSector;
-		m_uiDataLength = BytesToSector64(uiNumBytes);
+		m_uiDataLength = bytes_to_sec64(uiNumBytes);
 
 		m_uiNextFreeSector += m_uiDataLength;
 	}

@@ -21,23 +21,23 @@
 #include <ckcore/stream.hh>
 #include "ckfilesystem/iso9660.hh"
 
-#define JOLIET_MAX_NAMELEN_NORMAL			 64	// According to Joliet specification.
-#define JOLIET_MAX_NAMELEN_RELAXED			101	// 207 bytes = 101 wide characters + 4 wide characters for file version.
+#define JOLIET_MAX_NAMELEN_NORMAL			 64		// According to Joliet specification.
+#define JOLIET_MAX_NAMELEN_RELAXED			101		// 207 bytes = 101 wide characters + 4 wide characters for file version.
 
 namespace ckfilesystem
 {
 	class Joliet
 	{
 	private:
-		bool m_bIncFileVerInfo;
-		int m_iMaxNameLen;
+		bool inc_file_ver_info_;
+		int max_name_len_;
 
-		tiso_voldesc_suppl m_VolDescSuppl;
+		tiso_voldesc_suppl voldesc_suppl_;
 
 		wchar_t MakeChar(wchar_t c);
-        int LastDelimiterW(const wchar_t *szString,wchar_t cDelimiter);
-		void MemStrCopy(unsigned char *szTarget,const wchar_t *szSource,size_t iLen);
-		void EmptyStrBuffer(unsigned char *szBuffer,size_t iBufferLen);
+        int LastDelimiterW(const wchar_t *str,wchar_t delim);
+		void MemStrCopy(unsigned char *target,const wchar_t *source,size_t len);
+		void EmptyStrBuffer(unsigned char *buffer,size_t size);
 
 		void InitVolDesc();
 
@@ -46,23 +46,23 @@ namespace ckfilesystem
 		~Joliet();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const ckcore::tchar *szLabel);
-		void SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
-			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
-		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
-			const ckcore::tchar *ucBiblIdent);
-		void SetIncludeFileVerInfo(bool bIncludeInfo);
-		void SetRelaxMaxNameLen(bool bRelaxRestriction);
+		void SetVolumeLabel(const ckcore::tchar *label);
+		void SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
+			const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
+		void SetFileFields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
+			const ckcore::tchar *bibl_file_ident);
+		void SetIncludeFileVerInfo(bool include);
+		void SetRelaxMaxNameLen(bool relax);
 
 		// Write functions.
-		bool WriteVolDesc(ckcore::OutStream &out_stream,struct tm &ImageCreate,
-			unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
-			unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
-			unsigned long ulRootExtentLoc,unsigned long ulDataLen);
+		bool WriteVolDesc(ckcore::OutStream &out_stream,struct tm &create_time,
+			unsigned long vol_space_size,unsigned long pathtable_size,
+			unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+			unsigned long root_extent_loc,unsigned long data_len);
 
 		// Helper functions.
-		unsigned char WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir);
-		unsigned char CalcFileNameLen(const ckcore::tchar *szFileName,bool bIsDir);
+		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
+		unsigned char CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir);
 		bool IncludesFileVerInfo();
 	};
 };

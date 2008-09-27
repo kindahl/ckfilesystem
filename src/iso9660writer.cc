@@ -361,12 +361,13 @@ namespace ckfilesystem
 				{
 					m_pLog->PrintLine(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
 						m_pIso9660->GetMaxDirLevel());
-					Progress.Notify(ckcore::Progress::ckWARNING,g_StringTable.GetString(WARNING_FSDIRLEVEL),m_pIso9660->GetMaxDirLevel());
+					Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_FSDIRLEVEL),
+						m_pIso9660->GetMaxDirLevel());
 					bFoundDeep = true;
 				}
 
 				m_pLog->PrintLine(ckT("  Skipping: %s."),itFile->m_InternalPath.c_str());
-				Progress.Notify(ckcore::Progress::ckWARNING,g_StringTable.GetString(WARNING_SKIPFILE),
+				Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIPFILE),
 					itFile->m_InternalPath.c_str());
 				continue;
 			}
@@ -889,7 +890,7 @@ namespace ckfilesystem
 			m_pLog->PrintLine(ckT("  Error: The path table is too large, %llu and %llu bytes."),
 #endif
 				m_uiPathTableSizeNormal,m_uiPathTableSizeJoliet);
-			Progress.Notify(ckcore::Progress::ckERROR,g_StringTable.GetString(ERROR_PATHTABLESIZE));
+			Progress.Notify(ckcore::Progress::ckERROR,StringTable::Instance().GetString(ERROR_PATHTABLESIZE));
 			return RESULT_FAIL;
 		}
 
@@ -1052,7 +1053,7 @@ namespace ckfilesystem
 
 	int Iso9660Writer::WritePathTables(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress)
 	{
-		Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEISOTABLE));
+		Progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEISOTABLE));
 
 		// Write the path tables.
 		if (!WritePathTable(Files,file_tree,false,false,Progress))
@@ -1068,7 +1069,7 @@ namespace ckfilesystem
 
 		if (m_bUseJoliet)
 		{
-			Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEJOLIETTABLE));
+			Progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEJOLIETTABLE));
 
 			if (!WritePathTable(Files,file_tree,true,false,Progress))
 			{
@@ -1338,7 +1339,7 @@ namespace ckfilesystem
 
 	int Iso9660Writer::WriteDirEntries(FileTree &file_tree,ckcore::Progress &Progress)
 	{
-		Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEDIRENTRIES));
+		Progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEDIRENTRIES));
 
 		FileTreeNode *pCurNode = file_tree.GetRoot();
 

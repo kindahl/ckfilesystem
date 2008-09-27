@@ -38,17 +38,21 @@ namespace ckfilesystem
 		STATUS_WRITEDIRENTRIES
 	};
 
-	class DynStringTable
+	class StringTable
 	{
 	private:
 		std::map<StringsId,const ckcore::tchar *> m_Strings;
 
+		StringTable();
+		StringTable(const StringTable &obj);
+		~StringTable();
+		StringTable &operator=(const StringTable &obj); 
+
 	public:
-		DynStringTable();
+
+		static StringTable &Instance();
 
 		const ckcore::tchar *GetString(StringsId StringID);
 		void SetString(StringsId StringID,const ckcore::tchar *szString);
 	};
-
-	extern DynStringTable g_StringTable;
 };

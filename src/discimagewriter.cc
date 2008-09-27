@@ -63,7 +63,7 @@ namespace ckfilesystem
 					{
 						m_pLog->PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
 							(*itFile)->m_FileName.c_str());
-						Progress.Notify(ckcore::Progress::ckWARNING,g_StringTable.GetString(WARNING_SKIP4GFILE),
+						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIP4GFILE),
 							(*itFile)->m_FileName.c_str());
 
 						continue;
@@ -72,7 +72,7 @@ namespace ckfilesystem
 					{
 						m_pLog->PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
 							(*itFile)->m_FileName.c_str());
-						Progress.Notify(ckcore::Progress::ckWARNING,g_StringTable.GetString(WARNING_SKIP4GFILEISO),
+						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIP4GFILEISO),
 							(*itFile)->m_FileName.c_str());
 					}
 				}
@@ -165,7 +165,7 @@ namespace ckfilesystem
 		{
 			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),
 				pNode->m_FileFullPath.c_str());
-			FileProgresser.Notify(ckcore::Progress::ckERROR,g_StringTable.GetString(ERROR_OPENREAD),
+			FileProgresser.Notify(ckcore::Progress::ckERROR,StringTable::Instance().GetString(ERROR_OPENREAD),
 				pNode->m_FileFullPath.c_str());
 			return RESULT_FAIL;
 		}
@@ -459,7 +459,7 @@ namespace ckfilesystem
 		}*/
 		// ...
 
-		Progress.SetStatus(g_StringTable.GetString(STATUS_BUILDTREE));
+		Progress.SetStatus(StringTable::Instance().GetString(STATUS_BUILDTREE));
 		Progress.SetMarquee(true);
 
 		// Create a file tree.
@@ -572,7 +572,7 @@ namespace ckfilesystem
 				return Fail(iResult,OutStream);
 		}
 
-		Progress.SetStatus(g_StringTable.GetString(STATUS_WRITEDATA));
+		Progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEDATA));
 		Progress.SetMarquee(false);
 
 		// To help keep track of the progress.

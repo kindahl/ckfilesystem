@@ -22,7 +22,7 @@
 
 namespace ckfilesystem
 {
-	ElTorito::ElTorito(ckcore::Log *pLog) : m_pLog(pLog)
+	ElTorito::ElTorito(ckcore::Log &log) : log_(log)
 	{
 	}
 
@@ -42,7 +42,7 @@ namespace ckfilesystem
 		ckcore::FileInStream InFile(szFullPath);
 		if (!InFile.Open())
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),szFullPath);
+			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),szFullPath);
 			return false;
 		}
 
@@ -54,7 +54,7 @@ namespace ckfilesystem
 		if (iProcessed != sizeof(tMasterBootRec) ||
 			(MBR.ucSignature1 != 0x55 || MBR.ucSignature2 != 0xAA))
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to locate MBR in default boot image."));
+			log_.PrintLine(ckT("  Error: Unable to locate MBR in default boot image."));
 			return false;
 		}
 
@@ -66,7 +66,7 @@ namespace ckfilesystem
 			{
 				if (iUsedPartition != -1)
 				{
-					m_pLog->PrintLine(ckT("  Error: Invalid boot image, it contains more than one partition."));
+					log_.PrintLine(ckT("  Error: Invalid boot image, it contains more than one partition."));
 					return false;
 				}
 				else
@@ -80,7 +80,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::WriteBootRecord(SectorOutStream *pOutStream,unsigned long ulBootCatSecPos)
+	bool ElTorito::WriteBootRecord(SectorOutStream &out_stream,unsigned long ulBootCatSecPos)
 	{
 		tVolDescElToritoRecord BootRecord;
 		memset(&BootRecord,0,sizeof(tVolDescElToritoRecord));
@@ -91,7 +91,7 @@ namespace ckfilesystem
 		memcpy(BootRecord.ucBootSysIdentifier,g_IdentElTorito,strlen(g_IdentElTorito));
 		BootRecord.uiBootCatalogPtr = ulBootCatSecPos;
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&BootRecord,sizeof(BootRecord));
+		ckcore::tint64 iProcessed = out_stream.Write(&BootRecord,sizeof(BootRecord));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(BootRecord))
@@ -100,7 +100,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::WriteBootCatalog(SectorOutStream *pOutStream)
+	bool ElTorito::WriteBootCatalog(SectorOutStream &out_stream)
 	{
 		char szManufacturer[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,0x52,0x44,0x45,0x52 };
 		tElToritoValiEntry ValidationEntry;
@@ -122,7 +122,7 @@ namespace ckfilesystem
 
 		ValidationEntry.usCheckSum = -iCheckSum;
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&ValidationEntry,sizeof(ValidationEntry));
+		ckcore::tint64 iProcessed = out_stream.Write(&ValidationEntry,sizeof(ValidationEntry));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(ValidationEntry))
@@ -177,7 +177,7 @@ namespace ckfilesystem
 				break;
 		}
 
-		iProcessed = pOutStream->Write(&DefBootEntry,sizeof(DefBootEntry));
+		iProcessed = out_stream.Write(&DefBootEntry,sizeof(DefBootEntry));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(DefBootEntry))
@@ -204,7 +204,7 @@ namespace ckfilesystem
 			sprintf(szIdentifier,"IMAGE%u",i + 1);
 			memcpy(SecHeader.ucIndentifier,szIdentifier,strlen(szIdentifier));
 
-			iProcessed = pOutStream->Write(&SecHeader,sizeof(SecHeader));
+			iProcessed = out_stream.Write(&SecHeader,sizeof(SecHeader));
 			if (iProcessed == -1)
 				return false;
 			if (iProcessed != sizeof(SecHeader))
@@ -253,25 +253,25 @@ namespace ckfilesystem
 					break;
 			}
 
-			iProcessed = pOutStream->Write(&SecEntry,sizeof(SecEntry));
+			iProcessed = out_stream.Write(&SecEntry,sizeof(SecEntry));
 			if (iProcessed == -1)
 				return false;
 			if (iProcessed != sizeof(SecEntry))
 				return false;
 		}
 
-		if (pOutStream->GetAllocated() != 0)
-			pOutStream->PadSector();
+		if (out_stream.GetAllocated() != 0)
+			out_stream.PadSector();
 
 		return true;
 	}
 
-	bool ElTorito::WriteBootImage(SectorOutStream *pOutStream,const ckcore::tchar *szFileName)
+	bool ElTorito::WriteBootImage(SectorOutStream &out_stream,const ckcore::tchar *szFileName)
 	{
 		ckcore::FileInStream FileStream(szFileName);
 		if (!FileStream.Open())
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),szFileName);
+			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),szFileName);
 			return false;
 		}
 
@@ -282,30 +282,30 @@ namespace ckfilesystem
 			ckcore::tint64 iProcessed = FileStream.Read(szBuffer,ELTORITO_IO_BUFFER_SIZE);
 			if (iProcessed == -1)
 			{
-				m_pLog->PrintLine(ckT("  Error: Unable read file: %s."),szFileName);
+				log_.PrintLine(ckT("  Error: Unable read file: %s."),szFileName);
 				return false;
 			}
 
-			if (pOutStream->Write(szBuffer,(ckcore::tuint32)iProcessed) == -1)
+			if (out_stream.Write(szBuffer,(ckcore::tuint32)iProcessed) == -1)
 			{
-				m_pLog->PrintLine(ckT("  Error: Unable write to disc image."));
+				log_.PrintLine(ckT("  Error: Unable write to disc image."));
 				return false;
 			}
 		}
 
 		// Pad the sector.
-		if (pOutStream->GetAllocated() != 0)
-			pOutStream->PadSector();
+		if (out_stream.GetAllocated() != 0)
+			out_stream.PadSector();
 
 		return true;
 	}
 
-	bool ElTorito::WriteBootImages(SectorOutStream *pOutStream)
+	bool ElTorito::WriteBootImages(SectorOutStream &out_stream)
 	{
 		std::vector<ElToritoImage *>::iterator itImage;
 		for (itImage = m_BootImages.begin(); itImage != m_BootImages.end(); itImage++)
 		{
-			if (!WriteBootImage(pOutStream,(*itImage)->m_FullPath.c_str()))
+			if (!WriteBootImage(out_stream,(*itImage)->m_FullPath.c_str()))
 				return false;
 		}
 
@@ -337,7 +337,7 @@ namespace ckfilesystem
 		ckcore::tuint64 uiFileSize = ckcore::File::Size(szFullPath);
 		if (uiFileSize != 1200 * 1024 && uiFileSize != 1440 * 1024 && uiFileSize != 2880 * 1024)
 		{
-			m_pLog->PrintLine(ckT("  Error: Invalid file size for floppy emulated boot image."));
+			log_.PrintLine(ckT("  Error: Invalid file size for floppy emulated boot image."));
 			return false;
 		}
 
@@ -374,9 +374,9 @@ namespace ckfilesystem
 			if (uiStartSec > 0xFFFFFFFF)
 			{
 #ifdef _WINDOWS
-				m_pLog->PrintLine(ckT("  Error: Sector offset overflow (%I64u), can not include boot image: %s."),
+				log_.PrintLine(ckT("  Error: Sector offset overflow (%I64u), can not include boot image: %s."),
 #else
-				m_pLog->PrintLine(ckT("  Error: Sector offset overflow (%lld), can not include boot image: %s."),
+				log_.PrintLine(ckT("  Error: Sector offset overflow (%lld), can not include boot image: %s."),
 #endif
 					uiStartSec,(*itImage)->m_FullPath.c_str());
 				return false;

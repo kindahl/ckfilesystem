@@ -109,7 +109,7 @@ namespace ckfilesystem
 	class FileTree
 	{
 	private:
-		ckcore::Log *m_pLog;
+		ckcore::Log &log_;
 		FileTreeNode *m_pRootNode;
 
 		// File tree information.
@@ -120,7 +120,7 @@ namespace ckfilesystem
 		bool AddFileFromPath(const FileDescriptor &File);
 
 	public:
-		FileTree(ckcore::Log *pLog);
+		FileTree(ckcore::Log &log);
 		~FileTree();
 
 		FileTreeNode *GetRoot();

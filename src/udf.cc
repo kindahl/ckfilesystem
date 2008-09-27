@@ -451,7 +451,7 @@ namespace ckfilesystem
 		Write the initial volume descriptors. They're of the same format as the
 		ISO9660 volume descriptors.
 	*/
-	bool Udf::WriteVolDescInitial(ckcore::OutStream *pOutStream)
+	bool Udf::WriteVolDescInitial(ckcore::OutStream &out_stream)
 	{
 		tUdfVolStructDesc VolStructDesc;
 		memset(&VolStructDesc,0,sizeof(tUdfVolStructDesc));
@@ -459,21 +459,21 @@ namespace ckfilesystem
 		VolStructDesc.ucStructVer = 1;
 
 		memcpy(VolStructDesc.ucIdent,g_pIdentBEA,sizeof(VolStructDesc.ucIdent));
-		ckcore::tint64 iProcessed = pOutStream->Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfVolStructDesc))
 			return false;
 
 		memcpy(VolStructDesc.ucIdent,g_pIdentNSR,sizeof(VolStructDesc.ucIdent));
-		iProcessed = pOutStream->Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
+		iProcessed = out_stream.Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfVolStructDesc))
 			return false;
 
 		memcpy(VolStructDesc.ucIdent,g_pIdentTEA,sizeof(VolStructDesc.ucIdent));
-		iProcessed = pOutStream->Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
+		iProcessed = out_stream.Write(&VolStructDesc,sizeof(tUdfVolStructDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfVolStructDesc))
@@ -482,7 +482,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool Udf::WriteVolDescPrimary(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation,struct tm &ImageCreate)
 	{
 		// Make the tag.
@@ -507,7 +507,7 @@ namespace ckfilesystem
 		// Calculate checksums.
 		MakeTagChecksums(m_PrimVolDesc.DescTag,(unsigned char *)(&m_PrimVolDesc) + sizeof(tUdfTag));
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&m_PrimVolDesc,sizeof(tUdfPrimVolDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&m_PrimVolDesc,sizeof(tUdfPrimVolDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfPrimVolDesc))
@@ -516,12 +516,12 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfPrimVolDesc)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescImplUse(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation)
 	{	
 		tUdfImplUseVolDesc ImplUseVolDesc;
@@ -544,7 +544,7 @@ namespace ckfilesystem
 		// Calculate tag checksums.
 		MakeTagChecksums(ImplUseVolDesc.DescTag,(unsigned char *)(&ImplUseVolDesc) + sizeof(tUdfTag));
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&ImplUseVolDesc,sizeof(tUdfImplUseVolDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&ImplUseVolDesc,sizeof(tUdfImplUseVolDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfImplUseVolDesc))
@@ -553,7 +553,7 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfImplUseVolDesc)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
@@ -561,7 +561,7 @@ namespace ckfilesystem
 	/**
 		@param ulPartLen is the partition size in sectors.
 	*/
-	bool Udf::WriteVolDescPartition(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation,unsigned long ulPartStartLoc,unsigned long ulPartLen)
 	{
 		// Make the tag.
@@ -576,7 +576,7 @@ namespace ckfilesystem
 		// Calculate tag checksums.
 		MakeTagChecksums(m_PartVolDesc.DescTag,(unsigned char *)(&m_PartVolDesc) + sizeof(tUdfTag));
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&m_PartVolDesc,sizeof(tUdfPartVolDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&m_PartVolDesc,sizeof(tUdfPartVolDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfPartVolDesc))
@@ -585,12 +585,12 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfPartVolDesc)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescLogical(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation,tUdfExtentAd &IntegritySeqExtent)
 	{
 		// Make the tag.
@@ -623,14 +623,14 @@ namespace ckfilesystem
 		MakeTagChecksums(m_LogicalVolDesc.DescTag,ucCompleteBuffer + sizeof(tUdfTag));
 
 		// Write logical volume descriptor.
-		ckcore::tint64 iProcessed = pOutStream->Write(&m_LogicalVolDesc,sizeof(tUdfLogicalVolDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&m_LogicalVolDesc,sizeof(tUdfLogicalVolDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfLogicalVolDesc))
 			return false;
 
 		// Write partition map.
-		iProcessed = pOutStream->Write(&PartMap,sizeof(tUdfLogicalPartMapType1));
+		iProcessed = out_stream.Write(&PartMap,sizeof(tUdfLogicalPartMapType1));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfLogicalPartMapType1))
@@ -640,12 +640,12 @@ namespace ckfilesystem
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfLogicalVolDesc) -
 			sizeof(tUdfLogicalPartMapType1)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescUnalloc(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+	bool Udf::WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 		unsigned long ulSecLocation)
 	{
 		tUdfUnallocSpaceDesc UnallocSpaceDesc;
@@ -663,7 +663,7 @@ namespace ckfilesystem
 		MakeTagChecksums(UnallocSpaceDesc.DescTag,(unsigned char *)(&UnallocSpaceDesc) + sizeof(tUdfTag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = pOutStream->Write(&UnallocSpaceDesc,sizeof(tUdfUnallocSpaceDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&UnallocSpaceDesc,sizeof(tUdfUnallocSpaceDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfUnallocSpaceDesc))
@@ -672,12 +672,12 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfUnallocSpaceDesc)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescTerm(ckcore::OutStream *pOutStream,unsigned long ulSecLocation)
+	bool Udf::WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long ulSecLocation)
 	{
 		tUdfTermVolDesc TermDesc;
 		memset(&TermDesc,0,sizeof(tUdfTermVolDesc));
@@ -689,7 +689,7 @@ namespace ckfilesystem
 		MakeTagChecksums(TermDesc.DescTag,(unsigned char *)(&TermDesc) + sizeof(tUdfTag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = pOutStream->Write(&TermDesc,sizeof(tUdfTermVolDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&TermDesc,sizeof(tUdfTermVolDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfTermVolDesc))
@@ -698,7 +698,7 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfTermVolDesc)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
@@ -711,7 +711,7 @@ namespace ckfilesystem
 		@param uiUniqueIdent must be larger than the unique udentifiers of any
 		file entry.
 	*/
-	bool Udf::WriteVolDescLogIntegrity(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 		unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
 		ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate)
 	{
@@ -745,7 +745,7 @@ namespace ckfilesystem
 		MakeTagChecksums(LogIntegrityDesc.DescTag,(unsigned char *)(&LogIntegrityDesc) + sizeof(tUdfTag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = pOutStream->Write(&LogIntegrityDesc,sizeof(tUdfLogicalVolIntegrityDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&LogIntegrityDesc,sizeof(tUdfLogicalVolIntegrityDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfLogicalVolIntegrityDesc))
@@ -754,12 +754,12 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfLogicalVolIntegrityDesc)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteAnchorVolDescPtr(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 		tUdfExtentAd &MainVolDescSeqExtent,tUdfExtentAd &ReserveVolDescSeqExtent)
 	{
 		tUdfAnchorVolDescPtr AnchorVolDescPtr;
@@ -777,7 +777,7 @@ namespace ckfilesystem
 		// Calculate tag checksums.
 		MakeTagChecksums(AnchorVolDescPtr.DescTag,(unsigned char *)(&AnchorVolDescPtr) + sizeof(tUdfTag));
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&AnchorVolDescPtr,sizeof(tUdfAnchorVolDescPtr));
+		ckcore::tint64 iProcessed = out_stream.Write(&AnchorVolDescPtr,sizeof(tUdfAnchorVolDescPtr));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfAnchorVolDescPtr))
@@ -786,7 +786,7 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfAnchorVolDescPtr)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
@@ -795,7 +795,7 @@ namespace ckfilesystem
 		Writes a file set decsriptor structure to the output stream.
 		@param ulSecLocation sector position relative to the first logical block of the partition.
 	*/
-	bool Udf::WriteFileSetDesc(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 		unsigned long ulRootSecLocation,struct tm &ImageCreate)
 	{
 		tUdfFileSetDesc FileSetDesc;
@@ -831,7 +831,7 @@ namespace ckfilesystem
 		// Calculate tag checksums.
 		MakeTagChecksums(FileSetDesc.DescTag,(unsigned char *)(&FileSetDesc) + sizeof(tUdfTag));
 
-		ckcore::tint64 iProcessed = pOutStream->Write(&FileSetDesc,sizeof(tUdfFileSetDesc));
+		ckcore::tint64 iProcessed = out_stream.Write(&FileSetDesc,sizeof(tUdfFileSetDesc));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(tUdfFileSetDesc))
@@ -840,7 +840,7 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tUdfAnchorVolDescPtr)); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}
@@ -848,7 +848,7 @@ namespace ckfilesystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool Udf::WriteFileIdentParent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 		unsigned long ulFileEntrySecLoc)
 	{
 		tUdfFileIdentDesc FileIdentDesc;
@@ -882,7 +882,7 @@ namespace ckfilesystem
 		memcpy(ucCompleteBuffer,&FileIdentDesc.DescTag,sizeof(tUdfTag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = pOutStream->Write(ucCompleteBuffer,sizeof(ucCompleteBuffer));
+		ckcore::tint64 iProcessed = out_stream.Write(ucCompleteBuffer,sizeof(ucCompleteBuffer));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(ucCompleteBuffer))
@@ -894,7 +894,7 @@ namespace ckfilesystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool Udf::WriteFileIdent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileIdent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 		unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName)
 	{
 		tUdfFileIdentDesc FileIdentDesc;
@@ -936,7 +936,7 @@ namespace ckfilesystem
 		memcpy(m_pByteBuffer,&FileIdentDesc.DescTag,sizeof(tUdfTag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = pOutStream->Write(m_pByteBuffer,usDescLen);
+		ckcore::tint64 iProcessed = out_stream.Write(m_pByteBuffer,usDescLen);
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != usDescLen)
@@ -951,7 +951,7 @@ namespace ckfilesystem
 		@param uiInfoLength the length of all file identifiers in bytes for
 		directories and the size of the file on files.
 	*/
-	bool Udf::WriteFileEntry(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+	bool Udf::WriteFileEntry(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 		bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
 		unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
 		struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime)
@@ -1147,7 +1147,7 @@ namespace ckfilesystem
 		memcpy(pCompleteBuffer,&FileEntry.DescTag,sizeof(tUdfTag));
 
 		// Write to the output stream.
-		ckcore::tint64 iProcessed = pOutStream->Write(pCompleteBuffer,usDescLen);
+		ckcore::tint64 iProcessed = out_stream.Write(pCompleteBuffer,usDescLen);
 		delete [] pCompleteBuffer;
 
 		if (iProcessed == -1)
@@ -1158,7 +1158,7 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char szTemp[1] = { 0 };
 		for (unsigned long i = 0; i < (unsigned long)(UDF_SECTOR_SIZE - usDescLen); i++)
-			pOutStream->Write(szTemp,1);
+			out_stream.Write(szTemp,1);
 
 		return true;
 	}

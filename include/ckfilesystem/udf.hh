@@ -682,31 +682,31 @@ namespace ckfilesystem
 		void SetPartAccessType(PartAccessType AccessType);
 
 		// Write functions.
-		bool WriteVolDescInitial(ckcore::OutStream *pOutStream);
-		bool WriteVolDescPrimary(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+		bool WriteVolDescInitial(ckcore::OutStream &out_stream);
+		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 			unsigned long ulSecLocation,struct tm &ImageCreate);
-		bool WriteVolDescImplUse(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+		bool WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 			unsigned long ulSecLocation);
-		bool WriteVolDescPartition(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+		bool WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 			unsigned long ulSecLocation,unsigned long ulPartStartLoc,unsigned long ulPartLen);
-		bool WriteVolDescLogical(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+		bool WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 			unsigned long ulSecLocation,tUdfExtentAd &IntegritySeqExtent);
-		bool WriteVolDescUnalloc(ckcore::OutStream *pOutStream,unsigned long ulVolDescSeqNum,
+		bool WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long ulVolDescSeqNum,
 			unsigned long ulSecLocation);
-		bool WriteVolDescTerm(ckcore::OutStream *pOutStream,unsigned long ulSecLocation);
-		bool WriteVolDescLogIntegrity(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+		bool WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long ulSecLocation);
+		bool WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 			unsigned long ulFileCount,unsigned long ulDirCount,unsigned long ulPartLen,
 			ckcore::tuint64 uiUniqueIdent,struct tm &ImageCreate);
-		bool WriteAnchorVolDescPtr(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+		bool WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 			tUdfExtentAd &MainVolDescSeqExtent,tUdfExtentAd &ReserveVolDescSeqExtent);
 
-		bool WriteFileSetDesc(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+		bool WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 			unsigned long ulRootSecLocation,struct tm &ImageCreate);
-		bool WriteFileIdentParent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+		bool WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 			unsigned long ulFileEntrySecLoc);
-		bool WriteFileIdent(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+		bool WriteFileIdent(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 			unsigned long ulFileEntrySecLoc,bool bIsDirectory,const ckcore::tchar *szFileName);
-		bool WriteFileEntry(ckcore::OutStream *pOutStream,unsigned long ulSecLocation,
+		bool WriteFileEntry(ckcore::OutStream &out_stream,unsigned long ulSecLocation,
 			bool bIsDirectory,unsigned short usFileLinkCount,ckcore::tuint64 uiUniqueIdent,
 			unsigned long ulInfoLocation,ckcore::tuint64 uiInfoLength,
 			struct tm &AccessTime,struct tm &ModifyTime,struct tm &CreateTime);

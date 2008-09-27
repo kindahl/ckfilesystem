@@ -26,8 +26,8 @@
 
 namespace ckfilesystem
 {
-	DiscImageWriter::DiscImageWriter(ckcore::Log *pLog,eFileSystem FileSystem) : m_FileSystem(FileSystem),
-		m_pLog(pLog),m_ElTorito(pLog),m_Udf(FileSystem == FS_DVDVIDEO)
+	DiscImageWriter::DiscImageWriter(ckcore::Log &log,eFileSystem FileSystem) : m_FileSystem(FileSystem),
+		log_(log),m_ElTorito(log),m_Udf(FileSystem == FS_DVDVIDEO)
 	{
 	}
 
@@ -61,7 +61,7 @@ namespace ckfilesystem
 				{
 					if (m_FileSystem == FS_ISO9660 || m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_DVDVIDEO)
 					{
-						m_pLog->PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
+						log_.PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
 							(*itFile)->m_FileName.c_str());
 						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIP4GFILE),
 							(*itFile)->m_FileName.c_str());
@@ -70,7 +70,7 @@ namespace ckfilesystem
 					}
 					else if (m_FileSystem == FS_ISO9660_UDF || m_FileSystem == FS_ISO9660_UDF_JOLIET)
 					{
-						m_pLog->PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
+						log_.PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
 							(*itFile)->m_FileName.c_str());
 						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIP4GFILEISO),
 							(*itFile)->m_FileName.c_str());
@@ -83,7 +83,7 @@ namespace ckfilesystem
 					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->m_pData;
 					if (pImportNode == NULL)
 					{
-						m_pLog->PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
+						log_.PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
 							(*itFile)->m_FileName.c_str());
 						return false;
 					}
@@ -163,7 +163,7 @@ namespace ckfilesystem
 		ckcore::FileInStream FileStream(pNode->m_FileFullPath.c_str());
 		if (!FileStream.Open())
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),
+			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),
 				pNode->m_FileFullPath.c_str());
 			FileProgresser.Notify(ckcore::Progress::ckERROR,StringTable::Instance().GetString(ERROR_OPENREAD),
 				pNode->m_FileFullPath.c_str());
@@ -172,7 +172,7 @@ namespace ckfilesystem
 
 		if (!ckcore::stream::copy(FileStream,OutStream,FileProgresser))
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable write file to disc image."));
+			log_.PrintLine(ckT("  Error: Unable write file to disc image."));
 			return RESULT_FAIL;
 		}
 
@@ -216,9 +216,9 @@ namespace ckfilesystem
 				{
 					case RESULT_FAIL:
 #ifdef _WINDOWS
-						m_pLog->PrintLine(ckT("  Error: Unable to write node \"%s\" to (%I64u,%I64u)."),
+						log_.PrintLine(ckT("  Error: Unable to write node \"%s\" to (%I64u,%I64u)."),
 #else
-						m_pLog->PrintLine(ckT("  Error: Unable to write node \"%s\" to (%llu,%llu)."),
+						log_.PrintLine(ckT("  Error: Unable to write node \"%s\" to (%llu,%llu)."),
 #endif
 							(*itFile)->m_FileName.c_str(),(*itFile)->m_uiDataPosNormal,(*itFile)->m_uiDataSizeNormal);
 						return RESULT_FAIL;
@@ -442,8 +442,8 @@ namespace ckfilesystem
 	int DiscImageWriter::Create(SectorOutStream &OutStream,FileSet &Files,ckcore::Progress &Progress,
 		unsigned long ulSectorOffset,std::map<ckcore::tstring,ckcore::tstring> *pFilePathMap)
 	{
-		m_pLog->PrintLine(ckT("DiscImageWriter::Create"));
-		m_pLog->PrintLine(ckT("  Sector offset: %u."),ulSectorOffset);
+		log_.PrintLine(ckT("DiscImageWriter::Create"));
+		log_.PrintLine(ckT("  Sector offset: %u."),ulSectorOffset);
 
 		// The first 16 sectors are reserved for system use (write 0s).
 		char szTemp[1] = { 0 };
@@ -455,7 +455,7 @@ namespace ckfilesystem
 		/*FileSet::const_iterator itFile;
 		for (itFile = Files.begin(); itFile != Files.end(); itFile++)
 		{
-			m_pLog->PrintLine(ckT("  %s"),(*itFile).m_InternalPath.c_str());
+			log_.PrintLine(ckT("  %s"),(*itFile).m_InternalPath.c_str());
 		}*/
 		// ...
 
@@ -463,20 +463,20 @@ namespace ckfilesystem
 		Progress.SetMarquee(true);
 
 		// Create a file tree.
-		FileTree file_tree(m_pLog);
+		FileTree file_tree(log_);
 		if (!file_tree.CreateFromFileSet(Files))
 		{
-			m_pLog->PrintLine(ckT("  Error: Failed to build file tree."));
+			log_.PrintLine(ckT("  Error: Failed to build file tree."));
 			return Fail(RESULT_FAIL,OutStream);
 		}
 
 		// Calculate padding if DVD-Video file system.
 		if (m_FileSystem == FS_DVDVIDEO)
 		{
-			DvdVideo dvd_video(m_pLog);
+			DvdVideo dvd_video(log_);
 			if (!dvd_video.CalcFilePadding(file_tree))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to calculate file padding for DVD-Video file system."));
+				log_.PrintLine(ckT("  Error: Failed to calculate file padding for DVD-Video file system."));
 				return Fail(RESULT_FAIL,OutStream);
 			}
 
@@ -488,9 +488,9 @@ namespace ckfilesystem
 			m_FileSystem == FS_UDF || m_FileSystem == FS_DVDVIDEO;
 		bool bUseJoliet = m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_ISO9660_UDF_JOLIET;
 
-		CSectorManager SectorManager(16 + ulSectorOffset);
-		Iso9660Writer IsoWriter(m_pLog,&OutStream,&SectorManager,&m_Iso9660,&m_Joliet,&m_ElTorito,true,bUseJoliet);
-		UdfWriter UdfWriter(m_pLog,&OutStream,&SectorManager,&m_Udf,true);
+		SectorManager sec_manager(16 + ulSectorOffset);
+		Iso9660Writer IsoWriter(log_,OutStream,sec_manager,m_Iso9660,m_Joliet,m_ElTorito,true,bUseJoliet);
+		UdfWriter UdfWriter(log_,OutStream,sec_manager,m_Udf,true);
 
 		int iResult = RESULT_FAIL;
 
@@ -528,16 +528,16 @@ namespace ckfilesystem
 		}
 
 		// Allocate file data.
-		ckcore::tuint64 uiFirstDataSec = SectorManager.GetNextFree();
+		ckcore::tuint64 uiFirstDataSec = sec_manager.GetNextFree();
 		ckcore::tuint64 uiLastDataSec = 0;
 
 		if (!CalcFileSysData(file_tree,Progress,uiFirstDataSec,uiLastDataSec))
 		{
-			m_pLog->PrintLine(ckT("  Error: Could not calculate necessary file system information."));
+			log_.PrintLine(ckT("  Error: Could not calculate necessary file system information."));
 			return Fail(RESULT_FAIL,OutStream);
 		}
 
-		SectorManager.AllocateDataSectors(uiLastDataSec - uiFirstDataSec);
+		sec_manager.AllocateDataSectors(uiLastDataSec - uiFirstDataSec);
 
 		if (bUseIso)
 		{
@@ -576,7 +576,7 @@ namespace ckfilesystem
 		Progress.SetMarquee(false);
 
 		// To help keep track of the progress.
-		ckcore::Progresser FileProgresser(Progress,SectorManager.GetDataLength() * ISO9660_SECTOR_SIZE);
+		ckcore::Progresser FileProgresser(Progress,sec_manager.GetDataLength() * ISO9660_SECTOR_SIZE);
 		iResult = WriteFileData(OutStream,file_tree,FileProgresser);
 		if (iResult != RESULT_OK)
 			return Fail(iResult,OutStream);

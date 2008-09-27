@@ -20,8 +20,8 @@
 
 namespace ckfilesystem
 {
-	FileTree::FileTree(ckcore::Log *pLog) :
-		m_pLog(pLog),m_pRootNode(NULL)
+	FileTree::FileTree(ckcore::Log &log) :
+		log_(log),m_pRootNode(NULL)
 	{
 		m_ulDirCount = 0;
 		m_ulFileCount = 0;
@@ -74,7 +74,7 @@ namespace ckfilesystem
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
-						m_pLog->PrintLine(ckT("  Error: Unable to find child node \"%s\" in path \"%s\"."),
+						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\" in path \"%s\"."),
 							CurDirName.c_str(),File.m_InternalPath.c_str());
 						return false;
 					}
@@ -154,7 +154,7 @@ namespace ckfilesystem
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
-						m_pLog->PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
+						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
 						return NULL;
 					}
 				}
@@ -190,7 +190,7 @@ namespace ckfilesystem
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
-						m_pLog->PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
+						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
 						return NULL;
 					}
 				}
@@ -236,14 +236,14 @@ namespace ckfilesystem
 			else
 			{
 				for (int i = 0; i < iIndent; i++)
-					m_pLog->Print(ckT(" "));
+					log_.Print(ckT(" "));
 
-				m_pLog->Print(ckT("<f>"));
-				m_pLog->Print((*itFile)->m_FileName.c_str());
+				log_.Print(ckT("<f>"));
+				log_.Print((*itFile)->m_FileName.c_str());
 #ifdef _WINDOWS
-				m_pLog->PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*itFile)->m_uiDataPosNormal,
+				log_.PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*itFile)->m_uiDataPosNormal,
 #else
-				m_pLog->PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),(*itFile)->m_uiDataPosNormal,
+				log_.PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),(*itFile)->m_uiDataPosNormal,
 #endif
 					(*itFile)->m_uiDataSizeNormal,(*itFile)->m_uiDataPosJoliet,
 					(*itFile)->m_uiDataSizeJoliet,(*itFile)->m_uiUdfSize,(*itFile)->m_uiUdfSizeTot);
@@ -259,14 +259,14 @@ namespace ckfilesystem
 		FileTreeNode *pCurNode = m_pRootNode;
 		int iIndent = 0;
 
-		m_pLog->PrintLine(ckT("FileTree::PrintTree"));
+		log_.PrintLine(ckT("FileTree::PrintTree"));
 #ifdef _WINDOWS
-		m_pLog->PrintLine(ckT("  <root> (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
+		log_.PrintLine(ckT("  <root> (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
 #else
-		m_pLog->PrintLine(ckT("  <root> (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
+		log_.PrintLine(ckT("  <root> (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
 #endif
-				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
-				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
+		pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
+		pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
 
 		std::vector<std::pair<FileTreeNode *,int> > DirNodeStack;
 		PrintLocalTree(DirNodeStack,pCurNode,4);
@@ -280,14 +280,14 @@ namespace ckfilesystem
 
 			// Print the directory name.
 			for (int i = 0; i < iIndent; i++)
-				m_pLog->Print(ckT(" "));
+				log_.Print(ckT(" "));
 
-			m_pLog->Print(ckT("<d>"));
-			m_pLog->Print(pCurNode->m_FileName.c_str());
+			log_.Print(ckT("<d>"));
+			log_.Print(pCurNode->m_FileName.c_str());
 #ifdef _WINDOWS
-			m_pLog->PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
+			log_.PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
 #else
-			m_pLog->PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
+			log_.PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
 #endif
 				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
 				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);

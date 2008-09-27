@@ -26,11 +26,11 @@
 
 namespace ckfilesystem
 {
-	Iso9660Writer::Iso9660Writer(ckcore::Log *pLog,SectorOutStream *pOutStream,
-		CSectorManager *pSectorManager,Iso9660 *pIso9660,Joliet *pJoliet,
-		ElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet) :
-		m_pLog(pLog),m_pOutStream(pOutStream),m_pSectorManager(pSectorManager),
-		m_pIso9660(pIso9660),m_pJoliet(pJoliet),m_pElTorito(pElTorito),
+	Iso9660Writer::Iso9660Writer(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
+		Iso9660 &iso9660,Joliet &joliet,ElTorito &eltorito,
+		bool bUseFileTimes,bool bUseJoliet) :
+		log_(log),out_stream_(out_stream),sec_manager_(sec_manager),
+		iso9660_(iso9660),joliet_(joliet),eltorito_(eltorito),
 		m_bUseFileTimes(bUseFileTimes),m_bUseJoliet(bUseJoliet),
 		m_uiPathTableSizeNormal(0),m_uiPathTableSizeJoliet(0)
 	{
@@ -97,7 +97,7 @@ namespace ckfilesystem
 		if (iDelimiter == -1)
 		{
 			if (!(pNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) &&
-				m_pJoliet->IncludesFileVerInfo())
+				joliet_.IncludesFileVerInfo())
 				ucFileNameEnd = ucFileNameLen - 2;
 			else
 				ucFileNameEnd = ucFileNameLen;
@@ -151,7 +151,7 @@ namespace ckfilesystem
 				if (ucNextNumber == 255)
 				{
 					// We have failed, files with duplicate names will exist.
-					m_pLog->PrintLine(ckT("  Warning: Unable to calculate unique Joliet name for %s. Duplicate file names will exist in Joliet name extension."),
+					log_.PrintLine(ckT("  Warning: Unable to calculate unique Joliet name for %s. Duplicate file names will exist in Joliet name extension."),
 						pNode->m_FileFullPath.c_str());
 					break;
 				}
@@ -210,7 +210,7 @@ namespace ckfilesystem
 		if (iDelimiter == -1)
 		{
 			if (!(pNode->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY) &&
-				m_pIso9660->IncludesFileVerInfo())
+				iso9660_.IncludesFileVerInfo())
 				ucFileNameEnd = ucFileNameSize - 2;
 			else
 				ucFileNameEnd = ucFileNameSize;
@@ -262,7 +262,7 @@ namespace ckfilesystem
 				if (ucNextNumber == 255)
 				{
 					// We have failed, files with duplicate names will exist.
-					m_pLog->PrintLine(ckT("  Warning: Unable to calculate unique ISO9660 name for %s. Duplicate file names will exist in ISO9660 file system."),
+					log_.PrintLine(ckT("  Warning: Unable to calculate unique ISO9660 name for %s. Duplicate file names will exist in ISO9660 file system."),
 						pNode->m_FileFullPath.c_str());
 					break;
 				}
@@ -354,19 +354,19 @@ namespace ckfilesystem
 			if (iLevel <= 1)
 				continue;
 
-			if (iLevel > m_pIso9660->GetMaxDirLevel())
+			if (iLevel > iso9660_.GetMaxDirLevel())
 			{
 				// Print the message only once.
 				if (!bFoundDeep)
 				{
-					m_pLog->PrintLine(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
-						m_pIso9660->GetMaxDirLevel());
+					log_.PrintLine(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
+						iso9660_.GetMaxDirLevel());
 					Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_FSDIRLEVEL),
-						m_pIso9660->GetMaxDirLevel());
+						iso9660_.GetMaxDirLevel());
 					bFoundDeep = true;
 				}
 
-				m_pLog->PrintLine(ckT("  Skipping: %s."),itFile->m_InternalPath.c_str());
+				log_.PrintLine(ckT("  Skipping: %s."),itFile->m_InternalPath.c_str());
 				Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIPFILE),
 					itFile->m_InternalPath.c_str());
 				continue;
@@ -405,8 +405,8 @@ namespace ckfilesystem
 						if (PathDirList.find(PathBuffer) == PathDirList.end())
 						{
 							unsigned char ucNameLen = bJolietTable ?
-								m_pJoliet->CalcFileNameLen(CurDirName.c_str(),true) << 1 : 
-								m_pIso9660->CalcFileNameLen(CurDirName.c_str(),true);
+								joliet_.CalcFileNameLen(CurDirName.c_str(),true) << 1 : 
+								iso9660_.CalcFileNameLen(CurDirName.c_str(),true);
 							unsigned char ucPathTableRecLen = sizeof(tPathTableRecord) + ucNameLen - 1;
 
 							// If the record length is not even padd it with a 0 byte.
@@ -448,12 +448,12 @@ namespace ckfilesystem
 			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (iLevel >= m_pIso9660->GetMaxDirLevel())
+				if (iLevel >= iso9660_.GetMaxDirLevel())
 					continue;
 			}
 
 			// Validate file size.
-			if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !m_pIso9660->AllowsFragmentation())
+			if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !iso9660_.AllowsFragmentation())
 				continue;
 
 			// Calculate the number of times this record will be written. It
@@ -470,19 +470,19 @@ namespace ckfilesystem
 
 			unsigned char ucNameLen;	// FIXME: Rename to Size?
 			/*if (bJoliet)
-				ucNameLen = m_pJoliet->CalcFileNameLen((*itFile)->m_FileName.c_str(),bIsFolder) << 1;
+				ucNameLen = joliet_.CalcFileNameLen((*itFile)->m_FileName.c_str(),bIsFolder) << 1;
 			else
-				ucNameLen = m_pIso9660->CalcFileNameLen((*itFile)->m_FileName.c_str(),bIsFolder);*/
+				ucNameLen = iso9660_.CalcFileNameLen((*itFile)->m_FileName.c_str(),bIsFolder);*/
 			
 			// Optimization: If the the compatible file name is equal (not case-sensitive) to the
 			// original file name we assume that it is uniqe.
 			unsigned char szFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 4]; // Large enough for level 1, 2 and even Joliet.
 			if (bJoliet)
 			{
-				ucNameLen = m_pJoliet->WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder) << 1;
+				ucNameLen = joliet_.WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder) << 1;
 
 				unsigned char ucFileNameEnd;
-				if (!bIsFolder && m_pJoliet->IncludesFileVerInfo())
+				if (!bIsFolder && joliet_.IncludesFileVerInfo())
 					ucFileNameEnd = (ucNameLen >> 1) - 2;
 				else
 					ucFileNameEnd = (ucNameLen >> 1);
@@ -492,7 +492,7 @@ namespace ckfilesystem
 #ifdef _UNICODE
 					(*itFile)->m_FileNameJoliet = (*itFile)->m_FileName;
 
-					if (!bIsFolder && m_pJoliet->IncludesFileVerInfo())
+					if (!bIsFolder && joliet_.IncludesFileVerInfo())
 						(*itFile)->m_FileNameJoliet.append(L";1");
 #else
 					wchar_t szWideFileName[(ISO9660WRITER_FILENAME_BUFFER_SIZE >> 1) + 1];
@@ -511,10 +511,10 @@ namespace ckfilesystem
 			}
 			else
 			{
-				ucNameLen = m_pIso9660->WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder);
+				ucNameLen = iso9660_.WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder);
 
 				unsigned char ucFileNameEnd;
-				if (!bIsFolder && m_pIso9660->IncludesFileVerInfo())
+				if (!bIsFolder && iso9660_.IncludesFileVerInfo())
 					ucFileNameEnd = ucNameLen - 2;
 				else
 					ucFileNameEnd = ucNameLen;
@@ -567,7 +567,7 @@ namespace ckfilesystem
 			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (iLevel >= m_pIso9660->GetMaxDirLevel())
+				if (iLevel >= iso9660_.GetMaxDirLevel())
 					continue;
 				else
 					DirNodeStack.push_back(std::make_pair(*itFile,iLevel + 1));
@@ -630,14 +630,14 @@ namespace ckfilesystem
 		RootRecord.ucDirIdentifier[0] = 0;					// The file name is set to zero.
 
 		// Write the root record.
-		ckcore::tint64 iProcessed = m_pOutStream->Write(&RootRecord,sizeof(RootRecord));
+		ckcore::tint64 iProcessed = out_stream_.Write(&RootRecord,sizeof(RootRecord));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(RootRecord))
 			return false;
 
 		// We need to pad the root record since it's size is otherwise odd.
-		iProcessed = m_pOutStream->Write(RootRecord.ucDirIdentifier,1);
+		iProcessed = out_stream_.Write(RootRecord.ucDirIdentifier,1);
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != 1)
@@ -658,7 +658,7 @@ namespace ckfilesystem
 			if (iLevel <= 1)
 				continue;
 
-			if (iLevel > m_pIso9660->GetMaxDirLevel())
+			if (iLevel > iso9660_.GetMaxDirLevel())
 				continue;
 
 			// We're only interested in directories.
@@ -706,12 +706,12 @@ namespace ckfilesystem
 							unsigned char szFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE];	// Large enough for both level 1, 2 and even Joliet.
 							if (bJolietTable)
 							{
-								ucNameLen = m_pJoliet->WriteFileName(szFileName,CurDirName.c_str(),true) << 1;
+								ucNameLen = joliet_.WriteFileName(szFileName,CurDirName.c_str(),true) << 1;
 								MakeUniqueJoliet(pCurNode,szFileName,ucNameLen);
 							}
 							else
 							{
-								ucNameLen = m_pIso9660->WriteFileName(szFileName,CurDirName.c_str(),true);
+								ucNameLen = iso9660_.WriteFileName(szFileName,CurDirName.c_str(),true);
 								MakeUniqueIso9660(pCurNode,szFileName,ucNameLen);
 							}
 
@@ -734,13 +734,13 @@ namespace ckfilesystem
 							PathDirNumMap[PathBuffer] = usParent = usRecordNumber++;
 
 							// Write the record.
-							iProcessed = m_pOutStream->Write(&PathRecord,sizeof(PathRecord) - 1);
+							iProcessed = out_stream_.Write(&PathRecord,sizeof(PathRecord) - 1);
 							if (iProcessed == -1)
 								return false;
 							if (iProcessed != sizeof(PathRecord) - 1)
 								return false;
 
-							iProcessed = m_pOutStream->Write(szFileName,ucNameLen);
+							iProcessed = out_stream_.Write(szFileName,ucNameLen);
 							if (iProcessed == -1)
 								return false;
 							if (iProcessed != ucNameLen)
@@ -750,7 +750,7 @@ namespace ckfilesystem
 							if (bPadByte)
 							{
 								char szTemp[1] = { 0 };
-								iProcessed = m_pOutStream->Write(szTemp,1);
+								iProcessed = out_stream_.Write(szTemp,1);
 								if (iProcessed == -1)
 									return false;
 								if (iProcessed != 1)
@@ -768,8 +768,8 @@ namespace ckfilesystem
 			}
 		}
 
-		if (m_pOutStream->GetAllocated() != 0)
-			m_pOutStream->PadSector();
+		if (out_stream_.GetAllocated() != 0)
+			out_stream_.PadSector();
 
 		return true;
 	}
@@ -789,7 +789,7 @@ namespace ckfilesystem
 		DirRecord.ucFileIdentifierLen = 1;
 		DirRecord.ucFileIdentifier[0] = Type == TYPE_CURRENT ? 0 : 1;
 
-		ckcore::tint64 iProcessed = m_pOutStream->Write(&DirRecord,sizeof(DirRecord));
+		ckcore::tint64 iProcessed = out_stream_.Write(&DirRecord,sizeof(DirRecord));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(DirRecord))
@@ -807,7 +807,7 @@ namespace ckfilesystem
 		{
 			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
-				if (iLevel >= m_pIso9660->GetMaxDirLevel())
+				if (iLevel >= iso9660_.GetMaxDirLevel())
 					return false;
 				else
 					DirNodeStack.push_back(std::make_pair(*itFile,iLevel + 1));
@@ -846,20 +846,20 @@ namespace ckfilesystem
 	{
 		// Allocate volume descriptor.
 		unsigned long ulVolDescSize = sizeof(tVolDescPrimary) + sizeof(tVolDescSetTerm);
-		if (m_pElTorito->GetBootImageCount() > 0)
+		if (eltorito_.GetBootImageCount() > 0)
 			ulVolDescSize += sizeof(tVolDescElToritoRecord);
-		if (m_pIso9660->HasVolDescSuppl())
+		if (iso9660_.HasVolDescSuppl())
 			ulVolDescSize += sizeof(tVolDescSuppl);
 		if (m_bUseJoliet)
 			ulVolDescSize += sizeof(tVolDescSuppl);
 
-		m_pSectorManager->AllocateBytes(this,SR_DESCRIPTORS,ulVolDescSize);
+		sec_manager_.AllocateBytes(this,SR_DESCRIPTORS,ulVolDescSize);
 
 		// Allocate boot catalog and data.
-		if (m_pElTorito->GetBootImageCount() > 0)
+		if (eltorito_.GetBootImageCount() > 0)
 		{
-			m_pSectorManager->AllocateBytes(this,SR_BOOTCATALOG,m_pElTorito->GetBootCatSize());
-			m_pSectorManager->AllocateBytes(this,SR_BOOTDATA,m_pElTorito->GetBootDataSize());
+			sec_manager_.AllocateBytes(this,SR_BOOTCATALOG,eltorito_.GetBootCatSize());
+			sec_manager_.AllocateBytes(this,SR_BOOTDATA,eltorito_.GetBootDataSize());
 		}
 
 		return RESULT_OK;
@@ -871,33 +871,33 @@ namespace ckfilesystem
 		m_uiPathTableSizeNormal = 0;
 		if (!CalcPathTableSize(Files,false,m_uiPathTableSizeNormal,Progress))
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to calculate path table size."));
+			log_.PrintLine(ckT("  Error: Unable to calculate path table size."));
 			return RESULT_FAIL;
 		}
 
 		m_uiPathTableSizeJoliet = 0;
 		if (m_bUseJoliet && !CalcPathTableSize(Files,true,m_uiPathTableSizeJoliet,Progress))
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to calculate Joliet path table size."));
+			log_.PrintLine(ckT("  Error: Unable to calculate Joliet path table size."));
 			return RESULT_FAIL;
 		}
 
 		if (m_uiPathTableSizeNormal > 0xFFFFFFFF || m_uiPathTableSizeJoliet > 0xFFFFFFFF)
 		{
 #ifdef _WINDOWS
-			m_pLog->PrintLine(ckT("  Error: The path table is too large, %I64u and %I64u bytes."),
+			log_.PrintLine(ckT("  Error: The path table is too large, %I64u and %I64u bytes."),
 #else
-			m_pLog->PrintLine(ckT("  Error: The path table is too large, %llu and %llu bytes."),
+			log_.PrintLine(ckT("  Error: The path table is too large, %llu and %llu bytes."),
 #endif
 				m_uiPathTableSizeNormal,m_uiPathTableSizeJoliet);
 			Progress.Notify(ckcore::Progress::ckERROR,StringTable::Instance().GetString(ERROR_PATHTABLESIZE));
 			return RESULT_FAIL;
 		}
 
-		m_pSectorManager->AllocateBytes(this,SR_PATHTABLE_NORMAL_L,m_uiPathTableSizeNormal);
-		m_pSectorManager->AllocateBytes(this,SR_PATHTABLE_NORMAL_M,m_uiPathTableSizeNormal);
-		m_pSectorManager->AllocateBytes(this,SR_PATHTABLE_JOLIET_L,m_uiPathTableSizeJoliet);
-		m_pSectorManager->AllocateBytes(this,SR_PATHTABLE_JOLIET_M,m_uiPathTableSizeJoliet);
+		sec_manager_.AllocateBytes(this,SR_PATHTABLE_NORMAL_L,m_uiPathTableSizeNormal);
+		sec_manager_.AllocateBytes(this,SR_PATHTABLE_NORMAL_M,m_uiPathTableSizeNormal);
+		sec_manager_.AllocateBytes(this,SR_PATHTABLE_JOLIET_L,m_uiPathTableSizeJoliet);
+		sec_manager_.AllocateBytes(this,SR_PATHTABLE_JOLIET_M,m_uiPathTableSizeJoliet);
 
 		return RESULT_OK;
 	}
@@ -905,15 +905,15 @@ namespace ckfilesystem
 	int Iso9660Writer::AllocateDirEntries(FileTree &file_tree,ckcore::Progress &Progress)
 	{
 		ckcore::tuint64 uiDirEntriesLen = 0;
-		if (!CalcDirEntriesLength(file_tree,Progress,m_pSectorManager->GetNextFree(),uiDirEntriesLen))
+		if (!CalcDirEntriesLength(file_tree,Progress,sec_manager_.GetNextFree(),uiDirEntriesLen))
 			return RESULT_FAIL;
 
-		m_pSectorManager->AllocateSectors(this,SR_DIRENTRIES,uiDirEntriesLen);
+		sec_manager_.AllocateSectors(this,SR_DIRENTRIES,uiDirEntriesLen);
 
 #ifdef _WINDOWS
-		m_pLog->PrintLine(ckT("  Allocated directory entries %I64u sectors."),uiDirEntriesLen);
+		log_.PrintLine(ckT("  Allocated directory entries %I64u sectors."),uiDirEntriesLen);
 #else
-		m_pLog->PrintLine(ckT("  Allocated directory entries %llu sectors."),uiDirEntriesLen);
+		log_.PrintLine(ckT("  Allocated directory entries %llu sectors."),uiDirEntriesLen);
 #endif
 		return RESULT_OK;
 	}
@@ -923,52 +923,52 @@ namespace ckfilesystem
 		// Make sure that everything has been allocated.
 		if (m_uiPathTableSizeNormal == 0)
 		{
-			m_pLog->PrintLine(ckT("  Error: Memory for ISO9660 path table has not been allocated."));
+			log_.PrintLine(ckT("  Error: Memory for ISO9660 path table has not been allocated."));
 			return RESULT_FAIL;
 		}
 
 		// Calculate boot catalog and image data.
-		if (m_pElTorito->GetBootImageCount() > 0)
+		if (eltorito_.GetBootImageCount() > 0)
 		{
-			ckcore::tuint64 uiBootDataSector = m_pSectorManager->GetStart(this,SR_BOOTDATA);
-			ckcore::tuint64 uiBootDataLength = BytesToSector64(m_pElTorito->GetBootDataSize());
+			ckcore::tuint64 uiBootDataSector = sec_manager_.GetStart(this,SR_BOOTDATA);
+			ckcore::tuint64 uiBootDataLength = BytesToSector64(eltorito_.GetBootDataSize());
 			ckcore::tuint64 uiBootDataEnd = uiBootDataSector + uiBootDataLength;
 
 			if (uiBootDataSector > 0xFFFFFFFF || uiBootDataEnd > 0xFFFFFFFF)
 			{
 #ifdef _WINDOWS
-				m_pLog->PrintLine(ckT("  Error: Invalid boot data sector range (%I64u to %I64u)."),
+				log_.PrintLine(ckT("  Error: Invalid boot data sector range (%I64u to %I64u)."),
 #else
-				m_pLog->PrintLine(ckT("  Error: Invalid boot data sector range (%llu to %llu)."),
+				log_.PrintLine(ckT("  Error: Invalid boot data sector range (%llu to %llu)."),
 #endif
 					uiBootDataSector,uiBootDataEnd);
 				return RESULT_FAIL;
 			}
 
-			if (!m_pElTorito->CalculateFileSysData(uiBootDataSector,uiBootDataEnd))
+			if (!eltorito_.CalculateFileSysData(uiBootDataSector,uiBootDataEnd))
 				return RESULT_FAIL;
 		}
 
-		unsigned long ulPosPathTableNormalL = (unsigned long)m_pSectorManager->GetStart(this,SR_PATHTABLE_NORMAL_L);
-		unsigned long ulPosPathTableNormalM = (unsigned long)m_pSectorManager->GetStart(this,SR_PATHTABLE_NORMAL_M);
-		unsigned long ulPosPathTableJolietL = (unsigned long)m_pSectorManager->GetStart(this,SR_PATHTABLE_JOLIET_L);
-		unsigned long ulPosPathTableJolietM = (unsigned long)m_pSectorManager->GetStart(this,SR_PATHTABLE_JOLIET_M);
+		unsigned long ulPosPathTableNormalL = (unsigned long)sec_manager_.GetStart(this,SR_PATHTABLE_NORMAL_L);
+		unsigned long ulPosPathTableNormalM = (unsigned long)sec_manager_.GetStart(this,SR_PATHTABLE_NORMAL_M);
+		unsigned long ulPosPathTableJolietL = (unsigned long)sec_manager_.GetStart(this,SR_PATHTABLE_JOLIET_L);
+		unsigned long ulPosPathTableJolietM = (unsigned long)sec_manager_.GetStart(this,SR_PATHTABLE_JOLIET_M);
 
 		// Print the sizes.
-		ckcore::tuint64 uiDirEntriesSector = m_pSectorManager->GetStart(this,SR_DIRENTRIES);
-		ckcore::tuint64 uiFileDataEndSector = m_pSectorManager->GetDataStart() + m_pSectorManager->GetDataLength();
+		ckcore::tuint64 uiDirEntriesSector = sec_manager_.GetStart(this,SR_DIRENTRIES);
+		ckcore::tuint64 uiFileDataEndSector = sec_manager_.GetDataStart() + sec_manager_.GetDataLength();
 
 		if (uiDirEntriesSector > 0xFFFFFFFF)
 		{
 #ifdef _WINDOWS
-			m_pLog->PrintLine(ckT("  Error: Invalid start sector of directory entries (%I64u)."),uiDirEntriesSector);
+			log_.PrintLine(ckT("  Error: Invalid start sector of directory entries (%I64u)."),uiDirEntriesSector);
 #else
-			m_pLog->PrintLine(ckT("  Error: Invalid start sector of directory entries (%llu)."),uiDirEntriesSector);
+			log_.PrintLine(ckT("  Error: Invalid start sector of directory entries (%llu)."),uiDirEntriesSector);
 #endif
 			return RESULT_FAIL;
 		}
 
-		if (!m_pIso9660->WriteVolDescPrimary(m_pOutStream,m_ImageCreate,(unsigned long)uiFileDataEndSector,
+		if (!iso9660_.WriteVolDescPrimary(out_stream_,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeNormal,ulPosPathTableNormalL,ulPosPathTableNormalM,
 				(unsigned long)uiDirEntriesSector,(unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal))
 		{
@@ -976,30 +976,30 @@ namespace ckfilesystem
 		}
 
 		// Write the El Torito boot record at sector 17 if necessary.
-		if (m_pElTorito->GetBootImageCount() > 0)
+		if (eltorito_.GetBootImageCount() > 0)
 		{
-			ckcore::tuint64 uiBootCatSector = m_pSectorManager->GetStart(this,SR_BOOTCATALOG);
-			if (!m_pElTorito->WriteBootRecord(m_pOutStream,(unsigned long)uiBootCatSector))
+			ckcore::tuint64 uiBootCatSector = sec_manager_.GetStart(this,SR_BOOTCATALOG);
+			if (!eltorito_.WriteBootRecord(out_stream_,(unsigned long)uiBootCatSector))
 			{
 #ifdef _WINDOWS
-				m_pLog->PrintLine(ckT("  Error: Failed to write boot record at sector %I64u."),uiBootCatSector);
+				log_.PrintLine(ckT("  Error: Failed to write boot record at sector %I64u."),uiBootCatSector);
 #else
-				m_pLog->PrintLine(ckT("  Error: Failed to write boot record at sector %llu."),uiBootCatSector);
+				log_.PrintLine(ckT("  Error: Failed to write boot record at sector %llu."),uiBootCatSector);
 #endif
 				return RESULT_FAIL;
 			}
 
-			m_pLog->PrintLine(ckT("  Wrote El Torito boot record at sector %d."),uiBootCatSector);
+			log_.PrintLine(ckT("  Wrote El Torito boot record at sector %d."),uiBootCatSector);
 		}
 
 		// Write ISO9660 descriptor.
-		if (m_pIso9660->HasVolDescSuppl())
+		if (iso9660_.HasVolDescSuppl())
 		{
-			if (!m_pIso9660->WriteVolDescSuppl(m_pOutStream,m_ImageCreate,(unsigned long)uiFileDataEndSector,
+			if (!iso9660_.WriteVolDescSuppl(out_stream_,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeNormal,ulPosPathTableNormalL,ulPosPathTableNormalM,
 				(unsigned long)uiDirEntriesSector,(unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to write supplementary volume descriptor."));
+				log_.PrintLine(ckT("  Error: Failed to write supplementary volume descriptor."));
 				return RESULT_FAIL;
 			}
 		}
@@ -1010,9 +1010,9 @@ namespace ckfilesystem
 			if (file_tree.GetRoot()->m_uiDataSizeNormal > 0xFFFFFFFF)
 			{
 #ifdef _WINDOWS
-				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%I64u) than the ISO9660 file system can handle."),
+				log_.PrintLine(ckT("  Error: Root folder is larger (%I64u) than the ISO9660 file system can handle."),
 #else
-				m_pLog->PrintLine(ckT("  Error: Root folder is larger (%llu) than the ISO9660 file system can handle."),
+				log_.PrintLine(ckT("  Error: Root folder is larger (%llu) than the ISO9660 file system can handle."),
 #endif
 				file_tree.GetRoot()->m_uiDataSizeNormal);
 				return RESULT_FAIL;
@@ -1021,7 +1021,7 @@ namespace ckfilesystem
 			unsigned long ulRootExtentLocJoliet = (unsigned long)uiDirEntriesSector +
 				BytesToSector((unsigned long)file_tree.GetRoot()->m_uiDataSizeNormal);
 
-			if (!m_pJoliet->WriteVolDesc(m_pOutStream,m_ImageCreate,(unsigned long)uiFileDataEndSector,
+			if (!joliet_.WriteVolDesc(out_stream_,m_ImageCreate,(unsigned long)uiFileDataEndSector,
 				(unsigned long)m_uiPathTableSizeJoliet,ulPosPathTableJolietL,ulPosPathTableJolietM,
 				ulRootExtentLocJoliet,(unsigned long)file_tree.GetRoot()->m_uiDataSizeJoliet))
 			{
@@ -1029,21 +1029,21 @@ namespace ckfilesystem
 			}
 		}
 
-		if (!m_pIso9660->WriteVolDescSetTerm(m_pOutStream))
+		if (!iso9660_.WriteVolDescSetTerm(out_stream_))
 			return false;
 
 		// Write the El Torito boot catalog and boot image data.
-		if (m_pElTorito->GetBootImageCount() > 0)
+		if (eltorito_.GetBootImageCount() > 0)
 		{
-			if (!m_pElTorito->WriteBootCatalog(m_pOutStream))
+			if (!eltorito_.WriteBootCatalog(out_stream_))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to write boot catalog."));
+				log_.PrintLine(ckT("  Error: Failed to write boot catalog."));
 				return false;
 			}
 
-			if (!m_pElTorito->WriteBootImages(m_pOutStream))
+			if (!eltorito_.WriteBootImages(out_stream_))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to write images."));
+				log_.PrintLine(ckT("  Error: Failed to write images."));
 				return false;
 			}
 		}
@@ -1058,12 +1058,12 @@ namespace ckfilesystem
 		// Write the path tables.
 		if (!WritePathTable(Files,file_tree,false,false,Progress))
 		{
-			m_pLog->PrintLine(ckT("  Error: Failed to write path table (LSBF)."));
+			log_.PrintLine(ckT("  Error: Failed to write path table (LSBF)."));
 			return RESULT_FAIL;
 		}
 		if (!WritePathTable(Files,file_tree,false,true,Progress))
 		{
-			m_pLog->PrintLine(ckT("  Error: Failed to write path table (MSBF)."));
+			log_.PrintLine(ckT("  Error: Failed to write path table (MSBF)."));
 			return RESULT_FAIL;
 		}
 
@@ -1073,12 +1073,12 @@ namespace ckfilesystem
 
 			if (!WritePathTable(Files,file_tree,true,false,Progress))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to write Joliet path table (LSBF)."));
+				log_.PrintLine(ckT("  Error: Failed to write Joliet path table (LSBF)."));
 				return RESULT_FAIL;
 			}
 			if (!WritePathTable(Files,file_tree,true,true,Progress))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to write Joliet path table (MSBF)."));
+				log_.PrintLine(ckT("  Error: Failed to write Joliet path table (MSBF)."));
 				return RESULT_FAIL;
 			}
 		}
@@ -1130,12 +1130,12 @@ namespace ckfilesystem
 			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (iLevel >= m_pIso9660->GetMaxDirLevel())
+				if (iLevel >= iso9660_.GetMaxDirLevel())
 					continue;
 			}
 
 			// Validate file size.
-			if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !m_pIso9660->AllowsFragmentation())
+			if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !iso9660_.AllowsFragmentation())
 				continue;
 
 			// This loop is necessary for multi-extent support.
@@ -1157,12 +1157,12 @@ namespace ckfilesystem
 				bool bIsFolder = (*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY;
 				if (bJoliet)
 				{
-					ucNameLen = m_pJoliet->WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder) << 1;
+					ucNameLen = joliet_.WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder) << 1;
 					MakeUniqueJoliet((*itFile),szFileName,ucNameLen);
 				}
 				else
 				{
-					ucNameLen = m_pIso9660->WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder);
+					ucNameLen = iso9660_.WriteFileName(szFileName,(*itFile)->m_FileName.c_str(),bIsFolder);
 					MakeUniqueIso9660((*itFile),szFileName,ucNameLen);
 				}
 
@@ -1186,7 +1186,7 @@ namespace ckfilesystem
 					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->m_pData;
 					if (pImportNode == NULL)
 					{
-						m_pLog->PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
+						log_.PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
 							(*itFile)->m_FileName.c_str());
 						return RESULT_FAIL;
 					}
@@ -1259,7 +1259,7 @@ namespace ckfilesystem
 					ulDirSecData = ucDirRecSize;
 					
 					// Pad the sector with zeros.
-					m_pOutStream->PadSector();
+					out_stream_.PadSector();
 				}
 				else if ((ulDirSecData + ucDirRecSize) == ISO9660_SECTOR_SIZE)
 				{
@@ -1271,13 +1271,13 @@ namespace ckfilesystem
 				}
 
 				// Write the record.
-				ckcore::tint64 iProcessed = m_pOutStream->Write(&DirRecord,sizeof(DirRecord) - 1);
+				ckcore::tint64 iProcessed = out_stream_.Write(&DirRecord,sizeof(DirRecord) - 1);
 				if (iProcessed == -1)
 					return RESULT_FAIL;
 				if (iProcessed != sizeof(DirRecord) - 1)
 					return RESULT_FAIL;
 
-				iProcessed = m_pOutStream->Write(szFileName,ucNameLen);
+				iProcessed = out_stream_.Write(szFileName,ucNameLen);
 				if (iProcessed == -1)
 					return RESULT_FAIL;
 				if (iProcessed != ucNameLen)
@@ -1287,7 +1287,7 @@ namespace ckfilesystem
 				if (bPadByte)
 				{
 					char szTemp[1] = { 0 };
-					iProcessed = m_pOutStream->Write(szTemp,1);
+					iProcessed = out_stream_.Write(szTemp,1);
 					if (iProcessed == -1)
 						return RESULT_FAIL;
 					if (iProcessed != 1)
@@ -1300,8 +1300,8 @@ namespace ckfilesystem
 			while (uiFileRemain > 0);
 		}
 
-		if (m_pOutStream->GetAllocated() != 0)
-			m_pOutStream->PadSector();
+		if (out_stream_.GetAllocated() != 0)
+			out_stream_.PadSector();
 
 		return RESULT_OK;
 	}
@@ -1316,7 +1316,7 @@ namespace ckfilesystem
 			if ((*itFile)->m_ucFileFlags & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (iLevel >= m_pIso9660->GetMaxDirLevel())
+				if (iLevel >= iso9660_.GetMaxDirLevel())
 					continue;
 				else
 					DirNodeStack.push_back(std::make_pair(*itFile,iLevel + 1));

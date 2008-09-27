@@ -84,7 +84,7 @@ namespace ckfilesystem
 	class Iso9660Reader
 	{
 	private:
-		ckcore::Log *m_pLog;
+		ckcore::Log &log_;
 
 		Iso9660TreeNode *m_pRootNode;
 
@@ -93,7 +93,7 @@ namespace ckfilesystem
 			Iso9660TreeNode *pParentNode,bool bJoliet);
 
 	public:
-		Iso9660Reader(ckcore::Log *pLog);
+		Iso9660Reader(ckcore::Log &log);
 		~Iso9660Reader();
 
 		bool Read(ckcore::InStream &InStream,unsigned long ulStartSector);

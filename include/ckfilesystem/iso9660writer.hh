@@ -80,14 +80,14 @@ namespace ckfilesystem
 			TYPE_PARENT
 		};
 
-		ckcore::Log *m_pLog;
-		SectorOutStream *m_pOutStream;
-		CSectorManager *m_pSectorManager;
+		ckcore::Log &log_;
+		SectorOutStream &out_stream_;
+		SectorManager &sec_manager_;
 
 		// Different standard implementations.
-		Iso9660 *m_pIso9660;
-		Joliet *m_pJoliet;
-		ElTorito *m_pElTorito;
+		Iso9660 &iso9660_;
+		Joliet &joliet_;
+		ElTorito &eltorito_;
 
 		// File system attributes.
 		bool m_bUseJoliet;
@@ -127,9 +127,9 @@ namespace ckfilesystem
 			ckcore::Progress &Progress,FileTreeNode *pLocalNode,int iLevel);
 
 	public:
-		Iso9660Writer(ckcore::Log *pLog,SectorOutStream *pOutStream,
-			CSectorManager *pSectorManager,Iso9660 *pIso9660,Joliet *pJoliet,
-			ElTorito *pElTorito,bool bUseFileTimes,bool bUseJoliet);
+		Iso9660Writer(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
+			Iso9660 &iso9660,Joliet &joliet,ElTorito &eltorito,
+			bool bUseFileTimes,bool bUseJoliet);
 		~Iso9660Writer();
 
 		int AllocateHeader();

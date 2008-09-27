@@ -22,7 +22,7 @@
 
 namespace ckfilesystem
 {
-	Iso9660Reader::Iso9660Reader(ckcore::Log *pLog) : m_pLog(pLog),
+	Iso9660Reader::Iso9660Reader(ckcore::Log &log) : log_(log),
 		m_pRootNode(NULL)
 	{
 	}
@@ -59,12 +59,12 @@ namespace ckfilesystem
 			iProcessed = InStream.Read(&ulSysDirRecLen,1);
 			if (iProcessed == -1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read system directory record length."));
+				log_.PrintLine(ckT("Error: Unable to read system directory record length."));
 				return false;
 			}
 			if (iProcessed != 1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read system directory record length (size mismatch)."));
+				log_.PrintLine(ckT("Error: Unable to read system directory record length (size mismatch)."));
 				return false;
 			}
 
@@ -87,12 +87,12 @@ namespace ckfilesystem
 			iProcessed = InStream.Read(&CurDirRecord,sizeof(tDirRecord) - 1);
 			if (iProcessed == -1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read directory record."));
+				log_.PrintLine(ckT("Error: Unable to read directory record."));
 				return false;
 			}
 			if (iProcessed != sizeof(tDirRecord) - 1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read directory record (size mismatch: %u vs. %u)."),
+				log_.PrintLine(ckT("Error: Unable to read directory record (size mismatch: %u vs. %u)."),
 					(unsigned long)iProcessed,sizeof(tDirRecord) - 1);
 				return false;
 			}
@@ -100,7 +100,7 @@ namespace ckfilesystem
 
 			if (CurDirRecord.ucFileIdentifierLen > ISO9660WRITER_FILENAME_BUFFER_SIZE)
 			{
-				m_pLog->PrintLine(ckT("Error: Directory record file identifier is too large: %u bytes."),
+				log_.PrintLine(ckT("Error: Directory record file identifier is too large: %u bytes."),
 					CurDirRecord.ucFileIdentifierLen);
 				return false;
 			}
@@ -109,12 +109,12 @@ namespace ckfilesystem
 			iProcessed = InStream.Read(ucFileNameBuffer,CurDirRecord.ucFileIdentifierLen);
 			if (iProcessed == -1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read directory record file identifier."));
+				log_.PrintLine(ckT("Error: Unable to read directory record file identifier."));
 				return false;
 			}
 			if (iProcessed != CurDirRecord.ucFileIdentifierLen)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read directory record file identifier (size mismatch)."));
+				log_.PrintLine(ckT("Error: Unable to read directory record file identifier (size mismatch)."));
 				return false;
 			}
 			ulDirRecProcessed += (unsigned long)iProcessed;
@@ -158,7 +158,7 @@ namespace ckfilesystem
 			if (szFileName[ucLength - 2] == ';')
 				szFileName[ucLength - 2] = '\0';
 
-			//m_pLog->PrintLine(ckT("  %s: %u"),szFileName,Read733(CurDirRecord.ucExtentLocation));
+			//log_.PrintLine(ckT("  %s: %u"),szFileName,Read733(CurDirRecord.ucExtentLocation));
 
 			Iso9660TreeNode *pNewNode = new Iso9660TreeNode(pParentNode,szFileName,
 					Read733(CurDirRecord.ucExtentLocation),Read733(CurDirRecord.ucDataLen),
@@ -190,12 +190,12 @@ namespace ckfilesystem
 			iProcessed = InStream.Read(&ucNext,1);
 			if (iProcessed == -1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read through zeroes."));
+				log_.PrintLine(ckT("Error: Unable to read through zeroes."));
 				return false;
 			}
 			if (iProcessed != 1)
 			{
-				m_pLog->PrintLine(ckT("Error: Unable to read through zeroes (size mismatch)."));
+				log_.PrintLine(ckT("Error: Unable to read through zeroes (size mismatch)."));
 				return false;
 			}
 
@@ -206,12 +206,12 @@ namespace ckfilesystem
 				iProcessed = InStream.Read(&ucNext,1);
 				if (iProcessed == -1)
 				{
-					m_pLog->PrintLine(ckT("Error: Unable to read through zeroes."));
+					log_.PrintLine(ckT("Error: Unable to read through zeroes."));
 					return false;
 				}
 				if (iProcessed != 1)
 				{
-					m_pLog->PrintLine(ckT("Error: Unable to read through zeroes (size mismatch)."));
+					log_.PrintLine(ckT("Error: Unable to read through zeroes (size mismatch)."));
 					return false;
 				}
 			}
@@ -224,7 +224,7 @@ namespace ckfilesystem
 
 	bool Iso9660Reader::Read(ckcore::InStream &InStream,unsigned long ulStartSector)
 	{
-		m_pLog->PrintLine(ckT("Iso9660Reader::Read"));
+		log_.PrintLine(ckT("Iso9660Reader::Read"));
 
 		// Seek to the start sector.
 		//InStream.Seek(ulStartSector * ISO9660_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
@@ -233,7 +233,7 @@ namespace ckfilesystem
 		InStream.Seek(ISO9660_SECTOR_SIZE/* << 4*/ * (16 + ulStartSector),ckcore::InStream::ckSTREAM_BEGIN);
 		if (InStream.End())
 		{
-			m_pLog->PrintLine(ckT("  Error: Invalid ISO9660 file system."));
+			log_.PrintLine(ckT("  Error: Invalid ISO9660 file system."));
 			return false;
 		}
 
@@ -245,37 +245,37 @@ namespace ckfilesystem
 		iProcessed = InStream.Read(&VolDescPrim,sizeof(tVolDescPrimary));
 		if (iProcessed == -1)
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to read ISO9660 file system."));
+			log_.PrintLine(ckT("  Error: Unable to read ISO9660 file system."));
 			return false;
 		}
 		if (iProcessed != sizeof(tVolDescPrimary))
 		{
-			m_pLog->PrintLine(ckT("  Error: Unable to read ISO9660 primary volume descriptor."));
+			log_.PrintLine(ckT("  Error: Unable to read ISO9660 primary volume descriptor."));
 			return false;
 		}
 
 		// Validate primary volume descriptor.
 		if (VolDescPrim.ucType != VOLDESCTYPE_PRIM_VOL_DESC)
 		{
-			m_pLog->PrintLine(ckT("  Error: Primary volume decsriptor not found at sector 16."));
+			log_.PrintLine(ckT("  Error: Primary volume decsriptor not found at sector 16."));
 			return false;
 		}
 
 		if (VolDescPrim.ucVersion != 1)
 		{
-			m_pLog->PrintLine(ckT("  Error: Bad primary volume descriptor version."));
+			log_.PrintLine(ckT("  Error: Bad primary volume descriptor version."));
 			return false;
 		}
 
 		if (VolDescPrim.ucFileStructVer != 1)
 		{
-			m_pLog->PrintLine(ckT("  Error: Bad primary volume descriptor structure version."));
+			log_.PrintLine(ckT("  Error: Bad primary volume descriptor structure version."));
 			return false;
 		}
 
 		if (memcmp(VolDescPrim.ucIdentifier,g_IdentCD,sizeof(VolDescPrim.ucIdentifier)))
 		{
-			m_pLog->PrintLine(ckT("  Error: Bad primary volume descriptor identifer."));
+			log_.PrintLine(ckT("  Error: Bad primary volume descriptor identifer."));
 			return false;
 		}
 
@@ -288,12 +288,12 @@ namespace ckfilesystem
 			iProcessed = InStream.Read(&VolDescSuppl,sizeof(tVolDescSuppl));
 			if (iProcessed == -1)
 			{
-				m_pLog->PrintLine(ckT("  Error: Unable to read ISO9660 file system."));
+				log_.PrintLine(ckT("  Error: Unable to read ISO9660 file system."));
 				return false;
 			}
 			if (iProcessed != sizeof(tVolDescSuppl))
 			{
-				m_pLog->PrintLine(ckT("  Error: Unable to read additional ISO9660 volume descriptor."));
+				log_.PrintLine(ckT("  Error: Unable to read additional ISO9660 volume descriptor."));
 				return false;
 			}
 
@@ -312,7 +312,7 @@ namespace ckfilesystem
 						VolDescSuppl.ucEscapeSeq[2] == 0x43 ||
 						VolDescSuppl.ucEscapeSeq[2] == 0x40)
 					{
-						m_pLog->PrintLine(ckT("  Found Joliet file system extension."));
+						log_.PrintLine(ckT("  Found Joliet file system extension."));
 						bJoliet = true;
 						break;
 					}
@@ -335,8 +335,8 @@ namespace ckfilesystem
 			ulRootExtentLen = Read733(VolDescPrim.RootDirRecord.ucDataLen);
 		}
 
-		m_pLog->PrintLine(ckT("  Location of root directory extent: %u."),ulRootExtentLoc);
-		m_pLog->PrintLine(ckT("  Length of root directory extent: %u."),ulRootExtentLen);
+		log_.PrintLine(ckT("  Location of root directory extent: %u."),ulRootExtentLoc);
+		log_.PrintLine(ckT("  Length of root directory extent: %u."),ulRootExtentLen);
 
 		if (m_pRootNode != NULL)
 			delete m_pRootNode;
@@ -349,7 +349,7 @@ namespace ckfilesystem
 		std::vector<Iso9660TreeNode *> DirEntries;
 		if (!ReadDirEntry(InStream,DirEntries,m_pRootNode,bJoliet))
 		{
-			m_pLog->PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),ulRootExtentLoc);
+			log_.PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),ulRootExtentLoc);
 			return false;
 		}
 
@@ -360,7 +360,7 @@ namespace ckfilesystem
 
 			if (!ReadDirEntry(InStream,DirEntries,pParentNode,bJoliet))
 			{
-				m_pLog->PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),pParentNode->m_ulExtentLocation);
+				log_.PrintLine(ckT("  Error: Failed to read directory entry at sector: %u."),pParentNode->m_ulExtentLocation);
 				return false;
 			}
 		}
@@ -383,11 +383,11 @@ namespace ckfilesystem
 			else
 			{
 				for (int i = 0; i < iIndent; i++)
-					m_pLog->Print(ckT(" "));
+					log_.Print(ckT(" "));
 
-				m_pLog->Print(ckT("<f>"));
-				m_pLog->Print((*itFile)->m_FileName.c_str());
-				m_pLog->PrintLine(ckT(" (%u:%u)"),(*itFile)->m_ulExtentLocation,(*itFile)->m_ulExtentLength);
+				log_.Print(ckT("<f>"));
+				log_.Print((*itFile)->m_FileName.c_str());
+				log_.PrintLine(ckT(" (%u:%u)"),(*itFile)->m_ulExtentLocation,(*itFile)->m_ulExtentLength);
 			}
 		}
 	}
@@ -400,11 +400,11 @@ namespace ckfilesystem
 		Iso9660TreeNode *pCurNode = m_pRootNode;
 		int iIndent = 0;
 
-		m_pLog->PrintLine(ckT("Iso9660Reader::PrintTree"));
+		log_.PrintLine(ckT("Iso9660Reader::PrintTree"));
 #ifdef _WINDOWS
-		m_pLog->PrintLine(ckT("  <root> (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+		log_.PrintLine(ckT("  <root> (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
 #else
-		m_pLog->PrintLine(ckT("  <root> (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+		log_.PrintLine(ckT("  <root> (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
 #endif
 
 		std::vector<std::pair<Iso9660TreeNode *,int> > DirNodeStack;
@@ -419,14 +419,14 @@ namespace ckfilesystem
 
 			// Print the directory name.
 			for (int i = 0; i < iIndent; i++)
-				m_pLog->Print(ckT(" "));
+				log_.Print(ckT(" "));
 
-			m_pLog->Print(ckT("<d>"));
-			m_pLog->Print(pCurNode->m_FileName.c_str());
+			log_.Print(ckT("<d>"));
+			log_.Print(pCurNode->m_FileName.c_str());
 #ifdef _WINDOWS
-			m_pLog->PrintLine(ckT(" (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+			log_.PrintLine(ckT(" (%I64u:%I64u)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
 #else
-			m_pLog->PrintLine(ckT(" (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
+			log_.PrintLine(ckT(" (%llu:%llu)"),pCurNode->m_ulExtentLocation,pCurNode->m_ulExtentLength);
 #endif
 
 			PrintLocalTree(DirNodeStack,pCurNode,iIndent + 2);

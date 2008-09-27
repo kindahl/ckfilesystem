@@ -720,7 +720,7 @@ namespace ckfilesystem
 		m_bIncFileVerInfo = bIncludeInfo;
 	}
 
-	bool Iso9660::WriteVolDescPrimary(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+	bool Iso9660::WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -749,7 +749,7 @@ namespace ckfilesystem
 		m_VolDescPrimary.EffectiveDateTime.ucZone = 0x00;
 
 		// Write the primary volume descriptor.
-		ckcore::tint64 iProcessed = pOutStream->Write(&m_VolDescPrimary,sizeof(m_VolDescPrimary));
+		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescPrimary,sizeof(m_VolDescPrimary));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(m_VolDescPrimary))
@@ -758,7 +758,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool Iso9660::WriteVolDescSuppl(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+	bool Iso9660::WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -799,7 +799,7 @@ namespace ckfilesystem
 			SupplDesc.EffectiveDateTime.ucZone = 0x00;
 
 			// Write the primary volume descriptor.
-			ckcore::tint64 iProcessed = pOutStream->Write(&SupplDesc,sizeof(SupplDesc));
+			ckcore::tint64 iProcessed = out_stream.Write(&SupplDesc,sizeof(SupplDesc));
 			if (iProcessed == -1)
 				return false;
 			if (iProcessed != sizeof(SupplDesc))
@@ -811,10 +811,10 @@ namespace ckfilesystem
 		return false;
 	}
 
-	bool Iso9660::WriteVolDescSetTerm(ckcore::OutStream *pOutStream)
+	bool Iso9660::WriteVolDescSetTerm(ckcore::OutStream &out_stream)
 	{
 		// Write volume descriptor set terminator.
-		ckcore::tint64 iProcessed = pOutStream->Write(&m_VolDescSetTerm,sizeof(m_VolDescSetTerm));
+		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescSetTerm,sizeof(m_VolDescSetTerm));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(m_VolDescSetTerm))

@@ -157,21 +157,21 @@ namespace ckfilesystem
 	class ElTorito
 	{
 	private:
-		ckcore::Log *m_pLog;
+		ckcore::Log &log_;
 
 		std::vector<ElToritoImage *> m_BootImages;
 
 		bool ReadSysTypeMBR(const ckcore::tchar *szFullPath,unsigned char &ucSysType);
 
-		bool WriteBootImage(SectorOutStream *pOutStream,const ckcore::tchar *szFileName);
+		bool WriteBootImage(SectorOutStream &out_stream,const ckcore::tchar *szFileName);
 
 	public:
-		ElTorito(ckcore::Log *pLog);
+		ElTorito(ckcore::Log &log);
 		~ElTorito();
 
-		bool WriteBootRecord(SectorOutStream *pOutStream,unsigned long ulBootCatSecPos);
-		bool WriteBootCatalog(SectorOutStream *pOutStream);
-		bool WriteBootImages(SectorOutStream *pOutStream);
+		bool WriteBootRecord(SectorOutStream &out_stream,unsigned long ulBootCatSecPos);
+		bool WriteBootCatalog(SectorOutStream &out_stream);
+		bool WriteBootImages(SectorOutStream &out_stream);
 
 		bool AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
 			unsigned short usLoadSegment,unsigned short usSectorCount);

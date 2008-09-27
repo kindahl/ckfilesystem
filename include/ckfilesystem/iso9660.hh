@@ -316,15 +316,15 @@ namespace ckfilesystem
 		void SetIncludeFileVerInfo(bool bIncludeInfo);
 
 		// Write functions.
-		bool WriteVolDescPrimary(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &ImageCreate,
 				unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
 				unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
 				unsigned long ulRootExtentLoc,unsigned long ulDataLen);
-		bool WriteVolDescSuppl(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+		bool WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &ImageCreate,
 				unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
 				unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
 				unsigned long ulRootExtentLoc,unsigned long ulDataLen);
-		bool WriteVolDescSetTerm(ckcore::OutStream *pOutStream);
+		bool WriteVolDescSetTerm(ckcore::OutStream &out_stream);
 
 		// Helper functions.
 		unsigned char WriteFileName(unsigned char *pOutBuffer,const ckcore::tchar *szFileName,bool bIsDir);

@@ -54,7 +54,7 @@ namespace ckfilesystem
 		};
 
 	private:
-		ckcore::Log *m_pLog;
+		ckcore::Log &log_;
 
 		// What file system should be created.
 		eFileSystem m_FileSystem;
@@ -87,7 +87,7 @@ namespace ckfilesystem
 		int Fail(int iResult,SectorOutStream &OutStream);
 
 	public:
-		DiscImageWriter(ckcore::Log *pLog,eFileSystem FileSystem);
+		DiscImageWriter(ckcore::Log &log,eFileSystem FileSystem);
 		~DiscImageWriter();	
 
 		int Create(SectorOutStream &OutStream,FileSet &Files,ckcore::Progress &Progress,

@@ -38,7 +38,7 @@ namespace ckfilesystem
 			FST_TITLE
 		};
 
-		ckcore::Log *m_pLog;
+		ckcore::Log &log_;
 
 		ckcore::tuint64 SizeToDvdLen(ckcore::tuint64 uiFileSize);
 
@@ -51,7 +51,7 @@ namespace ckfilesystem
 		bool ReadFileSetInfo(FileTree &file_tree,std::vector<unsigned long> &TitleSetSectors);
 
 	public:
-		DvdVideo(ckcore::Log *pLog);
+		DvdVideo(ckcore::Log &log);
 		~DvdVideo();
 
 		bool PrintFilePadding(FileTree &file_tree);

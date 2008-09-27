@@ -127,7 +127,7 @@ namespace ckfilesystem
 		memcpy(m_VolDescSuppl.ucAppIdentifier,szAppIdentifier,90);
 	}
 
-	bool Joliet::WriteVolDesc(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+	bool Joliet::WriteVolDesc(ckcore::OutStream &out_stream,struct tm &ImageCreate,
 		unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,unsigned long ulPosPathTableL,
 		unsigned long ulPosPathTableM,unsigned long ulRootExtentLoc,unsigned long ulDataLen)
 	{
@@ -156,7 +156,7 @@ namespace ckfilesystem
 		m_VolDescSuppl.EffectiveDateTime.ucZone = 0x00;
 
 		// Write the supplementary volume descriptor.
-		ckcore::tint64 iProcessed = pOutStream->Write(&m_VolDescSuppl,sizeof(m_VolDescSuppl));
+		ckcore::tint64 iProcessed = out_stream.Write(&m_VolDescSuppl,sizeof(m_VolDescSuppl));
 		if (iProcessed == -1)
 			return false;
 		if (iProcessed != sizeof(m_VolDescSuppl))

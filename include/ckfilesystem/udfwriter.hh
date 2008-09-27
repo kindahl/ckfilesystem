@@ -39,15 +39,15 @@ namespace ckfilesystem
 			SR_FILESETCONTENTS
 		};
 
-		ckcore::Log *m_pLog;
-		SectorOutStream *m_pOutStream;
-		CSectorManager *m_pSectorManager;
+		ckcore::Log &log_;
+		SectorOutStream &out_stream_;
+		SectorManager &sec_manager_;
 
 		// File system attributes.
 		bool m_bUseFileTimes;
 
 		// Different standard implementations.
-		Udf *m_pUdf;
+		Udf &udf_;
 
 		// Sizes of different structures.
 		ckcore::tuint64 m_uiPartLength;
@@ -73,8 +73,8 @@ namespace ckfilesystem
 		bool WritePartitionEntries(FileTree &file_tree);
 
 	public:
-		UdfWriter(ckcore::Log *pLog,SectorOutStream *pOutStream,
-			CSectorManager *pSectorManager,Udf *pUdf,bool bUseFileTimes);
+		UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,
+			SectorManager &sec_manager,Udf &udf,bool bUseFileTimes);
 		~UdfWriter();
 
 		int AllocateHeader();

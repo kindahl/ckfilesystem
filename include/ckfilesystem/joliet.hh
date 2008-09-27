@@ -55,7 +55,7 @@ namespace ckfilesystem
 		void SetRelaxMaxNameLen(bool bRelaxRestriction);
 
 		// Write functions.
-		bool WriteVolDesc(ckcore::OutStream *pOutStream,struct tm &ImageCreate,
+		bool WriteVolDesc(ckcore::OutStream &out_stream,struct tm &ImageCreate,
 			unsigned long ulVolSpaceSize,unsigned long ulPathTableSize,
 			unsigned long ulPosPathTableL,unsigned long ulPosPathTableM,
 			unsigned long ulRootExtentLoc,unsigned long ulDataLen);

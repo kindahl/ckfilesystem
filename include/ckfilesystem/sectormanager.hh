@@ -26,7 +26,7 @@ namespace ckfilesystem
 	{
 	};
 
-	class CSectorManager
+	class SectorManager
 	{
 	private:
 		ckcore::tuint64 m_uiNextFreeSector;
@@ -35,8 +35,8 @@ namespace ckfilesystem
 		std::map<std::pair<SectorClient *,unsigned char>,ckcore::tuint64> m_ClientMap;
 
 	public:
-		CSectorManager(ckcore::tuint64 uiStartSector);
-		~CSectorManager();
+		SectorManager(ckcore::tuint64 uiStartSector);
+		~SectorManager();
 
 		void AllocateSectors(SectorClient *pClient,unsigned char ucIdentifier,
 			ckcore::tuint64 uiNumSectors);

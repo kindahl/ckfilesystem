@@ -40,15 +40,15 @@ namespace ckfilesystem
 
 		ckcore::Log &log_;
 
-		ckcore::tuint64 SizeToDvdLen(ckcore::tuint64 uiFileSize);
+		ckcore::tuint64 SizeToDvdLen(ckcore::tuint64 file_size);
 
-		FileTreeNode *FindVideoNode(FileTree &file_tree,FileSetType Type,unsigned long ulNumber);
+		FileTreeNode *FindVideoNode(FileTree &file_tree,FileSetType type,unsigned long number);
 
-		bool GetTotalTitlesSize(ckcore::tstring &FilePath,FileSetType Type,unsigned long ulNumber,
-			ckcore::tuint64 &uiFileSize);
-		bool ReadFileSetInfoRoot(FileTree &file_tree,IfoVmgData &VmgData,
-			std::vector<unsigned long> &TitleSetSectors);
-		bool ReadFileSetInfo(FileTree &file_tree,std::vector<unsigned long> &TitleSetSectors);
+		bool GetTotalTitlesSize(ckcore::tstring &file_path,FileSetType type,unsigned long number,
+								ckcore::tuint64 &file_size);
+		bool ReadFileSetInfoRoot(FileTree &file_tree,IfoVmgData &vmg_data,
+								 std::vector<unsigned long> &ts_sectors);
+		bool ReadFileSetInfo(FileTree &file_tree,std::vector<unsigned long> &ts_sectors);
 
 	public:
 		DvdVideo(ckcore::Log &log);

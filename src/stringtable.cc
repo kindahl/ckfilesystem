@@ -22,18 +22,18 @@ namespace ckfilesystem
 {
 	StringTable::StringTable()
 	{
-		m_Strings[WARNING_FSDIRLEVEL] = ckT("The directory structure is deeper than %d levels. Deep files and folders will be ignored.");
-		m_Strings[WARNING_SKIPFILE] = ckT("Skipping \"%s\".");
-		m_Strings[WARNING_SKIP4GFILE] = ckT("Skipping \"%s\", the file is larger than 4 GiB.");
-		m_Strings[WARNING_SKIP4GFILEISO] = ckT("The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system.");
-		m_Strings[ERROR_PATHTABLESIZE] = ckT("The disc image path table is to large. The project contains too many files.");
-		m_Strings[ERROR_OPENWRITE] = ckT("Unable to open file for writing: %s.");
-		m_Strings[ERROR_OPENREAD] = ckT("Unable to open file for reading: %s.");
-		m_Strings[STATUS_BUILDTREE] = ckT("Building file tree.");
-		m_Strings[STATUS_WRITEDATA] = ckT("Writing file data.");
-		m_Strings[STATUS_WRITEISOTABLE] = ckT("Writing ISO9660 path tables.");
-		m_Strings[STATUS_WRITEJOLIETTABLE] = ckT("Writing Joliet path tables.");
-		m_Strings[STATUS_WRITEDIRENTRIES] = ckT("Writing directory entries.");
+		strings_[WARNING_FSDIRLEVEL] = ckT("The directory structure is deeper than %d levels. Deep files and folders will be ignored.");
+		strings_[WARNING_SKIPFILE] = ckT("Skipping \"%s\".");
+		strings_[WARNING_SKIP4GFILE] = ckT("Skipping \"%s\", the file is larger than 4 GiB.");
+		strings_[WARNING_SKIP4GFILEISO] = ckT("The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system.");
+		strings_[ERROR_PATHTABLESIZE] = ckT("The disc image path table is to large. The project contains too many files.");
+		strings_[ERROR_OPENWRITE] = ckT("Unable to open file for writing: %s.");
+		strings_[ERROR_OPENREAD] = ckT("Unable to open file for reading: %s.");
+		strings_[STATUS_BUILDTREE] = ckT("Building file tree.");
+		strings_[STATUS_WRITEDATA] = ckT("Writing file data.");
+		strings_[STATUS_WRITEISOTABLE] = ckT("Writing ISO9660 path tables.");
+		strings_[STATUS_WRITEJOLIETTABLE] = ckT("Writing Joliet path tables.");
+		strings_[STATUS_WRITEDIRENTRIES] = ckT("Writing directory entries.");
 	}
 
 	StringTable::~StringTable()
@@ -46,16 +46,16 @@ namespace ckfilesystem
 		return instance;
 	}
 
-	const ckcore::tchar *StringTable::GetString(StringsId StringID)
+	const ckcore::tchar *StringTable::GetString(StringId id)
 	{
-		return m_Strings[StringID];
+		return strings_[id];
 	}
 
 	/*
 		For translation purposes.
 	*/
-	void StringTable::SetString(StringsId StringID,const ckcore::tchar *szString)
+	void StringTable::SetString(StringId id,const ckcore::tchar *str)
 	{
-		m_Strings[StringID] = szString;
+		strings_[id] = str;
 	}
 };

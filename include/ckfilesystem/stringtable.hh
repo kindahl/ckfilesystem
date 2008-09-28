@@ -22,26 +22,27 @@
 
 namespace ckfilesystem
 {
-	enum StringsId
-	{
-		WARNING_FSDIRLEVEL,
-		WARNING_SKIPFILE,
-		WARNING_SKIP4GFILE,
-		WARNING_SKIP4GFILEISO,
-		ERROR_PATHTABLESIZE,
-		ERROR_OPENWRITE,
-		ERROR_OPENREAD,
-		STATUS_BUILDTREE,
-		STATUS_WRITEDATA,
-		STATUS_WRITEISOTABLE,
-		STATUS_WRITEJOLIETTABLE,
-		STATUS_WRITEDIRENTRIES
-	};
-
 	class StringTable
 	{
+	public:
+		enum StringId
+		{
+			WARNING_FSDIRLEVEL,
+			WARNING_SKIPFILE,
+			WARNING_SKIP4GFILE,
+			WARNING_SKIP4GFILEISO,
+			ERROR_PATHTABLESIZE,
+			ERROR_OPENWRITE,
+			ERROR_OPENREAD,
+			STATUS_BUILDTREE,
+			STATUS_WRITEDATA,
+			STATUS_WRITEISOTABLE,
+			STATUS_WRITEJOLIETTABLE,
+			STATUS_WRITEDIRENTRIES
+		};
+
 	private:
-		std::map<StringsId,const ckcore::tchar *> m_Strings;
+		std::map<StringId,const ckcore::tchar *> strings_;
 
 		StringTable();
 		StringTable(const StringTable &obj);
@@ -52,7 +53,7 @@ namespace ckfilesystem
 
 		static StringTable &Instance();
 
-		const ckcore::tchar *GetString(StringsId StringID);
-		void SetString(StringsId StringID,const ckcore::tchar *szString);
+		const ckcore::tchar *GetString(StringId id);
+		void SetString(StringId id,const ckcore::tchar *str);
 	};
 };

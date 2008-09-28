@@ -153,7 +153,7 @@ namespace ckfilesystem
 				{
 					// We have failed, files with duplicate names will exist.
 					log_.PrintLine(ckT("  Warning: Unable to calculate unique Joliet name for %s. Duplicate file names will exist in Joliet name extension."),
-						node->m_FileFullPath.c_str());
+						node->file_path_.c_str());
 					break;
 				}
 
@@ -265,7 +265,7 @@ namespace ckfilesystem
 				{
 					// We have failed, files with duplicate names will exist.
 					log_.PrintLine(ckT("  Warning: Unable to calculate unique ISO9660 name for %s. Duplicate file names will exist in ISO9660 file system."),
-						node->m_FileFullPath.c_str());
+						node->file_path_.c_str());
 					break;
 				}
 
@@ -367,13 +367,15 @@ namespace ckfilesystem
 				{
 					log_.PrintLine(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
 								   iso9660_.GetMaxDirLevel());
-					progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_FSDIRLEVEL),
+					progress.Notify(ckcore::Progress::ckWARNING,
+									StringTable::Instance().GetString(StringTable::WARNING_FSDIRLEVEL),
 									iso9660_.GetMaxDirLevel());
 					found_deep = true;
 				}
 
 				log_.PrintLine(ckT("  Skipping: %s."),it_file->internal_path_.c_str());
-				progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIPFILE),
+				progress.Notify(ckcore::Progress::ckWARNING,
+								StringTable::Instance().GetString(StringTable::WARNING_SKIPFILE),
 								it_file->internal_path_.c_str());
 				continue;
 			}
@@ -459,13 +461,13 @@ namespace ckfilesystem
 			}
 
 			// Validate file size.
-			if ((*it_file)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !iso9660_.AllowsFragmentation())
+			if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !iso9660_.AllowsFragmentation())
 				continue;
 
 			// Calculate the number of times this record will be written. It
 			// will be larger than one when using multi-extent.
 			unsigned long factor = 1;
-			ckcore::tuint64 extent_remain = (*it_file)->m_uiFileSize;
+			ckcore::tuint64 extent_remain = (*it_file)->file_size_;
 			while (extent_remain > ISO9660_MAX_EXTENT_SIZE)
 			{
 				extent_remain -= ISO9660_MAX_EXTENT_SIZE;
@@ -894,7 +896,8 @@ namespace ckfilesystem
 			log_.PrintLine(ckT("  Error: The path table is too large, %llu and %llu bytes."),
 #endif
 				pathtable_size_normal_,pathtable_size_joliet_);
-			progress.Notify(ckcore::Progress::ckERROR,StringTable::Instance().GetString(ERROR_PATHTABLESIZE));
+			progress.Notify(ckcore::Progress::ckERROR,
+							StringTable::Instance().GetString(StringTable::ERROR_PATHTABLESIZE));
 			return RESULT_FAIL;
 		}
 
@@ -1064,7 +1067,7 @@ namespace ckfilesystem
 
 	int Iso9660Writer::WritePathTables(FileSet &files,FileTree &file_tree,ckcore::Progress &progress)
 	{
-		progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEISOTABLE));
+		progress.SetStatus(StringTable::Instance().GetString(StringTable::STATUS_WRITEISOTABLE));
 
 		// Write the path tables.
 		if (!WritePathTable(files,file_tree,false,false))
@@ -1080,7 +1083,7 @@ namespace ckfilesystem
 
 		if (use_joliet_)
 		{
-			progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEJOLIETTABLE));
+			progress.SetStatus(StringTable::Instance().GetString(StringTable::STATUS_WRITEJOLIETTABLE));
 
 			if (!WritePathTable(files,file_tree,true,false))
 			{
@@ -1147,7 +1150,7 @@ namespace ckfilesystem
 			}
 
 			// Validate file size.
-			if ((*it_file)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !iso9660_.AllowsFragmentation())
+			if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !iso9660_.AllowsFragmentation())
 				continue;
 
 			// This loop is necessary for multi-extent support.
@@ -1220,13 +1223,13 @@ namespace ckfilesystem
 
 						if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 						{
-							res = ckcore::Directory::Time((*it_file)->m_FileFullPath.c_str(),
+							res = ckcore::Directory::Time((*it_file)->file_path_.c_str(),
 														  access_time,modify_time,create_time);
 							
 						}
 						else
 						{
-							res = ckcore::File::Time((*it_file)->m_FileFullPath.c_str(),
+							res = ckcore::File::Time((*it_file)->file_path_.c_str(),
 													 access_time,modify_time,create_time);
 						}
 
@@ -1249,7 +1252,7 @@ namespace ckfilesystem
 					if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 						dr.file_flags |= DIRRECORD_FILEFLAG_DIRECTORY;
 
-					if (ckcore::File::Hidden((*it_file)->m_FileFullPath.c_str()))
+					if (ckcore::File::Hidden((*it_file)->file_path_.c_str()))
 						dr.file_flags |= DIRRECORD_FILEFLAG_HIDDEN;
 
 					dr.file_unit_size = 0;
@@ -1259,7 +1262,7 @@ namespace ckfilesystem
 
 				// Remaining bytes, before checking if we're dealing with the last segment.
 				file_remain -= extent_size;
-				if ((*it_file)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && file_remain > 0)
+				if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && file_remain > 0)
 					dr.file_flags |= DIRRECORD_FILEFLAG_MULTIEXTENT;
 
 				dr.file_ident_len = name_len;
@@ -1351,7 +1354,7 @@ namespace ckfilesystem
 
 	int Iso9660Writer::WriteDirEntries(FileTree &file_tree,ckcore::Progress &progress)
 	{
-		progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEDIRENTRIES));
+		progress.SetStatus(StringTable::Instance().GetString(StringTable::STATUS_WRITEDIRENTRIES));
 
 		FileTreeNode *cur_node = file_tree.GetRoot();
 

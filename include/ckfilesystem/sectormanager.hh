@@ -29,24 +29,24 @@ namespace ckfilesystem
 	class SectorManager
 	{
 	private:
-		ckcore::tuint64 m_uiNextFreeSector;
-		ckcore::tuint64 m_uiDataStart;
-		ckcore::tuint64 m_uiDataLength;
-		std::map<std::pair<SectorClient *,unsigned char>,ckcore::tuint64> m_ClientMap;
+		ckcore::tuint64 next_free_sec_;
+		ckcore::tuint64 data_start_;
+		ckcore::tuint64 data_len_;
+		std::map<std::pair<SectorClient *,unsigned char>,ckcore::tuint64> client_map_;
 
 	public:
-		SectorManager(ckcore::tuint64 uiStartSector);
+		SectorManager(ckcore::tuint64 start_sector);
 		~SectorManager();
 
-		void AllocateSectors(SectorClient *pClient,unsigned char ucIdentifier,
-			ckcore::tuint64 uiNumSectors);
-		void AllocateBytes(SectorClient *pClient,unsigned char ucIdentifier,
-			ckcore::tuint64 uiNumBytes);
+		void AllocateSectors(SectorClient *client,unsigned char identifier,
+							 ckcore::tuint64 num_sec);
+		void AllocateBytes(SectorClient *client,unsigned char identifier,
+						   ckcore::tuint64 num_bytes);
 
-		void AllocateDataSectors(ckcore::tuint64 uiNumSectors);
-		void AllocateDataBytes(ckcore::tuint64 uiNumBytes);
+		void AllocateDataSectors(ckcore::tuint64 num_sec);
+		void AllocateDataBytes(ckcore::tuint64 num_bytes);
 
-		ckcore::tuint64 GetStart(SectorClient *pClient,unsigned char ucIdentifier);
+		ckcore::tuint64 GetStart(SectorClient *client,unsigned char identifier);
 		ckcore::tuint64 GetNextFree();
 
 		ckcore::tuint64 GetDataStart();

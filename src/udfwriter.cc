@@ -166,7 +166,7 @@ namespace ckfilesystem
 
 		// Get file modified dates.
 		struct tm access_time,modify_time,create_time;
-		if (!ckcore::Directory::Time(local_node->m_FileFullPath.c_str(),access_time,modify_time,create_time))
+		if (!ckcore::Directory::Time(local_node->file_path_.c_str(),access_time,modify_time,create_time))
 			access_time = modify_time = create_time = create_time_;
 
 		// The current folder entry.
@@ -261,7 +261,7 @@ namespace ckfilesystem
 			if (cur_node->m_ulUdfPartLoc != cur_part_sec)
 			{
 				log_.PrintLine(ckT("Invalid location for \"%s\" in UDF file system. Proposed position %u verus actual position %u."),
-					cur_node->m_FileFullPath.c_str(),cur_node->m_ulUdfPartLoc,cur_part_sec);
+					cur_node->file_path_.c_str(),cur_node->m_ulUdfPartLoc,cur_part_sec);
 			}
 #endif
 
@@ -274,11 +274,11 @@ namespace ckfilesystem
 			{
 				// Get file modified dates.
 				struct tm access_time,modify_time,create_time;
-				if (use_file_times_ && !ckcore::File::Time(cur_node->m_FileFullPath.c_str(),access_time,modify_time,create_time))
+				if (use_file_times_ && !ckcore::File::Time(cur_node->file_path_.c_str(),access_time,modify_time,create_time))
 					access_time = modify_time = create_time = create_time_;
 
 				if (!udf_.WriteFileEntry(out_stream_,cur_part_sec++,false,1,
-					unique_ident,(unsigned long)cur_node->m_uiDataPosNormal - 257,cur_node->m_uiFileSize,
+					unique_ident,(unsigned long)cur_node->m_uiDataPosNormal - 257,cur_node->file_size_,
 					access_time,modify_time,create_time))
 				{
 					return false;

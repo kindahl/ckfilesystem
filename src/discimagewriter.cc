@@ -57,13 +57,13 @@ namespace ckfilesystem
 			else
 			{
 				// Validate file size.
-				if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !m_Iso9660.AllowsFragmentation())
+				if ((*itFile)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !m_Iso9660.AllowsFragmentation())
 				{
 					if (m_FileSystem == FS_ISO9660 || m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_DVDVIDEO)
 					{
 						log_.PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
 							(*itFile)->m_FileName.c_str());
-						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIP4GFILE),
+						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILE),
 							(*itFile)->m_FileName.c_str());
 
 						continue;
@@ -72,7 +72,7 @@ namespace ckfilesystem
 					{
 						log_.PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
 							(*itFile)->m_FileName.c_str());
-						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(WARNING_SKIP4GFILEISO),
+						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILEISO),
 							(*itFile)->m_FileName.c_str());
 					}
 				}
@@ -96,8 +96,8 @@ namespace ckfilesystem
 				}
 				else
 				{
-					(*itFile)->m_uiDataSizeNormal = (*itFile)->m_uiFileSize;
-					(*itFile)->m_uiDataSizeJoliet = (*itFile)->m_uiFileSize;
+					(*itFile)->m_uiDataSizeNormal = (*itFile)->file_size_;
+					(*itFile)->m_uiDataSizeJoliet = (*itFile)->file_size_;
 
 					(*itFile)->m_uiDataPosNormal = uiSecOffset;
 					(*itFile)->m_uiDataPosJoliet = uiSecOffset;
@@ -111,8 +111,8 @@ namespace ckfilesystem
 				}
 
 				/*
-				(*itFile)->m_uiDataSizeNormal = (*itFile)->m_uiFileSize;
-				(*itFile)->m_uiDataSizeJoliet = (*itFile)->m_uiFileSize;
+				(*itFile)->m_uiDataSizeNormal = (*itFile)->file_size_;
+				(*itFile)->m_uiDataSizeJoliet = (*itFile)->file_size_;
 
 				(*itFile)->m_uiDataPosNormal = uiSecOffset;
 				(*itFile)->m_uiDataPosJoliet = uiSecOffset;
@@ -160,13 +160,14 @@ namespace ckfilesystem
 	int DiscImageWriter::WriteFileNode(SectorOutStream &OutStream,FileTreeNode *pNode,
 										ckcore::Progresser &FileProgresser)
 	{
-		ckcore::FileInStream FileStream(pNode->m_FileFullPath.c_str());
+		ckcore::FileInStream FileStream(pNode->file_path_.c_str());
 		if (!FileStream.Open())
 		{
 			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),
-				pNode->m_FileFullPath.c_str());
-			FileProgresser.Notify(ckcore::Progress::ckERROR,StringTable::Instance().GetString(ERROR_OPENREAD),
-				pNode->m_FileFullPath.c_str());
+				pNode->file_path_.c_str());
+			FileProgresser.Notify(ckcore::Progress::ckERROR,
+				StringTable::Instance().GetString(StringTable::ERROR_OPENREAD),
+				pNode->file_path_.c_str());
 			return RESULT_FAIL;
 		}
 
@@ -208,7 +209,7 @@ namespace ckfilesystem
 				// Validate file size.
 				if (m_FileSystem == FS_ISO9660 || m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_DVDVIDEO)
 				{
-					if ((*itFile)->m_uiFileSize > ISO9660_MAX_EXTENT_SIZE && !m_Iso9660.AllowsFragmentation())
+					if ((*itFile)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !m_Iso9660.AllowsFragmentation())
 						continue;
 				}
 
@@ -459,7 +460,7 @@ namespace ckfilesystem
 		}*/
 		// ...
 
-		Progress.SetStatus(StringTable::Instance().GetString(STATUS_BUILDTREE));
+		Progress.SetStatus(StringTable::Instance().GetString(StringTable::STATUS_BUILDTREE));
 		Progress.SetMarquee(true);
 
 		// Create a file tree.
@@ -572,7 +573,7 @@ namespace ckfilesystem
 				return Fail(iResult,OutStream);
 		}
 
-		Progress.SetStatus(StringTable::Instance().GetString(STATUS_WRITEDATA));
+		Progress.SetStatus(StringTable::Instance().GetString(StringTable::STATUS_WRITEDATA));
 		Progress.SetMarquee(false);
 
 		// To help keep track of the progress.

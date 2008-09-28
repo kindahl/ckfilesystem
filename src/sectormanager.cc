@@ -21,11 +21,9 @@
 
 namespace ckfilesystem
 {
-	SectorManager::SectorManager(ckcore::tuint64 uiStartSector)
+	SectorManager::SectorManager(ckcore::tuint64 start_sector) :
+		next_free_sec_(start_sector),data_start_(0),data_len_(0)
 	{
-		m_uiNextFreeSector = uiStartSector;
-		m_uiDataStart = 0;
-		m_uiDataLength = 0;
 	}
 
 	SectorManager::~SectorManager()
@@ -36,76 +34,76 @@ namespace ckfilesystem
 		Allocates a number of sectors for the client. The identifier is used
 		for identifying the allocated sector range. This is necessary when the
 		client requests which sector range it was given.
-		@param pClient the client that requests the memory.
-		@param ucIdentifier the unique identifier choosen by the client for the
+		@param client the client that requests the memory.
+		@param identifier the unique identifier choosen by the client for the
 		requested sector range.
-		@param uiNumSectors the number of sectors to allocate.
-	*/
-	void SectorManager::AllocateSectors(SectorClient *pClient,unsigned char ucIdentifier,
-		ckcore::tuint64 uiNumSectors)
+		@param num_sec the number of sectors to allocate.
+	 */
+	void SectorManager::AllocateSectors(SectorClient *client,unsigned char identifier,
+		ckcore::tuint64 num_sec)
 	{
-		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
+		client_map_[std::make_pair(client,identifier)] = next_free_sec_;
 
-		m_uiNextFreeSector += uiNumSectors;
+		next_free_sec_ += num_sec;
 	}
 
-	void SectorManager::AllocateBytes(SectorClient *pClient,unsigned char ucIdentifier,
-		ckcore::tuint64 uiNumBytes)
+	void SectorManager::AllocateBytes(SectorClient *client,unsigned char identifier,
+		ckcore::tuint64 num_bytes)
 	{
-		m_ClientMap[std::make_pair(pClient,ucIdentifier)] = m_uiNextFreeSector;
+		client_map_[std::make_pair(client,identifier)] = next_free_sec_;
 
-		m_uiNextFreeSector += bytes_to_sec64(uiNumBytes);
+		next_free_sec_ += bytes_to_sec64(num_bytes);
 	}
 
 	/**
 		Allocation of data sectors is separated from the other allocation. The reason
 		is that there can only be one data allocation and it should be accessible by
 		any client.
-	*/
-	void SectorManager::AllocateDataSectors(ckcore::tuint64 uiNumSectors)
+	 */
+	void SectorManager::AllocateDataSectors(ckcore::tuint64 num_sec)
 	{
-		m_uiDataStart = m_uiNextFreeSector;
-		m_uiDataLength = uiNumSectors;
+		data_start_ = next_free_sec_;
+		data_len_ = num_sec;
 
-		m_uiNextFreeSector += m_uiDataLength;
+		next_free_sec_ += data_len_;
 	}
 
-	void SectorManager::AllocateDataBytes(ckcore::tuint64 uiNumBytes)
+	void SectorManager::AllocateDataBytes(ckcore::tuint64 num_bytes)
 	{
-		m_uiDataStart = m_uiNextFreeSector;
-		m_uiDataLength = bytes_to_sec64(uiNumBytes);
+		data_start_ = next_free_sec_;
+		data_len_ = bytes_to_sec64(num_bytes);
 
-		m_uiNextFreeSector += m_uiDataLength;
+		next_free_sec_ += data_len_;
 	}
 
 	/**
 		Returns the starting sector of the allocated sector range allocated by
 		the client that matches the identifier.
-		@param pClient te client that owns the sector range.
-		@param ucIdentifier the unique identifier selected by the client when
+		@param client te client that owns the sector range.
+		@param identifier the unique identifier selected by the client when
 		allocating.
 		@return the start sector.
-	*/
-	ckcore::tuint64 SectorManager::GetStart(SectorClient *pClient,unsigned char ucIdentifier)
+	 */
+	ckcore::tuint64 SectorManager::GetStart(SectorClient *client,unsigned char identifier)
 	{
-		return m_ClientMap[std::make_pair(pClient,ucIdentifier)];
+		return client_map_[std::make_pair(client,identifier)];
 	}
 
 	/**
 		Returns the next free unallocated sector. This should be used with care.
-	*/
+	 */
 	ckcore::tuint64 SectorManager::GetNextFree()
 	{
-		return m_uiNextFreeSector;
+		return next_free_sec_;
 	}
 
 	ckcore::tuint64 SectorManager::GetDataStart()
 	{
-		return m_uiDataStart;
+		return data_start_;
 	}
 
 	ckcore::tuint64 SectorManager::GetDataLength()
 	{
-		return m_uiDataLength;
+		return data_len_;
 	}
 };

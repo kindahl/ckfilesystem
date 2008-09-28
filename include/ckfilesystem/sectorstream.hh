@@ -27,16 +27,16 @@ namespace ckfilesystem
 	class SectorOutStream : public ckcore::BufferedOutStream
 	{
 	private:
-		unsigned long m_ulSectorSize;
-		ckcore::tuint64 m_uiSector;
-		ckcore::tuint64 m_uiWritten;
+		unsigned long sector_size_;
+		ckcore::tuint64 sector_;
+		ckcore::tuint64 written_;
 
 	public:
-		SectorOutStream(ckcore::OutStream &OutStream,
-			unsigned long ulSectorSize = ISO9660_SECTOR_SIZE);
+		SectorOutStream(ckcore::OutStream &out_stream,
+			unsigned long sector_size = ISO9660_SECTOR_SIZE);
 		~SectorOutStream();
 
-		ckcore::tint64 Write(void *pBuffer,ckcore::tuint32 uiCount);
+		ckcore::tint64 Write(void *buffer,ckcore::tuint32 count);
 
 		ckcore::tuint64 GetSector();
 		unsigned long GetAllocated();

@@ -40,9 +40,9 @@ namespace ckfilesystem
 		};
 
 		unsigned char file_flags_;
-		ckcore::tuint64 m_uiFileSize;
+		ckcore::tuint64 file_size_;
 		ckcore::tstring m_FileName;			// File name in disc image (requested name not actual, using ISO9660 may cripple the name).
-		ckcore::tstring m_FileFullPath;		// Place on hard drive.
+		ckcore::tstring file_path_;			// Place on hard drive.
 
 		// I am not sure this is the best way, this uses lots of memory.
 		std::string m_FileNameIso9660;
@@ -72,9 +72,9 @@ namespace ckfilesystem
 			m_pParent = pParent;
 
 			file_flags_ = ucFileFlags;
-			m_uiFileSize = uiFileSize;
+			file_size_ = uiFileSize;
 			m_FileName = szFileName;
-			m_FileFullPath = szFileFullPath;
+			file_path_ = szFileFullPath;
 
 			m_uiDataPosNormal = 0;
 			m_uiDataPosJoliet = 0;

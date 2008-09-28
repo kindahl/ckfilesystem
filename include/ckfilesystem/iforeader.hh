@@ -30,22 +30,22 @@ namespace ckfilesystem
 	class IfoVmgData
 	{
 	public:
-		unsigned long ulLastVmgSector;
-		unsigned long ulLastVmgIfoSector;
-		unsigned short usNumVmgTitleSets;
-		unsigned long ulVmgMenuVobSector;
-		unsigned long ulSrptSector;
+		unsigned long last_vmg_sec_;
+		unsigned long last_vmg_ifo_sec_;
+		unsigned short num_vmg_ts_;
+		unsigned long vmg_menu_vob_sec_;
+		unsigned long srpt_sec_;
 
-		std::vector<unsigned long> Titles;
+		std::vector<unsigned long> titles_;
 	};
 
 	class IfoVtsData
 	{
 	public:
-		unsigned long ulLastVtsSector;
-		unsigned long ulLastVtsIfoSector;
-		unsigned long ulVtsMenuVobSector;
-		unsigned long ulVtsVobSector;
+		unsigned long last_vts_sec_;
+		unsigned long last_vts_ifo_sec_;
+		unsigned long vts_menu_vob_sec_;
+		unsigned long vts_vob_sec_;
 	};
 
 	class IfoReader
@@ -59,20 +59,20 @@ namespace ckfilesystem
 		};
 
 	private:
-		IfoType m_IfoType;
+		IfoType ifo_type_;
 
-		ckcore::FileInStream m_InStream;
+		ckcore::FileInStream in_stream_;
 
 	public:
 
-		IfoReader(const ckcore::tchar *szFullPath);
+		IfoReader(const ckcore::tchar *full_path);
 		~IfoReader();
 
 		bool Open();
 		bool Close();
 
-		bool ReadVmg(IfoVmgData &VmgData);
-		bool ReadVts(IfoVtsData &VtsData);
+		bool ReadVmg(IfoVmgData &vmg_data);
+		bool ReadVts(IfoVtsData &vts_data);
 
 		IfoType GetType();
 	};

@@ -23,31 +23,29 @@ namespace ckfilesystem
 	/*
 		COutBufferedStream
 	*/
-	SectorOutStream::SectorOutStream(ckcore::OutStream &OutStream,
-									   unsigned long ulSectorSize) :
-		ckcore::BufferedOutStream(OutStream)
+	SectorOutStream::SectorOutStream(ckcore::OutStream &out_stream,
+									 unsigned long sector_size) :
+		ckcore::BufferedOutStream(out_stream),sector_size_(sector_size),
+		sector_(0),written_(0)
 	{
-		m_ulSectorSize = ulSectorSize;
-		m_uiSector = 0;		// We start at sector 0.
-		m_uiWritten = 0;
 	}
 
 	SectorOutStream::~SectorOutStream()
 	{
 	}
 
-	ckcore::tint64 SectorOutStream::Write(void *pBuffer,ckcore::tuint32 uiCount)
+	ckcore::tint64 SectorOutStream::Write(void *buffer,ckcore::tuint32 count)
 	{
-		ckcore::tint64 iResult = ckcore::BufferedOutStream::Write(pBuffer,uiCount);
-		m_uiWritten += iResult;
+		ckcore::tint64 res = ckcore::BufferedOutStream::Write(buffer,count);
+		written_ += res;
 
-		while (m_uiWritten >= m_ulSectorSize)
+		while (written_ >= sector_size_)
 		{
-			m_uiWritten -= m_ulSectorSize;
-			m_uiSector++;
+			written_ -= sector_size_;
+			sector_++;
 		}
 
-		return iResult;
+		return res;
 	}
 
 	/*
@@ -55,7 +53,7 @@ namespace ckfilesystem
 	*/
 	ckcore::tuint64 SectorOutStream::GetSector()
 	{
-		return m_uiSector;
+		return sector_;
 	}
 
 	/*
@@ -63,7 +61,7 @@ namespace ckfilesystem
 	*/
 	unsigned long SectorOutStream::GetAllocated()
 	{
-		return (unsigned long)m_uiWritten;
+		return (unsigned long)written_;
 	}
 
 	/*
@@ -71,7 +69,7 @@ namespace ckfilesystem
 	*/
 	unsigned long SectorOutStream::GetRemaining()
 	{
-		return m_ulSectorSize - (unsigned long)m_uiWritten;
+		return sector_size_ - (unsigned long)written_;
 	}
 
 	/*
@@ -79,11 +77,10 @@ namespace ckfilesystem
 	*/
 	void SectorOutStream::PadSector()
 	{
-		char szTemp[1] = { 0 };
+		char tmp[1] = { 0 };
 
-		unsigned long ulRemaining = GetRemaining();
-
-		for (unsigned long i = 0; i < ulRemaining; i++)
-			Write(szTemp,1);
+		unsigned long remaining = GetRemaining();
+		for (unsigned long i = 0; i < remaining; i++)
+			Write(tmp,1);
 	}
 };

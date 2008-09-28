@@ -27,17 +27,18 @@ namespace ckfilesystem
 	class DiscImageHelper
 	{
 	private:
-		DiscImageWriter::eFileSystem m_FileSystem;
+		DiscImageWriter::FileSystem file_sys_;
 
-		Joliet m_Joliet;
-		Iso9660 m_Iso9660;
+		Joliet joliet_;
+		Iso9660 iso9660_;
 
 	public:
-		DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
-			bool bIncludeInfo,bool bLongJolietNames,Iso9660::InterLevel inter_level);
+		DiscImageHelper(DiscImageWriter::FileSystem file_sys,
+						bool inc_file_ver_info,bool long_joliet_names,
+						Iso9660::InterLevel inter_level);
 		~DiscImageHelper();
 
-		void CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir);
-		void CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath);
+		void CalcFileName(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
+		void CalcFilePath(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
 	};
 };

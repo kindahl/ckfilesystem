@@ -43,7 +43,7 @@ namespace ckfilesystem
 	class DiscImageWriter
 	{
 	public:
-		enum eFileSystem
+		enum FileSystem
 		{
 			FS_ISO9660,
 			FS_ISO9660_JOLIET,
@@ -57,57 +57,64 @@ namespace ckfilesystem
 		ckcore::Log &log_;
 
 		// What file system should be created.
-		eFileSystem m_FileSystem;
+		FileSystem file_sys_;
 
 		// Different standard implementations.
-		Iso9660 m_Iso9660;
-		Joliet m_Joliet;
-		ElTorito m_ElTorito;
-		Udf m_Udf;
+		Iso9660 iso9660_;
+		Joliet joliet_;
+		ElTorito eltorito_;
+		Udf udf_;
 
-		bool CalcLocalFileSysData(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-			FileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress);
-		bool CalcFileSysData(FileTree &file_tree,ckcore::Progress &Progress,
-			ckcore::tuint64 uiStartSec,ckcore::tuint64 &uiLastSec);
+		bool CalcLocalFileSysData(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+								  FileTreeNode *local_node,int level,ckcore::tuint64 &sec_offset,
+								  ckcore::Progress &progress);
+		bool CalcFileSysData(FileTree &file_tree,ckcore::Progress &progress,
+							 ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec);
 
-		int WriteFileNode(SectorOutStream &OutStream,FileTreeNode *pNode,
-			ckcore::Progresser &OutProgresser);
-		int WriteLocalFileData(SectorOutStream &OutStream,
-			std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-			FileTreeNode *pLocalNode,int iLevel,ckcore::Progresser &FileProgresser);
-		int WriteFileData(SectorOutStream &OutStream,FileTree &file_tree,ckcore::Progresser &FileProgresser);
+		int WriteFileNode(SectorOutStream &out_stream,FileTreeNode *node,
+						  ckcore::Progresser &progresser);
+		int WriteLocalFileData(SectorOutStream &out_stream,
+							   std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+							   FileTreeNode *local_node,int level,ckcore::Progresser &progresser);
+		int WriteFileData(SectorOutStream &out_stream,FileTree &file_tree,ckcore::Progresser &progresser);
 
-		void GetInternalPath(FileTreeNode *pChildNode,ckcore::tstring &NodePath,
-			bool bExternalPath,bool bJoliet);
-		void CreateLocalFilePathMap(FileTreeNode *pLocalNode,
-			std::vector<FileTreeNode *> &DirNodeStack,
-			std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet);
-		void CreateFilePathMap(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet);
+		void GetInternalPath(FileTreeNode *child_node,ckcore::tstring &node_path,
+							 bool ext_path,bool joliet);
+		void CreateLocalFilePathMap(FileTreeNode *local_node,
+									std::vector<FileTreeNode *> &dir_node_stack,
+									std::map<ckcore::tstring,ckcore::tstring> &filepath_map,
+									bool joliet);
+		void CreateFilePathMap(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &filepath_map,
+							   bool joliet);
 
-		int Fail(int iResult,SectorOutStream &OutStream);
+		int Fail(int res,SectorOutStream &out_stream);
 
 	public:
-		DiscImageWriter(ckcore::Log &log,eFileSystem FileSystem);
+		DiscImageWriter(ckcore::Log &log,FileSystem file_sys);
 		~DiscImageWriter();	
 
-		int Create(SectorOutStream &OutStream,FileSet &Files,ckcore::Progress &Progress,
-			unsigned long ulSectorOffset = 0,std::map<ckcore::tstring,ckcore::tstring> *pFilePathMap = NULL);
+		int Create(SectorOutStream &out_stream,FileSet &files,ckcore::Progress &progress,
+				   unsigned long sec_offset = 0,
+				   std::map<ckcore::tstring,ckcore::tstring> *filepath_map_ptr = NULL);
 
 		// File system modifiers, mixed set for Joliet, UDF and ISO9660.
-		void SetVolumeLabel(const ckcore::tchar *szLabel);
-		void SetTextFields(const ckcore::tchar *szSystem,const ckcore::tchar *szVolSetIdent,
-			const ckcore::tchar *szPublIdent,const ckcore::tchar *szPrepIdent);
-		void SetFileFields(const ckcore::tchar *ucCopyFileIdent,const ckcore::tchar *ucAbstFileIdent,
-			const ckcore::tchar *ucBiblIdent);
+		void SetVolumeLabel(const ckcore::tchar *label);
+		void SetTextFields(const ckcore::tchar *sys_ident,
+						   const ckcore::tchar *volset_ident,
+						   const ckcore::tchar *publ_ident,
+						   const ckcore::tchar *prep_ident);
+		void SetFileFields(const ckcore::tchar *copy_file_ident,
+						   const ckcore::tchar *abst_file_ident,
+						   const ckcore::tchar *bibl_file_ident);
 		void SetInterchangeLevel(Iso9660::InterLevel inter_level);
-		void SetIncludeFileVerInfo(bool bIncludeInfo);
-		void SetPartAccessType(Udf::PartAccessType AccessType);
-		void SetRelaxMaxDirLevel(bool bRelaxRestriction);
-		void SetLongJolietNames(bool bEnable);
+		void SetIncludeFileVerInfo(bool include);
+		void SetPartAccessType(Udf::PartAccessType access_type);
+		void SetRelaxMaxDirLevel(bool relax);
+		void SetLongJolietNames(bool enable);
 
-		bool AddBootImageNoEmu(const ckcore::tchar *szFullPath,bool bBootable,
-			unsigned short usLoadSegment,unsigned short usSectorCount);
-		bool AddBootImageFloppy(const ckcore::tchar *szFullPath,bool bBootable);
-		bool AddBootImageHardDisk(const ckcore::tchar *szFullPath,bool bBootable);
+		bool AddBootImageNoEmu(const ckcore::tchar *full_path,bool bootable,
+							   unsigned short load_segment,unsigned short sec_count);
+		bool AddBootImageFloppy(const ckcore::tchar *full_path,bool bootable);
+		bool AddBootImageHardDisk(const ckcore::tchar *full_path,bool bootable);
 	};
 };

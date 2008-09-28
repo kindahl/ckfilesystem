@@ -21,17 +21,18 @@
 
 namespace ckfilesystem
 {
-	DiscImageHelper::DiscImageHelper(DiscImageWriter::eFileSystem FileSystem,
-		bool bIncludeInfo,bool bLongJolietNames,Iso9660::InterLevel inter_level) :
-		m_FileSystem(FileSystem)
+	DiscImageHelper::DiscImageHelper(DiscImageWriter::FileSystem file_sys,
+									 bool inc_file_ver_info,bool long_joliet_names,
+									 Iso9660::InterLevel inter_level) :
+		file_sys_(file_sys)
 	{
 		// Joliet.
-		m_Joliet.SetIncludeFileVerInfo(bIncludeInfo);
-		m_Joliet.SetRelaxMaxNameLen(bLongJolietNames);
+		joliet_.SetIncludeFileVerInfo(inc_file_ver_info);
+		joliet_.SetRelaxMaxNameLen(long_joliet_names);
 
 		// ISO9660.
-		m_Iso9660.SetIncludeFileVerInfo(bIncludeInfo);
-		m_Iso9660.SetInterchangeLevel(inter_level);
+		iso9660_.SetIncludeFileVerInfo(inc_file_ver_info);
+		iso9660_.SetInterchangeLevel(inter_level);
 	}
 
 	DiscImageHelper::~DiscImageHelper()
@@ -39,121 +40,123 @@ namespace ckfilesystem
 	}
 
 	// Warning: This function duplicates some functionality in CUdf.
-	// szFileName is assumed to be at least as long as szReqFileName.
-	void DiscImageHelper::CalcFileName(const ckcore::tchar *szReqFileName,ckcore::tchar *szFileName,bool bIsDir)
+	// file_name is assumed to be at least as long as req_file_name.
+	void DiscImageHelper::CalcFileName(const ckcore::tchar *req_file_name,
+									   ckcore::tchar *file_name,bool is_dir)
 	{
-		bool bUseIso = m_FileSystem != DiscImageWriter::FS_UDF;
-		bool bUseUdf = m_FileSystem == DiscImageWriter::FS_ISO9660_UDF ||
-			m_FileSystem == DiscImageWriter::FS_ISO9660_UDF_JOLIET ||
-			m_FileSystem == DiscImageWriter::FS_UDF ||
-			m_FileSystem == DiscImageWriter::FS_DVDVIDEO;
-		bool bUseJoliet = m_FileSystem == DiscImageWriter::FS_ISO9660_JOLIET ||
-			m_FileSystem == DiscImageWriter::FS_ISO9660_UDF_JOLIET;
+		bool use_iso = file_sys_ != DiscImageWriter::FS_UDF;
+		bool use_udf = file_sys_ == DiscImageWriter::FS_ISO9660_UDF ||
+			file_sys_ == DiscImageWriter::FS_ISO9660_UDF_JOLIET ||
+			file_sys_ == DiscImageWriter::FS_UDF ||
+			file_sys_ == DiscImageWriter::FS_DVDVIDEO;
+		bool use_joliet = file_sys_ == DiscImageWriter::FS_ISO9660_JOLIET ||
+			file_sys_ == DiscImageWriter::FS_ISO9660_UDF_JOLIET;
 
-		if (bUseUdf)
+		if (use_udf)
 		{
-			size_t iNameLen = ckcore::string::astrlen(szFileName);
-			ckcore::string::astrncpy(szFileName,szReqFileName,iNameLen < (254 >> 1) ? iNameLen : (254 >> 1));		// One byte is reserved for compression descriptor.
+			size_t name_len = ckcore::string::astrlen(file_name);
+			ckcore::string::astrncpy(file_name,req_file_name,name_len < (254 >> 1) ? name_len : (254 >> 1));		// One byte is reserved for compression descriptor.
 		}
-		else if (bUseJoliet)
+		else if (use_joliet)
 		{
-			unsigned char ucFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char ucLen = m_Joliet.WriteFileName((unsigned char *)ucFileName,szReqFileName,bIsDir);
+			unsigned char file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+			unsigned char len = joliet_.WriteFileName((unsigned char *)file_name_buf,req_file_name,is_dir);
 
 #ifdef _UNICODE
-			unsigned char ucFileNamePos = 0;
-			for (unsigned char i = 0; i < ucLen; i++)
+			unsigned char file_name_pos = 0;
+			for (unsigned char i = 0; i < len; i++)
 			{
-				szFileName[i]  = ucFileName[ucFileNamePos++] << 8;
-				szFileName[i] |= ucFileName[ucFileNamePos++];
+				file_name[i]  = file_name_buf[file_name_pos++] << 8;
+				file_name[i] |= file_name_buf[file_name_pos++];
 			}
 
-			szFileName[ucLen] = '\0';
+			file_name[len] = '\0';
 #else
-			wchar_t szWideFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char ucFileNamePos = 0;
-			for (unsigned char i = 0; i < ucLen; i++)
+			wchar_t utf_file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+			unsigned char file_name_pos = 0;
+			for (unsigned char i = 0; i < len; i++)
 			{
-				szWideFileName[i]  = ucFileName[ucFileNamePos++] << 8;
-				szWideFileName[i] |= ucFileName[ucFileNamePos++];
+				utf_file_name[i]  = file_name_buf[file_name_pos++] << 8;
+				utf_file_name[i] |= file_name_buf[file_name_pos++];
 			}
 
-			szWideFileName[ucLen] = '\0';
+			utf_file_name[len] = '\0';
 
-			ckcore::string::utf16_to_ansi(szWideFileName,szFileName,ucLen);
+			ckcore::string::utf16_to_ansi(utf_file_name,file_name,len);
 #endif
 		}
-		else if (bUseIso)
+		else if (use_iso)
 		{
 #ifdef _UNICODE
-			char szMultiFileName[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char ucLen = m_Iso9660.WriteFileName((unsigned char *)szMultiFileName,szReqFileName,bIsDir);
-			szMultiFileName[ucLen] = '\0';
+			char ansi_file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+			unsigned char len = iso9660_.WriteFileName((unsigned char *)ansi_file_name,req_file_name,is_dir);
+			ansi_file_name[len] = '\0';
 
-			ckcore::string::ansi_to_utf16(szMultiFileName,szFileName,ucLen + 1);
+			ckcore::string::ansi_to_utf16(ansi_file_name,file_name,len + 1);
 #else
-			unsigned char ucLen = m_Iso9660.WriteFileName((unsigned char *)szFileName,szReqFileName,bIsDir);
-			szFileName[ucLen] = '\0';
+			unsigned char len = iso9660_.WriteFileName((unsigned char *)file_name,req_file_name,is_dir);
+			file_name[len] = '\0';
 #endif
 		}
 		else
 		{
-			ckcore::string::astrcpy(szFileName,szReqFileName);
+			ckcore::string::astrcpy(file_name,req_file_name);
 		}
 	}
 
-	void DiscImageHelper::CalcFilePath(const ckcore::tchar *szReqFilePath,ckcore::tstring &FilePath)
+	void DiscImageHelper::CalcFilePath(const ckcore::tchar *req_file_path,
+									   ckcore::tstring &file_path)
 	{
-		size_t iDirPathLen = ckcore::string::astrlen(szReqFilePath),iPrevDelim = 0,iPos = 0;
-		ckcore::tstring CurDirName;
-		ckcore::tchar szFileNameBuffer[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+		size_t dir_path_len = ckcore::string::astrlen(req_file_path),prev_delim = 0,pos = 0;
+		ckcore::tstring cur_dir_name;
+		ckcore::tchar file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
 
 		// Locate the first delimiter (so we can safely skip any driveletter).
-		for (size_t i = 0; i < iDirPathLen; i++)
+		for (size_t i = 0; i < dir_path_len; i++)
 		{
-			if (szReqFilePath[i] == '/' || szReqFilePath[i] == '\\')
+			if (req_file_path[i] == '/' || req_file_path[i] == '\\')
 			{
-				iPos = i;
+				pos = i;
 				break;
 			}
 		}
 
-		// Make sure that we don't delete any thing before the first delimiter that exists in FilePath.
-		if (iPos > 0)
+		// Make sure that we don't delete any thing before the first delimiter that exists in file_path.
+		if (pos > 0)
 		{
-			iPrevDelim = iPos;
+			prev_delim = pos;
 			
-			if (FilePath.length() > iPos)
-				FilePath.erase(iPos);
+			if (file_path.length() > pos)
+				file_path.erase(pos);
 		}
 
-		for (; iPos < iDirPathLen; iPos++)
+		for (; pos < dir_path_len; pos++)
 		{
-			if (szReqFilePath[iPos] == '/' || szReqFilePath[iPos] == '\\')	// I don't like supporting two delimiters.
+			if (req_file_path[pos] == '/' || req_file_path[pos] == '\\')	// I don't like supporting two delimiters.
 			{
-				if (iPos > (iPrevDelim + 1))
+				if (pos > (prev_delim + 1))
 				{
 					// Obtain the name of the current directory.
-					CurDirName.erase();
-					for (size_t j = iPrevDelim + 1; j < iPos; j++)
-						CurDirName.push_back(szReqFilePath[j]);
+					cur_dir_name.erase();
+					for (size_t j = prev_delim + 1; j < pos; j++)
+						cur_dir_name.push_back(req_file_path[j]);
 
-					CalcFileName(CurDirName.c_str(),szFileNameBuffer,true);
-					FilePath.append(ckT("/"));
-					FilePath.append(szFileNameBuffer);
+					CalcFileName(cur_dir_name.c_str(),file_name_buf,true);
+					file_path.append(ckT("/"));
+					file_path.append(file_name_buf);
 				}
 
-				iPrevDelim = iPos;
+				prev_delim = pos;
 			}
 		}
 
-		CalcFileName(szReqFilePath + iPrevDelim + 1,szFileNameBuffer,false);
+		CalcFileName(req_file_path + prev_delim + 1,file_name_buf,false);
 
-		size_t iFileNameBufferLen = ckcore::string::astrlen(szFileNameBuffer);
-		if (szFileNameBuffer[iFileNameBufferLen - 2] = ';')
-			szFileNameBuffer[iFileNameBufferLen - 2] = '\0';
+		size_t file_name_buf_len = ckcore::string::astrlen(file_name_buf);
+		if (file_name_buf[file_name_buf_len - 2] = ';')
+			file_name_buf[file_name_buf_len - 2] = '\0';
 
-		FilePath.append(ckT("/"));
-		FilePath.append(szFileNameBuffer);
+		file_path.append(ckT("/"));
+		file_path.append(file_name_buf);
 	}
 };

@@ -46,21 +46,21 @@ namespace ckfilesystem
 	void UdfWriter::CalcLocalNodeLengths(std::vector<FileTreeNode *> &dir_node_stack,
 		FileTreeNode *local_node)
 	{
-		local_node->m_uiUdfSize = 0;
-		local_node->m_uiUdfSize += bytes_to_sec(udf_.CalcFileEntrySize());
-		local_node->m_uiUdfSize += bytes_to_sec(CalcIdentSize(local_node));
-		local_node->m_uiUdfSizeTot = local_node->m_uiUdfSize;
+		local_node->udf_size_ = 0;
+		local_node->udf_size_ += bytes_to_sec(udf_.CalcFileEntrySize());
+		local_node->udf_size_ += bytes_to_sec(CalcIdentSize(local_node));
+		local_node->udf_size_tot_ = local_node->udf_size_;
 
 		std::vector<FileTreeNode *>::const_iterator it;
-		for (it = local_node->m_Children.begin(); it !=
-			local_node->m_Children.end(); it++)
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
 			if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 				dir_node_stack.push_back(*it);
 			else
 			{
-				(*it)->m_uiUdfSize = bytes_to_sec(udf_.CalcFileEntrySize());
-				(*it)->m_uiUdfSizeTot = (*it)->m_uiUdfSize;
+				(*it)->udf_size_ = bytes_to_sec(udf_.CalcFileEntrySize());
+				(*it)->udf_size_tot_ = (*it)->udf_size_;
 			}
 		}
 	}
@@ -85,10 +85,10 @@ namespace ckfilesystem
 	{
 		ckcore::tuint64 tot_ident_size = 0;
 		std::vector<FileTreeNode *>::const_iterator it;
-		for (it = local_node->m_Children.begin(); it !=
-			local_node->m_Children.end(); it++)
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
-			tot_ident_size += udf_.CalcFileIdentSize((*it)->m_FileName.c_str());
+			tot_ident_size += udf_.CalcFileIdentSize((*it)->file_name_.c_str());
 		}
 
 		// Don't forget to add the '..' item to the total.
@@ -103,13 +103,13 @@ namespace ckfilesystem
 	ckcore::tuint64 UdfWriter::CalcNodeSizeTotal(FileTreeNode *local_node)
 	{
 		std::vector<FileTreeNode *>::const_iterator it;
-		for (it = local_node->m_Children.begin(); it !=
-			local_node->m_Children.end(); it++)
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
-			local_node->m_uiUdfSizeTot += CalcNodeSizeTotal(*it);
+			local_node->udf_size_tot_ += CalcNodeSizeTotal(*it);
 		}
 
-		return local_node->m_uiUdfSizeTot;
+		return local_node->udf_size_tot_;
 	}
 
 	/*
@@ -119,10 +119,10 @@ namespace ckfilesystem
 	ckcore::tuint64 UdfWriter::CalcNodeLinksTotal(FileTreeNode *local_node)
 	{
 		std::vector<FileTreeNode *>::const_iterator it;
-		for (it = local_node->m_Children.begin(); it !=
-			local_node->m_Children.end(); it++)
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
-			local_node->m_uiUdfLinkTot += CalcNodeLinksTotal(*it);
+			local_node->udf_link_tot_ += CalcNodeLinksTotal(*it);
 		}
 
 		return (local_node->file_flags_ & FileTreeNode::FLAG_DIRECTORY) ? 1 : 0;
@@ -153,10 +153,10 @@ namespace ckfilesystem
 		// Calculate the size of all identifiers.
 		ckcore::tuint64 tot_ident_size = 0;
 		std::vector<FileTreeNode *>::const_iterator it;
-		for (it = local_node->m_Children.begin(); it !=
-			local_node->m_Children.end(); it++)
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
-			tot_ident_size += udf_.CalcFileIdentSize((*it)->m_FileName.c_str());
+			tot_ident_size += udf_.CalcFileIdentSize((*it)->file_name_.c_str());
 		}
 
 		// Don't forget to add the '..' item to the total.
@@ -170,7 +170,7 @@ namespace ckfilesystem
 			access_time = modify_time = create_time = create_time_;
 
 		// The current folder entry.
-		if (!udf_.WriteFileEntry(out_stream_,entry_sec,true,(unsigned short)local_node->m_uiUdfLinkTot + 1,
+		if (!udf_.WriteFileEntry(out_stream_,entry_sec,true,(unsigned short)local_node->udf_link_tot_ + 1,
 			unique_ident,ident_sec,tot_ident_size,access_time,modify_time,create_time))
 		{
 			return false;
@@ -183,7 +183,7 @@ namespace ckfilesystem
 			unique_ident++;
 
 		// The '..' item.
-		unsigned long parent_entry_sec = local_node->GetParent() == NULL ? entry_sec : local_node->GetParent()->m_ulUdfPartLoc;
+		unsigned long parent_entry_sec = local_node->GetParent() == NULL ? entry_sec : local_node->GetParent()->udf_part_loc_;
 		if (!udf_.WriteFileIdentParent(out_stream_,cur_part_sec,parent_entry_sec))
 			return false;
 
@@ -191,30 +191,30 @@ namespace ckfilesystem
 		unsigned long sec_bytes = udf_.CalcFileIdentParentSize();
 
 		std::vector<FileTreeNode *> tmp_stack;
-		for (it = local_node->m_Children.begin(); it !=
-			local_node->m_Children.end(); it++)
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
 			// Push the item to the temporary stack.
 			tmp_stack.push_back(*it);
 
 			if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
-				if (!udf_.WriteFileIdent(out_stream_,cur_part_sec,next_entry_sec,true,(*it)->m_FileName.c_str()))
+				if (!udf_.WriteFileIdent(out_stream_,cur_part_sec,next_entry_sec,true,(*it)->file_name_.c_str()))
 					return false;
 
-				(*it)->m_ulUdfPartLoc = next_entry_sec;	// Remember where this entry was stored.
-				next_entry_sec += (unsigned long)(*it)->m_uiUdfSizeTot;
+				(*it)->udf_part_loc_ = next_entry_sec;	// Remember where this entry was stored.
+				next_entry_sec += (unsigned long)(*it)->udf_size_tot_;
 			}
 			else
 			{
-				if (!udf_.WriteFileIdent(out_stream_,cur_part_sec,next_entry_sec,false,(*it)->m_FileName.c_str()))
+				if (!udf_.WriteFileIdent(out_stream_,cur_part_sec,next_entry_sec,false,(*it)->file_name_.c_str()))
 					return false;
 
-				(*it)->m_ulUdfPartLoc = next_entry_sec;	// Remember where this entry was stored.
-				next_entry_sec += (unsigned long)(*it)->m_uiUdfSizeTot;
+				(*it)->udf_part_loc_ = next_entry_sec;	// Remember where this entry was stored.
+				next_entry_sec += (unsigned long)(*it)->udf_size_tot_;
 			}
 
-			sec_bytes += udf_.CalcFileIdentSize((*it)->m_FileName.c_str());
+			sec_bytes += udf_.CalcFileIdentSize((*it)->file_name_.c_str());
 			if (sec_bytes >= UDF_SECTOR_SIZE)
 			{
 				cur_part_sec++;
@@ -246,7 +246,7 @@ namespace ckfilesystem
 		ckcore::tuint64 unique_ident = 0;
 
 		FileTreeNode *cur_node = file_tree.GetRoot();
-		cur_node->m_ulUdfPartLoc = cur_part_sec;
+		cur_node->udf_part_loc_ = cur_part_sec;
 
 		std::deque<FileTreeNode *> dir_node_stack;
 		if (!WriteLocalParitionDir(dir_node_stack,cur_node,cur_part_sec,unique_ident))
@@ -258,10 +258,10 @@ namespace ckfilesystem
 			dir_node_stack.pop_front();
 
 #ifdef _DEBUG
-			if (cur_node->m_ulUdfPartLoc != cur_part_sec)
+			if (cur_node->udf_part_loc_ != cur_part_sec)
 			{
 				log_.PrintLine(ckT("Invalid location for \"%s\" in UDF file system. Proposed position %u verus actual position %u."),
-					cur_node->file_path_.c_str(),cur_node->m_ulUdfPartLoc,cur_part_sec);
+					cur_node->file_path_.c_str(),cur_node->udf_part_loc_,cur_part_sec);
 			}
 #endif
 
@@ -278,7 +278,7 @@ namespace ckfilesystem
 					access_time = modify_time = create_time = create_time_;
 
 				if (!udf_.WriteFileEntry(out_stream_,cur_part_sec++,false,1,
-					unique_ident,(unsigned long)cur_node->m_uiDataPosNormal - 257,cur_node->file_size_,
+					unique_ident,(unsigned long)cur_node->data_pos_normal_ - 257,cur_node->file_size_,
 					access_time,modify_time,create_time))
 				{
 					return false;

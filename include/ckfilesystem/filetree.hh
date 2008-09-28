@@ -27,10 +27,10 @@ namespace ckfilesystem
 	class FileTreeNode
 	{
 	private:
-		FileTreeNode *m_pParent;
+		FileTreeNode *parent_node_;
 
 	public:
-		std::vector<FileTreeNode *> m_Children;
+		std::vector<FileTreeNode *> children_;
 
 		// File information.
 		enum
@@ -41,68 +41,55 @@ namespace ckfilesystem
 
 		unsigned char file_flags_;
 		ckcore::tuint64 file_size_;
-		ckcore::tstring m_FileName;			// File name in disc image (requested name not actual, using ISO9660 may cripple the name).
+		ckcore::tstring file_name_;			// File name in disc image (requested name not actual, using ISO9660 may cripple the name).
 		ckcore::tstring file_path_;			// Place on hard drive.
 
 		// I am not sure this is the best way, this uses lots of memory.
-		std::string m_FileNameIso9660;
-		std::wstring m_FileNameJoliet;
+		std::string file_name_iso9660_;
+		std::wstring file_name_joliet_;
 
 		// File system information (not set by the routines in this file).
-		ckcore::tuint64 m_uiDataPosNormal;	// Sector number of first sector containing data.
-		ckcore::tuint64 m_uiDataPosJoliet;
-		ckcore::tuint64 m_uiDataSizeNormal;	// Data length in bytes.
-		ckcore::tuint64 m_uiDataSizeJoliet;
+		ckcore::tuint64 data_pos_normal_;	// Sector number of first sector containing data.
+		ckcore::tuint64 data_pos_joliet_;
+		ckcore::tuint64 data_size_normal_;	// Data length in bytes.
+		ckcore::tuint64 data_size_joliet_;
 
-		unsigned long m_ulDataPadLen;		// The number of sectors to pad with zeroes after the file.
+		unsigned long data_pad_len_;		// The number of sectors to pad with zeroes after the file.
 
 		// Sector size of UDF partition entry (all data) for an node and all it's children.
-		ckcore::tuint64 m_uiUdfSize;
-		ckcore::tuint64 m_uiUdfSizeTot;
-		ckcore::tuint64 m_uiUdfLinkTot;		// The number of directory links within the UDF file system.
-		unsigned long m_ulUdfPartLoc;		// Where is the actual UDF file entry stored.
+		ckcore::tuint64 udf_size_;
+		ckcore::tuint64 udf_size_tot_;
+		ckcore::tuint64 udf_link_tot_;		// The number of directory links within the UDF file system.
+		unsigned long udf_part_loc_;		// Where is the actual UDF file entry stored.
 
-		void *m_pData;						// Pointer to a user-defined structure, designed for CIso9660TreeNode
+		void *data_ptr_;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
 
-		FileTreeNode(FileTreeNode *pParent,const ckcore::tchar *szFileName,
-			const ckcore::tchar *szFileFullPath,ckcore::tuint64 uiFileSize,
-			bool bLastFragment,unsigned long ulFragmentIndex,
-			unsigned char ucFileFlags = 0,void *pData = NULL)
+		FileTreeNode(FileTreeNode *parent_node,const ckcore::tchar *file_name,
+					 const ckcore::tchar *file_path,ckcore::tuint64 file_size,
+					 bool last_fragment,unsigned long fragment_index,
+					 unsigned char file_flags = 0,void *data_ptr = NULL) :
+			parent_node_(parent_node),
+			file_flags_(file_flags),file_size_(file_size),
+			file_name_(file_name),file_path_(file_path),data_ptr_(data_ptr),
+			data_pos_normal_(0),data_pos_joliet_(0),
+			data_size_normal_(0),data_size_joliet_(0),data_pad_len_(0),
+			udf_size_(0),udf_size_tot_(0),udf_link_tot_(0),udf_part_loc_(0)
 		{
-			m_pParent = pParent;
-
-			file_flags_ = ucFileFlags;
-			file_size_ = uiFileSize;
-			m_FileName = szFileName;
-			file_path_ = szFileFullPath;
-
-			m_uiDataPosNormal = 0;
-			m_uiDataPosJoliet = 0;
-			m_uiDataSizeNormal = 0;
-			m_uiDataSizeJoliet = 0;
-			m_ulDataPadLen = 0;
-
-			m_uiUdfSize = 0;
-			m_uiUdfSizeTot = 0;
-			m_uiUdfLinkTot = 0;
-			m_ulUdfPartLoc = 0;
-
-			m_pData = pData;
 		}
 
 		~FileTreeNode()
 		{
 			// Free the children.
-			std::vector<FileTreeNode *>::iterator itNode;
-			for (itNode = m_Children.begin(); itNode != m_Children.end(); itNode++)
-				delete *itNode;
+			std::vector<FileTreeNode *>::iterator it;
+			for (it = children_.begin(); it != children_.end(); it++)
+				delete *it;
 
-			m_Children.clear();
+			children_.clear();
 		}
 
 		FileTreeNode *GetParent()
 		{
-			return m_pParent;
+			return parent_node_;
 		}
 	};
 
@@ -110,14 +97,15 @@ namespace ckfilesystem
 	{
 	private:
 		ckcore::Log &log_;
-		FileTreeNode *m_pRootNode;
+		FileTreeNode *root_node_;
 
 		// File tree information.
-		unsigned long m_ulDirCount;
-		unsigned long m_ulFileCount;
+		unsigned long dir_count_;
+		unsigned long file_count_;
 
-		FileTreeNode *GetChildFromFileName(FileTreeNode *pParent,const ckcore::tchar *szFileName);
-		bool AddFileFromPath(const FileDescriptor &File);
+		FileTreeNode *GetChildFromFileName(FileTreeNode *parent_node,
+										   const ckcore::tchar *file_name);
+		bool AddFileFromPath(const FileDescriptor &file);
 
 	public:
 		FileTree(ckcore::Log &log);
@@ -125,13 +113,13 @@ namespace ckfilesystem
 
 		FileTreeNode *GetRoot();
 		
-		bool CreateFromFileSet(const FileSet &Files);
-		FileTreeNode *GetNodeFromPath(const FileDescriptor &File);
-		FileTreeNode *GetNodeFromPath(const ckcore::tchar *szInternalPath);
+		bool CreateFromFileSet(const FileSet &files);
+		FileTreeNode *GetNodeFromPath(const FileDescriptor &file);
+		FileTreeNode *GetNodeFromPath(const ckcore::tchar *internal_path);
 
 	#ifdef _DEBUG
-		void PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-			FileTreeNode *pLocalNode,int iIndent);
+		void PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+							FileTreeNode *local_node,int indent);
 		void PrintTree();
 	#endif
 

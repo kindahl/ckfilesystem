@@ -35,22 +35,19 @@ namespace ckfilesystem
 			FLAG_IMPORTED = 0x02
 		};
 
-		FileDescriptor(const ckcore::tchar *szInternalPath,const ckcore::tchar *szExternalPath,
-			ckcore::tuint64 uiFileSize,unsigned char ucFlags = 0,void *pData = NULL)
-		{
-			m_ucFlags = ucFlags;
-			m_uiFileSize = uiFileSize;
-			internal_path_ = szInternalPath;
-			m_ExternalPath = szExternalPath;
-			m_pData = pData;
-		}
-
-		unsigned char m_ucFlags;
-		ckcore::tuint64 m_uiFileSize;
+		unsigned char flags_;
+		ckcore::tuint64 file_size_;
 		ckcore::tstring internal_path_;		// Path in disc image.
-		ckcore::tstring m_ExternalPath;		// Path on hard drive.
+		ckcore::tstring external_path_;		// Path on hard drive.
 
-		void *m_pData;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
+		void *data_ptr_;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
+
+		FileDescriptor(const ckcore::tchar *internal_path,const ckcore::tchar *external_path,
+					   ckcore::tuint64 file_size,unsigned char flags = 0,void *data_ptr = NULL) :
+			internal_path_(internal_path),external_path_(external_path),
+			file_size_(file_size),flags_(flags),data_ptr_(data_ptr)
+		{
+		}
 	};
 
 	/*
@@ -59,63 +56,63 @@ namespace ckfilesystem
 	class FileComparator
 	{
 	private:
-		bool m_bDvdVideo;
+		bool dvd_video_;
 
 		/*
 			Returns a weight of the specified file name, a ligher file should
 			be placed heigher in the directory hierarchy.
 		*/
-		unsigned long GetFileWeight(const ckcore::tchar *szFullPath) const
+		unsigned long GetFileWeight(const ckcore::tchar *file_path) const
 		{
-			unsigned long ulWeight = 0xFFFFFFFF;
+			unsigned long weight = 0xFFFFFFFF;
 
 			// Quick test for optimization.
-			if (szFullPath[1] == 'V')
+			if (file_path[1] == 'V')
 			{
-				if (!ckcore::string::astrcmp(szFullPath,ckT("/VIDEOckTS")))	// The VIDEO_TS folder should be first.
-					ulWeight = 0;
-				else if (!ckcore::string::astrncmp(szFullPath,ckT("/VIDEOckTS/"),10))
+				if (!ckcore::string::astrcmp(file_path,ckT("/VIDEO_TS")))	// The VIDEO_TS folder should be first.
+					weight = 0;
+				else if (!ckcore::string::astrncmp(file_path,ckT("/VIDEO_TS/"),10))
 				{
-					const ckcore::tchar *szFileName = szFullPath + 10;
+					const ckcore::tchar *file_name = file_path + 10;
 
-					if (!ckcore::string::astrncmp(szFileName,ckT("VIDEOckTS"),8))
+					if (!ckcore::string::astrncmp(file_name,ckT("VIDEO_TS"),8))
 					{
-						ulWeight -= 0x80000000;
+						weight -= 0x80000000;
 
-						const ckcore::tchar *szFileExt = szFileName + 9;
-						if (!ckcore::string::astrcmp(szFileExt,ckT("IFO")))
-							ulWeight -= 3;
-						else if (!ckcore::string::astrcmp(szFileExt,ckT("VOB")))
-							ulWeight -= 2;
-						else if (!ckcore::string::astrcmp(szFileExt,ckT("BUP")))
-							ulWeight -= 1;
+						const ckcore::tchar *file_ext = file_name + 9;
+						if (!ckcore::string::astrcmp(file_ext,ckT("IFO")))
+							weight -= 3;
+						else if (!ckcore::string::astrcmp(file_ext,ckT("VOB")))
+							weight -= 2;
+						else if (!ckcore::string::astrcmp(file_ext,ckT("BUP")))
+							weight -= 1;
 					}
-					else if (!ckcore::string::astrncmp(szFileName,ckT("VTS_"),4))
+					else if (!ckcore::string::astrncmp(file_name,ckT("VTS_"),4))
 					{
-						ulWeight -= 0x40000000;
+						weight -= 0x40000000;
 
 						// Just a safety measure.
-						if (ckcore::string::astrlen(szFileName) < 64)
+						if (ckcore::string::astrlen(file_name) < 64)
 						{
-							ckcore::tchar szFileExt[64];
-							unsigned long ulNum = 0,ulSubNum = 0;
+							ckcore::tchar file_ext[64];
+							unsigned long num = 0,sub_num = 0;
 
-							if (asscanf(szFileName,ckT("VTS_%u_%u.%[^\0]"),&ulNum,&ulSubNum,szFileExt) == 3)
+							if (asscanf(file_name,ckT("VTS_%u_%u.%[^\0]"),&num,&sub_num,file_ext) == 3)
 							{
 								// The first number is worth the most, the lower the lighter.
-								ulWeight -= 0xFFFFFF - (ulNum << 8);
+								weight -= 0xFFFFFF - (num << 8);
 
-								if (!ckcore::string::astrcmp(szFileExt,ckT("IFO")))
+								if (!ckcore::string::astrcmp(file_ext,ckT("IFO")))
 								{
-									ulWeight -= 0xFF;
+									weight -= 0xFF;
 								}
-								else if (!ckcore::string::astrcmp(szFileExt,ckT("VOB")))
+								else if (!ckcore::string::astrcmp(file_ext,ckT("VOB")))
 								{
-									ulWeight -= 0x0F - ulSubNum;
+									weight -= 0x0F - sub_num;
 								}
-								else if (!ckcore::string::astrcmp(szFileExt,ckT("BUP")))
+								else if (!ckcore::string::astrcmp(file_ext,ckT("BUP")))
 								{
-									ulWeight -= 1;
+									weight -= 1;
 								}
 							}
 						}
@@ -123,57 +120,57 @@ namespace ckfilesystem
 				}
 			}
 
-			return ulWeight;
+			return weight;
 		}
 
 	public:
-		/*
-			@param bDvdVideo set to true to use DVD-Video compatible sorting.
-		*/
-		FileComparator(bool bDvdVideo) : m_bDvdVideo(bDvdVideo)
+		/**
+			@param dvd_video set to true to use DVD-Video compatible sorting.
+		 */
+		FileComparator(bool dvd_video) : dvd_video_(dvd_video)
 		{
 		}
 
-		static int Level(const FileDescriptor &Item)
+		static int Level(const FileDescriptor &item)
 		{
-			const ckcore::tchar *szFullPath = Item.internal_path_.c_str();
+			const ckcore::tchar *file_path = item.internal_path_.c_str();
 
-			int iLevel = 0;
-			for (size_t i = 0; i < (size_t)ckcore::string::astrlen(szFullPath); i++)
+			int level = 0;
+			for (size_t i = 0; i < (size_t)ckcore::string::astrlen(file_path); i++)
 			{
-				if (szFullPath[i] == '/' || szFullPath[i] == '\\')
-					iLevel++;
+				if (file_path[i] == '/' || file_path[i] == '\\')
+					level++;
 			}
 
-			if (Item.m_ucFlags & FileDescriptor::FLAG_DIRECTORY)
-				iLevel++;
+			if (item.flags_ & FileDescriptor::FLAG_DIRECTORY)
+				level++;
 
-			return iLevel;
+			return level;
 		}
 
-		bool operator() (const FileDescriptor &Item1,const FileDescriptor &Item2) const
+		bool operator() (const FileDescriptor &item1,const FileDescriptor &item2) const
 		{
-			if (m_bDvdVideo)
+			if (dvd_video_)
 			{
-				unsigned long ulWeight1 = GetFileWeight(Item1.internal_path_.c_str());
-				unsigned long ulWeight2 = GetFileWeight(Item2.internal_path_.c_str());
+				unsigned long weight1 = GetFileWeight(item1.internal_path_.c_str());
+				unsigned long weight2 = GetFileWeight(item2.internal_path_.c_str());
 
-				if (ulWeight1 != ulWeight2)
+				if (weight1 != weight2)
 				{
-					if (ulWeight1 < ulWeight2)
+					if (weight1 < weight2)
 						return true;
 					else
 						return false;
 				}
 			}
 
-			int iLevelItem1 = Level(Item1);
-			int iLevelItem2 = Level(Item2);
+			int level_item1 = Level(item1);
+			int level_item2 = Level(item2);
 
-			if (iLevelItem1 < iLevelItem2)
+			if (level_item1 < level_item2)
 				return true;
-			else if (iLevelItem1 == iLevelItem2)
-				return ckcore::string::astrcmp(Item1.internal_path_.c_str(),Item2.internal_path_.c_str()) < 0;
+			else if (level_item1 == level_item2)
+				return ckcore::string::astrcmp(item1.internal_path_.c_str(),item2.internal_path_.c_str()) < 0;
 			else
 				return false;
 		}

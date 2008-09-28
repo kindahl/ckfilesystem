@@ -21,188 +21,186 @@
 namespace ckfilesystem
 {
 	FileTree::FileTree(ckcore::Log &log) :
-		log_(log),m_pRootNode(NULL)
+		log_(log),root_node_(NULL),dir_count_(0),file_count_(0)
 	{
-		m_ulDirCount = 0;
-		m_ulFileCount = 0;
 	}
 
 	FileTree::~FileTree()
 	{
-		if (m_pRootNode != NULL)
+		if (root_node_ != NULL)
 		{
-			delete m_pRootNode;
-			m_pRootNode = NULL;
+			delete root_node_;
+			root_node_ = NULL;
 		}
 	}
 
 	FileTreeNode *FileTree::GetRoot()
 	{
-		return m_pRootNode;
+		return root_node_;
 	}
 
-	FileTreeNode *FileTree::GetChildFromFileName(FileTreeNode *pParent,const ckcore::tchar *szFileName)
+	FileTreeNode *FileTree::GetChildFromFileName(FileTreeNode *parent_node,const ckcore::tchar *file_name)
 	{
-		std::vector<FileTreeNode *>::const_iterator itChild;
-		for (itChild = pParent->m_Children.begin(); itChild !=
-			pParent->m_Children.end(); itChild++)
+		std::vector<FileTreeNode *>::const_iterator it;
+		for (it = parent_node->children_.begin(); it !=
+			parent_node->children_.end(); it++)
 		{
-			if (!ckcore::string::astrcmp(szFileName,(*itChild)->m_FileName.c_str()))
-				return *itChild;
+			if (!ckcore::string::astrcmp(file_name,(*it)->file_name_.c_str()))
+				return *it;
 		}
 
 		return NULL;
 	}
 
-	bool FileTree::AddFileFromPath(const FileDescriptor &File)
+	bool FileTree::AddFileFromPath(const FileDescriptor &file)
 	{
-		size_t iDirPathLen = File.internal_path_.length(),iPrevDelim = 0,iPos;
-		ckcore::tstring CurDirName;
-		FileTreeNode *pCurNode = m_pRootNode;
+		size_t dir_path_len = file.internal_path_.length(),prev_delim = 0,pos;
+		ckcore::tstring cur_dir_name;
+		FileTreeNode *cur_node = root_node_;
 
-		for (iPos = 0; iPos < iDirPathLen; iPos++)
+		for (pos = 0; pos < dir_path_len; pos++)
 		{
-			if (File.internal_path_.c_str()[iPos] == '/')
+			if (file.internal_path_.c_str()[pos] == '/')
 			{
-				if (iPos > (iPrevDelim + 1))
+				if (pos > (prev_delim + 1))
 				{
 					// Obtain the name of the current directory.
-					CurDirName.erase();
-					for (size_t j = iPrevDelim + 1; j < iPos; j++)
-						CurDirName.push_back(File.internal_path_.c_str()[j]);
+					cur_dir_name.erase();
+					for (size_t j = prev_delim + 1; j < pos; j++)
+						cur_dir_name.push_back(file.internal_path_.c_str()[j]);
 
-					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
-					if (pCurNode == NULL)
+					cur_node = GetChildFromFileName(cur_node,cur_dir_name.c_str());
+					if (cur_node == NULL)
 					{
 						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\" in path \"%s\"."),
-							CurDirName.c_str(),File.internal_path_.c_str());
+							cur_dir_name.c_str(),file.internal_path_.c_str());
 						return false;
 					}
 				}
 
-				iPrevDelim = iPos;
+				prev_delim = pos;
 			}
 		}
 
 		// We now have our parent.
-		const ckcore::tchar *szFileName = File.internal_path_.c_str() + iPrevDelim + 1;
+		const ckcore::tchar *file_name = file.internal_path_.c_str() + prev_delim + 1;
 
 		// Check if imported.
-		unsigned char ucImportFlag = 0;
-		void *pImportData = NULL;
-		if (File.m_ucFlags & FileDescriptor::FLAG_IMPORTED)
+		unsigned char import_flac = 0;
+		void *import_data_ptr = NULL;
+		if (file.flags_ & FileDescriptor::FLAG_IMPORTED)
 		{
-			ucImportFlag = FileTreeNode::FLAG_IMPORTED;
-			pImportData = File.m_pData;
+			import_flac = FileTreeNode::FLAG_IMPORTED;
+			import_data_ptr = file.data_ptr_;
 		}
 
-		if (File.m_ucFlags & FileDescriptor::FLAG_DIRECTORY)
+		if (file.flags_ & FileDescriptor::FLAG_DIRECTORY)
 		{
-			pCurNode->m_Children.push_back(new FileTreeNode(pCurNode,szFileName,
-				File.m_ExternalPath.c_str(),0,true,0,FileTreeNode::FLAG_DIRECTORY | ucImportFlag,
-				pImportData));
+			cur_node->children_.push_back(new FileTreeNode(cur_node,file_name,
+				file.external_path_.c_str(),0,true,0,FileTreeNode::FLAG_DIRECTORY | import_flac,
+				import_data_ptr));
 
-			m_ulDirCount++;
+			dir_count_++;
 		}
 		else
 		{
-			pCurNode->m_Children.push_back(new FileTreeNode(pCurNode,szFileName,
-				File.m_ExternalPath.c_str(),File.m_uiFileSize,true,0,ucImportFlag,pImportData));
+			cur_node->children_.push_back(new FileTreeNode(cur_node,file_name,
+				file.external_path_.c_str(),file.file_size_,true,0,import_flac,import_data_ptr));
 
-			m_ulFileCount++;
+			file_count_++;
 		}
 
 		return true;
 	}
 
-	bool FileTree::CreateFromFileSet(const FileSet &Files)
+	bool FileTree::CreateFromFileSet(const FileSet &files)
 	{
-		if (m_pRootNode != NULL)
-			delete m_pRootNode;
+		if (root_node_ != NULL)
+			delete root_node_;
 
-		m_pRootNode = new FileTreeNode(NULL,ckT(""),ckT(""),0,true,0,
+		root_node_ = new FileTreeNode(NULL,ckT(""),ckT(""),0,true,0,
 			FileTreeNode::FLAG_DIRECTORY);
 
-		FileSet::const_iterator itFile;
-		for (itFile = Files.begin(); itFile != Files.end(); itFile++)
+		FileSet::const_iterator it;
+		for (it = files.begin(); it != files.end(); it++)
 		{
-			if (!AddFileFromPath(*itFile))
+			if (!AddFileFromPath(*it))
 				return false;
 		}
 
 		return true;
 	}
 
-	FileTreeNode *FileTree::GetNodeFromPath(const FileDescriptor &File)
+	FileTreeNode *FileTree::GetNodeFromPath(const FileDescriptor &file)
 	{
-		//m_pLog->PrintLine(ckT("BEGIN: %s"),File.m_ExternalPath.c_str());
-		size_t iDirPathLen = File.internal_path_.length(),iPrevDelim = 0,iPos;
-		ckcore::tstring CurDirName;
-		FileTreeNode *pCurNode = m_pRootNode;
+		//m_pLog->PrintLine(ckT("BEGIN: %s"),file.m_ExternalPath.c_str());
+		size_t dir_path_len = file.internal_path_.length(),prev_delim = 0,pos;
+		ckcore::tstring cur_dir_name;
+		FileTreeNode *cur_node = root_node_;
 
-		for (iPos = 0; iPos < iDirPathLen; iPos++)
+		for (pos = 0; pos < dir_path_len; pos++)
 		{
-			if (File.internal_path_.c_str()[iPos] == '/')
+			if (file.internal_path_.c_str()[pos] == '/')
 			{
-				if (iPos > (iPrevDelim + 1))
+				if (pos > (prev_delim + 1))
 				{
 					// Obtain the name of the current directory.
-					CurDirName.erase();
-					for (size_t j = iPrevDelim + 1; j < iPos; j++)
-						CurDirName.push_back(File.internal_path_.c_str()[j]);
+					cur_dir_name.erase();
+					for (size_t j = prev_delim + 1; j < pos; j++)
+						cur_dir_name.push_back(file.internal_path_.c_str()[j]);
 
-					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
-					if (pCurNode == NULL)
+					cur_node = GetChildFromFileName(cur_node,cur_dir_name.c_str());
+					if (cur_node == NULL)
 					{
-						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
+						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\"."),cur_dir_name.c_str());
 						return NULL;
 					}
 				}
 
-				iPrevDelim = iPos;
+				prev_delim = pos;
 			}
 		}
 
 		// We now have our parent.
-		const ckcore::tchar *szFileName = File.internal_path_.c_str() + iPrevDelim + 1;
+		const ckcore::tchar *file_name = file.internal_path_.c_str() + prev_delim + 1;
 
-		//m_pLog->PrintLine(ckT("  END: %s"),File.m_ExternalPath.c_str());
-		return GetChildFromFileName(pCurNode,szFileName);
+		//m_pLog->PrintLine(ckT("  END: %s"),file.m_ExternalPath.c_str());
+		return GetChildFromFileName(cur_node,file_name);
 	}
 
-	FileTreeNode *FileTree::GetNodeFromPath(const ckcore::tchar *szInternalPath)
+	FileTreeNode *FileTree::GetNodeFromPath(const ckcore::tchar *internal_path)
 	{
-		size_t iDirPathLen = ckcore::string::astrlen(szInternalPath),iPrevDelim = 0,iPos;
-		ckcore::tstring CurDirName;
-		FileTreeNode *pCurNode = m_pRootNode;
+		size_t dir_path_len = ckcore::string::astrlen(internal_path),prev_delim = 0,pos;
+		ckcore::tstring cur_dir_name;
+		FileTreeNode *cur_node = root_node_;
 
-		for (iPos = 0; iPos < iDirPathLen; iPos++)
+		for (pos = 0; pos < dir_path_len; pos++)
 		{
-			if (szInternalPath[iPos] == '/')
+			if (internal_path[pos] == '/')
 			{
-				if (iPos > (iPrevDelim + 1))
+				if (pos > (prev_delim + 1))
 				{
 					// Obtain the name of the current directory.
-					CurDirName.erase();
-					for (size_t j = iPrevDelim + 1; j < iPos; j++)
-						CurDirName.push_back(szInternalPath[j]);
+					cur_dir_name.erase();
+					for (size_t j = prev_delim + 1; j < pos; j++)
+						cur_dir_name.push_back(internal_path[j]);
 
-					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
-					if (pCurNode == NULL)
+					cur_node = GetChildFromFileName(cur_node,cur_dir_name.c_str());
+					if (cur_node == NULL)
 					{
-						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\"."),CurDirName.c_str());
+						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\"."),cur_dir_name.c_str());
 						return NULL;
 					}
 				}
 
-				iPrevDelim = iPos;
+				prev_delim = pos;
 			}
 		}
 
 		// We now have our parent.
-		const ckcore::tchar *szFileName = szInternalPath + iPrevDelim + 1;
+		const ckcore::tchar *file_name = internal_path + prev_delim + 1;
 
-		return GetChildFromFileName(pCurNode,szFileName);
+		return GetChildFromFileName(cur_node,file_name);
 	}
 
 	/**
@@ -210,7 +208,7 @@ namespace ckfilesystem
 	*/
 	unsigned long FileTree::GetDirCount()
 	{
-		return m_ulDirCount;
+		return dir_count_;
 	}
 
 	/**
@@ -218,81 +216,81 @@ namespace ckfilesystem
 	*/
 	unsigned long FileTree::GetFileCount()
 	{
-		return m_ulFileCount;
+		return file_count_;
 	}
 
 #ifdef _DEBUG
-	void FileTree::PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-								   FileTreeNode *pLocalNode,int iIndent)
+	void FileTree::PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+								   FileTreeNode *local_node,int indent)
 	{
-		std::vector<FileTreeNode *>::const_iterator itFile;
-		for (itFile = pLocalNode->m_Children.begin(); itFile !=
-			pLocalNode->m_Children.end(); itFile++)
+		std::vector<FileTreeNode *>::const_iterator it;
+		for (it = local_node->children_.begin(); it !=
+			local_node->children_.end(); it++)
 		{
-			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
+			if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
-				DirNodeStack.push_back(std::make_pair(*itFile,iIndent));
+				dir_node_stack.push_back(std::make_pair(*it,indent));
 			}
 			else
 			{
-				for (int i = 0; i < iIndent; i++)
+				for (int i = 0; i < indent; i++)
 					log_.Print(ckT(" "));
 
 				log_.Print(ckT("<f>"));
-				log_.Print((*itFile)->m_FileName.c_str());
+				log_.Print((*it)->file_name_.c_str());
 #ifdef _WINDOWS
-				log_.PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*itFile)->m_uiDataPosNormal,
+				log_.PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*it)->data_pos_normal_,
 #else
-				log_.PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),(*itFile)->m_uiDataPosNormal,
+				log_.PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),(*it)->data_pos_normal_,
 #endif
-					(*itFile)->m_uiDataSizeNormal,(*itFile)->m_uiDataPosJoliet,
-					(*itFile)->m_uiDataSizeJoliet,(*itFile)->m_uiUdfSize,(*itFile)->m_uiUdfSizeTot);
+					(*it)->data_size_normal_,(*it)->data_pos_joliet_,
+					(*it)->data_size_joliet_,(*it)->udf_size_,(*it)->udf_size_tot_);
 			}
 		}
 	}
 
 	void FileTree::PrintTree()
 	{
-		if (m_pRootNode == NULL)
+		if (root_node_ == NULL)
 			return;
 
-		FileTreeNode *pCurNode = m_pRootNode;
-		int iIndent = 0;
+		FileTreeNode *cur_node = root_node_;
+		int indent = 0;
 
 		log_.PrintLine(ckT("FileTree::PrintTree"));
 #ifdef _WINDOWS
-		log_.PrintLine(ckT("  <root> (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
+		log_.PrintLine(ckT("  <root> (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),cur_node->data_pos_normal_,
 #else
-		log_.PrintLine(ckT("  <root> (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
+		log_.PrintLine(ckT("  <root> (%llu:%llu,%llu:%llu,%llu:%llu)"),cur_node->data_pos_normal_,
 #endif
-		pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
-		pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
+		cur_node->data_size_normal_,cur_node->data_pos_joliet_,
+		cur_node->data_size_joliet_,cur_node->udf_size_,cur_node->udf_size_tot_);
 
-		std::vector<std::pair<FileTreeNode *,int> > DirNodeStack;
-		PrintLocalTree(DirNodeStack,pCurNode,4);
+		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
+		PrintLocalTree(dir_node_stack,cur_node,4);
 
-		while (DirNodeStack.size() > 0)
+		while (dir_node_stack.size() > 0)
 		{ 
-			pCurNode = DirNodeStack[DirNodeStack.size() - 1].first;
-			iIndent = DirNodeStack[DirNodeStack.size() - 1].second;
+			cur_node = dir_node_stack[dir_node_stack.size() - 1].first;
+			indent = dir_node_stack[dir_node_stack.size() - 1].second;
 
-			DirNodeStack.pop_back();
+			dir_node_stack.pop_back();
 
 			// Print the directory name.
-			for (int i = 0; i < iIndent; i++)
+			for (int i = 0; i < indent; i++)
 				log_.Print(ckT(" "));
 
 			log_.Print(ckT("<d>"));
-			log_.Print(pCurNode->m_FileName.c_str());
+			log_.Print(cur_node->file_name_.c_str());
 #ifdef _WINDOWS
-			log_.PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),pCurNode->m_uiDataPosNormal,
+			log_.PrintLine(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),cur_node->data_pos_normal_,
 #else
-			log_.PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),pCurNode->m_uiDataPosNormal,
+			log_.PrintLine(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),cur_node->data_pos_normal_,
 #endif
-				pCurNode->m_uiDataSizeNormal,pCurNode->m_uiDataPosJoliet,
-				pCurNode->m_uiDataSizeJoliet,pCurNode->m_uiUdfSize,pCurNode->m_uiUdfSizeTot);
+				cur_node->data_size_normal_,cur_node->data_pos_joliet_,
+				cur_node->data_size_joliet_,cur_node->udf_size_,cur_node->udf_size_tot_);
 
-			PrintLocalTree(DirNodeStack,pCurNode,iIndent + 2);
+			PrintLocalTree(dir_node_stack,cur_node,indent + 2);
 		}
 	}
 #endif

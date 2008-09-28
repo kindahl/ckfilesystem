@@ -43,8 +43,8 @@ namespace ckfilesystem
 		FileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress)
 	{
 		std::vector<FileTreeNode *>::const_iterator itFile;
-		for (itFile = pLocalNode->m_Children.begin(); itFile !=
-			pLocalNode->m_Children.end(); itFile++)
+		for (itFile = pLocalNode->children_.begin(); itFile !=
+			pLocalNode->children_.end(); itFile++)
 		{
 			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
@@ -62,67 +62,67 @@ namespace ckfilesystem
 					if (m_FileSystem == FS_ISO9660 || m_FileSystem == FS_ISO9660_JOLIET || m_FileSystem == FS_DVDVIDEO)
 					{
 						log_.PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
-							(*itFile)->m_FileName.c_str());
+							(*itFile)->file_name_.c_str());
 						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILE),
-							(*itFile)->m_FileName.c_str());
+							(*itFile)->file_name_.c_str());
 
 						continue;
 					}
 					else if (m_FileSystem == FS_ISO9660_UDF || m_FileSystem == FS_ISO9660_UDF_JOLIET)
 					{
 						log_.PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
-							(*itFile)->m_FileName.c_str());
+							(*itFile)->file_name_.c_str());
 						Progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILEISO),
-							(*itFile)->m_FileName.c_str());
+							(*itFile)->file_name_.c_str());
 					}
 				}
 
 				// If imported, use the imported information.
 				if ((*itFile)->file_flags_ & FileTreeNode::FLAG_IMPORTED)
 				{
-					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->m_pData;
+					Iso9660ImportData *pImportNode = (Iso9660ImportData *)(*itFile)->data_ptr_;
 					if (pImportNode == NULL)
 					{
 						log_.PrintLine(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
-							(*itFile)->m_FileName.c_str());
+							(*itFile)->file_name_.c_str());
 						return false;
 					}
 
-					(*itFile)->m_uiDataSizeNormal = pImportNode->extent_len_;
-					(*itFile)->m_uiDataSizeJoliet = pImportNode->extent_len_;
+					(*itFile)->data_size_normal_ = pImportNode->extent_len_;
+					(*itFile)->data_size_joliet_ = pImportNode->extent_len_;
 
-					(*itFile)->m_uiDataPosNormal = pImportNode->extent_loc_;
-					(*itFile)->m_uiDataPosJoliet = pImportNode->extent_loc_;
+					(*itFile)->data_pos_normal_ = pImportNode->extent_loc_;
+					(*itFile)->data_pos_joliet_ = pImportNode->extent_loc_;
 				}
 				else
 				{
-					(*itFile)->m_uiDataSizeNormal = (*itFile)->file_size_;
-					(*itFile)->m_uiDataSizeJoliet = (*itFile)->file_size_;
+					(*itFile)->data_size_normal_ = (*itFile)->file_size_;
+					(*itFile)->data_size_joliet_ = (*itFile)->file_size_;
 
-					(*itFile)->m_uiDataPosNormal = uiSecOffset;
-					(*itFile)->m_uiDataPosJoliet = uiSecOffset;
+					(*itFile)->data_pos_normal_ = uiSecOffset;
+					(*itFile)->data_pos_joliet_ = uiSecOffset;
 
-					uiSecOffset += (*itFile)->m_uiDataSizeNormal/ISO9660_SECTOR_SIZE;
-					if ((*itFile)->m_uiDataSizeNormal % ISO9660_SECTOR_SIZE != 0)
+					uiSecOffset += (*itFile)->data_size_normal_/ISO9660_SECTOR_SIZE;
+					if ((*itFile)->data_size_normal_ % ISO9660_SECTOR_SIZE != 0)
 						uiSecOffset++;
 
 					// Pad if necessary.
-					uiSecOffset += (*itFile)->m_ulDataPadLen;
+					uiSecOffset += (*itFile)->data_pad_len_;
 				}
 
 				/*
-				(*itFile)->m_uiDataSizeNormal = (*itFile)->file_size_;
-				(*itFile)->m_uiDataSizeJoliet = (*itFile)->file_size_;
+				(*itFile)->data_size_normal_ = (*itFile)->file_size_;
+				(*itFile)->data_size_joliet_ = (*itFile)->file_size_;
 
-				(*itFile)->m_uiDataPosNormal = uiSecOffset;
-				(*itFile)->m_uiDataPosJoliet = uiSecOffset;
+				(*itFile)->data_pos_normal_ = uiSecOffset;
+				(*itFile)->data_pos_joliet_ = uiSecOffset;
 
-				uiSecOffset += (*itFile)->m_uiDataSizeNormal/ISO9660_SECTOR_SIZE;
-				if ((*itFile)->m_uiDataSizeNormal % ISO9660_SECTOR_SIZE != 0)
+				uiSecOffset += (*itFile)->data_size_normal_/ISO9660_SECTOR_SIZE;
+				if ((*itFile)->data_size_normal_ % ISO9660_SECTOR_SIZE != 0)
 					uiSecOffset++;
 
 				// Pad if necessary.
-				uiSecOffset += (*itFile)->m_ulDataPadLen;*/
+				uiSecOffset += (*itFile)->data_pad_len_;*/
 			}
 		}
 
@@ -189,8 +189,8 @@ namespace ckfilesystem
 		FileTreeNode *pLocalNode,int iLevel,ckcore::Progresser &FileProgresser)
 	{
 		std::vector<FileTreeNode *>::const_iterator itFile;
-		for (itFile = pLocalNode->m_Children.begin(); itFile !=
-			pLocalNode->m_Children.end(); itFile++)
+		for (itFile = pLocalNode->children_.begin(); itFile !=
+			pLocalNode->children_.end(); itFile++)
 		{
 			// Check if we should abort.
 			if (FileProgresser.Cancelled())
@@ -221,7 +221,7 @@ namespace ckfilesystem
 #else
 						log_.PrintLine(ckT("  Error: Unable to write node \"%s\" to (%llu,%llu)."),
 #endif
-							(*itFile)->m_FileName.c_str(),(*itFile)->m_uiDataPosNormal,(*itFile)->m_uiDataSizeNormal);
+							(*itFile)->file_name_.c_str(),(*itFile)->data_pos_normal_,(*itFile)->data_size_normal_);
 						return RESULT_FAIL;
 
 					case RESULT_CANCEL:
@@ -230,7 +230,7 @@ namespace ckfilesystem
 
 				// Pad if necessary.
 				char szTemp[1] = { 0 };
-				for (unsigned int i = 0; i < (*itFile)->m_ulDataPadLen; i++)
+				for (unsigned int i = 0; i < (*itFile)->data_pad_len_; i++)
 				{
 					for (unsigned int j = 0; j < ISO9660_SECTOR_SIZE; j++)
 						OutStream.Write(szTemp,1);
@@ -276,16 +276,16 @@ namespace ckfilesystem
 			if (bJoliet)
 			{
 #ifdef _UNICODE
-				if (pChildNode->m_FileNameJoliet[pChildNode->m_FileNameJoliet.length() - 2] == ';')
-					NodePath.append(pChildNode->m_FileNameJoliet,0,pChildNode->m_FileNameJoliet.length() - 2);
+				if (pChildNode->file_name_joliet_[pChildNode->file_name_joliet_.length() - 2] == ';')
+					NodePath.append(pChildNode->file_name_joliet_,0,pChildNode->file_name_joliet_.length() - 2);
 				else
-					NodePath.append(pChildNode->m_FileNameJoliet);
+					NodePath.append(pChildNode->file_name_joliet_);
 #else
 				char szAnsiName[JOLIET_MAX_NAMELEN_RELAXED + 1];
-				ckcore::string::utf16_to_ansi(pChildNode->m_FileNameJoliet.c_str(),szAnsiName,sizeof(szAnsiName));
+				ckcore::string::utf16_to_ansi(pChildNode->file_name_joliet_.c_str(),szAnsiName,sizeof(szAnsiName));
 
-				if (szAnsiName[pChildNode->m_FileNameJoliet.length() - 2] == ';')
-					szAnsiName[pChildNode->m_FileNameJoliet.length() - 2] = '\0';
+				if (szAnsiName[pChildNode->file_name_joliet_.length() - 2] == ';')
+					szAnsiName[pChildNode->file_name_joliet_.length() - 2] = '\0';
 
 				NodePath.append(szAnsiName);
 #endif
@@ -294,24 +294,24 @@ namespace ckfilesystem
 			{
 #ifdef _UNICODE
 				wchar_t szWideName[MAX_PATH];
-				ckcore::string::ansi_to_utf16(pChildNode->m_FileNameIso9660.c_str(),szWideName,
+				ckcore::string::ansi_to_utf16(pChildNode->file_name_iso9660_.c_str(),szWideName,
 											  sizeof(szWideName)/sizeof(wchar_t));
 
-				if (szWideName[pChildNode->m_FileNameIso9660.length() - 2] == ';')
-					szWideName[pChildNode->m_FileNameIso9660.length() - 2] = '\0';
+				if (szWideName[pChildNode->file_name_iso9660_.length() - 2] == ';')
+					szWideName[pChildNode->file_name_iso9660_.length() - 2] = '\0';
 
 				NodePath.append(szWideName);
 #else
-				if (pChildNode->m_FileNameIso9660[pChildNode->m_FileNameIso9660.length() - 2] == ';')
-					NodePath.append(pChildNode->m_FileNameIso9660,0,pChildNode->m_FileNameIso9660.length() - 2);
+				if (pChildNode->file_name_iso9660_[pChildNode->file_name_iso9660_.length() - 2] == ';')
+					NodePath.append(pChildNode->file_name_iso9660_,0,pChildNode->file_name_iso9660_.length() - 2);
 				else
-					NodePath.append(pChildNode->m_FileNameIso9660);
+					NodePath.append(pChildNode->file_name_iso9660_);
 #endif
 			}
 		}
 		else
 		{
-			NodePath.append(pChildNode->m_FileName);
+			NodePath.append(pChildNode->file_name_);
 		}
 
 		FileTreeNode *pCurNode = pChildNode->GetParent();
@@ -323,25 +323,25 @@ namespace ckfilesystem
 				if (bJoliet)
 				{
 	#ifdef _UNICODE
-					if (pCurNode->m_FileNameJoliet[pCurNode->m_FileNameJoliet.length() - 2] == ';')
+					if (pCurNode->file_name_joliet_[pCurNode->file_name_joliet_.length() - 2] == ';')
 					{
-						std::wstring::iterator itEnd = pCurNode->m_FileNameJoliet.end();
+						std::wstring::iterator itEnd = pCurNode->file_name_joliet_.end();
 						itEnd--;
 						itEnd--;
 
-						NodePath.insert(NodePath.begin(),pCurNode->m_FileNameJoliet.begin(),itEnd);
+						NodePath.insert(NodePath.begin(),pCurNode->file_name_joliet_.begin(),itEnd);
 					}
 					else
 					{
-						NodePath.insert(NodePath.begin(),pCurNode->m_FileNameJoliet.begin(),
-							pCurNode->m_FileNameJoliet.end());
+						NodePath.insert(NodePath.begin(),pCurNode->file_name_joliet_.begin(),
+							pCurNode->file_name_joliet_.end());
 					}
 	#else
 					char szAnsiName[JOLIET_MAX_NAMELEN_RELAXED + 1];
-					ckcore::string::utf16_to_ansi(pCurNode->m_FileNameJoliet.c_str(),szAnsiName,sizeof(szAnsiName));
+					ckcore::string::utf16_to_ansi(pCurNode->file_name_joliet_.c_str(),szAnsiName,sizeof(szAnsiName));
 
-					if (szAnsiName[pCurNode->m_FileNameJoliet.length() - 2] == ';')
-						szAnsiName[pCurNode->m_FileNameJoliet.length() - 2] = '\0';
+					if (szAnsiName[pCurNode->file_name_joliet_.length() - 2] == ';')
+						szAnsiName[pCurNode->file_name_joliet_.length() - 2] = '\0';
 
 					NodePath.insert(0,szAnsiName);
 	#endif
@@ -350,33 +350,33 @@ namespace ckfilesystem
 				{
 	#ifdef _UNICODE
 					wchar_t szWideName[MAX_PATH];
-					ckcore::string::ansi_to_utf16(pCurNode->m_FileNameIso9660.c_str(),szWideName,
+					ckcore::string::ansi_to_utf16(pCurNode->file_name_iso9660_.c_str(),szWideName,
 												  sizeof(szWideName)/sizeof(wchar_t));
 					NodePath.insert(0,szWideName);
 
-					if (szWideName[pCurNode->m_FileNameIso9660.length() - 2] == ';')
-						szWideName[pCurNode->m_FileNameIso9660.length() - 2] = '\0';
+					if (szWideName[pCurNode->file_name_iso9660_.length() - 2] == ';')
+						szWideName[pCurNode->file_name_iso9660_.length() - 2] = '\0';
 	#else
-					if (pCurNode->m_FileNameIso9660[pCurNode->m_FileNameIso9660.length() - 2] == ';')
+					if (pCurNode->file_name_iso9660_[pCurNode->file_name_iso9660_.length() - 2] == ';')
 					{
-						std::string::iterator itEnd = pCurNode->m_FileNameIso9660.end();
+						std::string::iterator itEnd = pCurNode->file_name_iso9660_.end();
 						itEnd--;
 						itEnd--;
 
-						NodePath.insert(NodePath.begin(),pCurNode->m_FileNameIso9660.begin(),itEnd);
+						NodePath.insert(NodePath.begin(),pCurNode->file_name_iso9660_.begin(),itEnd);
 					}
 					else
 					{
-						NodePath.insert(NodePath.begin(),pCurNode->m_FileNameIso9660.begin(),
-							pCurNode->m_FileNameIso9660.end());
+						NodePath.insert(NodePath.begin(),pCurNode->file_name_iso9660_.begin(),
+							pCurNode->file_name_iso9660_.end());
 					}
 	#endif
 				}
 			}
 			else
 			{
-				NodePath.insert(NodePath.begin(),pCurNode->m_FileName.begin(),
-					pCurNode->m_FileName.end());
+				NodePath.insert(NodePath.begin(),pCurNode->file_name_.begin(),
+					pCurNode->file_name_.end());
 			}
 
 			NodePath.insert(0,ckT("/"));
@@ -390,8 +390,8 @@ namespace ckfilesystem
 		std::map<ckcore::tstring,ckcore::tstring> &FilePathMap,bool bJoliet)
 	{
 		std::vector<FileTreeNode *>::const_iterator itFile;
-		for (itFile = pLocalNode->m_Children.begin(); itFile !=
-			pLocalNode->m_Children.end(); itFile++)
+		for (itFile = pLocalNode->children_.begin(); itFile !=
+			pLocalNode->children_.end(); itFile++)
 		{
 			if ((*itFile)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{

@@ -56,26 +56,26 @@ namespace ckfilesystem
 
 	bool FileTree::AddFileFromPath(const FileDescriptor &File)
 	{
-		size_t iDirPathLen = File.m_InternalPath.length(),iPrevDelim = 0,iPos;
+		size_t iDirPathLen = File.internal_path_.length(),iPrevDelim = 0,iPos;
 		ckcore::tstring CurDirName;
 		FileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
 		{
-			if (File.m_InternalPath.c_str()[iPos] == '/')
+			if (File.internal_path_.c_str()[iPos] == '/')
 			{
 				if (iPos > (iPrevDelim + 1))
 				{
 					// Obtain the name of the current directory.
 					CurDirName.erase();
 					for (size_t j = iPrevDelim + 1; j < iPos; j++)
-						CurDirName.push_back(File.m_InternalPath.c_str()[j]);
+						CurDirName.push_back(File.internal_path_.c_str()[j]);
 
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
 					{
 						log_.PrintLine(ckT("  Error: Unable to find child node \"%s\" in path \"%s\"."),
-							CurDirName.c_str(),File.m_InternalPath.c_str());
+							CurDirName.c_str(),File.internal_path_.c_str());
 						return false;
 					}
 				}
@@ -85,7 +85,7 @@ namespace ckfilesystem
 		}
 
 		// We now have our parent.
-		const ckcore::tchar *szFileName = File.m_InternalPath.c_str() + iPrevDelim + 1;
+		const ckcore::tchar *szFileName = File.internal_path_.c_str() + iPrevDelim + 1;
 
 		// Check if imported.
 		unsigned char ucImportFlag = 0;
@@ -136,20 +136,20 @@ namespace ckfilesystem
 	FileTreeNode *FileTree::GetNodeFromPath(const FileDescriptor &File)
 	{
 		//m_pLog->PrintLine(ckT("BEGIN: %s"),File.m_ExternalPath.c_str());
-		size_t iDirPathLen = File.m_InternalPath.length(),iPrevDelim = 0,iPos;
+		size_t iDirPathLen = File.internal_path_.length(),iPrevDelim = 0,iPos;
 		ckcore::tstring CurDirName;
 		FileTreeNode *pCurNode = m_pRootNode;
 
 		for (iPos = 0; iPos < iDirPathLen; iPos++)
 		{
-			if (File.m_InternalPath.c_str()[iPos] == '/')
+			if (File.internal_path_.c_str()[iPos] == '/')
 			{
 				if (iPos > (iPrevDelim + 1))
 				{
 					// Obtain the name of the current directory.
 					CurDirName.erase();
 					for (size_t j = iPrevDelim + 1; j < iPos; j++)
-						CurDirName.push_back(File.m_InternalPath.c_str()[j]);
+						CurDirName.push_back(File.internal_path_.c_str()[j]);
 
 					pCurNode = GetChildFromFileName(pCurNode,CurDirName.c_str());
 					if (pCurNode == NULL)
@@ -164,7 +164,7 @@ namespace ckfilesystem
 		}
 
 		// We now have our parent.
-		const ckcore::tchar *szFileName = File.m_InternalPath.c_str() + iPrevDelim + 1;
+		const ckcore::tchar *szFileName = File.internal_path_.c_str() + iPrevDelim + 1;
 
 		//m_pLog->PrintLine(ckT("  END: %s"),File.m_ExternalPath.c_str());
 		return GetChildFromFileName(pCurNode,szFileName);

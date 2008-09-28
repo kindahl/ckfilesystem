@@ -169,12 +169,12 @@ namespace ckfilesystem
 		bool WriteBootImages(SectorOutStream &out_stream);
 
 		bool AddBootImageNoEmu(const ckcore::tchar *full_path,bool bootable,
-			unsigned short load_segment,unsigned short sec_count);
+							   unsigned short load_segment,unsigned short sec_count);
 		bool AddBootImageFloppy(const ckcore::tchar *full_path,bool bootable);
 		bool AddBootImageHardDisk(const ckcore::tchar *full_path,bool bootable);
 
 		bool CalculateFileSysData(ckcore::tuint64 start_sec,
-			ckcore::tuint64 &last_sec);
+								  ckcore::tuint64 &last_sec);
 
 		ckcore::tuint64 GetBootCatSize();
 		ckcore::tuint64 GetBootDataSize();

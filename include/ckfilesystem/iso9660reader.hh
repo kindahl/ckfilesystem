@@ -30,10 +30,10 @@ namespace ckfilesystem
 	class Iso9660TreeNode
 	{
 	private:
-		Iso9660TreeNode *m_pParent;
+		Iso9660TreeNode *parent_node_;
 
 	public:
-		std::vector<Iso9660TreeNode *> m_Children;
+		std::vector<Iso9660TreeNode *> children_;
 
 		unsigned char file_flags_;
 		unsigned char file_unit_size_;
@@ -42,42 +42,38 @@ namespace ckfilesystem
 		unsigned long extent_loc_;
 		unsigned long extent_len_;
 
-		tiso_dir_record_datetime m_RecDateTime;
+		tiso_dir_record_datetime rec_timestamp_;
 
-		ckcore::tstring m_FileName;
+		ckcore::tstring file_name_;
 
-		Iso9660TreeNode(Iso9660TreeNode *pParent,const ckcore::tchar *szFileName,
-			unsigned long ulExtentLocation,unsigned long ulExtentLength,
-			unsigned short usVolSeqNumber,unsigned char ucFileFlags,
-			unsigned char ucFileUnitSize,unsigned char ucInterleaveGapSize,
-			tiso_dir_record_datetime &RecDateTime) : m_pParent(pParent)
+		Iso9660TreeNode(Iso9660TreeNode *parent_node,const ckcore::tchar *file_name,
+						unsigned long extent_loc,unsigned long extent_len,
+						unsigned short volseq_num,unsigned char file_flags,
+						unsigned char file_unit_size,unsigned char interleave_gap_size,
+					    tiso_dir_record_datetime &rec_timestamp) :
+			parent_node_(parent_node),file_flags_(file_flags),
+			file_unit_size_(file_unit_size),interleave_gap_size_(interleave_gap_size),
+			volseq_num_(volseq_num),extent_loc_(extent_loc),extent_len_(extent_len)
 		{
-			file_flags_ = ucFileFlags;
-			file_unit_size_ = ucFileUnitSize;
-			interleave_gap_size_ = ucInterleaveGapSize;
-			volseq_num_ = usVolSeqNumber;
-			extent_loc_ = ulExtentLocation;
-			extent_len_ = ulExtentLength;
+			memcpy(&rec_timestamp_,&rec_timestamp,sizeof(tiso_dir_record_datetime));
 
-			memcpy(&m_RecDateTime,&RecDateTime,sizeof(tiso_dir_record_datetime));
-
-			if (szFileName != NULL)
-				m_FileName = szFileName;
+			if (file_name != NULL)
+				file_name_ = file_name;
 		}
 
 		~Iso9660TreeNode()
 		{
 			// Free the children.
-			std::vector<Iso9660TreeNode *>::iterator itNode;
-			for (itNode = m_Children.begin(); itNode != m_Children.end(); itNode++)
-				delete *itNode;
+			std::vector<Iso9660TreeNode *>::iterator it_node;
+			for (it_node = children_.begin(); it_node != children_.end(); it_node++)
+				delete *it_node;
 
-			m_Children.clear();
+			children_.clear();
 		}
 
 		Iso9660TreeNode *GetParent()
 		{
-			return m_pParent;
+			return parent_node_;
 		}
 	};
 
@@ -86,26 +82,27 @@ namespace ckfilesystem
 	private:
 		ckcore::Log &log_;
 
-		Iso9660TreeNode *m_pRootNode;
+		Iso9660TreeNode *root_node_;
 
-		bool ReadDirEntry(ckcore::InStream &InStream,
-			std::vector<Iso9660TreeNode *> &DirEntries,
-			Iso9660TreeNode *pParentNode,bool bJoliet);
+		bool ReadDirEntry(ckcore::InStream &in_stream,
+						  std::vector<Iso9660TreeNode *> &dir_entries,
+						  Iso9660TreeNode *parent_node,
+						  bool joliet);
 
 	public:
 		Iso9660Reader(ckcore::Log &log);
 		~Iso9660Reader();
 
-		bool Read(ckcore::InStream &InStream,unsigned long ulStartSector);
+		bool Read(ckcore::InStream &in_stream,unsigned long start_sec);
 
 		Iso9660TreeNode *GetRoot()
 		{
-			return m_pRootNode;
+			return root_node_;
 		}
 
 	#ifdef _DEBUG
-		void PrintLocalTree(std::vector<std::pair<Iso9660TreeNode *,int> > &DirNodeStack,
-			Iso9660TreeNode *pLocalNode,int iIndent);
+		void PrintLocalTree(std::vector<std::pair<Iso9660TreeNode *,int> > &dir_node_stack,
+							Iso9660TreeNode *local_node,int indent);
 		void PrintTree();
 	#endif
 	};

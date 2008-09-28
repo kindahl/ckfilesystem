@@ -44,15 +44,10 @@ namespace ckfilesystem
 
 		ckfilesystem::tiso_dir_record_datetime rec_timestamp_;
 
-		Iso9660ImportData()
+		Iso9660ImportData() : file_flags_(0),file_unit_size_(0),
+			interleave_gap_size_(0),volseq_num_(0),
+			extent_loc_(0),extent_len_(0)
 		{
-			file_flags_ = 0;
-			file_unit_size_ = 0;
-			interleave_gap_size_ = 0;
-			volseq_num_ = 0;
-			extent_loc_ = 0;
-			extent_len_ = 0;
-
 			memset(&rec_timestamp_,0,sizeof(ckfilesystem::tiso_dir_record_datetime));
 		}
 	};
@@ -90,59 +85,64 @@ namespace ckfilesystem
 		ElTorito &eltorito_;
 
 		// File system attributes.
-		bool m_bUseJoliet;
-		bool m_bUseFileTimes;
+		bool use_joliet_;
+		bool use_file_times_;
 
 		// Sizes of different structures.
-		ckcore::tuint64 m_uiPathTableSizeNormal;
-		ckcore::tuint64 m_uiPathTableSizeJoliet;
+		ckcore::tuint64 pathtable_size_normal_;
+		ckcore::tuint64 pathtable_size_joliet_;
 
 		// The time when this object was created.
-		struct tm m_ImageCreate;
+		struct tm create_time_;
 
 		// File system preparation functions.
-		void MakeUniqueJoliet(FileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
-		void MakeUniqueIso9660(FileTreeNode *pNode,unsigned char *pFileName,unsigned char ucFileNameSize);
+		void MakeUniqueJoliet(FileTreeNode *node,unsigned char *file_name_ptr,
+							  unsigned char file_name_size);
+		void MakeUniqueIso9660(FileTreeNode *node,unsigned char *file_name_ptr,
+							   unsigned char file_name_size);
 
-		bool CompareStrings(const char *szString1,const ckcore::tchar *szString2,unsigned char ucLength);
-		bool CompareStrings(const unsigned char *pWideString1,const ckcore::tchar *szString2,unsigned char ucLength);
+		bool CompareStrings(const char *str1,const ckcore::tchar *str2,
+							unsigned char len);
+		bool CompareStrings(const unsigned char *udf_str1,const ckcore::tchar *str2,
+							unsigned char len);
 
-		bool CalcPathTableSize(FileSet &Files,bool bJolietTable,
-			ckcore::tuint64 &uiPathTableSize,ckcore::Progress &Progress);
-		bool CalcLocalDirEntryLength(FileTreeNode *pLocalNode,bool bJoliet,int iLevel,
-			unsigned long &ulDirLength);
-		bool CalcLocalDirEntriesLength(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-			FileTreeNode *pLocalNode,int iLevel,ckcore::tuint64 &uiSecOffset,ckcore::Progress &Progress);
-		bool CalcDirEntriesLength(FileTree &file_tree,ckcore::Progress &Progress,
-			ckcore::tuint64 uiStartSector,ckcore::tuint64 &uiLength);
+		bool CalcPathTableSize(FileSet &files,bool joliet_table,
+							   ckcore::tuint64 &pathtable_size,
+							   ckcore::Progress &progress);
+		bool CalcLocalDirEntryLength(FileTreeNode *local_node,bool joliet,int level,
+									 unsigned long &dir_len);
+		bool CalcLocalDirEntriesLength(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+									   FileTreeNode *local_node,int level,
+									   ckcore::tuint64 &sec_offset);
+		bool CalcDirEntriesLength(FileTree &file_tree,ckcore::tuint64 start_sec,
+								  ckcore::tuint64 &len);
 
 		// Write functions.
-		bool WritePathTable(FileSet &Files,FileTree &file_tree,bool bJolietTable,
-			bool bMSBF,ckcore::Progress &Progress);
-		bool WriteSysDirectory(FileTreeNode *pParent,SysDirType Type,
-			unsigned long ulDataPos,unsigned long ulDataSize);
-		int WriteLocalDirEntry(ckcore::Progress &Progress,FileTreeNode *pLocalNode,
-			bool bJoliet,int iLevel);
-		int WriteLocalDirEntries(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-			ckcore::Progress &Progress,FileTreeNode *pLocalNode,int iLevel);
+		bool WritePathTable(FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
+		bool WriteSysDirectory(FileTreeNode *parent_node,SysDirType type,
+							   unsigned long data_pos,unsigned long data_size);
+		int WriteLocalDirEntry(ckcore::Progress &progress,FileTreeNode *local_node,
+							   bool joliet,int level);
+		int WriteLocalDirEntries(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+								 ckcore::Progress &progress,FileTreeNode *local_node,int level);
 
 	public:
 		Iso9660Writer(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
-			Iso9660 &iso9660,Joliet &joliet,ElTorito &eltorito,
-			bool bUseFileTimes,bool bUseJoliet);
+					  Iso9660 &iso9660,Joliet &joliet,ElTorito &eltorito,
+					  bool use_file_times,bool use_joliet);
 		~Iso9660Writer();
 
 		int AllocateHeader();
-		int AllocatePathTables(ckcore::Progress &Progress,FileSet &Files);
-		int AllocateDirEntries(FileTree &file_tree,ckcore::Progress &Progress);
+		int AllocatePathTables(ckcore::Progress &progress,FileSet &files);
+		int AllocateDirEntries(FileTree &file_tree);
 
-		int WriteHeader(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress);
-		int WritePathTables(FileSet &Files,FileTree &file_tree,ckcore::Progress &Progress);
-		int WriteDirEntries(FileTree &file_tree,ckcore::Progress &Progress);
+		int WriteHeader(FileSet &files,FileTree &file_tree);
+		int WritePathTables(FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
+		int WriteDirEntries(FileTree &file_tree,ckcore::Progress &progress);
 
 		// Helper functions.
-		bool ValidateTreeNode(std::vector<std::pair<FileTreeNode *,int> > &DirNodeStack,
-			FileTreeNode *pNode,int iLevel);
+		bool ValidateTreeNode(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+							  FileTreeNode *node,int level);
 		bool ValidateTree(FileTree &file_tree);
 	};
 };

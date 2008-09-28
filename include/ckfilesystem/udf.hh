@@ -654,7 +654,7 @@ namespace ckfilesystem
 		void AllocateByteBuffer(unsigned long min_size);
 
 		size_t CompressUnicodeStr(size_t num_chars,unsigned char comp_id,
-			const wchar_t *in_str,unsigned char *out_str);
+								  const wchar_t *in_str,unsigned char *out_str);
 
 		void InitVolDescPrimary();
 		void InitVolDescPartition();
@@ -683,32 +683,37 @@ namespace ckfilesystem
 		// Write functions.
 		bool WriteVolDescInitial(ckcore::OutStream &out_stream);
 		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-			unsigned long sec_location,struct tm &create_time);
+								 unsigned long sec_location,struct tm &create_time);
 		bool WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-			unsigned long sec_location);
+								 unsigned long sec_location);
 		bool WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-			unsigned long sec_location,unsigned long part_start_loc,unsigned long part_len);
+								   unsigned long sec_location,unsigned long part_start_loc,
+								   unsigned long part_len);
 		bool WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-			unsigned long sec_location,tudf_extent_ad &integrity_seq_extent);
+								 unsigned long sec_location,tudf_extent_ad &integrity_seq_extent);
 		bool WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-			unsigned long sec_location);
+								 unsigned long sec_location);
 		bool WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long sec_location);
 		bool WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long sec_location,
-			unsigned long file_count,unsigned long dir_count,unsigned long part_len,
-			ckcore::tuint64 unique_ident,struct tm &create_time);
+									  unsigned long file_count,unsigned long dir_count,
+									  unsigned long part_len,ckcore::tuint64 unique_ident,
+									  struct tm &create_time);
 		bool WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long sec_location,
-			tudf_extent_ad &voldesc_main_seqextent,tudf_extent_ad &voldesc_rsrv_seqextent);
+								   tudf_extent_ad &voldesc_main_seqextent,
+								   tudf_extent_ad &voldesc_rsrv_seqextent);
 
 		bool WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long sec_location,
-			unsigned long root_sec_loc,struct tm &create_time);
+							  unsigned long root_sec_loc,struct tm &create_time);
 		bool WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long sec_location,
-			unsigned long file_entry_sec_loc);
+								  unsigned long file_entry_sec_loc);
 		bool WriteFileIdent(ckcore::OutStream &out_stream,unsigned long sec_location,
-			unsigned long file_entry_sec_loc,bool is_dir,const ckcore::tchar *file_name);
+							unsigned long file_entry_sec_loc,bool is_dir,
+							const ckcore::tchar *file_name);
 		bool WriteFileEntry(ckcore::OutStream &out_stream,unsigned long sec_location,
-			bool is_dir,unsigned short file_link_count,ckcore::tuint64 unique_ident,
-			unsigned long info_loc,ckcore::tuint64 info_len,
-			struct tm &access_time,struct tm &modify_time,struct tm &create_time);
+							bool is_dir,unsigned short file_link_count,
+							ckcore::tuint64 unique_ident,unsigned long info_loc,
+							ckcore::tuint64 info_len,struct tm &access_time,
+							struct tm &modify_time,struct tm &create_time);
 
 		// Helper functions.
 		unsigned long CalcFileIdentParentSize();

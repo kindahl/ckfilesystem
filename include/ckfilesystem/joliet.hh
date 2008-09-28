@@ -47,18 +47,21 @@ namespace ckfilesystem
 
 		// Change of internal state functions.
 		void SetVolumeLabel(const ckcore::tchar *label);
-		void SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
-			const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
-		void SetFileFields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
-			const ckcore::tchar *bibl_file_ident);
+		void SetTextFields(const ckcore::tchar *sys_ident,
+						   const ckcore::tchar *volset_ident,
+						   const ckcore::tchar *publ_ident,
+						   const ckcore::tchar *prep_ident);
+		void SetFileFields(const ckcore::tchar *copy_file_ident,
+						   const ckcore::tchar *abst_file_ident,
+						   const ckcore::tchar *bibl_file_ident);
 		void SetIncludeFileVerInfo(bool include);
 		void SetRelaxMaxNameLen(bool relax);
 
 		// Write functions.
 		bool WriteVolDesc(ckcore::OutStream &out_stream,struct tm &create_time,
-			unsigned long vol_space_size,unsigned long pathtable_size,
-			unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-			unsigned long root_extent_loc,unsigned long data_len);
+						  unsigned long vol_space_size,unsigned long pathtable_size,
+						  unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+						  unsigned long root_extent_loc,unsigned long data_len);
 
 		// Helper functions.
 		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);

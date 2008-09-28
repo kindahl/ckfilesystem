@@ -59,7 +59,7 @@ namespace ckfilesystem
 
 		// File system preparation functions.
 		void CalcLocalNodeLengths(std::vector<FileTreeNode *> &dir_node_stack,
-			FileTreeNode *local_node);
+								  FileTreeNode *local_node);
 		void CalcNodeLengths(FileTree &file_tree);
 
 		ckcore::tuint64 CalcIdentSize(FileTreeNode *local_node);
@@ -69,7 +69,9 @@ namespace ckfilesystem
 
 		// Write functions.
 		bool WriteLocalParitionDir(std::deque<FileTreeNode *> &dir_node_queue,
-			FileTreeNode *local_node,unsigned long &cur_part_sec,ckcore::tuint64 &unique_ident);
+								   FileTreeNode *local_node,
+								   unsigned long &cur_part_sec,
+								   ckcore::tuint64 &unique_ident);
 		bool WritePartitionEntries(FileTree &file_tree);
 
 	public:

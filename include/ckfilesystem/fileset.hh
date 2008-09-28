@@ -40,14 +40,14 @@ namespace ckfilesystem
 		{
 			m_ucFlags = ucFlags;
 			m_uiFileSize = uiFileSize;
-			m_InternalPath = szInternalPath;
+			internal_path_ = szInternalPath;
 			m_ExternalPath = szExternalPath;
 			m_pData = pData;
 		}
 
 		unsigned char m_ucFlags;
 		ckcore::tuint64 m_uiFileSize;
-		ckcore::tstring m_InternalPath;		// Path in disc image.
+		ckcore::tstring internal_path_;		// Path in disc image.
 		ckcore::tstring m_ExternalPath;		// Path on hard drive.
 
 		void *m_pData;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
@@ -136,7 +136,7 @@ namespace ckfilesystem
 
 		static int Level(const FileDescriptor &Item)
 		{
-			const ckcore::tchar *szFullPath = Item.m_InternalPath.c_str();
+			const ckcore::tchar *szFullPath = Item.internal_path_.c_str();
 
 			int iLevel = 0;
 			for (size_t i = 0; i < (size_t)ckcore::string::astrlen(szFullPath); i++)
@@ -155,8 +155,8 @@ namespace ckfilesystem
 		{
 			if (m_bDvdVideo)
 			{
-				unsigned long ulWeight1 = GetFileWeight(Item1.m_InternalPath.c_str());
-				unsigned long ulWeight2 = GetFileWeight(Item2.m_InternalPath.c_str());
+				unsigned long ulWeight1 = GetFileWeight(Item1.internal_path_.c_str());
+				unsigned long ulWeight2 = GetFileWeight(Item2.internal_path_.c_str());
 
 				if (ulWeight1 != ulWeight2)
 				{
@@ -173,7 +173,7 @@ namespace ckfilesystem
 			if (iLevelItem1 < iLevelItem2)
 				return true;
 			else if (iLevelItem1 == iLevelItem2)
-				return ckcore::string::astrcmp(Item1.m_InternalPath.c_str(),Item2.m_InternalPath.c_str()) < 0;
+				return ckcore::string::astrcmp(Item1.internal_path_.c_str(),Item2.internal_path_.c_str()) < 0;
 			else
 				return false;
 		}

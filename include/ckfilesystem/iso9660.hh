@@ -306,26 +306,27 @@ namespace ckfilesystem
 		// Change of internal state functions.
 		void SetVolumeLabel(const ckcore::tchar *label);
 		void SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
-			const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
+						   const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
 		void SetFileFields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
-			const ckcore::tchar *bibl_file_ident);
+						   const ckcore::tchar *bibl_file_ident);
 		void SetInterchangeLevel(InterLevel inter_level);
 		void SetRelaxMaxDirLevel(bool relax);
 		void SetIncludeFileVerInfo(bool include);
 
 		// Write functions.
 		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &create_time,
-				unsigned long vol_space_size,unsigned long pathtable_size,
-				unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-				unsigned long root_extent_loc,unsigned long data_len);
+								 unsigned long vol_space_size,unsigned long pathtable_size,
+								 unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+								 unsigned long root_extent_loc,unsigned long data_len);
 		bool WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &create_time,
-				unsigned long vol_space_size,unsigned long pathtable_size,
-				unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-				unsigned long root_extent_loc,unsigned long data_len);
+							   unsigned long vol_space_size,unsigned long pathtable_size,
+							   unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+							   unsigned long root_extent_loc,unsigned long data_len);
 		bool WriteVolDescSetTerm(ckcore::OutStream &out_stream);
 
 		// Helper functions.
-		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
+		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,
+									bool is_dir);
 		unsigned char CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir);
 		unsigned char GetMaxDirLevel();
 		bool HasVolDescSuppl();
@@ -357,6 +358,8 @@ namespace ckfilesystem
 
 	void iso_make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time);
 	void iso_make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time);
-	void iso_make_datetime(unsigned short date,unsigned short time,tiso_dir_record_datetime &iso_time);
-	void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,unsigned short &date,unsigned short &time);
+	void iso_make_datetime(unsigned short date,unsigned short time,
+						   tiso_dir_record_datetime &iso_time);
+	void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,
+							  unsigned short &date,unsigned short &time);
 };

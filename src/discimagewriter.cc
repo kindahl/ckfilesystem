@@ -515,7 +515,7 @@ namespace ckfilesystem
 			if (iResult != RESULT_OK)
 				return Fail(iResult,OutStream);
 
-			iResult = IsoWriter.AllocateDirEntries(file_tree,Progress);
+			iResult = IsoWriter.AllocateDirEntries(file_tree);
 			if (iResult != RESULT_OK)
 				return Fail(iResult,OutStream);
 		}
@@ -541,7 +541,7 @@ namespace ckfilesystem
 
 		if (bUseIso)
 		{
-			iResult = IsoWriter.WriteHeader(Files,file_tree,Progress);
+			iResult = IsoWriter.WriteHeader(Files,file_tree);
 			if (iResult != RESULT_OK)
 				return Fail(iResult,OutStream);
 		}

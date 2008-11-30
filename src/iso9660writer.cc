@@ -367,16 +367,25 @@ namespace ckfilesystem
 				{
 					log_.PrintLine(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
 								   iso9660_.GetMaxDirLevel());
-					progress.Notify(ckcore::Progress::ckWARNING,
-									StringTable::Instance().GetString(StringTable::WARNING_FSDIRLEVEL),
-									iso9660_.GetMaxDirLevel());
+
+					ckcore::tstring msg = StringTable::Instance().GetString(StringTable::WARNING_FSDIRLEVEL1);
+					msg += ckT(" ");
+					msg += ckcore::convert::ui32_to_str(iso9660_.GetMaxDirLevel());
+					msg += ckT(" ");
+					msg += StringTable::Instance().GetString(StringTable::WARNING_FSDIRLEVEL2);
+
+					progress.Notify(ckcore::Progress::ckWARNING,msg.c_str());
 					found_deep = true;
 				}
 
 				log_.PrintLine(ckT("  Skipping: %s."),it_file->internal_path_.c_str());
-				progress.Notify(ckcore::Progress::ckWARNING,
-								StringTable::Instance().GetString(StringTable::WARNING_SKIPFILE),
-								it_file->internal_path_.c_str());
+
+				ckcore::tstring msg = StringTable::Instance().GetString(StringTable::WARNING_SKIPFILE);
+				msg += ckT(" \"");
+				msg += it_file->internal_path_;
+				msg += ckT("\".");
+
+				progress.Notify(ckcore::Progress::ckWARNING,msg.c_str());
 				continue;
 			}
 

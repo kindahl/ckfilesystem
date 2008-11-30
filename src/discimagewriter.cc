@@ -64,8 +64,14 @@ namespace ckfilesystem
 					{
 						log_.PrintLine(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
 							(*it_file)->file_name_.c_str());
-						progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILE),
-							(*it_file)->file_name_.c_str());
+
+						ckcore::tstring msg = StringTable::Instance().GetString(StringTable::WARNING_SKIPFILE);
+						msg += ckT(" \"");
+						msg += (*it_file)->file_name_;
+						msg += ckT("\"");
+						msg += StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILE);
+
+						progress.Notify(ckcore::Progress::ckWARNING,msg.c_str());
 
 						continue;
 					}
@@ -73,8 +79,14 @@ namespace ckfilesystem
 					{
 						log_.PrintLine(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
 							(*it_file)->file_name_.c_str());
-						progress.Notify(ckcore::Progress::ckWARNING,StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILEISO),
-							(*it_file)->file_name_.c_str());
+
+						ckcore::tstring msg = StringTable::Instance().GetString(StringTable::WARNING_SKIPFILE);
+						msg += ckT(" \"");
+						msg += (*it_file)->file_name_;
+						msg += ckT("\"");
+						msg += StringTable::Instance().GetString(StringTable::WARNING_SKIP4GFILE);
+
+						progress.Notify(ckcore::Progress::ckWARNING,msg.c_str());
 					}
 				}
 
@@ -167,9 +179,13 @@ namespace ckfilesystem
 		{
 			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),
 				node->file_path_.c_str());
-			progresser.Notify(ckcore::Progress::ckERROR,
-				StringTable::Instance().GetString(StringTable::ERROR_OPENREAD),
-				node->file_path_.c_str());
+
+			ckcore::tstring msg = StringTable::Instance().GetString(StringTable::ERROR_OPENREAD);
+			msg += ckT(" \"");
+			msg += node->file_path_;
+			msg += ckT("\".");
+
+			progresser.Notify(ckcore::Progress::ckERROR,msg.c_str());
 			return RESULT_FAIL;
 		}
 

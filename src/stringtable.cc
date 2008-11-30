@@ -22,13 +22,12 @@ namespace ckfilesystem
 {
 	StringTable::StringTable()
 	{
-		strings_[WARNING_FSDIRLEVEL] = ckT("The directory structure is deeper than %d levels. Deep files and folders will be ignored.");
-		strings_[WARNING_SKIPFILE] = ckT("Skipping \"%s\".");
-		strings_[WARNING_SKIP4GFILE] = ckT("Skipping \"%s\", the file is larger than 4 GiB.");
-		strings_[WARNING_SKIP4GFILEISO] = ckT("The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system.");
+		strings_[WARNING_FSDIRLEVEL1] = ckT("The directory structure is deeper than");
+		strings_[WARNING_FSDIRLEVEL2] = ckT("levels. Deep files and folders will be ignored.");
+		strings_[WARNING_SKIPFILE] = ckT("Skipping");
+		strings_[WARNING_SKIP4GFILE] = ckT(", the file is larger than 4 GiB.");
 		strings_[ERROR_PATHTABLESIZE] = ckT("The disc image path table is to large. The project contains too many files.");
-		strings_[ERROR_OPENWRITE] = ckT("Unable to open file for writing: %s.");
-		strings_[ERROR_OPENREAD] = ckT("Unable to open file for reading: %s.");
+		strings_[ERROR_OPENREAD] = ckT("Unable to open file for reading:");
 		strings_[STATUS_BUILDTREE] = ckT("Building file tree.");
 		strings_[STATUS_WRITEDATA] = ckT("Writing file data.");
 		strings_[STATUS_WRITEISOTABLE] = ckT("Writing ISO9660 path tables.");

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include <ckcore/convert.hh>
 #include "ckfilesystem/dvdvideo.hh"
 #include "ckfilesystem/iforeader.hh"

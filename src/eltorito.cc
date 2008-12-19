@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include <ckcore/filestream.hh>
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/iso9660.hh"

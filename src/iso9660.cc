@@ -20,6 +20,7 @@
 #ifdef _WINDOWS
 #include <windows.h>
 #endif
+#include <string.h>
 #include "ckfilesystem/iso9660.hh"
 
 namespace ckfilesystem
@@ -657,7 +658,7 @@ namespace ckfilesystem
 		MemStrCopyA(voldesc_primary_.publ_ident,ansi_publ_ident,publ_ident_copy_len);
 		MemStrCopyA(voldesc_primary_.prep_ident,ansi_prep_ident,prep_ident_copy_len);
 	#else
-		MemStrCopyA(voldesc_primary_.sys_ident,system,sys_ident_copy_len);
+		MemStrCopyA(voldesc_primary_.sys_ident,sys_ident,sys_ident_copy_len);
 		MemStrCopyD(voldesc_primary_.volset_ident,volset_ident,volset_ident_copy_len);
 		MemStrCopyA(voldesc_primary_.publ_ident,publ_ident,publ_ident_copy_len);
 		MemStrCopyA(voldesc_primary_.prep_ident,prep_ident,prep_ident_copy_len);

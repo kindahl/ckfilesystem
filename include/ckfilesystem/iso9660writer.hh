@@ -17,6 +17,7 @@
  */
 
 #pragma once
+#include <string.h>
 #include <string>
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>

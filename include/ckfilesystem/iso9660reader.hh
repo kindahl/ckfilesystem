@@ -71,7 +71,7 @@ namespace ckfilesystem
 			children_.clear();
 		}
 
-		Iso9660TreeNode *GetParent()
+		Iso9660TreeNode *get_parent()
 		{
 			return parent_node_;
 		}
@@ -84,26 +84,26 @@ namespace ckfilesystem
 
 		Iso9660TreeNode *root_node_;
 
-		bool ReadDirEntry(ckcore::InStream &in_stream,
-						  std::vector<Iso9660TreeNode *> &dir_entries,
-						  Iso9660TreeNode *parent_node,
-						  bool joliet);
+		bool read_dir_entry(ckcore::InStream &in_stream,
+						    std::vector<Iso9660TreeNode *> &dir_entries,
+						    Iso9660TreeNode *parent_node,
+						    bool joliet);
 
 	public:
 		Iso9660Reader(ckcore::Log &log);
 		~Iso9660Reader();
 
-		bool Read(ckcore::InStream &in_stream,unsigned long start_sec);
-
-		Iso9660TreeNode *GetRoot()
+		Iso9660TreeNode *get_root()
 		{
 			return root_node_;
 		}
 
+		bool read(ckcore::InStream &in_stream,unsigned long start_sec);
+
 	#ifdef _DEBUG
-		void PrintLocalTree(std::vector<std::pair<Iso9660TreeNode *,int> > &dir_node_stack,
-							Iso9660TreeNode *local_node,int indent);
-		void PrintTree();
+		void print_local_tree(std::vector<std::pair<Iso9660TreeNode *,int> > &dir_node_stack,
+							  Iso9660TreeNode *local_node,int indent);
+		void print_tree();
 	#endif
 	};
 };

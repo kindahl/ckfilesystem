@@ -97,35 +97,35 @@ namespace ckfilesystem
 		struct tm create_time_;
 
 		// File system preparation functions.
-		void MakeUniqueJoliet(FileTreeNode *node,unsigned char *file_name_ptr,
-							  unsigned char file_name_size);
-		void MakeUniqueIso9660(FileTreeNode *node,unsigned char *file_name_ptr,
-							   unsigned char file_name_size);
+		void make_unique_joliet(FileTreeNode *node,unsigned char *file_name_ptr,
+							    unsigned char file_name_size);
+		void make_unique_iso9660(FileTreeNode *node,unsigned char *file_name_ptr,
+							     unsigned char file_name_size);
 
-		bool CompareStrings(const char *str1,const ckcore::tchar *str2,
+		bool compare_strings(const char *str1,const ckcore::tchar *str2,
 							unsigned char len);
-		bool CompareStrings(const unsigned char *udf_str1,const ckcore::tchar *str2,
+		bool compare_strings(const unsigned char *udf_str1,const ckcore::tchar *str2,
 							unsigned char len);
 
-		bool CalcPathTableSize(FileSet &files,bool joliet_table,
-							   ckcore::tuint64 &pathtable_size,
-							   ckcore::Progress &progress);
-		bool CalcLocalDirEntryLength(FileTreeNode *local_node,bool joliet,int level,
-									 unsigned long &dir_len);
-		bool CalcLocalDirEntriesLength(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-									   FileTreeNode *local_node,int level,
-									   ckcore::tuint64 &sec_offset);
-		bool CalcDirEntriesLength(FileTree &file_tree,ckcore::tuint64 start_sec,
+		bool calc_path_table_size(FileSet &files,bool joliet_table,
+							      ckcore::tuint64 &pathtable_size,
+							      ckcore::Progress &progress);
+		bool calc_local_dir_entry_len(FileTreeNode *local_node,bool joliet,int level,
+									  unsigned long &dir_len);
+		bool calc_local_dir_entries_len(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+									    FileTreeNode *local_node,int level,
+									    ckcore::tuint64 &sec_offset);
+		bool calc_dir_entries_len(FileTree &file_tree,ckcore::tuint64 start_sec,
 								  ckcore::tuint64 &len);
 
 		// Write functions.
-		bool WritePathTable(FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
-		bool WriteSysDirectory(FileTreeNode *parent_node,SysDirType type,
-							   unsigned long data_pos,unsigned long data_size);
-		int WriteLocalDirEntry(ckcore::Progress &progress,FileTreeNode *local_node,
-							   bool joliet,int level);
-		int WriteLocalDirEntries(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-								 ckcore::Progress &progress,FileTreeNode *local_node,int level);
+		bool write_path_table(FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
+		bool write_sys_dir(FileTreeNode *parent_node,SysDirType type,
+						   unsigned long data_pos,unsigned long data_size);
+		int write_local_dir_entry(ckcore::Progress &progress,FileTreeNode *local_node,
+							      bool joliet,int level);
+		int write_local_dir_entries(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+								    ckcore::Progress &progress,FileTreeNode *local_node,int level);
 
 	public:
 		Iso9660Writer(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
@@ -133,17 +133,17 @@ namespace ckfilesystem
 					  bool use_file_times,bool use_joliet);
 		~Iso9660Writer();
 
-		int AllocateHeader();
-		int AllocatePathTables(ckcore::Progress &progress,FileSet &files);
-		int AllocateDirEntries(FileTree &file_tree);
+		int alloc_header();
+		int alloc_path_tables(ckcore::Progress &progress,FileSet &files);
+		int alloc_dir_entries(FileTree &file_tree);
 
-		int WriteHeader(FileSet &files,FileTree &file_tree);
-		int WritePathTables(FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
-		int WriteDirEntries(FileTree &file_tree,ckcore::Progress &progress);
+		int write_header(FileSet &files,FileTree &file_tree);
+		int write_path_tables(FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
+		int write_dir_entries(FileTree &file_tree,ckcore::Progress &progress);
 
 		// Helper functions.
-		bool ValidateTreeNode(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+		bool validate_tree_node(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
 							  FileTreeNode *node,int level);
-		bool ValidateTree(FileTree &file_tree);
+		bool validate_tree(FileTree &file_tree);
 	};
 };

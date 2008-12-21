@@ -97,9 +97,9 @@ namespace ckfilesystem
 		// Default parition type is read only.
 		part_access_type_ = AT_READONLY;
 
-		InitVolDescPrimary();
-		InitVolDescPartition();
-		InitVolDescLogical();
+		init_vol_desc_primary();
+		init_vol_desc_partition();
+		init_vol_desc_logical();
 	}
 
 	Udf::~Udf()
@@ -114,7 +114,7 @@ namespace ckfilesystem
 		}
 	}
 
-	void Udf::AllocateByteBuffer(unsigned long min_size)
+	void Udf::alloc_byte_buffer(unsigned long min_size)
 	{
 		if (byte_buffer_size_ < min_size)
 		{
@@ -141,8 +141,8 @@ namespace ckfilesystem
 		CS0 string, including the compression ID. -1 is returned if the
 		compression ID is invalid.
 	*/
-	size_t Udf::CompressUnicodeStr(size_t num_chars,unsigned char comp_id,
-								   const wchar_t *in_str,unsigned char *out_str)
+	size_t Udf::compress_unicode_str(size_t num_chars,unsigned char comp_id,
+								     const wchar_t *in_str,unsigned char *out_str)
 	{
 		if (comp_id != 8 && comp_id != 16)
 			return -1;
@@ -169,7 +169,7 @@ namespace ckfilesystem
 	/*
 		Helper function for filling a tudf_charspec structure.
 	*/
-	void Udf::MakeCharSpec(tudf_charspec &char_spec)
+	void Udf::make_char_spec(tudf_charspec &char_spec)
 	{
 		memset(&char_spec,0,sizeof(tudf_charspec));
 		char_spec.charset_type = 0;
@@ -179,14 +179,14 @@ namespace ckfilesystem
 	/*
 		Helper function for filling a tudf_intity_ident structure.
 	*/
-	void Udf::MakeIdent(tudf_intity_ident &impl_ident,IdentType ident_type)
+	void Udf::make_ident(tudf_intity_ident &impl_ident,IdentType ident_type)
 	{
 		impl_ident.flags = 0;
 		memset(impl_ident.ident,0,sizeof(impl_ident.ident));
 		memset(impl_ident.ident_suffix,0,sizeof(impl_ident.ident_suffix));
 
 		unsigned char os_class,os_ident;
-		MakeOsIdentifiers(os_class,os_ident);
+		make_os_identifiers(os_class,os_ident);
 
 		switch (ident_type)
 		{
@@ -235,7 +235,7 @@ namespace ckfilesystem
 	/*
 		Helper function for creating a tag.
 	*/
-	void Udf::MakeTag(tudf_tag &tag,unsigned short ident)
+	void Udf::make_tag(tudf_tag &tag,unsigned short ident)
 	{
 		memset(&tag,0,sizeof(tudf_tag));
 		tag.tag_ident = ident;
@@ -248,11 +248,11 @@ namespace ckfilesystem
 	/*
 		Helper function for calculating descriptor CRC and tag checksum.
 	*/
-	void Udf::MakeTagChecksums(tudf_tag &tag,unsigned char *buffer)
+	void Udf::make_tag_checksums(tudf_tag &tag,unsigned char *buffer)
 	{
-		crc_stream_.Reset();
-		crc_stream_.Write(buffer,tag.desc_crc_len);
-		tag.desc_crc = (unsigned short)crc_stream_.Checksum();
+		crc_stream_.reset();
+		crc_stream_.write(buffer,tag.desc_crc_len);
+		tag.desc_crc = (unsigned short)crc_stream_.checksum();
 
 		// Sum of bytes 0-3 and 5-15 modulo 256.
 		unsigned char checksum = 0;
@@ -262,7 +262,7 @@ namespace ckfilesystem
 		tag.tag_chksum = checksum;
 	}
 
-	unsigned short Udf::MakeExtAddrChecksum(unsigned char *buffer)
+	unsigned short Udf::make_ext_addr_checksum(unsigned char *buffer)
 	{
 		unsigned short checksum = 0;
 		for (unsigned int i = 0; i < 48; i++)
@@ -275,7 +275,7 @@ namespace ckfilesystem
 		Generates a unique volume set indentifer to identify a particular
 		volume. pVolSysIdent is assumed to hold 128 bytes.
 	*/
-	void Udf::MakeVolSetIdent(unsigned char *volset_ident,size_t volset_ident_size)
+	void Udf::make_vol_set_ident(unsigned char *volset_ident,size_t volset_ident_size)
 	{
 		if (volset_ident_size < 18)
 			return;
@@ -288,13 +288,13 @@ namespace ckfilesystem
 		// Make a compatible D-string.
 		memset(volset_ident,0,volset_ident_size);
 
-		unsigned char byte_len = (unsigned char)CompressUnicodeStr(16,
+		unsigned char byte_len = (unsigned char)compress_unicode_str(16,
 			UDF_COMPRESSION_BYTE,gen_ident,volset_ident);
 
 		volset_ident[volset_ident_size - 1] = byte_len;
 	}
 
-	void Udf::MakeDateTime(struct tm &time,tudf_timestamp &udf_time)
+	void Udf::make_date_time(struct tm &time,tudf_timestamp &udf_time)
 	{
 		udf_time.type_tz = 1 << 12;		// Type: local time.
 
@@ -317,14 +317,14 @@ namespace ckfilesystem
 		udf_time.microsec = 0;
 	}
 
-	void Udf::MakeOsIdentifiers(unsigned char &os_class,unsigned char &os_ident)
+	void Udf::make_os_identifiers(unsigned char &os_class,unsigned char &os_ident)
 	{
 		// UDF 1.02 does not support any Windows identification.
 		os_class = UDF_OSCLASS_UNDEFINED;
 		os_ident = UDF_OSIDENT_UNDEFINED;
 	}
 
-	unsigned char Udf::MakeFileIdent(unsigned char *out_buffer,const ckcore::tchar *file_name)
+	unsigned char Udf::make_file_ident(unsigned char *out_buffer,const ckcore::tchar *file_name)
 	{
 		size_t name_len = ckcore::string::astrlen(file_name);
 		size_t copy_len = name_len < (254 >> 1) ? name_len : (254 >> 1);		// One byte is reserved for compression descriptor.
@@ -333,33 +333,33 @@ namespace ckfilesystem
 		unsigned char str_comp = dvd_video_ ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
 
 	#ifdef _UNICODE
-		unsigned char byte_len = (unsigned char)CompressUnicodeStr(copy_len,str_comp,
+		unsigned char byte_len = (unsigned char)compress_unicode_str(copy_len,str_comp,
 			file_name,out_buffer);
 	#else
 		wchar_t szWideFileName[125];
 		ckcore::string::ansi_to_utf16(file_name,szWideFileName,sizeof(szWideFileName) / sizeof(wchar_t));
 
-		unsigned char byte_len = (unsigned char)CompressUnicodeStr(copy_len,str_comp,
+		unsigned char byte_len = (unsigned char)compress_unicode_str(copy_len,str_comp,
 			szWideFileName,out_buffer);
 	#endif
 		return byte_len;
 	}
 
-	void Udf::InitVolDescPrimary()
+	void Udf::init_vol_desc_primary()
 	{
 		memset(&voldesc_primary_,0,sizeof(tudf_voldesc_prim));
 
 		// Other members.
-		MakeIdent(voldesc_primary_.impl_ident,IT_DEVELOPER);
-		MakeIdent(voldesc_primary_.app_ident,IT_DEVELOPER);
+		make_ident(voldesc_primary_.impl_ident,IT_DEVELOPER);
+		make_ident(voldesc_primary_.app_ident,IT_DEVELOPER);
 
-		MakeCharSpec(voldesc_primary_.desc_charset);
-		MakeCharSpec(voldesc_primary_.explanatory_charset);
+		make_char_spec(voldesc_primary_.desc_charset);
+		make_char_spec(voldesc_primary_.explanatory_charset);
 
-		MakeVolSetIdent(voldesc_primary_.volset_ident,sizeof(voldesc_primary_.volset_ident));
+		make_vol_set_ident(voldesc_primary_.volset_ident,sizeof(voldesc_primary_.volset_ident));
 	}
 
-	void Udf::InitVolDescPartition()
+	void Udf::init_vol_desc_partition()
 	{
 		memset(&voldesc_partition_,0,sizeof(tudf_voldesc_part));
 
@@ -390,25 +390,25 @@ namespace ckfilesystem
 				break;
 		}
 
-		MakeIdent(voldesc_partition_.impl_ident,IT_DEVELOPER);
+		make_ident(voldesc_partition_.impl_ident,IT_DEVELOPER);
 	}
 
-	void Udf::InitVolDescLogical()
+	void Udf::init_vol_desc_logical()
 	{
 		memset(&voldesc_logical_,0,sizeof(tudf_voldesc_logical));
 
 		// Other members.
-		MakeCharSpec(voldesc_logical_.desc_charset);
+		make_char_spec(voldesc_logical_.desc_charset);
 
 		voldesc_logical_.logical_block_size = UDF_SECTOR_SIZE;
 
-		MakeIdent(voldesc_logical_.domain_ident,IT_DOMAIN);
-		MakeIdent(voldesc_logical_.impl_ident,IT_DEVELOPER);
+		make_ident(voldesc_logical_.domain_ident,IT_DOMAIN);
+		make_ident(voldesc_logical_.impl_ident,IT_DEVELOPER);
 	
 		write731(voldesc_logical_.logocal_vol_contents_use,UDF_SECTOR_SIZE);	// ?
 	}
 
-	void Udf::SetVolumeLabel(const ckcore::tchar *label)
+	void Udf::set_volume_label(const ckcore::tchar *label)
 	{
 		size_t label_len = ckcore::string::astrlen(label);
 		size_t primary_copy_len = label_len < 15 ? label_len : 15;	// Two bytes are reserved for string format.
@@ -422,30 +422,30 @@ namespace ckfilesystem
 		unsigned char str_comp = dvd_video_ ? UDF_COMPRESSION_BYTE : UDF_COMPRESSION_UNICODE;
 
 	#ifdef _UNICODE
-		unsigned char byte_len = (unsigned char)CompressUnicodeStr(primary_copy_len,str_comp,
+		unsigned char byte_len = (unsigned char)compress_unicode_str(primary_copy_len,str_comp,
 			label,voldesc_primary_.vol_ident);
 		voldesc_primary_.vol_ident[31] = byte_len;
 
-		byte_len = (unsigned char)CompressUnicodeStr(logical_copy_len,str_comp,
+		byte_len = (unsigned char)compress_unicode_str(logical_copy_len,str_comp,
 			label,voldesc_logical_.logical_vol_ident);
 		voldesc_logical_.logical_vol_ident[127] = byte_len;
 	#else
 		wchar_t szWidePrimaryLabel[17];
 		ckcore::string::ansi_to_utf16(label,szWidePrimaryLabel,sizeof(szWidePrimaryLabel) / sizeof(wchar_t));
 
-		unsigned char byte_len = (unsigned char)CompressUnicodeStr(primary_copy_len,str_comp,
+		unsigned char byte_len = (unsigned char)compress_unicode_str(primary_copy_len,str_comp,
 			szWidePrimaryLabel,voldesc_primary_.vol_ident);
 		voldesc_primary_.vol_ident[31] = byte_len;
 
 		wchar_t szWideLogicalLabel[17];
 		ckcore::string::ansi_to_utf16(label,szWideLogicalLabel,sizeof(szWideLogicalLabel) / sizeof(wchar_t));
-		byte_len = (unsigned char)CompressUnicodeStr(logical_copy_len,str_comp,
+		byte_len = (unsigned char)compress_unicode_str(logical_copy_len,str_comp,
 			szWideLogicalLabel,voldesc_logical_.logical_vol_ident);
 		voldesc_logical_.logical_vol_ident[127] = byte_len;
 	#endif
 	}
 
-	void Udf::SetPartAccessType(PartAccessType access_type)
+	void Udf::set_part_access_type(PartAccessType access_type)
 	{
 		part_access_type_ = access_type;
 	}
@@ -454,7 +454,7 @@ namespace ckfilesystem
 		Write the initial volume descriptors. They're of the same format as the
 		ISO9660 volume descriptors.
 	*/
-	bool Udf::WriteVolDescInitial(ckcore::OutStream &out_stream)
+	bool Udf::write_vol_desc_initial(ckcore::OutStream &out_stream)
 	{
 		tudf_volstruct_desc vol_struct_desc;
 		memset(&vol_struct_desc,0,sizeof(tudf_volstruct_desc));
@@ -462,21 +462,21 @@ namespace ckfilesystem
 		vol_struct_desc.struct_ver = 1;
 
 		memcpy(vol_struct_desc.ident,ident_bea,sizeof(vol_struct_desc.ident));
-		ckcore::tint64 processed = out_stream.Write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
+		ckcore::tint64 processed = out_stream.write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_volstruct_desc))
 			return false;
 
 		memcpy(vol_struct_desc.ident,ident_nsr,sizeof(vol_struct_desc.ident));
-		processed = out_stream.Write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
+		processed = out_stream.write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_volstruct_desc))
 			return false;
 
 		memcpy(vol_struct_desc.ident,ident_tea,sizeof(vol_struct_desc.ident));
-		processed = out_stream.Write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
+		processed = out_stream.write(&vol_struct_desc,sizeof(tudf_volstruct_desc));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_volstruct_desc))
@@ -485,11 +485,11 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool Udf::WriteVolDescPrimary(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								  unsigned long sec_location,struct tm &create_time)
+	bool Udf::write_vol_desc_primary(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+								     unsigned long sec_location,struct tm &create_time)
 	{
 		// Make the tag.
-		MakeTag(voldesc_primary_.desc_tag,UDF_TAGIDENT_PRIMVOLDESC);
+		make_tag(voldesc_primary_.desc_tag,UDF_TAGIDENT_PRIMVOLDESC);
 		voldesc_primary_.desc_tag.tag_loc = sec_location;
 		voldesc_primary_.desc_tag.desc_crc_len = sizeof(tudf_voldesc_prim) - sizeof(tudf_tag);
 
@@ -505,12 +505,12 @@ namespace ckfilesystem
 		voldesc_primary_.charset_list = 1;
 		voldesc_primary_.max_charset_list = 1;
 
-		MakeDateTime(create_time,voldesc_primary_.rec_timestamp);
+		make_date_time(create_time,voldesc_primary_.rec_timestamp);
 
 		// Calculate checksums.
-		MakeTagChecksums(voldesc_primary_.desc_tag,(unsigned char *)(&voldesc_primary_) + sizeof(tudf_tag));
+		make_tag_checksums(voldesc_primary_.desc_tag,(unsigned char *)(&voldesc_primary_) + sizeof(tudf_tag));
 
-		ckcore::tint64 processed = out_stream.Write(&voldesc_primary_,sizeof(tudf_voldesc_prim));
+		ckcore::tint64 processed = out_stream.write(&voldesc_primary_,sizeof(tudf_voldesc_prim));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_prim))
@@ -519,35 +519,35 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_prim)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescImplUse(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								  unsigned long sec_location)
+	bool Udf::write_vol_desc_impl_use(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+								      unsigned long sec_location)
 	{	
 		tudf_voldesc_impl_use impl_use_voldesc;
 		memset(&impl_use_voldesc,0,sizeof(tudf_voldesc_impl_use));
 
 		// Create tag.
-		MakeTag(impl_use_voldesc.desc_tag,UDF_TAGIDENT_IMPLUSEVOLDESC);
+		make_tag(impl_use_voldesc.desc_tag,UDF_TAGIDENT_IMPLUSEVOLDESC);
 		impl_use_voldesc.desc_tag.tag_loc = sec_location;
 		impl_use_voldesc.desc_tag.desc_crc_len = sizeof(tudf_voldesc_impl_use) - sizeof(tudf_tag);
 
-		MakeIdent(impl_use_voldesc.impl_ident,IT_LVINFO);
+		make_ident(impl_use_voldesc.impl_ident,IT_LVINFO);
 
 		impl_use_voldesc.voldesc_seqnum = voldesc_seqnum;
 
-		MakeCharSpec(impl_use_voldesc.lv_info.lv_info_charset);
+		make_char_spec(impl_use_voldesc.lv_info.lv_info_charset);
 		memcpy(impl_use_voldesc.lv_info.lv_ident,voldesc_logical_.logical_vol_ident,
 			sizeof(impl_use_voldesc.lv_info.lv_ident));		// Steal the value from the logical descriptor.
-		MakeIdent(impl_use_voldesc.lv_info.impl_ident,IT_DEVELOPER);
+		make_ident(impl_use_voldesc.lv_info.impl_ident,IT_DEVELOPER);
 
 		// Calculate tag checksums.
-		MakeTagChecksums(impl_use_voldesc.desc_tag,(unsigned char *)(&impl_use_voldesc) + sizeof(tudf_tag));
+		make_tag_checksums(impl_use_voldesc.desc_tag,(unsigned char *)(&impl_use_voldesc) + sizeof(tudf_tag));
 
-		ckcore::tint64 processed = out_stream.Write(&impl_use_voldesc,sizeof(tudf_voldesc_impl_use));
+		ckcore::tint64 processed = out_stream.write(&impl_use_voldesc,sizeof(tudf_voldesc_impl_use));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_impl_use))
@@ -556,7 +556,7 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_impl_use)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
@@ -564,12 +564,12 @@ namespace ckfilesystem
 	/**
 		@param part_len is the partition size in sectors.
 	*/
-	bool Udf::WriteVolDescPartition(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-									unsigned long sec_location,unsigned long part_start_loc,
+	bool Udf::write_vol_desc_partition(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+									   unsigned long sec_location,unsigned long part_start_loc,
 									unsigned long part_len)
 	{
 		// Make the tag.
-		MakeTag(voldesc_partition_.desc_tag,UDF_TAGIDENT_PARTDESC);
+		make_tag(voldesc_partition_.desc_tag,UDF_TAGIDENT_PARTDESC);
 		voldesc_partition_.desc_tag.tag_loc = sec_location;
 		voldesc_partition_.desc_tag.desc_crc_len = sizeof(tudf_voldesc_part) - sizeof(tudf_tag);
 
@@ -578,9 +578,9 @@ namespace ckfilesystem
 		voldesc_partition_.part_len = part_len;
 
 		// Calculate tag checksums.
-		MakeTagChecksums(voldesc_partition_.desc_tag,(unsigned char *)(&voldesc_partition_) + sizeof(tudf_tag));
+		make_tag_checksums(voldesc_partition_.desc_tag,(unsigned char *)(&voldesc_partition_) + sizeof(tudf_tag));
 
-		ckcore::tint64 processed = out_stream.Write(&voldesc_partition_,sizeof(tudf_voldesc_part));
+		ckcore::tint64 processed = out_stream.write(&voldesc_partition_,sizeof(tudf_voldesc_part));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_part))
@@ -589,16 +589,16 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_part)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescLogical(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								  unsigned long sec_location,tudf_extent_ad &integrity_seq_extent)
+	bool Udf::write_vol_desc_logical(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+								     unsigned long sec_location,tudf_extent_ad &integrity_seq_extent)
 	{
 		// Make the tag.
-		MakeTag(voldesc_logical_.desc_tag,UDF_TAGIDENT_LOGICALVOLDESC);
+		make_tag(voldesc_logical_.desc_tag,UDF_TAGIDENT_LOGICALVOLDESC);
 		voldesc_logical_.desc_tag.tag_loc = sec_location;
 		voldesc_logical_.desc_tag.desc_crc_len = sizeof(tudf_voldesc_logical) +
 			sizeof(tudf_logical_partmap_type1) - sizeof(tudf_tag);
@@ -621,17 +621,17 @@ namespace ckfilesystem
 		unsigned char complete_buffer[sizeof(tudf_voldesc_logical) + sizeof(tudf_logical_partmap_type1)];
 		memcpy(complete_buffer,&voldesc_logical_,sizeof(tudf_voldesc_logical));
 		memcpy(complete_buffer + sizeof(tudf_voldesc_logical),&part_map,sizeof(tudf_logical_partmap_type1));
-		MakeTagChecksums(voldesc_logical_.desc_tag,complete_buffer + sizeof(tudf_tag));
+		make_tag_checksums(voldesc_logical_.desc_tag,complete_buffer + sizeof(tudf_tag));
 
 		// Write logical volume descriptor.
-		ckcore::tint64 processed = out_stream.Write(&voldesc_logical_,sizeof(tudf_voldesc_logical));
+		ckcore::tint64 processed = out_stream.write(&voldesc_logical_,sizeof(tudf_voldesc_logical));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_logical))
 			return false;
 
 		// Write partition map.
-		processed = out_stream.Write(&part_map,sizeof(tudf_logical_partmap_type1));
+		processed = out_stream.write(&part_map,sizeof(tudf_logical_partmap_type1));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_logical_partmap_type1))
@@ -641,19 +641,19 @@ namespace ckfilesystem
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_logical) -
 			sizeof(tudf_logical_partmap_type1)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescUnalloc(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								  unsigned long sec_location)
+	bool Udf::write_vol_desc_unalloc(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
+								     unsigned long sec_location)
 	{
 		tudf_unalloc_space_desc unalloc_space_desc;
 		memset(&unalloc_space_desc,0,sizeof(tudf_unalloc_space_desc));
 
 		// Make the tag.
-		MakeTag(unalloc_space_desc.desc_tag,UDF_TAGIDENT_UNALLOCATEDSPACEDESC);
+		make_tag(unalloc_space_desc.desc_tag,UDF_TAGIDENT_UNALLOCATEDSPACEDESC);
 		unalloc_space_desc.desc_tag.tag_loc = sec_location;
 		unalloc_space_desc.desc_tag.desc_crc_len = sizeof(tudf_unalloc_space_desc) - sizeof(tudf_tag);
 
@@ -661,10 +661,10 @@ namespace ckfilesystem
 		unalloc_space_desc.num_allocdesc = 0;
 
 		// Calculate checksums.
-		MakeTagChecksums(unalloc_space_desc.desc_tag,(unsigned char *)(&unalloc_space_desc) + sizeof(tudf_tag));
+		make_tag_checksums(unalloc_space_desc.desc_tag,(unsigned char *)(&unalloc_space_desc) + sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 processed = out_stream.Write(&unalloc_space_desc,sizeof(tudf_unalloc_space_desc));
+		ckcore::tint64 processed = out_stream.write(&unalloc_space_desc,sizeof(tudf_unalloc_space_desc));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_unalloc_space_desc))
@@ -673,24 +673,24 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_unalloc_space_desc)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteVolDescTerm(ckcore::OutStream &out_stream,unsigned long sec_location)
+	bool Udf::write_vol_desc_term(ckcore::OutStream &out_stream,unsigned long sec_location)
 	{
 		tudf_voldesc_term term_desc;
 		memset(&term_desc,0,sizeof(tudf_voldesc_term));
 
 		// Make the tag.
-		MakeTag(term_desc.desc_tag,UDF_TAGIDENT_TERMDESC);
+		make_tag(term_desc.desc_tag,UDF_TAGIDENT_TERMDESC);
 		term_desc.desc_tag.tag_loc = sec_location;
 		term_desc.desc_tag.desc_crc_len = sizeof(tudf_voldesc_term) - sizeof(tudf_tag);
-		MakeTagChecksums(term_desc.desc_tag,(unsigned char *)(&term_desc) + sizeof(tudf_tag));
+		make_tag_checksums(term_desc.desc_tag,(unsigned char *)(&term_desc) + sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 processed = out_stream.Write(&term_desc,sizeof(tudf_voldesc_term));
+		ckcore::tint64 processed = out_stream.write(&term_desc,sizeof(tudf_voldesc_term));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_term))
@@ -699,7 +699,7 @@ namespace ckfilesystem
 		// Pad the sector from 512 to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_term)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
@@ -712,20 +712,20 @@ namespace ckfilesystem
 		@param unique_ident must be larger than the unique udentifiers of any
 		file entry.
 	*/
-	bool Udf::WriteVolDescLogIntegrity(ckcore::OutStream &out_stream,unsigned long sec_location,
-									   unsigned long file_count,unsigned long dir_count,
-									   unsigned long part_len,ckcore::tuint64 unique_ident,
-									   struct tm &create_time)
+	bool Udf::write_vol_desc_log_integrity(ckcore::OutStream &out_stream,unsigned long sec_location,
+	    								   unsigned long file_count,unsigned long dir_count,
+		    							   unsigned long part_len,ckcore::tuint64 unique_ident,
+			    						   struct tm &create_time)
 	{
 		tudf_voldesc_logical_integrity vli;
 		memset(&vli,0,sizeof(tudf_voldesc_logical_integrity));
 
 		// Make the tag.
-		MakeTag(vli.desc_tag,UDF_TAGIDENT_LOGICALVOLINTEGRITYDESC);
+		make_tag(vli.desc_tag,UDF_TAGIDENT_LOGICALVOLINTEGRITYDESC);
 		vli.desc_tag.tag_loc = sec_location;
 		vli.desc_tag.desc_crc_len = sizeof(tudf_voldesc_logical_integrity) - sizeof(tudf_tag);
 
-		MakeDateTime(create_time,vli.rec_timestamp);
+		make_date_time(create_time,vli.rec_timestamp);
 
 		vli.integrity_type = UDF_LOGICAL_INTEGRITY_CLOSE;
 		vli.num_partitions = 1;
@@ -736,7 +736,7 @@ namespace ckfilesystem
 		// Must be larger than the unique udentifiers of any file entry.
 		vli.logical_volcontents_use.unique_ident = unique_ident;
 
-		MakeIdent(vli.impl_use.impl_ident,IT_DEVELOPER);
+		make_ident(vli.impl_use.impl_ident,IT_DEVELOPER);
 		vli.impl_use.num_files = file_count;
 		vli.impl_use.num_dirs = dir_count;
 		vli.impl_use.min_udf_rev_read = 0x0102;	// Currently only UDF 1.02 is supported.
@@ -744,10 +744,10 @@ namespace ckfilesystem
 		vli.impl_use.max_udf_rev_write = 0x0102;	// Currently only UDF 1.02 is supported.
 
 		// Calculate tag checksums.
-		MakeTagChecksums(vli.desc_tag,(unsigned char *)(&vli) + sizeof(tudf_tag));
+		make_tag_checksums(vli.desc_tag,(unsigned char *)(&vli) + sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 processed = out_stream.Write(&vli,sizeof(tudf_voldesc_logical_integrity));
+		ckcore::tint64 processed = out_stream.write(&vli,sizeof(tudf_voldesc_logical_integrity));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_logical_integrity))
@@ -756,20 +756,20 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_logical_integrity)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
 
-	bool Udf::WriteAnchorVolDescPtr(ckcore::OutStream &out_stream,unsigned long sec_location,
-									tudf_extent_ad &voldesc_main_seqextent,
-									tudf_extent_ad &voldesc_rsrv_seqextent)
+	bool Udf::write_anchor_vol_desc_ptr(ckcore::OutStream &out_stream,unsigned long sec_location,
+									    tudf_extent_ad &voldesc_main_seqextent,
+									    tudf_extent_ad &voldesc_rsrv_seqextent)
 	{
 		tudf_voldesc_anchor_ptr vap;
 		memset(&vap,0,sizeof(tudf_voldesc_anchor_ptr));
 
 		// Setup tag.
-		MakeTag(vap.desc_tag,UDF_TAGIDENT_ANCHORVOLDESCPTR);
+		make_tag(vap.desc_tag,UDF_TAGIDENT_ANCHORVOLDESCPTR);
 		vap.desc_tag.tag_loc = sec_location;
 		vap.desc_tag.desc_crc_len = sizeof(tudf_voldesc_anchor_ptr) - sizeof(tudf_tag);
 
@@ -778,9 +778,9 @@ namespace ckfilesystem
 		memcpy(&vap.voldesc_rsrv_seqextent,&voldesc_rsrv_seqextent,sizeof(tudf_extent_ad));
 
 		// Calculate tag checksums.
-		MakeTagChecksums(vap.desc_tag,(unsigned char *)(&vap) + sizeof(tudf_tag));
+		make_tag_checksums(vap.desc_tag,(unsigned char *)(&vap) + sizeof(tudf_tag));
 
-		ckcore::tint64 processed = out_stream.Write(&vap,sizeof(tudf_voldesc_anchor_ptr));
+		ckcore::tint64 processed = out_stream.write(&vap,sizeof(tudf_voldesc_anchor_ptr));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_voldesc_anchor_ptr))
@@ -789,7 +789,7 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_anchor_ptr)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
@@ -798,18 +798,18 @@ namespace ckfilesystem
 		Writes a file set decsriptor structure to the output stream.
 		@param sec_location sector position relative to the first logical block of the partition.
 	*/
-	bool Udf::WriteFileSetDesc(ckcore::OutStream &out_stream,unsigned long sec_location,
-							   unsigned long root_sec_loc,struct tm &create_time)
+	bool Udf::write_file_set_desc(ckcore::OutStream &out_stream,unsigned long sec_location,
+							      unsigned long root_sec_loc,struct tm &create_time)
 	{
 		tudf_fileset_desc fd;
 		memset(&fd,0,sizeof(tudf_fileset_desc));
 
 		// Setup tag.
-		MakeTag(fd.desc_tag,UDF_TAGIDENT_FILESETDESC);
+		make_tag(fd.desc_tag,UDF_TAGIDENT_FILESETDESC);
 		fd.desc_tag.tag_loc = sec_location;
 		fd.desc_tag.desc_crc_len = sizeof(tudf_fileset_desc) - sizeof(tudf_tag);
 
-		MakeDateTime(create_time,fd.rec_timestamp);
+		make_date_time(create_time,fd.rec_timestamp);
 
 		fd.interchange_level = UDF_INTERCHANGE_LEVEL_FILESET;
 		fd.max_interchange_level = UDF_INTERCHANGE_LEVEL_FILESET;
@@ -818,8 +818,8 @@ namespace ckfilesystem
 		fd.fileset_num = 0;
 		fd.fileset_descnum = 0;
 
-		MakeCharSpec(fd.logical_vol_ident_charset);
-		MakeCharSpec(fd.fileset_charset);
+		make_char_spec(fd.logical_vol_ident_charset);
+		make_char_spec(fd.fileset_charset);
 		memcpy(fd.logical_vol_ident,voldesc_logical_.logical_vol_ident,
 			sizeof(fd.logical_vol_ident));	// Steal the value from the logical descriptor.
 		memcpy(fd.fileset_ident,voldesc_primary_.vol_ident,
@@ -829,12 +829,12 @@ namespace ckfilesystem
 		fd.rootdir_icb.extent_loc.logical_block_num = root_sec_loc;
 		fd.rootdir_icb.extent_loc.partition_ref_num = 0;	// Wee only support one partition.
 
-		MakeIdent(fd.domain_ident,IT_DOMAIN);
+		make_ident(fd.domain_ident,IT_DOMAIN);
 
 		// Calculate tag checksums.
-		MakeTagChecksums(fd.desc_tag,(unsigned char *)(&fd) + sizeof(tudf_tag));
+		make_tag_checksums(fd.desc_tag,(unsigned char *)(&fd) + sizeof(tudf_tag));
 
-		ckcore::tint64 processed = out_stream.Write(&fd,sizeof(tudf_fileset_desc));
+		ckcore::tint64 processed = out_stream.write(&fd,sizeof(tudf_fileset_desc));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(tudf_fileset_desc))
@@ -843,7 +843,7 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (UDF_SECTOR_SIZE - sizeof(tudf_voldesc_anchor_ptr)); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
@@ -851,14 +851,14 @@ namespace ckfilesystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool Udf::WriteFileIdentParent(ckcore::OutStream &out_stream,unsigned long sec_location,
-								   unsigned long file_entry_sec_loc)
+	bool Udf::write_file_ident_parent(ckcore::OutStream &out_stream,unsigned long sec_location,
+								      unsigned long file_entry_sec_loc)
 	{
 		tudf_fileident_desc fd;
 		memset(&fd,0,sizeof(tudf_fileident_desc));
 
 		// Setup tag.
-		MakeTag(fd.desc_tag,UDF_TAGIDENT_FILEIDENTDESC);
+		make_tag(fd.desc_tag,UDF_TAGIDENT_FILEIDENTDESC);
 		fd.desc_tag.tag_loc = sec_location;
 		fd.desc_tag.desc_crc_len = sizeof(tudf_fileident_desc) + 2 - sizeof(tudf_tag);	// Always pad two bytes.
 
@@ -879,13 +879,13 @@ namespace ckfilesystem
 		complete_buffer[sizeof(tudf_fileident_desc)    ] = 0;
 		complete_buffer[sizeof(tudf_fileident_desc) + 1] = 0;
 
-		MakeTagChecksums(fd.desc_tag,complete_buffer + sizeof(tudf_tag));
+		make_tag_checksums(fd.desc_tag,complete_buffer + sizeof(tudf_tag));
 
 		// Re-copy the tag since the CRC and checksum has been updated.
 		memcpy(complete_buffer,&fd.desc_tag,sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 processed = out_stream.Write(complete_buffer,sizeof(complete_buffer));
+		ckcore::tint64 processed = out_stream.write(complete_buffer,sizeof(complete_buffer));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(complete_buffer))
@@ -897,15 +897,15 @@ namespace ckfilesystem
 	/*
 		Note: This function does not pad to closest sector.
 	*/
-	bool Udf::WriteFileIdent(ckcore::OutStream &out_stream,unsigned long sec_location,
-							 unsigned long file_entry_sec_loc,bool is_dir,
-							 const ckcore::tchar *file_name)
+	bool Udf::write_file_ident(ckcore::OutStream &out_stream,unsigned long sec_location,
+							   unsigned long file_entry_sec_loc,bool is_dir,
+							   const ckcore::tchar *file_name)
 	{
 		tudf_fileident_desc fd;
 		memset(&fd,0,sizeof(tudf_fileident_desc));
 
 		// Setup tag.
-		MakeTag(fd.desc_tag,UDF_TAGIDENT_FILEIDENTDESC);
+		make_tag(fd.desc_tag,UDF_TAGIDENT_FILEIDENTDESC);
 		fd.desc_tag.tag_loc = sec_location;
 
 		// Setup other members.
@@ -914,7 +914,7 @@ namespace ckfilesystem
 		
 		// Create file identifier.
 		unsigned char file_ident[255];
-		fd.file_ident_len = MakeFileIdent(file_ident,file_name);
+		fd.file_ident_len = make_file_ident(file_ident,file_name);
 
 		fd.icb.extent_len = UDF_SECTOR_SIZE;		// The file entry will always fit within one sector.
 		fd.icb.extent_loc.logical_block_num = file_entry_sec_loc;
@@ -929,18 +929,18 @@ namespace ckfilesystem
 		unsigned short desc_len = sizeof(tudf_fileident_desc) + fd.file_ident_len + usPadSize;
 		fd.desc_tag.desc_crc_len = desc_len - sizeof(tudf_tag);
 
-		AllocateByteBuffer(desc_len);
+		alloc_byte_buffer(desc_len);
 		memset(byte_buffer_,0,desc_len);
 		memcpy(byte_buffer_,&fd,sizeof(tudf_fileident_desc));
 		memcpy(byte_buffer_ + sizeof(tudf_fileident_desc),file_ident,fd.file_ident_len);
 
-		MakeTagChecksums(fd.desc_tag,byte_buffer_ + sizeof(tudf_tag));
+		make_tag_checksums(fd.desc_tag,byte_buffer_ + sizeof(tudf_tag));
 
 		// Re-copy the tag since the CRC and checksum has been updated.
 		memcpy(byte_buffer_,&fd.desc_tag,sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 processed = out_stream.Write(byte_buffer_,desc_len);
+		ckcore::tint64 processed = out_stream.write(byte_buffer_,desc_len);
 		if (processed == -1)
 			return false;
 		if (processed != desc_len)
@@ -955,11 +955,11 @@ namespace ckfilesystem
 		@param info_len the length of all file identifiers in bytes for
 		directories and the size of the file on files.
 	*/
-	bool Udf::WriteFileEntry(ckcore::OutStream &out_stream,unsigned long sec_location,
-							 bool is_dir,unsigned short file_link_count,
-							 ckcore::tuint64 unique_ident,unsigned long info_loc,
-							 ckcore::tuint64 info_len,struct tm &access_time,
-							 struct tm &modify_time,struct tm &create_time)
+	bool Udf::write_file_entry(ckcore::OutStream &out_stream,unsigned long sec_location,
+							   bool is_dir,unsigned short file_link_count,
+							   ckcore::tuint64 unique_ident,unsigned long info_loc,
+							   ckcore::tuint64 info_len,struct tm &access_time,
+							   struct tm &modify_time,struct tm &create_time)
 	{
 		tudf_file_entry fe;
 		memset(&fe,0,sizeof(tudf_file_entry));
@@ -969,7 +969,7 @@ namespace ckfilesystem
 			info_loc = 0;
 
 		// Setup tag.
-		MakeTag(fe.desc_tag,UDF_TAGIDENT_FILEENTRYDESC);
+		make_tag(fe.desc_tag,UDF_TAGIDENT_FILEENTRYDESC);
 		fe.desc_tag.tag_loc = sec_location;
 		fe.desc_tag.desc_crc_len = sizeof(tudf_file_entry) - sizeof(tudf_tag);
 
@@ -1009,12 +1009,12 @@ namespace ckfilesystem
 		fe.logical_blocks_rec = bytes_to_sec64(info_len);
 
 		// File time stamps.
-		MakeDateTime(access_time,fe.access_time);
-		MakeDateTime(modify_time,fe.modify_time);
-		MakeDateTime(create_time,fe.attrib_time);
+		make_date_time(access_time,fe.access_time);
+		make_date_time(modify_time,fe.modify_time);
+		make_date_time(create_time,fe.attrib_time);
 
 		fe.checkpoint = 1;
-		MakeIdent(fe.impl_ident,IT_DEVELOPER);
+		make_ident(fe.impl_ident,IT_DEVELOPER);
 		fe.unique_ident = unique_ident;
 
 		// Allocation descriptor.
@@ -1048,7 +1048,7 @@ namespace ckfilesystem
 			memset(&eahd,0,sizeof(tudf_extended_attr_header_desc));
 
 			// Setup the tag.
-			MakeTag(eahd.desc_tag,UDF_TAGIDENT_EXTENDEDATTRDESC);
+			make_tag(eahd.desc_tag,UDF_TAGIDENT_EXTENDEDATTRDESC);
 			eahd.desc_tag.tag_loc = sec_location;
 			eahd.desc_tag.desc_crc_len = sizeof(tudf_extended_attr_header_desc) - sizeof(tudf_tag);
 
@@ -1057,7 +1057,7 @@ namespace ckfilesystem
 				sizeof(tudf_extended_attr_free_ea_space) + sizeof(tudf_extended_attr_cgms);
 
 			// Compute tag checksums.
-			MakeTagChecksums(eahd.desc_tag,(unsigned char *)&eahd + sizeof(tudf_tag));
+			make_tag_checksums(eahd.desc_tag,(unsigned char *)&eahd + sizeof(tudf_tag));
 
 			// Free EA space descriptor.
 			tudf_extended_attr_free_ea_space eafes;
@@ -1067,8 +1067,8 @@ namespace ckfilesystem
 			eafes.attr_subtype = 1;
 			eafes.attr_len = sizeof(tudf_extended_attr_free_ea_space);
 			eafes.impl_use_len = 4;
-			MakeIdent(eafes.impl_ident,IT_FREEEASPACE);
-			eafes.header_checksum = MakeExtAddrChecksum((unsigned char *)&eafes);
+			make_ident(eafes.impl_ident,IT_FREEEASPACE);
+			eafes.header_checksum = make_ext_addr_checksum((unsigned char *)&eafes);
 			eafes.free_space = 0;
 
 			// CGMS descriptor.
@@ -1079,8 +1079,8 @@ namespace ckfilesystem
 			eac.attr_subtype = 1;
 			eac.attr_len = sizeof(tudf_extended_attr_cgms);
 			eac.impl_use_len = 8;
-			MakeIdent(eac.impl_ident,IT_CGMS);
-			eac.header_checksum = MakeExtAddrChecksum((unsigned char *)&eac);
+			make_ident(eac.impl_ident,IT_CGMS);
+			eac.header_checksum = make_ext_addr_checksum((unsigned char *)&eac);
 			eac.cgms_info = 0;
 			eac.data_struct_type = 0;
 			eac.prot_sys_info = 0;
@@ -1146,13 +1146,13 @@ namespace ckfilesystem
 		// The file entry part is done, copy it.
 		memcpy(complete_buffer,&fe,sizeof(tudf_file_entry));
 
-		MakeTagChecksums(fe.desc_tag,complete_buffer + sizeof(tudf_tag));
+		make_tag_checksums(fe.desc_tag,complete_buffer + sizeof(tudf_tag));
 
 		// Re-copy the tag since the CRC and checksum has been updated.
 		memcpy(complete_buffer,&fe.desc_tag,sizeof(tudf_tag));
 
 		// Write to the output stream.
-		ckcore::tint64 processed = out_stream.Write(complete_buffer,desc_len);
+		ckcore::tint64 processed = out_stream.write(complete_buffer,desc_len);
 		delete [] complete_buffer;
 
 		if (processed == -1)
@@ -1163,17 +1163,17 @@ namespace ckfilesystem
 		// Pad the sector to 2048 bytes.
 		char tmp[1] = { 0 };
 		for (unsigned long i = 0; i < (unsigned long)(UDF_SECTOR_SIZE - desc_len); i++)
-			out_stream.Write(tmp,1);
+			out_stream.write(tmp,1);
 
 		return true;
 	}
 
-	unsigned long Udf::CalcFileIdentParentSize()
+	unsigned long Udf::calc_file_ident_parent_size()
 	{
 		return sizeof(tudf_fileident_desc) + 2;
 	}
 
-	unsigned long Udf::CalcFileIdentSize(const ckcore::tchar *file_name)
+	unsigned long Udf::calc_file_ident_size(const ckcore::tchar *file_name)
 	{
 		unsigned long file_name_len = (unsigned long)ckcore::string::astrlen(file_name);
 		if (file_name_len > 254)
@@ -1188,7 +1188,7 @@ namespace ckfilesystem
 		return sizeof(tudf_fileident_desc) + file_ident_len + file_impl_use_len + pad_size;
 	}
 
-	unsigned long Udf::CalcFileEntrySize()
+	unsigned long Udf::calc_file_entry_size()
 	{
 		return UDF_SECTOR_SIZE;
 	}
@@ -1197,7 +1197,7 @@ namespace ckfilesystem
 		Returns the number of bytes needed for the initial volume recognition
 		sequence.
 	*/
-	unsigned long Udf::GetVolDescInitialSize()
+	unsigned long Udf::get_vol_desc_initial_size()
 	{
 		return sizeof(tudf_volstruct_desc) * 3;
 	}

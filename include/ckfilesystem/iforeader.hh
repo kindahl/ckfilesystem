@@ -68,12 +68,12 @@ namespace ckfilesystem
 		IfoReader(const ckcore::tchar *full_path);
 		~IfoReader();
 
-		bool Open();
-		bool Close();
+		bool open();
+		bool close();
 
-		bool ReadVmg(IfoVmgData &vmg_data);
-		bool ReadVts(IfoVtsData &vts_data);
+		bool read_vmg(IfoVmgData &vmg_data);
+		bool read_vts(IfoVtsData &vts_data);
 
-		IfoType GetType();
+		IfoType get_type();
 	};
 };

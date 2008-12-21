@@ -62,7 +62,7 @@ namespace ckfilesystem
 			Returns a weight of the specified file name, a ligher file should
 			be placed heigher in the directory hierarchy.
 		*/
-		unsigned long GetFileWeight(const ckcore::tchar *file_path) const
+		unsigned long get_file_weight(const ckcore::tchar *file_path) const
 		{
 			unsigned long weight = 0xFFFFFFFF;
 
@@ -131,29 +131,29 @@ namespace ckfilesystem
 		{
 		}
 
-		static int Level(const FileDescriptor &item)
+		static int level(const FileDescriptor &item)
 		{
 			const ckcore::tchar *file_path = item.internal_path_.c_str();
 
-			int level = 0;
+			int item_level = 0;
 			for (size_t i = 0; i < (size_t)ckcore::string::astrlen(file_path); i++)
 			{
 				if (file_path[i] == '/' || file_path[i] == '\\')
-					level++;
+					item_level++;
 			}
 
 			if (item.flags_ & FileDescriptor::FLAG_DIRECTORY)
-				level++;
+				item_level++;
 
-			return level;
+			return item_level;
 		}
 
 		bool operator() (const FileDescriptor &item1,const FileDescriptor &item2) const
 		{
 			if (dvd_video_)
 			{
-				unsigned long weight1 = GetFileWeight(item1.internal_path_.c_str());
-				unsigned long weight2 = GetFileWeight(item2.internal_path_.c_str());
+				unsigned long weight1 = get_file_weight(item1.internal_path_.c_str());
+				unsigned long weight2 = get_file_weight(item2.internal_path_.c_str());
 
 				if (weight1 != weight2)
 				{
@@ -164,8 +164,8 @@ namespace ckfilesystem
 				}
 			}
 
-			int level_item1 = Level(item1);
-			int level_item2 = Level(item2);
+			int level_item1 = level(item1);
+			int level_item2 = level(item2);
 
 			if (level_item1 < level_item2)
 				return true;

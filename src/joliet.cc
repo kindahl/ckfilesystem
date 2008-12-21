@@ -25,7 +25,7 @@ namespace ckfilesystem
 {
 	Joliet::Joliet() : inc_file_ver_info_(true),max_name_len_(64)
 	{
-		InitVolDesc();
+		init_vol_desc();
 	}
 
 	Joliet::~Joliet()
@@ -35,7 +35,7 @@ namespace ckfilesystem
 	/*
 		Guaraties that the returned character is allowed by the Joliet file system.
 	*/
-	wchar_t Joliet::MakeChar(wchar_t c)
+	wchar_t Joliet::make_char(wchar_t c)
 	{
 		if (c == '*' || c == '/' || c == ':' || c == ';' || c == '?' || c == '\\')
 			return '_';
@@ -46,7 +46,7 @@ namespace ckfilesystem
     /*
      * Find the last delimiter of the specified kind in the specified string.
      */
-    int Joliet::LastDelimiterW(const wchar_t *str,wchar_t delim)
+    int Joliet::last_delimiter_w(const wchar_t *str,wchar_t delim)
     {    
         int len = (int)wcslen(str);
         for (int i = len - 1; i >= 0; i--)
@@ -63,17 +63,17 @@ namespace ckfilesystem
 		in the source string are allowed by the Joliet file system. iLen should
 		be the length of the source string in wchar_t characters.
 	*/
-	void Joliet::MemStrCopy(unsigned char *target,const wchar_t *source,size_t len)
+	void Joliet::mem_str_cpy(unsigned char *target,const wchar_t *source,size_t len)
 	{
 		for (size_t i = 0,j = 0; j < len; j++)
 		{
-			wchar_t c = MakeChar(source[j]);
+			wchar_t c = make_char(source[j]);
 			target[i++] = c >> 8;
 			target[i++] = c & 0xFF;
 		}
 	}
 
-	void Joliet::EmptyStrBuffer(unsigned char *buffer,size_t size)
+	void Joliet::empty_str_buffer(unsigned char *buffer,size_t size)
 	{
 		for (size_t i = 0; i < size; i += 2)
 		{
@@ -82,19 +82,19 @@ namespace ckfilesystem
 		}
 	}
 
-	void Joliet::InitVolDesc()
+	void Joliet::init_vol_desc()
 	{
 		// Clear memory.
 		memset(&voldesc_suppl_,0,sizeof(voldesc_suppl_));
-		EmptyStrBuffer(voldesc_suppl_.sys_ident,sizeof(voldesc_suppl_.sys_ident));
-		EmptyStrBuffer(voldesc_suppl_.vol_ident,sizeof(voldesc_suppl_.vol_ident));
-		EmptyStrBuffer(voldesc_suppl_.volset_ident,sizeof(voldesc_suppl_.volset_ident));
-		EmptyStrBuffer(voldesc_suppl_.publ_ident,sizeof(voldesc_suppl_.publ_ident));
-		EmptyStrBuffer(voldesc_suppl_.prep_ident,sizeof(voldesc_suppl_.prep_ident));
-		EmptyStrBuffer(voldesc_suppl_.app_ident,sizeof(voldesc_suppl_.app_ident));
-		EmptyStrBuffer(voldesc_suppl_.copy_file_ident,sizeof(voldesc_suppl_.copy_file_ident));
-		EmptyStrBuffer(voldesc_suppl_.abst_file_ident,sizeof(voldesc_suppl_.abst_file_ident));
-		EmptyStrBuffer(voldesc_suppl_.bibl_file_ident,sizeof(voldesc_suppl_.bibl_file_ident));
+		empty_str_buffer(voldesc_suppl_.sys_ident,sizeof(voldesc_suppl_.sys_ident));
+		empty_str_buffer(voldesc_suppl_.vol_ident,sizeof(voldesc_suppl_.vol_ident));
+		empty_str_buffer(voldesc_suppl_.volset_ident,sizeof(voldesc_suppl_.volset_ident));
+		empty_str_buffer(voldesc_suppl_.publ_ident,sizeof(voldesc_suppl_.publ_ident));
+		empty_str_buffer(voldesc_suppl_.prep_ident,sizeof(voldesc_suppl_.prep_ident));
+		empty_str_buffer(voldesc_suppl_.app_ident,sizeof(voldesc_suppl_.app_ident));
+		empty_str_buffer(voldesc_suppl_.copy_file_ident,sizeof(voldesc_suppl_.copy_file_ident));
+		empty_str_buffer(voldesc_suppl_.abst_file_ident,sizeof(voldesc_suppl_.abst_file_ident));
+		empty_str_buffer(voldesc_suppl_.bibl_file_ident,sizeof(voldesc_suppl_.bibl_file_ident));
 
 		// Set primary volume descriptor header.
 		voldesc_suppl_.type = VOLDESCTYPE_SUPPL_VOL_DESC;
@@ -123,10 +123,10 @@ namespace ckfilesystem
 		memcpy(voldesc_suppl_.app_ident,app_ident,90);
 	}
 
-	bool Joliet::WriteVolDesc(ckcore::OutStream &out_stream,struct tm &create_time,
-							  unsigned long vol_space_size,unsigned long pathtable_size,
-							  unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-							  unsigned long root_extent_loc,unsigned long ulDataLen)
+	bool Joliet::write_vol_desc(ckcore::OutStream &out_stream,struct tm &create_time,
+							    unsigned long vol_space_size,unsigned long pathtable_size,
+							    unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+							    unsigned long root_extent_loc,unsigned long ulDataLen)
 	{
 		// Initialize the supplementary volume descriptor.
 		write733(voldesc_suppl_.vol_space_size,vol_space_size);		// Volume size in sectors.
@@ -153,7 +153,7 @@ namespace ckfilesystem
 		voldesc_suppl_.effect_time.zone = 0x00;
 
 		// Write the supplementary volume descriptor.
-		ckcore::tint64 processed = out_stream.Write(&voldesc_suppl_,sizeof(voldesc_suppl_));
+		ckcore::tint64 processed = out_stream.write(&voldesc_suppl_,sizeof(voldesc_suppl_));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(voldesc_suppl_))
@@ -162,24 +162,24 @@ namespace ckfilesystem
 		return true;
 	}
 
-	void Joliet::SetVolumeLabel(const ckcore::tchar *label)
+	void Joliet::set_volume_label(const ckcore::tchar *label)
 	{
 		size_t label_len = ckcore::string::astrlen(label);
 		size_t label_copy_len = label_len < 16 ? label_len : 16;
 
-		EmptyStrBuffer(voldesc_suppl_.vol_ident,sizeof(voldesc_suppl_.vol_ident));
+		empty_str_buffer(voldesc_suppl_.vol_ident,sizeof(voldesc_suppl_.vol_ident));
 
 	#ifdef _UNICODE
-		MemStrCopy(voldesc_suppl_.vol_ident,label,label_copy_len);
+		mem_str_cpy(voldesc_suppl_.vol_ident,label,label_copy_len);
 	#else
 		wchar_t utf_label[17];
 		ckcore::string::ansi_to_utf16(label,utf_label,sizeof(utf_label) / sizeof(wchar_t));
-		MemStrCopy(voldesc_suppl_.vol_ident,utf_label,label_copy_len);
+		mem_str_cpy(voldesc_suppl_.vol_ident,utf_label,label_copy_len);
 	#endif
 	}
 
-	void Joliet::SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
-							   const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident)
+	void Joliet::set_text_fields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
+							     const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident)
 	{
 		size_t sys_ident_len = ckcore::string::astrlen(sys_ident);
 		size_t volset_ident_len = ckcore::string::astrlen(volset_ident);
@@ -191,16 +191,16 @@ namespace ckfilesystem
 		size_t publ_ident_copy_len = publ_ident_len < 64 ? publ_ident_len : 64;
 		size_t prep_ident_copy_len = prep_ident_len < 64 ? prep_ident_len : 64;
 
-		EmptyStrBuffer(voldesc_suppl_.sys_ident,sizeof(voldesc_suppl_.sys_ident));
-		EmptyStrBuffer(voldesc_suppl_.volset_ident,sizeof(voldesc_suppl_.volset_ident));
-		EmptyStrBuffer(voldesc_suppl_.publ_ident,sizeof(voldesc_suppl_.publ_ident));
-		EmptyStrBuffer(voldesc_suppl_.prep_ident,sizeof(voldesc_suppl_.prep_ident));
+		empty_str_buffer(voldesc_suppl_.sys_ident,sizeof(voldesc_suppl_.sys_ident));
+		empty_str_buffer(voldesc_suppl_.volset_ident,sizeof(voldesc_suppl_.volset_ident));
+		empty_str_buffer(voldesc_suppl_.publ_ident,sizeof(voldesc_suppl_.publ_ident));
+		empty_str_buffer(voldesc_suppl_.prep_ident,sizeof(voldesc_suppl_.prep_ident));
 
 	#ifdef _UNICODE
-		MemStrCopy(voldesc_suppl_.sys_ident,sys_ident,sys_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.volset_ident,volset_ident,volset_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.publ_ident,publ_ident,publ_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.prep_ident,prep_ident,prep_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.sys_ident,sys_ident,sys_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.volset_ident,volset_ident,volset_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.publ_ident,publ_ident,publ_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.prep_ident,prep_ident,prep_ident_copy_len);
 	#else
 		wchar_t utf_sys_ident[17];
 		wchar_t utf_volset_ident[65];
@@ -212,16 +212,16 @@ namespace ckfilesystem
 		ckcore::string::ansi_to_utf16(publ_ident,utf_publ_ident,sizeof(utf_publ_ident) / sizeof(wchar_t));
 		ckcore::string::ansi_to_utf16(prep_ident,utf_prep_ident,sizeof(utf_prep_ident) / sizeof(wchar_t));
 
-		MemStrCopy(voldesc_suppl_.sys_ident,utf_sys_ident,sys_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.volset_ident,utf_volset_ident,volset_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.publ_ident,utf_publ_ident,publ_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.prep_ident,utf_prep_ident,prep_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.sys_ident,utf_sys_ident,sys_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.volset_ident,utf_volset_ident,volset_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.publ_ident,utf_publ_ident,publ_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.prep_ident,utf_prep_ident,prep_ident_copy_len);
 	#endif
 	}
 
-	void Joliet::SetFileFields(const ckcore::tchar *copy_file_ident,
-							   const ckcore::tchar *abst_file_ident,
-						       const ckcore::tchar *bibl_file_ident)
+	void Joliet::set_file_fields(const ckcore::tchar *copy_file_ident,
+							     const ckcore::tchar *abst_file_ident,
+						         const ckcore::tchar *bibl_file_ident)
 	{
 		size_t copy_file_ident_len = ckcore::string::astrlen(copy_file_ident);
 		size_t abst_file_ident_len = ckcore::string::astrlen(abst_file_ident);
@@ -231,14 +231,14 @@ namespace ckfilesystem
 		size_t abst_file_ident_copy_len = abst_file_ident_len < 18 ? abst_file_ident_len : 18;
 		size_t bibl_file_ident_copy_len = bibl_file_ident_len < 18 ? bibl_file_ident_len : 18;
 
-		EmptyStrBuffer(voldesc_suppl_.copy_file_ident,sizeof(voldesc_suppl_.copy_file_ident));
-		EmptyStrBuffer(voldesc_suppl_.abst_file_ident,sizeof(voldesc_suppl_.abst_file_ident));
-		EmptyStrBuffer(voldesc_suppl_.bibl_file_ident,sizeof(voldesc_suppl_.bibl_file_ident));
+		empty_str_buffer(voldesc_suppl_.copy_file_ident,sizeof(voldesc_suppl_.copy_file_ident));
+		empty_str_buffer(voldesc_suppl_.abst_file_ident,sizeof(voldesc_suppl_.abst_file_ident));
+		empty_str_buffer(voldesc_suppl_.bibl_file_ident,sizeof(voldesc_suppl_.bibl_file_ident));
 
 	#ifdef _UNICODE
-		MemStrCopy(voldesc_suppl_.copy_file_ident,copy_file_ident,copy_file_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.abst_file_ident,abst_file_ident,abst_file_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.bibl_file_ident,bibl_file_ident,bibl_file_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.copy_file_ident,copy_file_ident,copy_file_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.abst_file_ident,abst_file_ident,abst_file_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.bibl_file_ident,bibl_file_ident,bibl_file_ident_copy_len);
 	#else
 		wchar_t utf_copy_file_ident[19];
 		wchar_t utf_abst_file_ident[19];
@@ -248,18 +248,18 @@ namespace ckfilesystem
 		ckcore::string::ansi_to_utf16(abst_file_ident,utf_abst_file_ident,sizeof(utf_abst_file_ident) / sizeof(wchar_t));
 		ckcore::string::ansi_to_utf16(bibl_file_ident,utf_bibl_file_ident,sizeof(utf_bibl_file_ident) / sizeof(wchar_t));
 
-		MemStrCopy(voldesc_suppl_.copy_file_ident,utf_copy_file_ident,copy_file_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.abst_file_ident,utf_abst_file_ident,abst_file_ident_copy_len);
-		MemStrCopy(voldesc_suppl_.bibl_file_ident,utf_bibl_file_ident,bibl_file_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.copy_file_ident,utf_copy_file_ident,copy_file_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.abst_file_ident,utf_abst_file_ident,abst_file_ident_copy_len);
+		mem_str_cpy(voldesc_suppl_.bibl_file_ident,utf_bibl_file_ident,bibl_file_ident_copy_len);
 	#endif
 	}
 
-	void Joliet::SetIncludeFileVerInfo(bool include)
+	void Joliet::set_include_file_ver_info(bool include)
 	{
 		inc_file_ver_info_ = include;
 	}
 
-	void Joliet::SetRelaxMaxNameLen(bool relax)
+	void Joliet::set_relax_max_name_len(bool relax)
 	{
 		if (relax)
 			max_name_len_ = JOLIET_MAX_NAMELEN_RELAXED;
@@ -267,7 +267,7 @@ namespace ckfilesystem
 			max_name_len_ = JOLIET_MAX_NAMELEN_NORMAL;
 	}
 
-	unsigned char Joliet::WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir)
+	unsigned char Joliet::write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir)
 	{
 #ifndef _UNICODE
 		wchar_t utf_file_name[JOLIET_MAX_NAMELEN_RELAXED + 1];
@@ -280,7 +280,7 @@ namespace ckfilesystem
 
 		if (file_name_len > max_name_len_)
 		{
-			int ext_delim = LastDelimiterW(utf_file_name,'.');
+			int ext_delim = last_delimiter_w(utf_file_name,'.');
 			if (ext_delim != -1)
 			{
 				int ext_len = (int)file_name_len - ext_delim - 1;
@@ -289,27 +289,27 @@ namespace ckfilesystem
 
 				// Copy the file name.
 				max = ext_delim < (max_name_len_ - ext_len) ? ext_delim : (max_name_len_ - 1 - ext_len);
-				MemStrCopy(buffer,utf_file_name,max);
+				mem_str_cpy(buffer,utf_file_name,max);
 
 				int out_pos = max << 1;
 				buffer[out_pos++] = 0x00;
 				buffer[out_pos++] = '.';
 
 				// Copy the extension.
-				MemStrCopy(buffer + out_pos,utf_file_name + ext_delim + 1,ext_len);
+				mem_str_cpy(buffer + out_pos,utf_file_name + ext_delim + 1,ext_len);
 
 				max = max_name_len_;
 			}
 			else
 			{
 				max = max_name_len_;
-				MemStrCopy(buffer,utf_file_name,max);
+				mem_str_cpy(buffer,utf_file_name,max);
 			}
 		}
 		else
 		{
 			max = file_name_len;
-			MemStrCopy(buffer,utf_file_name,max);
+			mem_str_cpy(buffer,utf_file_name,max);
 		}
 
 		if (!is_dir && inc_file_ver_info_)
@@ -326,7 +326,7 @@ namespace ckfilesystem
 		return max;
 	}
 
-	unsigned char Joliet::CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir)
+	unsigned char Joliet::calc_file_name_len(const ckcore::tchar *file_name,bool is_dir)
 	{
 		size_t name_len = ckcore::string::astrlen(file_name);
 		if (name_len >= (size_t)max_name_len_)
@@ -342,7 +342,7 @@ namespace ckfilesystem
 		Returns true if the file names includes the two character file version
 		information (;1).
 	*/
-	bool Joliet::IncludesFileVerInfo()
+	bool Joliet::includes_file_ver_info()
 	{
 		return inc_file_ver_info_;
 	}

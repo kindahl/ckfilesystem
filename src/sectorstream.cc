@@ -34,9 +34,9 @@ namespace ckfilesystem
 	{
 	}
 
-	ckcore::tint64 SectorOutStream::Write(void *buffer,ckcore::tuint32 count)
+	ckcore::tint64 SectorOutStream::write(void *buffer,ckcore::tuint32 count)
 	{
-		ckcore::tint64 res = ckcore::BufferedOutStream::Write(buffer,count);
+		ckcore::tint64 res = ckcore::BufferedOutStream::write(buffer,count);
 		written_ += res;
 
 		while (written_ >= sector_size_)
@@ -51,7 +51,7 @@ namespace ckfilesystem
 	/*
 		Returns the current sector number.
 	*/
-	ckcore::tuint64 SectorOutStream::GetSector()
+	ckcore::tuint64 SectorOutStream::get_sector()
 	{
 		return sector_;
 	}
@@ -59,7 +59,7 @@ namespace ckfilesystem
 	/*
 		Returns the number of buytes that's allocated in the current sector.
 	*/
-	unsigned long SectorOutStream::GetAllocated()
+	unsigned long SectorOutStream::get_allocated()
 	{
 		return (unsigned long)written_;
 	}
@@ -67,7 +67,7 @@ namespace ckfilesystem
 	/*
 		Returns the remaining unallocated bytes in the current sector.
 	*/
-	unsigned long SectorOutStream::GetRemaining()
+	unsigned long SectorOutStream::get_remaining()
 	{
 		return sector_size_ - (unsigned long)written_;
 	}
@@ -75,12 +75,12 @@ namespace ckfilesystem
 	/*
 		Pads the remaining bytes of the current sector with 0s.
 	*/
-	void SectorOutStream::PadSector()
+	void SectorOutStream::pad_sector()
 	{
 		char tmp[1] = { 0 };
 
-		unsigned long remaining = GetRemaining();
+		unsigned long remaining = get_remaining();
 		for (unsigned long i = 0; i < remaining; i++)
-			Write(tmp,1);
+			write(tmp,1);
 	}
 };

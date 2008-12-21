@@ -156,28 +156,28 @@ namespace ckfilesystem
 
 		std::vector<ElToritoImage *> boot_images_;
 
-		bool ReadSysTypeMbr(const ckcore::tchar *full_path,unsigned char &sys_type);
+		bool read_sys_type_mbr(const ckcore::tchar *full_path,unsigned char &sys_type);
 
-		bool WriteBootImage(SectorOutStream &out_stream,const ckcore::tchar *full_path);
+		bool write_boot_image(SectorOutStream &out_stream,const ckcore::tchar *full_path);
 
 	public:
 		ElTorito(ckcore::Log &log);
 		~ElTorito();
 
-		bool WriteBootRecord(SectorOutStream &out_stream,unsigned long boot_cat_sec_pos);
-		bool WriteBootCatalog(SectorOutStream &out_stream);
-		bool WriteBootImages(SectorOutStream &out_stream);
+		bool write_boot_record(SectorOutStream &out_stream,unsigned long boot_cat_sec_pos);
+		bool write_boot_catalog(SectorOutStream &out_stream);
+		bool write_boot_images(SectorOutStream &out_stream);
 
-		bool AddBootImageNoEmu(const ckcore::tchar *full_path,bool bootable,
-							   unsigned short load_segment,unsigned short sec_count);
-		bool AddBootImageFloppy(const ckcore::tchar *full_path,bool bootable);
-		bool AddBootImageHardDisk(const ckcore::tchar *full_path,bool bootable);
+		bool add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
+							       unsigned short load_segment,unsigned short sec_count);
+		bool add_boot_image_floppy(const ckcore::tchar *full_path,bool bootable);
+		bool add_boot_image_hard_disk(const ckcore::tchar *full_path,bool bootable);
 
-		bool CalculateFileSysData(ckcore::tuint64 start_sec,
-								  ckcore::tuint64 &last_sec);
+		bool calc_filesys_data(ckcore::tuint64 start_sec,
+							   ckcore::tuint64 &last_sec);
 
-		ckcore::tuint64 GetBootCatSize();
-		ckcore::tuint64 GetBootDataSize();
-		ckcore::tuint64 GetBootImageCount();
+		ckcore::tuint64 get_boot_cat_size();
+		ckcore::tuint64 get_boot_data_size();
+		ckcore::tuint64 get_boot_image_count();
 	};
 };

@@ -34,38 +34,38 @@ namespace ckfilesystem
 
 		tiso_voldesc_suppl voldesc_suppl_;
 
-		wchar_t MakeChar(wchar_t c);
-        int LastDelimiterW(const wchar_t *str,wchar_t delim);
-		void MemStrCopy(unsigned char *target,const wchar_t *source,size_t len);
-		void EmptyStrBuffer(unsigned char *buffer,size_t size);
+		wchar_t make_char(wchar_t c);
+        int last_delimiter_w(const wchar_t *str,wchar_t delim);
+		void mem_str_cpy(unsigned char *target,const wchar_t *source,size_t len);
+		void empty_str_buffer(unsigned char *buffer,size_t size);
 
-		void InitVolDesc();
+		void init_vol_desc();
 
 	public:
 		Joliet();
 		~Joliet();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const ckcore::tchar *label);
-		void SetTextFields(const ckcore::tchar *sys_ident,
-						   const ckcore::tchar *volset_ident,
-						   const ckcore::tchar *publ_ident,
-						   const ckcore::tchar *prep_ident);
-		void SetFileFields(const ckcore::tchar *copy_file_ident,
-						   const ckcore::tchar *abst_file_ident,
-						   const ckcore::tchar *bibl_file_ident);
-		void SetIncludeFileVerInfo(bool include);
-		void SetRelaxMaxNameLen(bool relax);
+		void set_volume_label(const ckcore::tchar *label);
+		void set_text_fields(const ckcore::tchar *sys_ident,
+						     const ckcore::tchar *volset_ident,
+						     const ckcore::tchar *publ_ident,
+						     const ckcore::tchar *prep_ident);
+		void set_file_fields(const ckcore::tchar *copy_file_ident,
+						     const ckcore::tchar *abst_file_ident,
+						     const ckcore::tchar *bibl_file_ident);
+		void set_include_file_ver_info(bool include);
+		void set_relax_max_name_len(bool relax);
 
 		// Write functions.
-		bool WriteVolDesc(ckcore::OutStream &out_stream,struct tm &create_time,
-						  unsigned long vol_space_size,unsigned long pathtable_size,
-						  unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-						  unsigned long root_extent_loc,unsigned long data_len);
+		bool write_vol_desc(ckcore::OutStream &out_stream,struct tm &create_time,
+						    unsigned long vol_space_size,unsigned long pathtable_size,
+						    unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+						    unsigned long root_extent_loc,unsigned long data_len);
 
 		// Helper functions.
-		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
-		unsigned char CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir);
-		bool IncludesFileVerInfo();
+		unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
+		unsigned char calc_file_name_len(const ckcore::tchar *file_name,bool is_dir);
+		bool includes_file_ver_info();
 	};
 };

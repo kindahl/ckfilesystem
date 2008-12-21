@@ -38,7 +38,7 @@ namespace ckfilesystem
 						Iso9660::InterLevel inter_level);
 		~DiscImageHelper();
 
-		void CalcFileName(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
-		void CalcFilePath(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
+		void calc_file_name(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
+		void calc_file_path(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
 	};
 };

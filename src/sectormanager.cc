@@ -39,16 +39,16 @@ namespace ckfilesystem
 		requested sector range.
 		@param num_sec the number of sectors to allocate.
 	 */
-	void SectorManager::AllocateSectors(SectorClient *client,unsigned char identifier,
-		ckcore::tuint64 num_sec)
+	void SectorManager::alloc_sectors(SectorClient *client,unsigned char identifier,
+		                              ckcore::tuint64 num_sec)
 	{
 		client_map_[std::make_pair(client,identifier)] = next_free_sec_;
 
 		next_free_sec_ += num_sec;
 	}
 
-	void SectorManager::AllocateBytes(SectorClient *client,unsigned char identifier,
-		ckcore::tuint64 num_bytes)
+	void SectorManager::alloc_bytes(SectorClient *client,unsigned char identifier,
+		                            ckcore::tuint64 num_bytes)
 	{
 		client_map_[std::make_pair(client,identifier)] = next_free_sec_;
 
@@ -60,7 +60,7 @@ namespace ckfilesystem
 		is that there can only be one data allocation and it should be accessible by
 		any client.
 	 */
-	void SectorManager::AllocateDataSectors(ckcore::tuint64 num_sec)
+	void SectorManager::alloc_data_sectors(ckcore::tuint64 num_sec)
 	{
 		data_start_ = next_free_sec_;
 		data_len_ = num_sec;
@@ -68,7 +68,7 @@ namespace ckfilesystem
 		next_free_sec_ += data_len_;
 	}
 
-	void SectorManager::AllocateDataBytes(ckcore::tuint64 num_bytes)
+	void SectorManager::alloc_data_bytes(ckcore::tuint64 num_bytes)
 	{
 		data_start_ = next_free_sec_;
 		data_len_ = bytes_to_sec64(num_bytes);
@@ -84,7 +84,7 @@ namespace ckfilesystem
 		allocating.
 		@return the start sector.
 	 */
-	ckcore::tuint64 SectorManager::GetStart(SectorClient *client,unsigned char identifier)
+	ckcore::tuint64 SectorManager::get_start(SectorClient *client,unsigned char identifier)
 	{
 		return client_map_[std::make_pair(client,identifier)];
 	}
@@ -92,17 +92,17 @@ namespace ckfilesystem
 	/**
 		Returns the next free unallocated sector. This should be used with care.
 	 */
-	ckcore::tuint64 SectorManager::GetNextFree()
+	ckcore::tuint64 SectorManager::get_next_free()
 	{
 		return next_free_sec_;
 	}
 
-	ckcore::tuint64 SectorManager::GetDataStart()
+	ckcore::tuint64 SectorManager::get_data_start()
 	{
 		return data_start_;
 	}
 
-	ckcore::tuint64 SectorManager::GetDataLength()
+	ckcore::tuint64 SectorManager::get_data_length()
 	{
 		return data_len_;
 	}

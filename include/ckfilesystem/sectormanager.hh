@@ -38,19 +38,19 @@ namespace ckfilesystem
 		SectorManager(ckcore::tuint64 start_sector);
 		~SectorManager();
 
-		void AllocateSectors(SectorClient *client,unsigned char identifier,
-							 ckcore::tuint64 num_sec);
-		void AllocateBytes(SectorClient *client,unsigned char identifier,
-						   ckcore::tuint64 num_bytes);
+		void alloc_sectors(SectorClient *client,unsigned char identifier,
+						   ckcore::tuint64 num_sec);
+		void alloc_bytes(SectorClient *client,unsigned char identifier,
+					     ckcore::tuint64 num_bytes);
 
-		void AllocateDataSectors(ckcore::tuint64 num_sec);
-		void AllocateDataBytes(ckcore::tuint64 num_bytes);
+		void alloc_data_sectors(ckcore::tuint64 num_sec);
+		void alloc_data_bytes(ckcore::tuint64 num_bytes);
 
-		ckcore::tuint64 GetStart(SectorClient *client,unsigned char identifier);
-		ckcore::tuint64 GetNextFree();
+		ckcore::tuint64 get_start(SectorClient *client,unsigned char identifier);
+		ckcore::tuint64 get_next_free();
 
-		ckcore::tuint64 GetDataStart();
-		ckcore::tuint64 GetDataLength();
+		ckcore::tuint64 get_data_start();
+		ckcore::tuint64 get_data_length();
 	};
 };
 

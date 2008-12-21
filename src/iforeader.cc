@@ -30,7 +30,7 @@ namespace ckfilesystem
 
 	IfoReader::~IfoReader()
 	{
-		Close();
+		close();
 	}
 
 	/**
@@ -39,16 +39,16 @@ namespace ckfilesystem
 		@return true if the file was successfully opened and identified, false
 		otherwise.
 	 */
-	bool IfoReader::Open()
+	bool IfoReader::open()
 	{
-		if (!in_stream_.Open())
+		if (!in_stream_.open())
 			return false;
 
 		char identifier[IFO_IDENTIFIER_LEN + 1];
-		ckcore::tint64 processed = in_stream_.Read(identifier,IFO_IDENTIFIER_LEN);
+		ckcore::tint64 processed = in_stream_.read(identifier,IFO_IDENTIFIER_LEN);
 		if (processed == -1)
 		{
-			Close();
+			close();
 			return false;
 		}
 
@@ -59,35 +59,35 @@ namespace ckfilesystem
 			ifo_type_ = IT_VTS;
 		else
 		{
-			Close();
+			close();
 			return false;
 		}
 
 		return true;
 	}
 
-	bool IfoReader::Close()
+	bool IfoReader::close()
 	{
 		ifo_type_ = IT_UNKNOWN;
-		return in_stream_.Close();
+		return in_stream_.close();
 	}
 
-	bool IfoReader::ReadVmg(IfoVmgData &vmg_data)
+	bool IfoReader::read_vmg(IfoVmgData &vmg_data)
 	{
 		// Read last sector of VMG.
 		unsigned long sector = 0;
 		ckcore::tint64 processed = 0;
 
-		in_stream_.Seek(12,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(12,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
 		vmg_data.last_vmg_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read last sector of IFO.
-		in_stream_.Seek(28,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(28,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
@@ -96,40 +96,40 @@ namespace ckfilesystem
 		// Read number of VTS  title sets.
 		unsigned short num_titles;
 
-		in_stream_.Seek(62,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&num_titles,sizeof(num_titles));
+		in_stream_.seek(62,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&num_titles,sizeof(num_titles));
 		if (processed == -1)
 			return false;
 
 		vmg_data.num_vmg_ts_ = ckcore::convert::be_to_le16(num_titles);
 
 		// Read start sector of VMG Menu VOB.
-		in_stream_.Seek(192,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(192,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
 		vmg_data.vmg_menu_vob_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read sector offset to TT_SRPT.
-		in_stream_.Seek(196,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(196,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
 		vmg_data.srpt_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read the TT_SRPT titles.
-		in_stream_.Seek(DVDVIDEO_BLOCK_SIZE * vmg_data.srpt_sec_,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&num_titles,sizeof(num_titles));
+		in_stream_.seek(DVDVIDEO_BLOCK_SIZE * vmg_data.srpt_sec_,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&num_titles,sizeof(num_titles));
 		if (processed == -1)
 			return false;
 
 		num_titles = ckcore::convert::be_to_le16(num_titles);
 		for (unsigned short i = 0; i < num_titles; i++)
 		{
-			in_stream_.Seek((DVDVIDEO_BLOCK_SIZE * vmg_data.srpt_sec_) + 8 + (i * 12) + 8,ckcore::InStream::ckSTREAM_BEGIN);
-			processed = in_stream_.Read(&sector,sizeof(sector));
+			in_stream_.seek((DVDVIDEO_BLOCK_SIZE * vmg_data.srpt_sec_) + 8 + (i * 12) + 8,ckcore::InStream::ckSTREAM_BEGIN);
+			processed = in_stream_.read(&sector,sizeof(sector));
 			if (processed == -1)
 				return false;
 
@@ -139,38 +139,38 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool IfoReader::ReadVts(IfoVtsData &vts_data)
+	bool IfoReader::read_vts(IfoVtsData &vts_data)
 	{
 		// Read last sector of VTS.
 		unsigned long sector = 0;
 		ckcore::tint64 processed = 0;
 
-		in_stream_.Seek(12,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(12,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
 		vts_data.last_vts_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read last sector of IFO.
-		in_stream_.Seek(28,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(28,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
 		vts_data.last_vts_ifo_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read start sector of VTS Menu VOB.
-		in_stream_.Seek(192,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(192,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
 		vts_data.vts_menu_vob_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read start sector of VTS Title VOB.
-		in_stream_.Seek(196,ckcore::InStream::ckSTREAM_BEGIN);
-		processed = in_stream_.Read(&sector,sizeof(sector));
+		in_stream_.seek(196,ckcore::InStream::ckSTREAM_BEGIN);
+		processed = in_stream_.read(&sector,sizeof(sector));
 		if (processed == -1)
 			return false;
 
@@ -178,7 +178,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	IfoReader::IfoType IfoReader::GetType()
+	IfoReader::IfoType IfoReader::get_type()
 	{
 		return ifo_type_;
 	}

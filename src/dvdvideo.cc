@@ -31,12 +31,12 @@ namespace ckfilesystem
 	{
 	}
 
-	ckcore::tuint64 DvdVideo::SizeToDvdLen(ckcore::tuint64 file_size)
+	ckcore::tuint64 DvdVideo::size_to_dvd_len(ckcore::tuint64 file_size)
 	{
 		return file_size / DVDVIDEO_BLOCK_SIZE;
 	}
 
-	FileTreeNode *DvdVideo::FindVideoNode(FileTree &file_tree,FileSetType type,unsigned long number)
+	FileTreeNode *DvdVideo::find_video_node(FileTree &file_tree,FileSetType type,unsigned long number)
 	{
 		ckcore::tstring internal_path = ckT("/VIDEO_TS/");
 
@@ -96,7 +96,7 @@ namespace ckfilesystem
 						ckcore::convert::sprintf(file_name,sizeof(file_name),ckT("VTS_%02d_%d.VOB"),number,i + 1);
 						internal_path.append(file_name);
 
-						FileTreeNode *node = file_tree.GetNodeFromPath(internal_path.c_str());
+						FileTreeNode *node = file_tree.get_node_from_path(internal_path.c_str());
 						if (node == NULL)
 							break;
 
@@ -114,11 +114,11 @@ namespace ckfilesystem
 				return NULL;
 		}
 
-		return file_tree.GetNodeFromPath(internal_path.c_str());
+		return file_tree.get_node_from_path(internal_path.c_str());
 	}
 
-	bool DvdVideo::GetTotalTitlesSize(ckcore::tstring &file_path,FileSetType type,
-									  unsigned long number,ckcore::tuint64 &file_size)
+	bool DvdVideo::get_total_titles_size(ckcore::tstring &file_path,FileSetType type,
+									     unsigned long number,ckcore::tuint64 &file_size)
 	{
 		ckcore::tstring full_path = file_path;
 
@@ -134,10 +134,10 @@ namespace ckfilesystem
 			ckcore::convert::sprintf(file_name,sizeof(file_name),ckT("VTS_%02d_%d.VOB"),number,i + 1);
 			full_path.append(file_name);
 
-			if (!ckcore::File::Exist(full_path.c_str()))
+			if (!ckcore::File::exist(full_path.c_str()))
 				break;
 
-			file_size += ckcore::File::Size(full_path.c_str());
+			file_size += ckcore::File::size(full_path.c_str());
 
 			// Restore the full path variable.
 			full_path = file_path;
@@ -146,25 +146,25 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool DvdVideo::ReadFileSetInfoRoot(FileTree &file_tree,IfoVmgData &vmg_data,
-									   std::vector<unsigned long> &ts_sectors)
+	bool DvdVideo::read_file_set_info_root(FileTree &file_tree,IfoVmgData &vmg_data,
+									       std::vector<unsigned long> &ts_sectors)
 	{
 		ckcore::tuint64 menu_size = 0,info_size = 0;
 
-		FileTreeNode *info_node = FindVideoNode(file_tree,FST_INFO,0);
+		FileTreeNode *info_node = find_video_node(file_tree,FST_INFO,0);
 		if (info_node != NULL)
 			info_size = info_node->file_size_;
 
-		FileTreeNode *menu_node = FindVideoNode(file_tree,FST_MENU,0);
+		FileTreeNode *menu_node = find_video_node(file_tree,FST_MENU,0);
 		if (menu_node != NULL)
 			menu_size = menu_node->file_size_;
 
-		FileTreeNode *bkup_node = FindVideoNode(file_tree,FST_BACKUP,0);
+		FileTreeNode *bkup_node = find_video_node(file_tree,FST_BACKUP,0);
 
 		// Verify the information.
-		if ((vmg_data.last_vmg_sec_ + 1) < (SizeToDvdLen(info_size) << 1))
+		if ((vmg_data.last_vmg_sec_ + 1) < (size_to_dvd_len(info_size) << 1))
 		{
-			log_.PrintLine(ckT("  Error: Invalid VIDEO_TS.IFO file size."));
+			log_.print_line(ckT("  Error: Invalid VIDEO_TS.IFO file size."));
 			return false;
 		}
 
@@ -172,8 +172,8 @@ namespace ckfilesystem
 		ckcore::tuint64 info_len = 0;
 		if (menu_node == NULL)
 		{
-			if ((vmg_data.last_vmg_sec_ + 1) > (SizeToDvdLen(info_size) << 1))
-				info_len = vmg_data.last_vmg_sec_ - SizeToDvdLen(info_size) + 1;
+			if ((vmg_data.last_vmg_sec_ + 1) > (size_to_dvd_len(info_size) << 1))
+				info_len = vmg_data.last_vmg_sec_ - size_to_dvd_len(info_size) + 1;
 			else
 				info_len = vmg_data.last_vmg_ifo_sec_ + 1;
 		}
@@ -188,33 +188,33 @@ namespace ckfilesystem
 		if (info_len > 0xFFFFFFFF)
 		{
 #ifdef _WINDOWS
-			log_.PrintLine(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%I64u blocks)."),info_len);
+			log_.print_line(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%I64u blocks)."),info_len);
 #else
-			log_.PrintLine(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%llu blocks)."),info_len);
+			log_.print_line(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%llu blocks)."),info_len);
 #endif 
 			return false;
 		}
 
 		if (info_node != NULL)
-			info_node->data_pad_len_ = (unsigned long)info_len - (unsigned long)SizeToDvdLen(info_size);
+			info_node->data_pad_len_ = (unsigned long)info_len - (unsigned long)size_to_dvd_len(info_size);
 
 		// Find the actuall size of .VOB.
 		ckcore::tuint64 menu_len = 0;
 		if (menu_node != NULL)
 		{
-			menu_len = vmg_data.last_vmg_sec_ - info_len - SizeToDvdLen(info_size) + 1;
+			menu_len = vmg_data.last_vmg_sec_ - info_len - size_to_dvd_len(info_size) + 1;
 
 			if (menu_len > 0xFFFFFFFF)
 			{
 #ifdef _WINDOWS
-				log_.PrintLine(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%I64u blocks)."),menu_len);
+				log_.print_line(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%I64u blocks)."),menu_len);
 #else
-				log_.PrintLine(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%lld blocks)."),menu_len);
+				log_.print_line(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%lld blocks)."),menu_len);
 #endif
 				return false;
 			}
 
-			menu_node->data_pad_len_ = (unsigned long)menu_len - (unsigned long)SizeToDvdLen(menu_size);
+			menu_node->data_pad_len_ = (unsigned long)menu_len - (unsigned long)size_to_dvd_len(menu_size);
 		}
 
 		// Find the actuall size of .BUP.
@@ -227,56 +227,56 @@ namespace ckfilesystem
 		if (bkup_len > 0xFFFFFFFF)
 		{
 #ifdef _WINDOWS
-			log_.PrintLine(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%I64u blocks)."),bkup_len);
+			log_.print_line(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%I64u blocks)."),bkup_len);
 #else
-			log_.PrintLine(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%llu blocks)."),bkup_len);
+			log_.print_line(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%llu blocks)."),bkup_len);
 #endif
 			return false;
 		}
 
 		if (bkup_node != NULL)
-			bkup_node->data_pad_len_ = (unsigned long)bkup_len - (unsigned long)SizeToDvdLen(info_size);
+			bkup_node->data_pad_len_ = (unsigned long)bkup_len - (unsigned long)size_to_dvd_len(info_size);
 
 		return true;
 	}
 
-	bool DvdVideo::ReadFileSetInfo(FileTree &file_tree,std::vector<unsigned long> &ts_sectors)
+	bool DvdVideo::read_file_set_info(FileTree &file_tree,std::vector<unsigned long> &ts_sectors)
 	{
 		unsigned long counter = 1;
 
 		std::vector<unsigned long>::const_iterator it_ts;
 		for (it_ts = ts_sectors.begin(); it_ts != ts_sectors.end(); it_ts++)
 		{
-			FileTreeNode *info_node = FindVideoNode(file_tree,FST_INFO,counter);
+			FileTreeNode *info_node = find_video_node(file_tree,FST_INFO,counter);
 			if (info_node == NULL)
 			{
-				log_.PrintLine(ckT("  Error: Unable to find IFO file in file tree."));
+				log_.print_line(ckT("  Error: Unable to find IFO file in file tree."));
 				return false;
 			}
 
 			IfoReader ifo_reader(info_node->file_path_.c_str());
-			if (!ifo_reader.Open())
+			if (!ifo_reader.open())
 			{
-				log_.PrintLine(ckT("  Error: Unable to open and identify %s."),info_node->file_name_.c_str());
+				log_.print_line(ckT("  Error: Unable to open and identify %s."),info_node->file_name_.c_str());
 				return false;
 			}
 
-			if (ifo_reader.GetType() != IfoReader::IT_VTS)
+			if (ifo_reader.get_type() != IfoReader::IT_VTS)
 			{
-				log_.PrintLine(ckT("  Error: %s is not of VTS format."),info_node->file_name_.c_str());
+				log_.print_line(ckT("  Error: %s is not of VTS format."),info_node->file_name_.c_str());
 				return false;
 			}
 
 			IfoVtsData vts_data;
-			if (!ifo_reader.ReadVts(vts_data))
+			if (!ifo_reader.read_vts(vts_data))
 			{
-				log_.PrintLine(ckT("  Error: Unable to read VTS data from %s."),info_node->file_name_.c_str());
+				log_.print_line(ckT("  Error: Unable to read VTS data from %s."),info_node->file_name_.c_str());
 				return false;
 			}
 
 			// Test if VTS_XX_0.VOB is present.
 			ckcore::tuint64 menu_size = 0;
-			FileTreeNode *menu_node = FindVideoNode(file_tree,FST_MENU,counter);
+			FileTreeNode *menu_node = find_video_node(file_tree,FST_MENU,counter);
 			if (menu_node != NULL)
 				menu_size = menu_node->file_size_;
 
@@ -286,35 +286,35 @@ namespace ckfilesystem
 			ckcore::tstring file_path = info_node->file_path_;
 			file_path.resize(file_path.find_last_of('/') + 1);
 
-			bool title = GetTotalTitlesSize(file_path,FST_TITLE,counter,title_size);
+			bool title = get_total_titles_size(file_path,FST_TITLE,counter,title_size);
 
 			// Test if VTS_XX_0.IFO are present.
 			ckcore::tuint64 info_size = info_node->file_size_;
 
 			// Check that the title will fit in the space given by the IFO file.
-			if ((vts_data.last_vts_sec_ + 1) < (SizeToDvdLen(info_size) << 1))
+			if ((vts_data.last_vts_sec_ + 1) < (size_to_dvd_len(info_size) << 1))
 			{
-				log_.PrintLine(ckT("  Error: Invalid size of %s."),info_node->file_name_.c_str());
+				log_.print_line(ckT("  Error: Invalid size of %s."),info_node->file_name_.c_str());
 				return false;
 			}
-			else if (title && menu_node != NULL && (vts_data.last_vts_sec_ + 1 < (SizeToDvdLen(info_size) << 1) +
-				SizeToDvdLen(title_size) +  SizeToDvdLen(menu_size)))
+			else if (title && menu_node != NULL && (vts_data.last_vts_sec_ + 1 < (size_to_dvd_len(info_size) << 1) +
+				size_to_dvd_len(title_size) +  size_to_dvd_len(menu_size)))
 			{
-				log_.PrintLine(ckT("  Error: Either IFO or menu VOB related to %s is of incorrect size. (1)"),
+				log_.print_line(ckT("  Error: Either IFO or menu VOB related to %s is of incorrect size. (1)"),
 					info_node->file_name_.c_str());
 				return false;
 			}
-			else if (title && menu_node == NULL && (vts_data.last_vts_sec_ + 1 < (SizeToDvdLen(info_size) << 1) +
-				SizeToDvdLen(title_size)))
+			else if (title && menu_node == NULL && (vts_data.last_vts_sec_ + 1 < (size_to_dvd_len(info_size) << 1) +
+				size_to_dvd_len(title_size)))
 			{
-				log_.PrintLine(ckT("  Error: Either IFO or menu VOB related to %s is of incorrect size. (2)"),
+				log_.print_line(ckT("  Error: Either IFO or menu VOB related to %s is of incorrect size. (2)"),
 					info_node->file_name_.c_str());
 				return false;
 			}
-			else if (!title && menu_node != NULL && (vts_data.last_vts_sec_ + 1 < (SizeToDvdLen(info_size) << 1) +
-				    SizeToDvdLen(menu_size)))
+			else if (!title && menu_node != NULL && (vts_data.last_vts_sec_ + 1 < (size_to_dvd_len(info_size) << 1) +
+				    size_to_dvd_len(menu_size)))
 			{
-				log_.PrintLine(ckT("  Error: Either IFO or menu VOB related to %s is of incorrect size. (3)"),
+				log_.print_line(ckT("  Error: Either IFO or menu VOB related to %s is of incorrect size. (3)"),
 					info_node->file_name_.c_str());
 				return false;
 			}
@@ -323,7 +323,7 @@ namespace ckfilesystem
 			ckcore::tuint64 info_len = 0;
 			if (!title && menu_node == NULL)
 			{
-				info_len = vts_data.last_vts_sec_ - SizeToDvdLen(info_size) + 1;
+				info_len = vts_data.last_vts_sec_ - size_to_dvd_len(info_size) + 1;
 			}
 			else if (!title)
 			{
@@ -339,24 +339,24 @@ namespace ckfilesystem
 
 			if (info_len > 0xFFFFFFFF)
 			{
-				log_.PrintLine(ckT("  Error: IFO file larger than 4 million blocks."));
+				log_.print_line(ckT("  Error: IFO file larger than 4 million blocks."));
 				return false;
 			}
 
-			info_node->data_pad_len_ = (unsigned long)info_len - (unsigned long)SizeToDvdLen(info_size);
+			info_node->data_pad_len_ = (unsigned long)info_len - (unsigned long)size_to_dvd_len(info_size);
 
 			// Find the actuall size of VTS_XX_0.VOB.
 			ckcore::tuint64 menu_len = 0;
 			if (menu_node != NULL)
 			{
-				if (title && (vts_data.vts_vob_sec_ - vts_data.vts_menu_vob_sec_ > SizeToDvdLen(menu_size)))
+				if (title && (vts_data.vts_vob_sec_ - vts_data.vts_menu_vob_sec_ > size_to_dvd_len(menu_size)))
 				{
 					menu_len = vts_data.vts_vob_sec_ - vts_data.vts_menu_vob_sec_;
 				}
-				else if (!title &&	(vts_data.vts_vob_sec_ + SizeToDvdLen(menu_size) +
-					SizeToDvdLen(info_size) - 1 < vts_data.last_vts_sec_))
+				else if (!title &&	(vts_data.vts_vob_sec_ + size_to_dvd_len(menu_size) +
+					size_to_dvd_len(info_size) - 1 < vts_data.last_vts_sec_))
 				{
-					menu_len = vts_data.last_vts_sec_ - SizeToDvdLen(info_size) - vts_data.vts_menu_vob_sec_ + 1;
+					menu_len = vts_data.last_vts_sec_ - size_to_dvd_len(info_size) - vts_data.vts_menu_vob_sec_ + 1;
 				}
 				else
 				{
@@ -365,11 +365,11 @@ namespace ckfilesystem
 
 				if (menu_len > 0xFFFFFFFF)
 				{
-					log_.PrintLine(ckT("  Error: Menu VOB file larger than 4 million blocks."));
+					log_.print_line(ckT("  Error: Menu VOB file larger than 4 million blocks."));
 					return false;
 				}
 
-				menu_node->data_pad_len_ = (unsigned long)menu_len - (unsigned long)SizeToDvdLen(menu_size);
+				menu_node->data_pad_len_ = (unsigned long)menu_len - (unsigned long)size_to_dvd_len(menu_size);
 			}
 
 			// Find the actuall size of VTS_XX_[1 to 9].VOB.
@@ -377,18 +377,18 @@ namespace ckfilesystem
 			if (title)
 			{
 				title_len = vts_data.last_vts_sec_ + 1 - info_len -
-					menu_len - SizeToDvdLen(info_size);
+					menu_len - size_to_dvd_len(info_size);
 
 				if (title_len > 0xFFFFFFFF)
 				{
-					log_.PrintLine(ckT("  Error: Title files larger than 4 million blocks."));
+					log_.print_line(ckT("  Error: Title files larger than 4 million blocks."));
 					return false;
 				}
 
 				// We only pad the last title node (not sure if that is correct).
-				FileTreeNode *pLastTitleNode = FindVideoNode(file_tree,FST_TITLE,counter);
+				FileTreeNode *pLastTitleNode = find_video_node(file_tree,FST_TITLE,counter);
 				if (pLastTitleNode != NULL)
-					pLastTitleNode->data_pad_len_ = (unsigned long)title_len - (unsigned long)SizeToDvdLen(title_size);
+					pLastTitleNode->data_pad_len_ = (unsigned long)title_len - (unsigned long)size_to_dvd_len(title_size);
 			}
 
 			// Find the actuall size of VTS_XX_0.BUP.
@@ -404,16 +404,16 @@ namespace ckfilesystem
 
 			if (bkup_len > 0xFFFFFFFF)
 			{
-				log_.PrintLine(ckT("  Error: BUP file larger than 4 million blocks."));
+				log_.print_line(ckT("  Error: BUP file larger than 4 million blocks."));
 				return false;
 			}
 
-			FileTreeNode *bkup_node = FindVideoNode(file_tree,FST_BACKUP,counter);
+			FileTreeNode *bkup_node = find_video_node(file_tree,FST_BACKUP,counter);
 			if (bkup_node != NULL)
-				bkup_node->data_pad_len_ = (unsigned long)bkup_len - (unsigned long)SizeToDvdLen(info_size);
+				bkup_node->data_pad_len_ = (unsigned long)bkup_len - (unsigned long)size_to_dvd_len(info_size);
 
 			// We're done.
-			ifo_reader.Close();
+			ifo_reader.close();
 
 			// Increase the counter.
 			counter++;
@@ -422,14 +422,14 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool DvdVideo::PrintFilePadding(FileTree &file_tree)
+	bool DvdVideo::print_file_padding(FileTree &file_tree)
 	{
-		log_.PrintLine(ckT("DvdVideo::PrintFilePadding"));
+		log_.print_line(ckT("DvdVideo::PrintFilePadding"));
 
-		FileTreeNode *vts_node = file_tree.GetNodeFromPath(ckT("/VIDEO_TS"));
+		FileTreeNode *vts_node = file_tree.get_node_from_path(ckT("/VIDEO_TS"));
 		if (vts_node == NULL)
 		{
-			log_.PrintLine(ckT("  Error: Unable to locate VIDEO_TS folder in file tree."));
+			log_.print_line(ckT("  Error: Unable to locate VIDEO_TS folder in file tree."));
 			return false;
 		}
 
@@ -437,41 +437,41 @@ namespace ckfilesystem
 		for (it_vidfile = vts_node->children_.begin(); it_vidfile !=
 			vts_node->children_.end(); it_vidfile++)
 		{
-			log_.PrintLine(ckT("  %s: pad %u sector(s)."),
+			log_.print_line(ckT("  %s: pad %u sector(s)."),
 				(*it_vidfile)->file_name_.c_str(),(*it_vidfile)->data_pad_len_);
 		}
 
 		return true;
 	}
 
-	bool DvdVideo::CalcFilePadding(FileTree &file_tree)
+	bool DvdVideo::calc_file_padding(FileTree &file_tree)
 	{
 		// First locate VIDEO_TS.IFO.
-		FileTreeNode *vts_node = file_tree.GetNodeFromPath(ckT("/VIDEO_TS/VIDEO_TS.IFO"));
+		FileTreeNode *vts_node = file_tree.get_node_from_path(ckT("/VIDEO_TS/VIDEO_TS.IFO"));
 		if (vts_node == NULL)
 		{
-			log_.PrintLine(ckT("  Error: Unable to locate VIDEO_TS.IFO in file tree."));
+			log_.print_line(ckT("  Error: Unable to locate VIDEO_TS.IFO in file tree."));
 			return false;
 		}
 
 		// Read and validate VIDEO_TS.INFO.
 		IfoReader ifo_reader(vts_node->file_path_.c_str());
-		if (!ifo_reader.Open())
+		if (!ifo_reader.open())
 		{
-			log_.PrintLine(ckT("  Error: Unable to open and identify VIDEO_TS.IFO."));
+			log_.print_line(ckT("  Error: Unable to open and identify VIDEO_TS.IFO."));
 			return false;
 		}
 
-		if (ifo_reader.GetType() != IfoReader::IT_VMG)
+		if (ifo_reader.get_type() != IfoReader::IT_VMG)
 		{
-			log_.PrintLine(ckT("  Error: VIDEO_TS.IFO is not of VMG format."));
+			log_.print_line(ckT("  Error: VIDEO_TS.IFO is not of VMG format."));
 			return false;
 		}
 
 		IfoVmgData vmg_data;
-		if (!ifo_reader.ReadVmg(vmg_data))
+		if (!ifo_reader.read_vmg(vmg_data))
 		{
-			log_.PrintLine(ckT("  Error: Unable to read VIDEO_TS.IFO VMG data."));
+			log_.print_line(ckT("  Error: Unable to read VIDEO_TS.IFO VMG data."));
 			return false;
 		}
 
@@ -484,15 +484,15 @@ namespace ckfilesystem
 		// Sort the titles according to the start of the vectors.
 		std::sort(ts_sectors.begin(),ts_sectors.end());
 
-		if (!ReadFileSetInfoRoot(file_tree,vmg_data,ts_sectors))
+		if (!read_file_set_info_root(file_tree,vmg_data,ts_sectors))
 		{
-			log_.PrintLine(ckT("  Error: Unable to obtain necessary information from VIDEO_TS.* files."));
+			log_.print_line(ckT("  Error: Unable to obtain necessary information from VIDEO_TS.* files."));
 			return false;
 		}
 
-		if (!ReadFileSetInfo(file_tree,ts_sectors))
+		if (!read_file_set_info(file_tree,ts_sectors))
 		{
-			log_.PrintLine(ckT("  Error: Unable to obtain necessary information from DVD-Video files."));
+			log_.print_line(ckT("  Error: Unable to obtain necessary information from DVD-Video files."));
 			return false;
 		}
 

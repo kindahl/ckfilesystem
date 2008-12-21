@@ -40,13 +40,13 @@ namespace ckfilesystem
 	{
 	}
 
-	StringTable &StringTable::Instance()
+	StringTable &StringTable::instance()
 	{
 		static StringTable instance;
 		return instance;
 	}
 
-	const ckcore::tchar *StringTable::GetString(StringId id)
+	const ckcore::tchar *StringTable::get_string(StringId id)
 	{
 		return strings_[id];
 	}
@@ -54,7 +54,7 @@ namespace ckfilesystem
 	/*
 		For translation purposes.
 	*/
-	void StringTable::SetString(StringId id,const ckcore::tchar *str)
+	void StringTable::set_string(StringId id,const ckcore::tchar *str)
 	{
 		strings_[id] = str;
 	}

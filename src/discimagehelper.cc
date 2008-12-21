@@ -27,22 +27,22 @@ namespace ckfilesystem
 		file_sys_(file_sys)
 	{
 		// Joliet.
-		joliet_.SetIncludeFileVerInfo(inc_file_ver_info);
-		joliet_.SetRelaxMaxNameLen(long_joliet_names);
+		joliet_.set_include_file_ver_info(inc_file_ver_info);
+		joliet_.set_relax_max_name_len(long_joliet_names);
 
 		// ISO9660.
-		iso9660_.SetIncludeFileVerInfo(inc_file_ver_info);
-		iso9660_.SetInterchangeLevel(inter_level);
+		iso9660_.set_include_file_ver_info(inc_file_ver_info);
+		iso9660_.set_interchange_level(inter_level);
 	}
 
 	DiscImageHelper::~DiscImageHelper()
 	{
 	}
 
-	// Warning: This function duplicates some functionality in CUdf.
+	// Warning: This function duplicates some functionality in Udf.
 	// file_name is assumed to be at least as long as req_file_name.
-	void DiscImageHelper::CalcFileName(const ckcore::tchar *req_file_name,
-									   ckcore::tchar *file_name,bool is_dir)
+	void DiscImageHelper::calc_file_name(const ckcore::tchar *req_file_name,
+									     ckcore::tchar *file_name,bool is_dir)
 	{
 		bool use_iso = file_sys_ != DiscImageWriter::FS_UDF;
 		bool use_udf = file_sys_ == DiscImageWriter::FS_ISO9660_UDF ||
@@ -60,7 +60,7 @@ namespace ckfilesystem
 		else if (use_joliet)
 		{
 			unsigned char file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char len = joliet_.WriteFileName((unsigned char *)file_name_buf,req_file_name,is_dir);
+			unsigned char len = joliet_.write_file_name((unsigned char *)file_name_buf,req_file_name,is_dir);
 
 #ifdef _UNICODE
 			unsigned char file_name_pos = 0;
@@ -94,7 +94,7 @@ namespace ckfilesystem
 
 			ckcore::string::ansi_to_utf16(ansi_file_name,file_name,len + 1);
 #else
-			unsigned char len = iso9660_.WriteFileName((unsigned char *)file_name,req_file_name,is_dir);
+			unsigned char len = iso9660_.write_file_name((unsigned char *)file_name,req_file_name,is_dir);
 			file_name[len] = '\0';
 #endif
 		}
@@ -104,8 +104,8 @@ namespace ckfilesystem
 		}
 	}
 
-	void DiscImageHelper::CalcFilePath(const ckcore::tchar *req_file_path,
-									   ckcore::tstring &file_path)
+	void DiscImageHelper::calc_file_path(const ckcore::tchar *req_file_path,
+									     ckcore::tstring &file_path)
 	{
 		size_t dir_path_len = ckcore::string::astrlen(req_file_path),prev_delim = 0,pos = 0;
 		ckcore::tstring cur_dir_name;
@@ -141,7 +141,7 @@ namespace ckfilesystem
 					for (size_t j = prev_delim + 1; j < pos; j++)
 						cur_dir_name.push_back(req_file_path[j]);
 
-					CalcFileName(cur_dir_name.c_str(),file_name_buf,true);
+					calc_file_name(cur_dir_name.c_str(),file_name_buf,true);
 					file_path.append(ckT("/"));
 					file_path.append(file_name_buf);
 				}
@@ -150,7 +150,7 @@ namespace ckfilesystem
 			}
 		}
 
-		CalcFileName(req_file_path + prev_delim + 1,file_name_buf,false);
+		calc_file_name(req_file_path + prev_delim + 1,file_name_buf,false);
 
 		size_t file_name_buf_len = ckcore::string::astrlen(file_name_buf);
 		if (file_name_buf[file_name_buf_len - 2] = ';')

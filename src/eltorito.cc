@@ -37,25 +37,25 @@ namespace ckfilesystem
 		boot_images_.clear();
 	}
 
-	bool ElTorito::ReadSysTypeMbr(const ckcore::tchar *full_path,unsigned char &sys_type)
+	bool ElTorito::read_sys_type_mbr(const ckcore::tchar *full_path,unsigned char &sys_type)
 	{
 		// Find the system type in the path table located in the MBR.
 		ckcore::FileInStream in_file(full_path);
-		if (!in_file.Open())
+		if (!in_file.open())
 		{
-			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),full_path);
+			log_.print_line(ckT("  Error: Unable to obtain file handle to \"%s\"."),full_path);
 			return false;
 		}
 
 		teltorito_mbr mbr;
 
-		ckcore::tint64 processed = in_file.Read(&mbr,sizeof(teltorito_mbr));
+		ckcore::tint64 processed = in_file.read(&mbr,sizeof(teltorito_mbr));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(teltorito_mbr) ||
 			(mbr.signature1 != 0x55 || mbr.signature2 != 0xAA))
 		{
-			log_.PrintLine(ckT("  Error: Unable to locate MBR in default boot image."));
+			log_.print_line(ckT("  Error: Unable to locate MBR in default boot image."));
 			return false;
 		}
 
@@ -67,7 +67,7 @@ namespace ckfilesystem
 			{
 				if (used_partition != -1)
 				{
-					log_.PrintLine(ckT("  Error: Invalid boot image, it contains more than one partition."));
+					log_.print_line(ckT("  Error: Invalid boot image, it contains more than one partition."));
 					return false;
 				}
 				else
@@ -81,7 +81,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::WriteBootRecord(SectorOutStream &out_stream,unsigned long boot_cat_sec_pos)
+	bool ElTorito::write_boot_record(SectorOutStream &out_stream,unsigned long boot_cat_sec_pos)
 	{
 		tiso_voldesc_eltorito_record br;
 		memset(&br,0,sizeof(tiso_voldesc_eltorito_record));
@@ -92,7 +92,7 @@ namespace ckfilesystem
 		memcpy(br.boot_sys_ident,iso_ident_eltorito,strlen(iso_ident_eltorito));
 		br.boot_cat_ptr = boot_cat_sec_pos;
 
-		ckcore::tint64 processed = out_stream.Write(&br,sizeof(br));
+		ckcore::tint64 processed = out_stream.write(&br,sizeof(br));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(br))
@@ -101,7 +101,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::WriteBootCatalog(SectorOutStream &out_stream)
+	bool ElTorito::write_boot_catalog(SectorOutStream &out_stream)
 	{
 		char szManufacturer[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,0x52,0x44,0x45,0x52 };
 		teltorito_valientry ve;
@@ -123,13 +123,13 @@ namespace ckfilesystem
 
 		ve.checksum = -checksum;
 
-		ckcore::tint64 processed = out_stream.Write(&ve,sizeof(ve));
+		ckcore::tint64 processed = out_stream.write(&ve,sizeof(ve));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(ve))
 			return false;
 
-		// Write the default boot entry.
+		// write the default boot entry.
 		if (boot_images_.size() < 1)
 			return false;
 
@@ -152,7 +152,7 @@ namespace ckfilesystem
 				break;
 
 			case ElToritoImage::EMULATION_FLOPPY:
-				switch (ckcore::File::Size(pDefImage->full_path_.c_str()))
+				switch (ckcore::File::size(pDefImage->full_path_.c_str()))
 				{
 					case 1200 * 1024:
 						dbe.emulation = ELTORITO_EMULATION_DISKETTE12;
@@ -173,18 +173,18 @@ namespace ckfilesystem
 			case ElToritoImage::EMULATION_HARDDISK:
 				dbe.emulation = ELTORITO_EMULATION_HARDDISK;
 
-				if (!ReadSysTypeMbr(pDefImage->full_path_.c_str(),dbe.sys_type))
+				if (!read_sys_type_mbr(pDefImage->full_path_.c_str(),dbe.sys_type))
 					return false;
 				break;
 		}
 
-		processed = out_stream.Write(&dbe,sizeof(dbe));
+		processed = out_stream.write(&dbe,sizeof(dbe));
 		if (processed == -1)
 			return false;
 		if (processed != sizeof(dbe))
 			return false;
 
-		// Write the rest of the boot images.
+		// write the rest of the boot images.
 		teltorito_sec_header sh;
 		teltorito_sec_entry se;
 
@@ -193,7 +193,7 @@ namespace ckfilesystem
 		{
 			ElToritoImage *pCurImage = boot_images_[i];
 
-			// Write section header.
+			// write section header.
 			memset(&sh,0,sizeof(teltorito_sec_header));
 
 			sh.header = i == (usNumImages - 1) ?
@@ -205,13 +205,13 @@ namespace ckfilesystem
 			sprintf(szIdentifier,"IMAGE%u",i + 1);
 			memcpy(sh.ident,szIdentifier,strlen(szIdentifier));
 
-			processed = out_stream.Write(&sh,sizeof(sh));
+			processed = out_stream.write(&sh,sizeof(sh));
 			if (processed == -1)
 				return false;
 			if (processed != sizeof(sh))
 				return false;
 
-			// Write the section entry.
+			// write the section entry.
 			memset(&se,0,sizeof(teltorito_sec_entry));
 
 			se.boot_indicator = pCurImage->bootable_ ?
@@ -228,7 +228,7 @@ namespace ckfilesystem
 					break;
 
 				case ElToritoImage::EMULATION_FLOPPY:
-					switch (ckcore::File::Size(pCurImage->full_path_.c_str()))
+					switch (ckcore::File::size(pCurImage->full_path_.c_str()))
 					{
 						case 1200 * 1024:
 							se.emulation = ELTORITO_EMULATION_DISKETTE12;
@@ -249,77 +249,77 @@ namespace ckfilesystem
 				case ElToritoImage::EMULATION_HARDDISK:
 					se.emulation = ELTORITO_EMULATION_HARDDISK;
 
-					if (!ReadSysTypeMbr(pCurImage->full_path_.c_str(),se.sys_type))
+					if (!read_sys_type_mbr(pCurImage->full_path_.c_str(),se.sys_type))
 						return false;
 					break;
 			}
 
-			processed = out_stream.Write(&se,sizeof(se));
+			processed = out_stream.write(&se,sizeof(se));
 			if (processed == -1)
 				return false;
 			if (processed != sizeof(se))
 				return false;
 		}
 
-		if (out_stream.GetAllocated() != 0)
-			out_stream.PadSector();
+		if (out_stream.get_allocated() != 0)
+			out_stream.pad_sector();
 
 		return true;
 	}
 
-	bool ElTorito::WriteBootImage(SectorOutStream &out_stream,const ckcore::tchar *full_path)
+	bool ElTorito::write_boot_image(SectorOutStream &out_stream,const ckcore::tchar *full_path)
 	{
 		ckcore::FileInStream FileStream(full_path);
-		if (!FileStream.Open())
+		if (!FileStream.open())
 		{
-			log_.PrintLine(ckT("  Error: Unable to obtain file handle to \"%s\"."),full_path);
+			log_.print_line(ckT("  Error: Unable to obtain file handle to \"%s\"."),full_path);
 			return false;
 		}
 
 		char szBuffer[ELTORITO_IO_BUFFER_SIZE];
 
-		while (!FileStream.End())
+		while (!FileStream.end())
 		{
-			ckcore::tint64 processed = FileStream.Read(szBuffer,ELTORITO_IO_BUFFER_SIZE);
+			ckcore::tint64 processed = FileStream.read(szBuffer,ELTORITO_IO_BUFFER_SIZE);
 			if (processed == -1)
 			{
-				log_.PrintLine(ckT("  Error: Unable read file: %s."),full_path);
+				log_.print_line(ckT("  Error: Unable read file: %s."),full_path);
 				return false;
 			}
 
-			if (out_stream.Write(szBuffer,(ckcore::tuint32)processed) == -1)
+			if (out_stream.write(szBuffer,(ckcore::tuint32)processed) == -1)
 			{
-				log_.PrintLine(ckT("  Error: Unable write to disc image."));
+				log_.print_line(ckT("  Error: Unable write to disc image."));
 				return false;
 			}
 		}
 
 		// Pad the sector.
-		if (out_stream.GetAllocated() != 0)
-			out_stream.PadSector();
+		if (out_stream.get_allocated() != 0)
+			out_stream.pad_sector();
 
 		return true;
 	}
 
-	bool ElTorito::WriteBootImages(SectorOutStream &out_stream)
+	bool ElTorito::write_boot_images(SectorOutStream &out_stream)
 	{
 		std::vector<ElToritoImage *>::iterator it;
 		for (it = boot_images_.begin(); it != boot_images_.end(); it++)
 		{
-			if (!WriteBootImage(out_stream,(*it)->full_path_.c_str()))
+			if (!write_boot_image(out_stream,(*it)->full_path_.c_str()))
 				return false;
 		}
 
 		return true;
 	}
 
-	bool ElTorito::AddBootImageNoEmu(const ckcore::tchar *full_path,bool bootable,
-									 unsigned short load_segment,unsigned short sec_count)
+	bool ElTorito::add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
+									     unsigned short load_segment,unsigned short sec_count)
 	{
 		if (boot_images_.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
 			return false;
 
-		if (!ckcore::File::Exist(full_path))
+		if (!ckcore::File::exist(full_path))
 			return false;
 
 		boot_images_.push_back(new ElToritoImage(
@@ -327,18 +327,18 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::AddBootImageFloppy(const ckcore::tchar *full_path,bool bootable)
+	bool ElTorito::add_boot_image_floppy(const ckcore::tchar *full_path,bool bootable)
 	{
 		if (boot_images_.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
 			return false;
 
-		if (!ckcore::File::Exist(full_path))
+		if (!ckcore::File::exist(full_path))
 			return false;
 
-		ckcore::tuint64 file_size = ckcore::File::Size(full_path);
+		ckcore::tuint64 file_size = ckcore::File::size(full_path);
 		if (file_size != 1200 * 1024 && file_size != 1440 * 1024 && file_size != 2880 * 1024)
 		{
-			log_.PrintLine(ckT("  Error: Invalid file size for floppy emulated boot image."));
+			log_.print_line(ckT("  Error: Invalid file size for floppy emulated boot image."));
 			return false;
 		}
 
@@ -348,16 +348,16 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::AddBootImageHardDisk(const ckcore::tchar *full_path,bool bootable)
+	bool ElTorito::add_boot_image_hard_disk(const ckcore::tchar *full_path,bool bootable)
 	{
 		if (boot_images_.size() >= ELTORITO_MAX_BOOTIMAGE_COUNT)
 			return false;
 
-		if (!ckcore::File::Exist(full_path))
+		if (!ckcore::File::exist(full_path))
 			return false;
 
 		unsigned char dummy;
-		if (!ReadSysTypeMbr(full_path,dummy))
+		if (!read_sys_type_mbr(full_path,dummy))
 			return false;
 
 		// sec_count = 1, Only load the MBR.
@@ -366,8 +366,8 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool ElTorito::CalculateFileSysData(ckcore::tuint64 start_sec,
-										ckcore::tuint64 &last_sec)
+	bool ElTorito::calc_filesys_data(ckcore::tuint64 start_sec,
+									 ckcore::tuint64 &last_sec)
 	{
 		std::vector<ElToritoImage *>::iterator it;
 		for (it = boot_images_.begin(); it != boot_images_.end(); it++)
@@ -375,9 +375,9 @@ namespace ckfilesystem
 			if (start_sec > 0xFFFFFFFF)
 			{
 #ifdef _WINDOWS
-				log_.PrintLine(ckT("  Error: Sector offset overflow (%I64u), can not include boot image: %s."),
+				log_.print_line(ckT("  Error: Sector offset overflow (%I64u), can not include boot image: %s."),
 #else
-				log_.PrintLine(ckT("  Error: Sector offset overflow (%lld), can not include boot image: %s."),
+				log_.print_line(ckT("  Error: Sector offset overflow (%lld), can not include boot image: %s."),
 #endif
 				start_sec,(*it)->full_path_.c_str());
 				return false;
@@ -386,31 +386,31 @@ namespace ckfilesystem
 			(*it)->data_sec_pos_ = (unsigned long)start_sec;
 
 			start_sec += bytes_to_sec64((ckcore::tuint64)
-				ckcore::File::Size((*it)->full_path_.c_str()));
+				ckcore::File::size((*it)->full_path_.c_str()));
 		}
 
 		last_sec = start_sec;
 		return true;
 	}
 
-	ckcore::tuint64 ElTorito::GetBootCatSize()
+	ckcore::tuint64 ElTorito::get_boot_cat_size()
 	{
 		// The validator and default boot image allocates 64 bytes, the remaining
 		// boot images allocates 64 bytes a piece.
 		return boot_images_.size() << 6;
 	}
 
-	ckcore::tuint64 ElTorito::GetBootDataSize()
+	ckcore::tuint64 ElTorito::get_boot_data_size()
 	{
 		ckcore::tuint64 size = 0;
 		std::vector<ElToritoImage *>::iterator it;
 		for (it = boot_images_.begin(); it != boot_images_.end(); it++)
-			size += bytes_to_sec64((ckcore::tuint64)ckcore::File::Size((*it)->full_path_.c_str()));
+			size += bytes_to_sec64((ckcore::tuint64)ckcore::File::size((*it)->full_path_.c_str()));
 
 		return size;
 	}
 
-	ckcore::tuint64 ElTorito::GetBootImageCount()
+	ckcore::tuint64 ElTorito::get_boot_image_count()
 	{
 		return boot_images_.size();
 	}

@@ -36,12 +36,12 @@ namespace ckfilesystem
 			unsigned long sector_size = ISO9660_SECTOR_SIZE);
 		~SectorOutStream();
 
-		ckcore::tint64 Write(void *buffer,ckcore::tuint32 count);
+		ckcore::tint64 write(void *buffer,ckcore::tuint32 count);
 
-		ckcore::tuint64 GetSector();
-		unsigned long GetAllocated();
-		unsigned long GetRemaining();
+		ckcore::tuint64 get_sector();
+		unsigned long get_allocated();
+		unsigned long get_remaining();
 
-		void PadSector();
+		void pad_sector();
 	};
 };

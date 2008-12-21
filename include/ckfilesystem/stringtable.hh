@@ -51,9 +51,9 @@ namespace ckfilesystem
 
 	public:
 
-		static StringTable &Instance();
+		static StringTable &instance();
 
-		const ckcore::tchar *GetString(StringId id);
-		void SetString(StringId id,const ckcore::tchar *str);
+		const ckcore::tchar *get_string(StringId id);
+		void set_string(StringId id,const ckcore::tchar *str);
 	};
 };

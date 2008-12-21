@@ -275,63 +275,63 @@ namespace ckfilesystem
 		tiso_voldesc_primary voldesc_primary_;
 		tiso_voldesc_setterm voldesc_setterm_;
 
-		char MakeCharA(char c);
-		char MakeCharD(char c);
-        int LastDelimiterA(const char *str,char delim);
-		void MemStrCopyA(unsigned char *target,const char *source,size_t len);
-		void MemStrCopyD(unsigned char *target,const char *source,size_t len);
+		char make_char_a(char c);
+		char make_char_d(char c);
+        int last_delimiter_a(const char *str,char delim);
+		void mem_str_cpy_a(unsigned char *target,const char *source,size_t len);
+		void mem_str_cpy_d(unsigned char *target,const char *source,size_t len);
 
-		unsigned char WriteFileNameL1(unsigned char *buffer,const ckcore::tchar *file_name);
-		unsigned char WriteFileNameGeneric(unsigned char *buffer,const ckcore::tchar *file_name,int max_len);
-		unsigned char WriteFileNameL2(unsigned char *buffer,const ckcore::tchar *file_name);
-		unsigned char WriteFileName1999(unsigned char *buffer,const ckcore::tchar *file_name);
-		unsigned char WriteDirNameL1(unsigned char *buffer,const ckcore::tchar *dir_name);
-		unsigned char WriteDirNameGeneric(unsigned char *buffer,const ckcore::tchar *dir_name,int max_len);
-		unsigned char WriteDirNameL2(unsigned char *buffer,const ckcore::tchar *dir_name);
-		unsigned char WriteDirName1999(unsigned char *buffer,const ckcore::tchar *dir_name);
-		unsigned char CalcFileNameLenL1(const ckcore::tchar *file_name);
-		unsigned char CalcFileNameLenL2(const ckcore::tchar *file_name);
-		unsigned char CalcFileNameLen1999(const ckcore::tchar *file_name);
-		unsigned char CalcDirNameLenL1(const ckcore::tchar *file_name);
-		unsigned char CalcDirNameLenL2(const ckcore::tchar *file_name);
-		unsigned char CalcDirNameLen1999(const ckcore::tchar *file_name);
+		unsigned char write_file_name_l1(unsigned char *buffer,const ckcore::tchar *file_name);
+		unsigned char write_file_name_generic(unsigned char *buffer,const ckcore::tchar *file_name,int max_len);
+		unsigned char write_file_name_l2(unsigned char *buffer,const ckcore::tchar *file_name);
+		unsigned char write_file_name_1999(unsigned char *buffer,const ckcore::tchar *file_name);
+		unsigned char write_dir_name_l1(unsigned char *buffer,const ckcore::tchar *dir_name);
+		unsigned char write_dir_name_generic(unsigned char *buffer,const ckcore::tchar *dir_name,int max_len);
+		unsigned char write_dir_name_l2(unsigned char *buffer,const ckcore::tchar *dir_name);
+		unsigned char write_dir_name_1999(unsigned char *buffer,const ckcore::tchar *dir_name);
+		unsigned char calc_file_name_len_l1(const ckcore::tchar *file_name);
+		unsigned char calc_file_name_len_l2(const ckcore::tchar *file_name);
+		unsigned char calc_file_name_len_1999(const ckcore::tchar *file_name);
+		unsigned char calc_dir_name_len_l1(const ckcore::tchar *file_name);
+		unsigned char calc_dir_name_len_l2(const ckcore::tchar *file_name);
+		unsigned char calc_dir_name_len_1999(const ckcore::tchar *file_name);
 
-		void InitVolDescPrimary();
-		void InitVolDescSetTerm();
+		void init_vol_desc_primary();
+		void init_vol_desc_setterm();
 
 	public:
 		Iso9660();
 		~Iso9660();
 
 		// Change of internal state functions.
-		void SetVolumeLabel(const ckcore::tchar *label);
-		void SetTextFields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
-						   const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
-		void SetFileFields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
-						   const ckcore::tchar *bibl_file_ident);
-		void SetInterchangeLevel(InterLevel inter_level);
-		void SetRelaxMaxDirLevel(bool relax);
-		void SetIncludeFileVerInfo(bool include);
+		void set_volume_label(const ckcore::tchar *label);
+		void set_text_fields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
+						     const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
+		void set_file_fields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
+						     const ckcore::tchar *bibl_file_ident);
+		void set_interchange_level(InterLevel inter_level);
+		void set_relax_max_dir_level(bool relax);
+		void set_include_file_ver_info(bool include);
 
 		// Write functions.
-		bool WriteVolDescPrimary(ckcore::OutStream &out_stream,struct tm &create_time,
-								 unsigned long vol_space_size,unsigned long pathtable_size,
-								 unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-								 unsigned long root_extent_loc,unsigned long data_len);
-		bool WriteVolDescSuppl(ckcore::OutStream &out_stream,struct tm &create_time,
-							   unsigned long vol_space_size,unsigned long pathtable_size,
-							   unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-							   unsigned long root_extent_loc,unsigned long data_len);
-		bool WriteVolDescSetTerm(ckcore::OutStream &out_stream);
+		bool write_vol_desc_primary(ckcore::OutStream &out_stream,struct tm &create_time,
+								    unsigned long vol_space_size,unsigned long pathtable_size,
+								    unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+								    unsigned long root_extent_loc,unsigned long data_len);
+		bool write_vol_desc_suppl(ckcore::OutStream &out_stream,struct tm &create_time,
+							      unsigned long vol_space_size,unsigned long pathtable_size,
+							      unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
+							      unsigned long root_extent_loc,unsigned long data_len);
+		bool write_vol_desc_setterm(ckcore::OutStream &out_stream);
 
 		// Helper functions.
-		unsigned char WriteFileName(unsigned char *buffer,const ckcore::tchar *file_name,
-									bool is_dir);
-		unsigned char CalcFileNameLen(const ckcore::tchar *file_name,bool is_dir);
-		unsigned char GetMaxDirLevel();
-		bool HasVolDescSuppl();
-		bool AllowsFragmentation();
-		bool IncludesFileVerInfo();
+		unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,
+									  bool is_dir);
+		unsigned char calc_file_name_len(const ckcore::tchar *file_name,bool is_dir);
+		unsigned char get_max_dir_level();
+		bool has_vol_desc_suppl();
+		bool allows_fragmentation();
+		bool includes_file_ver_info();
 	};
 
 	/*

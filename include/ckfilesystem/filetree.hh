@@ -87,7 +87,7 @@ namespace ckfilesystem
 			children_.clear();
 		}
 
-		FileTreeNode *GetParent()
+		FileTreeNode *get_parent()
 		{
 			return parent_node_;
 		}
@@ -103,28 +103,28 @@ namespace ckfilesystem
 		unsigned long dir_count_;
 		unsigned long file_count_;
 
-		FileTreeNode *GetChildFromFileName(FileTreeNode *parent_node,
-										   const ckcore::tchar *file_name);
-		bool AddFileFromPath(const FileDescriptor &file);
+		FileTreeNode *get_child_from_file_name(FileTreeNode *parent_node,
+										       const ckcore::tchar *file_name);
+		bool add_file_from_path(const FileDescriptor &file);
 
 	public:
 		FileTree(ckcore::Log &log);
 		~FileTree();
 
-		FileTreeNode *GetRoot();
+		FileTreeNode *get_root();
 		
-		bool CreateFromFileSet(const FileSet &files);
-		FileTreeNode *GetNodeFromPath(const FileDescriptor &file);
-		FileTreeNode *GetNodeFromPath(const ckcore::tchar *internal_path);
+		bool create_from_file_set(const FileSet &files);
+		FileTreeNode *get_node_from_path(const FileDescriptor &file);
+		FileTreeNode *get_node_from_path(const ckcore::tchar *internal_path);
 
 	#ifdef _DEBUG
-		void PrintLocalTree(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-							FileTreeNode *local_node,int indent);
-		void PrintTree();
+		void print_local_tree(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+							  FileTreeNode *local_node,int indent);
+		void print_tree();
 	#endif
 
 		// For obtaining file tree information.
-		unsigned long GetDirCount();
-		unsigned long GetFileCount();
+		unsigned long get_dir_count();
+		unsigned long get_file_count();
 	};
 };

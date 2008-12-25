@@ -234,10 +234,10 @@ namespace ckfilesystem
 			else
 			{
 				for (int i = 0; i < indent; i++)
-					log_.Print(ckT(" "));
+					log_.print(ckT(" "));
 
-				log_.Print(ckT("<f>"));
-				log_.Print((*it)->file_name_.c_str());
+				log_.print(ckT("<f>"));
+				log_.print((*it)->file_name_.c_str());
 #ifdef _WINDOWS
 				log_.print_line(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*it)->data_pos_normal_,
 #else
@@ -278,10 +278,10 @@ namespace ckfilesystem
 
 			// Print the directory name.
 			for (int i = 0; i < indent; i++)
-				log_.Print(ckT(" "));
+				log_.print(ckT(" "));
 
-			log_.Print(ckT("<d>"));
-			log_.Print(cur_node->file_name_.c_str());
+			log_.print(ckT("<d>"));
+			log_.print(cur_node->file_name_.c_str());
 #ifdef _WINDOWS
 			log_.print_line(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),cur_node->data_pos_normal_,
 #else

@@ -571,7 +571,7 @@ namespace ckfilesystem
 		}
 
 #ifdef _DEBUG
-		file_tree.PrintTree();
+		file_tree.print_tree();
 #endif
 
 		// Map the paths if requested.

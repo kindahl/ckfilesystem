@@ -89,7 +89,7 @@ namespace ckfilesystem
 		{
 #ifdef _UNICODE
 			char ansi_file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char len = iso9660_.WriteFileName((unsigned char *)ansi_file_name,req_file_name,is_dir);
+			unsigned char len = iso9660_.write_file_name((unsigned char *)ansi_file_name,req_file_name,is_dir);
 			ansi_file_name[len] = '\0';
 
 			ckcore::string::ansi_to_utf16(ansi_file_name,file_name,len + 1);

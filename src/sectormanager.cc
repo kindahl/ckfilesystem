@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ckfilesystem/sectormanager.hh"
 #include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/util.hh"
+#include "ckfilesystem/sectormanager.hh"
 
 namespace ckfilesystem
 {
@@ -52,7 +53,7 @@ namespace ckfilesystem
 	{
 		client_map_[std::make_pair(client,identifier)] = next_free_sec_;
 
-		next_free_sec_ += bytes_to_sec64(num_bytes);
+		next_free_sec_ += util::bytes_to_sec64(num_bytes);
 	}
 
 	/**
@@ -71,7 +72,7 @@ namespace ckfilesystem
 	void SectorManager::alloc_data_bytes(ckcore::tuint64 num_bytes)
 	{
 		data_start_ = next_free_sec_;
-		data_len_ = bytes_to_sec64(num_bytes);
+		data_len_ = util::bytes_to_sec64(num_bytes);
 
 		next_free_sec_ += data_len_;
 	}

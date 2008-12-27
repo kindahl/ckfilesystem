@@ -206,7 +206,7 @@ namespace ckfilesystem
 	/**
 		@eturn the number of files in the tree, fragmented files are counted once.
 	*/
-	unsigned long FileTree::get_dir_count()
+	ckcore::tuint32 FileTree::get_dir_count()
 	{
 		return dir_count_;
 	}
@@ -214,7 +214,7 @@ namespace ckfilesystem
 	/**
 		@return the number of directories in the tree, the root is not included.
 	*/
-	unsigned long FileTree::get_file_count()
+	ckcore::tuint32 FileTree::get_file_count()
 	{
 		return file_count_;
 	}

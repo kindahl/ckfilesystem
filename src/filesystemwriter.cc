@@ -22,16 +22,16 @@
 #include "ckfilesystem/iso9660writer.hh"
 #include "ckfilesystem/udfwriter.hh"
 #include "ckfilesystem/dvdvideo.hh"
-#include "ckfilesystem/discimagewriter.hh"
+#include "ckfilesystem/filesystemwriter.hh"
 
 namespace ckfilesystem
 {
-	DiscImageWriter::DiscImageWriter(ckcore::Log &log,FileSystem file_sys) :
-		file_sys_(file_sys),log_(log),eltorito_(log),udf_(file_sys == FS_DVDVIDEO)
-	{
+	FileSystemWriter::FileSystemWriter(ckcore::Log &log,FileSystem &file_sys) :
+		log_(log),file_sys_(file_sys),file_tree_(log)
+    {
 	}
 
-	DiscImageWriter::~DiscImageWriter()
+	FileSystemWriter::~FileSystemWriter()
 	{
 	}
 
@@ -39,9 +39,9 @@ namespace ckfilesystem
 		Calculates file system specific data such as extent location and size for a
 		single file.
 	 */
-	bool DiscImageWriter::calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-			                                      FileTreeNode *local_node,int level,
-											      ckcore::tuint64 &sec_offset,ckcore::Progress &progress)
+	bool FileSystemWriter::calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+			                                       FileTreeNode *local_node,int level,
+											       ckcore::tuint64 &sec_offset,ckcore::Progress &progress)
 	{
 		std::vector<FileTreeNode *>::const_iterator it_file;
 		for (it_file = local_node->children_.begin(); it_file !=
@@ -50,7 +50,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= iso9660_.get_max_dir_level())
+				if (level >= file_sys_.get_max_dir_level())
 					continue;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -58,9 +58,12 @@ namespace ckfilesystem
 			else
 			{
 				// Validate file size.
-				if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !iso9660_.allows_fragmentation())
+				if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !file_sys_.allows_fragmentation())
 				{
-					if (file_sys_ == FS_ISO9660 || file_sys_ == FS_ISO9660_JOLIET || file_sys_ == FS_DVDVIDEO)
+                    bool is_iso = file_sys_.is_iso9660(),is_udf = file_sys_.is_udf();
+
+                    // FIXME: Make nested loops.
+                    if (is_iso && !is_udf)
 					{
 						log_.print_line(ckT("  Warning: Skipping \"%s\", the file is larger than 4 GiB."),
 							(*it_file)->file_name_.c_str());
@@ -69,7 +72,7 @@ namespace ckfilesystem
 
 						continue;
 					}
-					else if (file_sys_ == FS_ISO9660_UDF || file_sys_ == FS_ISO9660_UDF_JOLIET)
+					else if (is_iso && is_udf)
 					{
 						log_.print_line(ckT("  Warning: The file \"%s\" is larger than 4 GiB. It will not be visible in the ISO9660/Joliet file system."),
 							(*it_file)->file_name_.c_str());
@@ -120,9 +123,8 @@ namespace ckfilesystem
 		Calculates file system specific data such as location of extents and sizes of
 		extents.
 	*/
-	bool DiscImageWriter::calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
-						    			    ckcore::tuint64 start_sec,
-										    ckcore::tuint64 &last_sec)
+	bool FileSystemWriter::calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
+						    			     ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec)
 	{
 		FileTreeNode *cur_node = file_tree.get_root();
 		ckcore::tuint64 sec_offset = start_sec;
@@ -145,8 +147,8 @@ namespace ckfilesystem
 		return true;
 	}
 
-	int DiscImageWriter::write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
-									     ckcore::Progresser &progresser)
+	int FileSystemWriter::write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
+									      ckcore::Progresser &progresser)
 	{
 		ckcore::FileInStream fs(node->file_path_.c_str());
 		if (!fs.open())
@@ -172,10 +174,10 @@ namespace ckfilesystem
 		return RESULT_OK;
 	}
 
-	int DiscImageWriter::write_local_file_data(SectorOutStream &out_stream,
-										       std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-											   FileTreeNode *local_node,int level,
-											   ckcore::Progresser &progresser)
+	int FileSystemWriter::write_local_file_data(SectorOutStream &out_stream,
+										        std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+											    FileTreeNode *local_node,int level,
+											    ckcore::Progresser &progresser)
 	{
 		std::vector<FileTreeNode *>::const_iterator it_file;
 		for (it_file = local_node->children_.begin(); it_file !=
@@ -188,7 +190,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= iso9660_.get_max_dir_level())
+				if (level >= file_sys_.get_max_dir_level())
 					continue;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -196,9 +198,9 @@ namespace ckfilesystem
 			else if (!((*it_file)->file_flags_ & FileTreeNode::FLAG_IMPORTED))	// We don't have any data to write for imported files.
 			{
 				// Validate file size.
-				if (file_sys_ == FS_ISO9660 || file_sys_ == FS_ISO9660_JOLIET || file_sys_ == FS_DVDVIDEO)
+				if (file_sys_.is_iso9660() && !file_sys_.is_udf())
 				{
-					if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !iso9660_.allows_fragmentation())
+					if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !file_sys_.allows_fragmentation())
 						continue;
 				}
 
@@ -230,8 +232,8 @@ namespace ckfilesystem
 		return RESULT_OK;
 	}
 
-	int DiscImageWriter::write_file_data(SectorOutStream &out_stream,FileTree &file_tree,
-									     ckcore::Progresser &progresser)
+	int FileSystemWriter::write_file_data(SectorOutStream &out_stream,FileTree &file_tree,
+									      ckcore::Progresser &progresser)
 	{
 		FileTreeNode *cur_node = file_tree.get_root();
 
@@ -254,8 +256,8 @@ namespace ckfilesystem
 		return RESULT_OK;
 	}
 
-	void DiscImageWriter::get_internal_path(FileTreeNode *child_node,ckcore::tstring &node_path,
-										    bool ext_path,bool joliet)
+	void FileSystemWriter::get_internal_path(FileTreeNode *child_node,ckcore::tstring &node_path,
+										     bool ext_path,bool joliet)
 	{
 		node_path = ckT("/");
 
@@ -270,13 +272,13 @@ namespace ckfilesystem
 				else
 					node_path.append(child_node->file_name_joliet_);
 #else
-				char szAnsiName[JOLIET_MAX_NAMELEN_RELAXED + 1];
-				ckcore::string::utf16_to_ansi(child_node->file_name_joliet_.c_str(),szAnsiName,sizeof(szAnsiName));
+				char ansi_name[JOLIET_MAX_NAMELEN_RELAXED + 1];
+				ckcore::string::utf16_to_ansi(child_node->file_name_joliet_.c_str(),ansi_name,sizeof(ansi_name));
 
-				if (szAnsiName[child_node->file_name_joliet_.length() - 2] == ';')
-					szAnsiName[child_node->file_name_joliet_.length() - 2] = '\0';
+				if (ansi_name[child_node->file_name_joliet_.length() - 2] == ';')
+					ansi_name[child_node->file_name_joliet_.length() - 2] = '\0';
 
-				node_path.append(szAnsiName);
+				node_path.append(ansi_name);
 #endif
 			}
 			else
@@ -326,13 +328,13 @@ namespace ckfilesystem
 							cur_node->file_name_joliet_.end());
 					}
 	#else
-					char szAnsiName[JOLIET_MAX_NAMELEN_RELAXED + 1];
-					ckcore::string::utf16_to_ansi(cur_node->file_name_joliet_.c_str(),szAnsiName,sizeof(szAnsiName));
+					char ansi_name[JOLIET_MAX_NAMELEN_RELAXED + 1];
+					ckcore::string::utf16_to_ansi(cur_node->file_name_joliet_.c_str(),ansi_name,sizeof(ansi_name));
 
-					if (szAnsiName[cur_node->file_name_joliet_.length() - 2] == ';')
-						szAnsiName[cur_node->file_name_joliet_.length() - 2] = '\0';
+					if (ansi_name[cur_node->file_name_joliet_.length() - 2] == ';')
+						ansi_name[cur_node->file_name_joliet_.length() - 2] = '\0';
 
-					node_path.insert(0,szAnsiName);
+					node_path.insert(0,ansi_name);
 	#endif
 				}
 				else
@@ -374,10 +376,10 @@ namespace ckfilesystem
 		}
 	}
 
-	void DiscImageWriter::create_local_file_path_map(FileTreeNode *local_node,
-												 std::vector<FileTreeNode *> &dir_node_stack,
-												 std::map<ckcore::tstring,ckcore::tstring> &filepath_map,
-												 bool joliet)
+	void FileSystemWriter::create_local_file_path_map(FileTreeNode *local_node,
+												      std::vector<FileTreeNode *> &dir_node_stack,
+												      std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
+												      bool joliet)
 	{
 		std::vector<FileTreeNode *>::const_iterator it_file;
 		for (it_file = local_node->children_.begin(); it_file !=
@@ -396,7 +398,7 @@ namespace ckfilesystem
 				ckcore::tstring ExternalFilePath;
 				get_internal_path(*it_file,ExternalFilePath,true,joliet);
 
-				filepath_map[file_path] = ExternalFilePath;
+				file_path_map[file_path] = ExternalFilePath;
 			}
 		}
 	}
@@ -405,21 +407,21 @@ namespace ckfilesystem
 		Used for creating a map between the internal file names and the
 		external (Joliet or ISO9660, in that order).
 	*/
-	void DiscImageWriter::create_file_path_map(FileTree &file_tree,
-											std::map<ckcore::tstring,ckcore::tstring> &filepath_map,
-											bool joliet)
+	void FileSystemWriter::create_file_path_map(FileTree &file_tree,
+											    std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
+											    bool joliet)
 	{
 		FileTreeNode *cur_node = file_tree.get_root();
 
 		std::vector<FileTreeNode *> dir_node_stack;
-		create_local_file_path_map(cur_node,dir_node_stack,filepath_map,joliet);
+		create_local_file_path_map(cur_node,dir_node_stack,file_path_map,joliet);
 
 		while (dir_node_stack.size() > 0)
 		{ 
 			cur_node = dir_node_stack.back();
 			dir_node_stack.pop_back();
 
-			create_local_file_path_map(cur_node,dir_node_stack,filepath_map,joliet);
+			create_local_file_path_map(cur_node,dir_node_stack,file_path_map,joliet);
 		}
 	}
 
@@ -429,12 +431,13 @@ namespace ckfilesystem
 		pFileNameMap is optional, it should be specified if one wants to map the
 		internal file paths to the actual external paths.
 	 */
-	int DiscImageWriter::create(SectorOutStream &out_stream,FileSet &files,
-								ckcore::Progress &progress,unsigned long sec_offset,
-								std::map<ckcore::tstring,ckcore::tstring> *filepath_map_ptr)
+	int FileSystemWriter::write(ckcore::OutStream &out_stream,ckcore::Progress &progress,
+                                ckcore::tuint32 sec_offset)
 	{
-		log_.print_line(ckT("DiscImageWriter::Create"));
+		log_.print_line(ckT("FileSystemWriter::Create"));
 		log_.print_line(ckT("  Sector offset: %u."),sec_offset);
+
+        SectorOutStream out_sec_stream(out_stream);
 
 		// The first 16 sectors are reserved for system use (write 0s).
 		char tmp[1] = { 0 };
@@ -444,114 +447,112 @@ namespace ckfilesystem
 		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_BUILDTREE));
 		progress.set_marquee(true);
 
-		// Create a file tree.
-		FileTree file_tree(log_);
-		if (!file_tree.create_from_file_set(files))
-		{
-			log_.print_line(ckT("  Error: failed to build file tree."));
-			return fail(RESULT_FAIL,out_stream);
-		}
+        // Create a file tree.
+        if (!file_tree_.create_from_file_set(file_sys_.files()))
+        {
+            log_.print_line(ckT("  Error: failed to build file tree."));
+            return fail(RESULT_FAIL,out_sec_stream);
+        }
 
 		// Calculate padding if DVD-Video file system.
-		if (file_sys_ == FS_DVDVIDEO)
+		if (file_sys_.is_dvdvideo())
 		{
 			DvdVideo dvd_video(log_);
-			if (!dvd_video.calc_file_padding(file_tree))
+			if (!dvd_video.calc_file_padding(file_tree_))
 			{
 				log_.print_line(ckT("  Error: failed to calculate file padding for DVD-Video file system."));
-				return fail(RESULT_FAIL,out_stream);
+				return fail(RESULT_FAIL,out_sec_stream);
 			}
 
-			dvd_video.print_file_padding(file_tree);
+			dvd_video.print_file_padding(file_tree_);
 		}
 
-		bool use_iso = file_sys_ != FS_UDF;
-		bool use_udf = file_sys_ == FS_ISO9660_UDF || file_sys_ == FS_ISO9660_UDF_JOLIET ||
-			file_sys_ == FS_UDF || file_sys_ == FS_DVDVIDEO;
-		bool use_joliet = file_sys_ == FS_ISO9660_JOLIET || file_sys_ == FS_ISO9660_UDF_JOLIET;
+		bool is_iso = file_sys_.is_iso9660();
+		bool is_udf = file_sys_.is_udf();
+		bool is_joliet = file_sys_.is_joliet();
 
 		SectorManager sec_manager(16 + sec_offset);
-		Iso9660Writer iso_writer(log_,out_stream,sec_manager,iso9660_,joliet_,eltorito_,true,use_joliet);
-		UdfWriter udf_writer(log_,out_stream,sec_manager,udf_,true);
+		Iso9660Writer iso_writer(log_,out_sec_stream,sec_manager,file_sys_,true,is_joliet);
+		UdfWriter udf_writer(log_,out_sec_stream,sec_manager,file_sys_,true);
 
 		int res = RESULT_FAIL;
 
 		// FIXME: Put failure messages to Progress.
-		if (use_iso)
+		if (is_iso)
 		{
 			res = iso_writer.alloc_header();
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
-		if (use_udf)
+		if (is_udf)
 		{
 			res = udf_writer.alloc_header();
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
-		if (use_iso)
+		if (is_iso)
 		{
-			res = iso_writer.alloc_path_tables(progress,files);
+			res = iso_writer.alloc_path_tables(progress,file_sys_.files());
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 
-			res = iso_writer.alloc_dir_entries(file_tree);
+			res = iso_writer.alloc_dir_entries(file_tree_);
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
-		if (use_udf)
+		if (is_udf)
 		{
-			res = udf_writer.alloc_partition(file_tree);
+			res = udf_writer.alloc_partition(file_tree_);
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
 		// Allocate file data.
 		ckcore::tuint64 first_data_sec = sec_manager.get_next_free();
 		ckcore::tuint64 last_data_sec = 0;
 
-		if (!calc_filesys_data(file_tree,progress,first_data_sec,last_data_sec))
+		if (!calc_filesys_data(file_tree_,progress,first_data_sec,last_data_sec))
 		{
 			log_.print_line(ckT("  Error: Could not calculate necessary file system information."));
-			return fail(RESULT_FAIL,out_stream);
+			return fail(RESULT_FAIL,out_sec_stream);
 		}
 
 		sec_manager.alloc_data_sectors(last_data_sec - first_data_sec);
 
-		if (use_iso)
+		if (is_iso)
 		{
-			res = iso_writer.write_header(files,file_tree);
+			res = iso_writer.write_header(file_sys_.files(),file_tree_);
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
-		if (use_udf)
+		if (is_udf)
 		{
 			res = udf_writer.write_header();
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
 		// FIXME: Add progress for this.
-		if (use_iso)
+		if (is_iso)
 		{
-			res = iso_writer.write_path_tables(files,file_tree,progress);
+			res = iso_writer.write_path_tables(file_sys_.files(),file_tree_,progress);
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 
-			res = iso_writer.write_dir_entries(file_tree,progress);
+			res = iso_writer.write_dir_entries(file_tree_,progress);
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
-		if (use_udf)
+		if (is_udf)
 		{
-			res = udf_writer.write_partition(file_tree);
+			res = udf_writer.write_partition(file_tree_);
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
 		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEDATA));
@@ -559,102 +560,42 @@ namespace ckfilesystem
 
 		// To help keep track of the progress.
 		ckcore::Progresser progresser(progress,sec_manager.get_data_length() * ISO9660_SECTOR_SIZE);
-		res = write_file_data(out_stream,file_tree,progresser);
+		res = write_file_data(out_sec_stream,file_tree_,progresser);
 		if (res != RESULT_OK)
-			return fail(res,out_stream);
+			return fail(res,out_sec_stream);
 
-		if (use_udf)
+		if (is_udf)
 		{
 			res = udf_writer.write_tail();
 			if (res != RESULT_OK)
-				return fail(res,out_stream);
+				return fail(res,out_sec_stream);
 		}
 
 #ifdef _DEBUG
 		file_tree.print_tree();
 #endif
 
-		// Map the paths if requested.
-		if (filepath_map_ptr != NULL)
-			create_file_path_map(file_tree,*filepath_map_ptr,use_joliet);
-
-		out_stream.flush();
+		out_sec_stream.flush();
 		return RESULT_OK;
 	}
+
+    /**
+     * Must be called after the write function.
+     */
+    int FileSystemWriter::file_path_map(std::map<ckcore::tstring,ckcore::tstring> &file_path_map)
+    {
+        create_file_path_map(file_tree_,file_path_map,file_sys_.is_joliet());
+        return RESULT_OK;
+    }
 
 	/*
 		Should be called when create operation fails or cancel so that the
 		broken image can be removed and the file handle closed.
 	 */
-	int DiscImageWriter::fail(int res,SectorOutStream &out_stream)
+	int FileSystemWriter::fail(int res,SectorOutStream &out_stream)
 	{
 		out_stream.flush();
 		return res;
 	}
-
-	void DiscImageWriter::set_volume_label(const ckcore::tchar *label)
-	{
-		iso9660_.set_volume_label(label);
-		joliet_.set_volume_label(label);
-		udf_.set_volume_label(label);
-	}
-
-	void DiscImageWriter::set_text_fields(const ckcore::tchar *sys_ident,
-										  const ckcore::tchar *volset_ident,
-										  const ckcore::tchar *publ_ident,
-										  const ckcore::tchar *prep_ident)
-	{
-		iso9660_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
-		joliet_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
-	}
-
-	void DiscImageWriter::set_file_fields(const ckcore::tchar *copy_file_ident,
-										  const ckcore::tchar *abst_file_ident,
-										  const ckcore::tchar *bibl_file_ident)
-	{
-		iso9660_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
-		joliet_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
-	}
-
-	void DiscImageWriter::set_interchange_level(Iso9660::InterLevel inter_level)
-	{
-		iso9660_.set_interchange_level(inter_level);
-	}
-
-	void DiscImageWriter::set_include_file_ver_info(bool include)
-	{
-		iso9660_.set_include_file_ver_info(include);
-		joliet_.set_include_file_ver_info(include);
-	}
-
-	void DiscImageWriter::set_part_access_type(Udf::PartAccessType access_type)
-	{
-		udf_.set_part_access_type(access_type);
-	}
-
-	void DiscImageWriter::set_relax_max_dir_level(bool relax)
-	{
-		iso9660_.set_relax_max_dir_level(relax);
-	}
-
-	void DiscImageWriter::set_long_joliet_names(bool enable)
-	{
-		joliet_.set_relax_max_name_len(enable);
-	}
-
-	bool DiscImageWriter::add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
-											    unsigned short load_segment,unsigned short sec_count)
-	{
-		return eltorito_.add_boot_image_no_emu(full_path,bootable,load_segment,sec_count);
-	}
-
-	bool DiscImageWriter::add_boot_image_floppy(const ckcore::tchar *full_path,bool bootable)
-	{
-		return eltorito_.add_boot_image_floppy(full_path,bootable);
-	}
-
-	bool DiscImageWriter::add_boot_image_hard_disk(const ckcore::tchar *full_path,bool bootable)
-	{
-		return eltorito_.add_boot_image_hard_disk(full_path,bootable);
-	}
 };
+

@@ -34,49 +34,49 @@ namespace ckfilesystem
 	/*
 		Helper Functions.
 	*/
-	void write721(unsigned char *buffer,unsigned short val)		// Least significant byte first.
+	void Iso9660::write721(unsigned char *buffer,ckcore::tuint16 val)		// Least significant byte first.
 	{
-		buffer[0] = val & 0xFF;
-		buffer[1] = (val >> 8) & 0xFF;
+		buffer[0] = val & 0xff;
+		buffer[1] = (val >> 8) & 0xff;
 	}
 
-	void write722(unsigned char *buffer,unsigned short val)		// Most significant byte first.
+	void Iso9660::write722(unsigned char *buffer,ckcore::tuint16 val)		// Most significant byte first.
 	{
-		buffer[0] = (val >> 8) & 0xFF;
-		buffer[1] = val & 0xFF;
+		buffer[0] = (val >> 8) & 0xff;
+		buffer[1] = val & 0xff;
 	}
 
-	void write723(unsigned char *buffer,unsigned short val)		// Both-byte orders.
+	void Iso9660::write723(unsigned char *buffer,ckcore::tuint16 val)		// Both-byte orders.
 	{
-		buffer[3] = buffer[0] = val & 0xFF;
-		buffer[2] = buffer[1] = (val >> 8) & 0xFF;
+		buffer[3] = buffer[0] = val & 0xff;
+		buffer[2] = buffer[1] = (val >> 8) & 0xff;
 	}
 
-	void write731(unsigned char *buffer,unsigned long val)		// Least significant byte first.
+	void Iso9660::write731(unsigned char *buffer,ckcore::tuint32 val)		// Least significant byte first.
 	{
-		buffer[0] = (unsigned char)(val & 0xFF);
-		buffer[1] = (unsigned char)((val >> 8) & 0xFF);
-		buffer[2] = (unsigned char)((val >> 16) & 0xFF);
-		buffer[3] = (unsigned char)((val >> 24) & 0xFF);
+		buffer[0] = (unsigned char)(val & 0xff);
+		buffer[1] = (unsigned char)((val >> 8) & 0xff);
+		buffer[2] = (unsigned char)((val >> 16) & 0xff);
+		buffer[3] = (unsigned char)((val >> 24) & 0xff);
 	}
 
-	void write732(unsigned char *buffer,unsigned long val)		// Most significant byte first.
+	void Iso9660::write732(unsigned char *buffer,ckcore::tuint32 val)		// Most significant byte first.
 	{
-		buffer[0] = (unsigned char)((val >> 24) & 0xFF);
-		buffer[1] = (unsigned char)((val >> 16) & 0xFF);
-		buffer[2] = (unsigned char)((val >> 8) & 0xFF);
-		buffer[3] = (unsigned char)(val & 0xFF);
+		buffer[0] = (unsigned char)((val >> 24) & 0xff);
+		buffer[1] = (unsigned char)((val >> 16) & 0xff);
+		buffer[2] = (unsigned char)((val >> 8) & 0xff);
+		buffer[3] = (unsigned char)(val & 0xff);
 	}
 
-	void write733(unsigned char *buffer,unsigned long val)		// Both-byte orders.
+	void Iso9660::write733(unsigned char *buffer,ckcore::tuint32 val)		// Both-byte orders.
 	{
-		buffer[7] = buffer[0] = (unsigned char)(val & 0xFF);
-		buffer[6] = buffer[1] = (unsigned char)((val >> 8) & 0xFF);
-		buffer[5] = buffer[2] = (unsigned char)((val >> 16) & 0xFF);
-		buffer[4] = buffer[3] = (unsigned char)((val >> 24) & 0xFF);
+		buffer[7] = buffer[0] = (unsigned char)(val & 0xff);
+		buffer[6] = buffer[1] = (unsigned char)((val >> 8) & 0xff);
+		buffer[5] = buffer[2] = (unsigned char)((val >> 16) & 0xff);
+		buffer[4] = buffer[3] = (unsigned char)((val >> 24) & 0xff);
 	}
 
-	void write72(unsigned char *buffer,unsigned short val,bool msbf)
+	void Iso9660::write72(unsigned char *buffer,ckcore::tuint16 val,bool msbf)
 	{
 		if (msbf)
 			write722(buffer,val);
@@ -84,7 +84,7 @@ namespace ckfilesystem
 			write721(buffer,val);
 	}
 
-	void write73(unsigned char *buffer,unsigned long val,bool msbf)
+	void Iso9660::write73(unsigned char *buffer,ckcore::tuint32 val,bool msbf)
 	{
 		if (msbf)
 			write732(buffer,val);
@@ -92,84 +92,39 @@ namespace ckfilesystem
 			write731(buffer,val);
 	}
 
-	unsigned short read721(unsigned char *buffer)		// Least significant byte first.
+	ckcore::tuint16 Iso9660::read721(unsigned char *buffer)		// Least significant byte first.
 	{
-		return ((unsigned short)buffer[1] << 8) | buffer[0];
+		return ((ckcore::tuint16)buffer[1] << 8) | buffer[0];
 	}
 
-	unsigned short read722(unsigned char *buffer)		// Most significant byte first.
+	ckcore::tuint16 Iso9660::read722(unsigned char *buffer)		// Most significant byte first.
 	{
-		return ((unsigned short)buffer[0] << 8) | buffer[1];
+		return ((ckcore::tuint16)buffer[0] << 8) | buffer[1];
 	}
 
-	unsigned short read723(unsigned char *buffer)		// Both-byte orders.
+	ckcore::tuint16 Iso9660::read723(unsigned char *buffer)		// Both-byte orders.
 	{
 		return read721(buffer);
 	}
 
-	unsigned long read731(unsigned char *buffer)			// Least significant byte first.
+	ckcore::tuint32 Iso9660::read731(unsigned char *buffer)			// Least significant byte first.
 	{
-		return ((unsigned long)buffer[3] << 24) | ((unsigned long)buffer[2] << 16) |
-			((unsigned long)buffer[1] << 8) | buffer[0];
+		return ((ckcore::tuint32)buffer[3] << 24) | ((ckcore::tuint32)buffer[2] << 16) |
+			((ckcore::tuint32)buffer[1] << 8) | buffer[0];
 	}
 
-	unsigned long read732(unsigned char *buffer)			// Most significant byte first.
+	ckcore::tuint32 Iso9660::read732(unsigned char *buffer)			// Most significant byte first.
 	{
-		return ((unsigned long)buffer[0] << 24) | ((unsigned long)buffer[1] << 16) |
-			((unsigned long)buffer[2] << 8) | buffer[3];
+		return ((ckcore::tuint32)buffer[0] << 24) | ((ckcore::tuint32)buffer[1] << 16) |
+			((ckcore::tuint32)buffer[2] << 8) | buffer[3];
 	}
 
-	unsigned long read733(unsigned char *buffer)			// Both-byte orders.
+	ckcore::tuint32 Iso9660::read733(unsigned char *buffer)			// Both-byte orders.
 	{
 		return read731(buffer);
 	}
 
-	unsigned long bytes_to_sec(unsigned long bytes)
-	{
-		if (bytes == 0)
-			return 0;
-
-		unsigned long sectors = 1;
-		while (bytes > ISO9660_SECTOR_SIZE)
-		{
-			bytes -= ISO9660_SECTOR_SIZE;
-			sectors++;
-		}
-
-		return sectors;
-	}
-
-	unsigned long bytes_to_sec(ckcore::tuint64 bytes)
-	{
-		if (bytes == 0)
-			return 0;
-
-		unsigned long sectors = 1;
-		while (bytes > ISO9660_SECTOR_SIZE)
-		{
-			bytes -= ISO9660_SECTOR_SIZE;
-			sectors++;
-		}
-
-		return sectors;
-	}
-
-	ckcore::tuint64 bytes_to_sec64(ckcore::tuint64 bytes)
-	{
-		if (bytes == 0)
-			return 0;
-
-		ckcore::tuint64 sectors = 1;
-		while (bytes > ISO9660_SECTOR_SIZE)
-		{
-			bytes -= ISO9660_SECTOR_SIZE;
-			sectors++;
-		}
-
-		return sectors;
-	}
-
-	void iso_make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time)
+	void Iso9660::make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time)
 	{
 		char buffer[5];
 		sprintf(buffer,"%.4u",time.tm_year + 1900);
@@ -206,7 +161,7 @@ namespace ckfilesystem
 #endif
 	}
 
-	void iso_make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time)
+	void Iso9660::make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time)
 	{
 		iso_time.year = (unsigned char)time.tm_year;
 		iso_time.mon = (unsigned char)time.tm_mon + 1;
@@ -225,15 +180,15 @@ namespace ckfilesystem
 #endif
 	}
 
-	void iso_make_datetime(unsigned short date,unsigned short time,
-						   tiso_dir_record_datetime &iso_time)
+	void Iso9660::make_datetime(ckcore::tuint16 date,ckcore::tuint16 time,
+						            tiso_dir_record_datetime &iso_time)
 	{
-		iso_time.year = ((date >> 9) & 0x7F) + 80;
-		iso_time.mon = (date >> 5) & 0x0F;
-		iso_time.day = date & 0x1F;
-		iso_time.hour = (time >> 11) & 0x1F;
-		iso_time.min = (time >> 5) & 0x3F;
-		iso_time.sec = (time & 0x1F) << 1;
+		iso_time.year = ((date >> 9) & 0x7f) + 80;
+		iso_time.mon = (date >> 5) & 0x0f;
+		iso_time.day = date & 0x1f;
+		iso_time.hour = (time >> 11) & 0x1f;
+		iso_time.min = (time >> 5) & 0x3f;
+		iso_time.sec = (time & 0x1f) << 1;
 
 #ifdef _WINDOWS
 		TIME_ZONE_INFORMATION tzi;
@@ -245,15 +200,15 @@ namespace ckfilesystem
 #endif
 	}
 
-	void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,unsigned short &date,unsigned short &time)
+	void Iso9660::make_dosdatetime(tiso_dir_record_datetime &iso_time,ckcore::tuint16 &date,ckcore::tuint16 &time)
 	{
-		date = ((iso_time.year - 80) & 0x7F) << 9;
-		date |= (iso_time.mon & 0x7F) << 5;
-		date |= (iso_time.day & 0x1F);
+		date = ((iso_time.year - 80) & 0x7f) << 9;
+		date |= (iso_time.mon & 0x7f) << 5;
+		date |= (iso_time.day & 0x1f);
 
-		time = (iso_time.hour & 0x1F) << 11;
-		time |= (iso_time.min & 0x3F) << 5;
-		time |= (iso_time.sec & 0x1F) >> 1;
+		time = (iso_time.hour & 0x1f) << 11;
+		time |= (iso_time.min & 0x3f) << 5;
+		time |= (iso_time.sec & 0x1f) >> 1;
 	}
 
 	Iso9660::Iso9660() : relax_max_dir_level_(false),inc_file_ver_info_(true),
@@ -277,7 +232,7 @@ namespace ckfilesystem
 		// Make sure that it's a valid character, otherwise return '_'.
 		if ((res >= 0x20 && res <= 0x22) ||
 			(res >= 0x25 && res <= 0x39) ||
-			(res >= 0x41 && res <= 0x5A) || res == 0x5F)
+			(res >= 0x41 && res <= 0x5a) || res == 0x5f)
 			return res;
 
 		return '_';
@@ -292,7 +247,7 @@ namespace ckfilesystem
 
 		// Make sure that it's a valid character, otherwise return '_'.
 		if ((res >= 0x30 && res <= 0x39) ||
-			(res >= 0x41 && res <= 0x5A) || res == 0x5F)
+			(res >= 0x41 && res <= 0x5a) || res == 0x5f)
 			return res;
 
 		return '_';
@@ -590,10 +545,10 @@ namespace ckfilesystem
 
 		// Set application identifier.
 		memset(voldesc_primary_.app_data,0x20,sizeof(voldesc_primary_.app_data));
-		char app_ident[] = { 0x49,0x4E,0x46,0x52,0x41,0x52,0x45,0x43,0x4F,
-			0x52,0x44,0x45,0x52,0x20,0x28,0x43,0x29,0x20,0x32,0x30,0x30,0x36,0x2D,
-			0x32,0x30,0x30,0x38,0x20,0x43,0x48,0x52,0x49,0x53,0x54,0x49,0x41,0x4E,
-			0x20,0x4B,0x49,0x4E,0x44,0x41,0x48,0x4C };
+		char app_ident[] = { 0x49,0x4e,0x46,0x52,0x41,0x52,0x45,0x43,0x4f,
+			0x52,0x44,0x45,0x52,0x20,0x28,0x43,0x29,0x20,0x32,0x30,0x30,0x36,0x2d,
+			0x32,0x30,0x30,0x38,0x20,0x43,0x48,0x52,0x49,0x53,0x54,0x49,0x41,0x4e,
+			0x20,0x4b,0x49,0x4e,0x44,0x41,0x48,0x4c };
 		memcpy(voldesc_primary_.app_ident,app_ident,45);
 	}
 
@@ -716,9 +671,9 @@ namespace ckfilesystem
 	}
 
 	bool Iso9660::write_vol_desc_primary(ckcore::OutStream &out_stream,struct tm &create_time,
-									     unsigned long vol_space_size,unsigned long pathtable_size,
-									     unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-									     unsigned long root_extent_loc,unsigned long data_len)
+									     ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+									     ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+									     ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
 	{
 		// Initialize the primary volume descriptor.
 		write733(voldesc_primary_.vol_space_size,vol_space_size);		// Volume size in sectors.
@@ -734,9 +689,9 @@ namespace ckfilesystem
 		write723(voldesc_primary_.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 		// Time information.
-		iso_make_datetime(create_time,voldesc_primary_.root_dir_record.rec_timestamp);
+		make_datetime(create_time,voldesc_primary_.root_dir_record.rec_timestamp);
 
-		iso_make_datetime(create_time,voldesc_primary_.create_time);
+		make_datetime(create_time,voldesc_primary_.create_time);
 		memcpy(&voldesc_primary_.modify_time,&voldesc_primary_.create_time,sizeof(tiso_voldesc_datetime));
 
 		memset(&voldesc_primary_.expr_time,'0',sizeof(tiso_voldesc_datetime));
@@ -755,9 +710,9 @@ namespace ckfilesystem
 	}
 
 	bool Iso9660::write_vol_desc_suppl(ckcore::OutStream &out_stream,struct tm &create_time,
-								       unsigned long vol_space_size,unsigned long pathtable_size,
-									   unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-									   unsigned long root_extent_loc,unsigned long data_len)
+								       ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+									   ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+									   ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
 	{
 		if (inter_level_ == ISO9660_1999)
 		{
@@ -785,9 +740,9 @@ namespace ckfilesystem
 			write723(sd.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 			// Time information.
-			iso_make_datetime(create_time,sd.root_dir_record.rec_timestamp);
+			make_datetime(create_time,sd.root_dir_record.rec_timestamp);
 
-			iso_make_datetime(create_time,sd.create_time);
+			make_datetime(create_time,sd.create_time);
 			memcpy(&sd.modify_time,&sd.create_time,sizeof(tiso_voldesc_datetime));
 
 			memset(&sd.expr_time,'0',sizeof(tiso_voldesc_datetime));

@@ -36,7 +36,7 @@ namespace ckfilesystem
 		return file_size / DVDVIDEO_BLOCK_SIZE;
 	}
 
-	FileTreeNode *DvdVideo::find_video_node(FileTree &file_tree,FileSetType type,unsigned long number)
+	FileTreeNode *DvdVideo::find_video_node(FileTree &file_tree,FileSetType type,ckcore::tuint32 number)
 	{
 		ckcore::tstring internal_path = ckT("/VIDEO_TS/");
 
@@ -118,7 +118,7 @@ namespace ckfilesystem
 	}
 
 	bool DvdVideo::get_total_titles_size(ckcore::tstring &file_path,FileSetType type,
-									     unsigned long number,ckcore::tuint64 &file_size)
+									     ckcore::tuint32 number,ckcore::tuint64 &file_size)
 	{
 		ckcore::tstring full_path = file_path;
 
@@ -147,7 +147,7 @@ namespace ckfilesystem
 	}
 
 	bool DvdVideo::read_file_set_info_root(FileTree &file_tree,IfoVmgData &vmg_data,
-									       std::vector<unsigned long> &ts_sectors)
+									       std::vector<ckcore::tuint32> &ts_sectors)
 	{
 		ckcore::tuint64 menu_size = 0,info_size = 0;
 
@@ -185,7 +185,7 @@ namespace ckfilesystem
 				info_len = vmg_data.last_vmg_ifo_sec_ + 1;
 		}
 
-		if (info_len > 0xFFFFFFFF)
+		if (info_len > 0xffffffff)
 		{
 #ifdef _WINDOWS
 			log_.print_line(ckT("  Error: VIDEO_TS.IFO is larger than 4 million blocks (%I64u blocks)."),info_len);
@@ -196,7 +196,7 @@ namespace ckfilesystem
 		}
 
 		if (info_node != NULL)
-			info_node->data_pad_len_ = (unsigned long)info_len - (unsigned long)size_to_dvd_len(info_size);
+			info_node->data_pad_len_ = (ckcore::tuint32)info_len - (ckcore::tuint32)size_to_dvd_len(info_size);
 
 		// Find the actuall size of .VOB.
 		ckcore::tuint64 menu_len = 0;
@@ -204,7 +204,7 @@ namespace ckfilesystem
 		{
 			menu_len = vmg_data.last_vmg_sec_ - info_len - size_to_dvd_len(info_size) + 1;
 
-			if (menu_len > 0xFFFFFFFF)
+			if (menu_len > 0xffffffff)
 			{
 #ifdef _WINDOWS
 				log_.print_line(ckT("  Error: VIDEO_TS.VOB is larger than 4 million blocks (%I64u blocks)."),menu_len);
@@ -214,7 +214,7 @@ namespace ckfilesystem
 				return false;
 			}
 
-			menu_node->data_pad_len_ = (unsigned long)menu_len - (unsigned long)size_to_dvd_len(menu_size);
+			menu_node->data_pad_len_ = (ckcore::tuint32)menu_len - (ckcore::tuint32)size_to_dvd_len(menu_size);
 		}
 
 		// Find the actuall size of .BUP.
@@ -224,7 +224,7 @@ namespace ckfilesystem
 		else			
 			bkup_len = vmg_data.last_vmg_sec_ + 1 - menu_len - info_len;	// If no title sets are used.
 
-		if (bkup_len > 0xFFFFFFFF)
+		if (bkup_len > 0xffffffff)
 		{
 #ifdef _WINDOWS
 			log_.print_line(ckT("  Error: VIDEO_TS.BUP is larger than 4 million blocks (%I64u blocks)."),bkup_len);
@@ -235,16 +235,16 @@ namespace ckfilesystem
 		}
 
 		if (bkup_node != NULL)
-			bkup_node->data_pad_len_ = (unsigned long)bkup_len - (unsigned long)size_to_dvd_len(info_size);
+			bkup_node->data_pad_len_ = (ckcore::tuint32)bkup_len - (ckcore::tuint32)size_to_dvd_len(info_size);
 
 		return true;
 	}
 
-	bool DvdVideo::read_file_set_info(FileTree &file_tree,std::vector<unsigned long> &ts_sectors)
+	bool DvdVideo::read_file_set_info(FileTree &file_tree,std::vector<ckcore::tuint32> &ts_sectors)
 	{
-		unsigned long counter = 1;
+		ckcore::tuint32 counter = 1;
 
-		std::vector<unsigned long>::const_iterator it_ts;
+		std::vector<ckcore::tuint32>::const_iterator it_ts;
 		for (it_ts = ts_sectors.begin(); it_ts != ts_sectors.end(); it_ts++)
 		{
 			FileTreeNode *info_node = find_video_node(file_tree,FST_INFO,counter);
@@ -337,13 +337,13 @@ namespace ckfilesystem
 					info_len = vts_data.last_vts_ifo_sec_ + 1;
 			}
 
-			if (info_len > 0xFFFFFFFF)
+			if (info_len > 0xffffffff)
 			{
 				log_.print_line(ckT("  Error: IFO file larger than 4 million blocks."));
 				return false;
 			}
 
-			info_node->data_pad_len_ = (unsigned long)info_len - (unsigned long)size_to_dvd_len(info_size);
+			info_node->data_pad_len_ = (ckcore::tuint32)info_len - (ckcore::tuint32)size_to_dvd_len(info_size);
 
 			// Find the actuall size of VTS_XX_0.VOB.
 			ckcore::tuint64 menu_len = 0;
@@ -363,13 +363,13 @@ namespace ckfilesystem
 					menu_len = vts_data.vts_vob_sec_ - vts_data.vts_menu_vob_sec_;
 				}
 
-				if (menu_len > 0xFFFFFFFF)
+				if (menu_len > 0xffffffff)
 				{
 					log_.print_line(ckT("  Error: Menu VOB file larger than 4 million blocks."));
 					return false;
 				}
 
-				menu_node->data_pad_len_ = (unsigned long)menu_len - (unsigned long)size_to_dvd_len(menu_size);
+				menu_node->data_pad_len_ = (ckcore::tuint32)menu_len - (ckcore::tuint32)size_to_dvd_len(menu_size);
 			}
 
 			// Find the actuall size of VTS_XX_[1 to 9].VOB.
@@ -379,7 +379,7 @@ namespace ckfilesystem
 				title_len = vts_data.last_vts_sec_ + 1 - info_len -
 					menu_len - size_to_dvd_len(info_size);
 
-				if (title_len > 0xFFFFFFFF)
+				if (title_len > 0xffffffff)
 				{
 					log_.print_line(ckT("  Error: Title files larger than 4 million blocks."));
 					return false;
@@ -388,7 +388,7 @@ namespace ckfilesystem
 				// We only pad the last title node (not sure if that is correct).
 				FileTreeNode *pLastTitleNode = find_video_node(file_tree,FST_TITLE,counter);
 				if (pLastTitleNode != NULL)
-					pLastTitleNode->data_pad_len_ = (unsigned long)title_len - (unsigned long)size_to_dvd_len(title_size);
+					pLastTitleNode->data_pad_len_ = (ckcore::tuint32)title_len - (ckcore::tuint32)size_to_dvd_len(title_size);
 			}
 
 			// Find the actuall size of VTS_XX_0.BUP.
@@ -402,7 +402,7 @@ namespace ckfilesystem
 				bkup_len = vts_data.last_vts_sec_ + 1 - title_len - menu_len - info_len;
 			}
 
-			if (bkup_len > 0xFFFFFFFF)
+			if (bkup_len > 0xffffffff)
 			{
 				log_.print_line(ckT("  Error: BUP file larger than 4 million blocks."));
 				return false;
@@ -410,7 +410,7 @@ namespace ckfilesystem
 
 			FileTreeNode *bkup_node = find_video_node(file_tree,FST_BACKUP,counter);
 			if (bkup_node != NULL)
-				bkup_node->data_pad_len_ = (unsigned long)bkup_len - (unsigned long)size_to_dvd_len(info_size);
+				bkup_node->data_pad_len_ = (ckcore::tuint32)bkup_len - (ckcore::tuint32)size_to_dvd_len(info_size);
 
 			// We're done.
 			ifo_reader.close();
@@ -476,8 +476,8 @@ namespace ckfilesystem
 		}
 
 		// Make a vector of all title set vectors (instead of titles).
-		std::vector<unsigned long> ts_sectors(vmg_data.titles_.size());
-		std::vector<unsigned long>::const_iterator it_last =
+		std::vector<ckcore::tuint32> ts_sectors(vmg_data.titles_.size());
+		std::vector<ckcore::tuint32>::const_iterator it_last =
 			std::unique_copy(vmg_data.titles_.begin(),vmg_data.titles_.end(),ts_sectors.begin());
 		ts_sectors.resize(it_last - ts_sectors.begin());
 

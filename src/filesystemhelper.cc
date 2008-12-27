@@ -17,50 +17,37 @@
  */
 
 #include "ckfilesystem/iso9660writer.hh"
-#include "ckfilesystem/discimagehelper.hh"
+#include "ckfilesystem/filesystemhelper.hh"
 
 namespace ckfilesystem
 {
-	DiscImageHelper::DiscImageHelper(DiscImageWriter::FileSystem file_sys,
-									 bool inc_file_ver_info,bool long_joliet_names,
-									 Iso9660::InterLevel inter_level) :
+	FileSystemHelper::FileSystemHelper(FileSystem &file_sys) :
 		file_sys_(file_sys)
 	{
-		// Joliet.
-		joliet_.set_include_file_ver_info(inc_file_ver_info);
-		joliet_.set_relax_max_name_len(long_joliet_names);
-
-		// ISO9660.
-		iso9660_.set_include_file_ver_info(inc_file_ver_info);
-		iso9660_.set_interchange_level(inter_level);
 	}
 
-	DiscImageHelper::~DiscImageHelper()
+	FileSystemHelper::~FileSystemHelper()
 	{
 	}
 
 	// Warning: This function duplicates some functionality in Udf.
 	// file_name is assumed to be at least as long as req_file_name.
-	void DiscImageHelper::calc_file_name(const ckcore::tchar *req_file_name,
-									     ckcore::tchar *file_name,bool is_dir)
+	void FileSystemHelper::calc_file_name(const ckcore::tchar *req_file_name,
+									      ckcore::tchar *file_name,bool is_dir)
 	{
-		bool use_iso = file_sys_ != DiscImageWriter::FS_UDF;
-		bool use_udf = file_sys_ == DiscImageWriter::FS_ISO9660_UDF ||
-			file_sys_ == DiscImageWriter::FS_ISO9660_UDF_JOLIET ||
-			file_sys_ == DiscImageWriter::FS_UDF ||
-			file_sys_ == DiscImageWriter::FS_DVDVIDEO;
-		bool use_joliet = file_sys_ == DiscImageWriter::FS_ISO9660_JOLIET ||
-			file_sys_ == DiscImageWriter::FS_ISO9660_UDF_JOLIET;
+		bool is_iso = file_sys_.is_iso9660();
+		bool is_udf = file_sys_.is_udf();
+		bool is_joliet = file_sys_.is_joliet();
 
-		if (use_udf)
+		if (is_udf)
 		{
 			size_t name_len = ckcore::string::astrlen(file_name);
 			ckcore::string::astrncpy(file_name,req_file_name,name_len < (254 >> 1) ? name_len : (254 >> 1));		// One byte is reserved for compression descriptor.
 		}
-		else if (use_joliet)
+		else if (is_joliet)
 		{
 			unsigned char file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char len = joliet_.write_file_name((unsigned char *)file_name_buf,req_file_name,is_dir);
+			unsigned char len = file_sys_.joliet_.write_file_name((unsigned char *)file_name_buf,req_file_name,is_dir);
 
 #ifdef _UNICODE
 			unsigned char file_name_pos = 0;
@@ -85,16 +72,16 @@ namespace ckfilesystem
 			ckcore::string::utf16_to_ansi(utf_file_name,file_name,len);
 #endif
 		}
-		else if (use_iso)
+		else if (is_iso)
 		{
 #ifdef _UNICODE
 			char ansi_file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-			unsigned char len = iso9660_.write_file_name((unsigned char *)ansi_file_name,req_file_name,is_dir);
+			unsigned char len = file_sys_.iso9660_.write_file_name((unsigned char *)ansi_file_name,req_file_name,is_dir);
 			ansi_file_name[len] = '\0';
 
 			ckcore::string::ansi_to_utf16(ansi_file_name,file_name,len + 1);
 #else
-			unsigned char len = iso9660_.write_file_name((unsigned char *)file_name,req_file_name,is_dir);
+			unsigned char len = file_sys_.iso9660_.write_file_name((unsigned char *)file_name,req_file_name,is_dir);
 			file_name[len] = '\0';
 #endif
 		}
@@ -104,8 +91,8 @@ namespace ckfilesystem
 		}
 	}
 
-	void DiscImageHelper::calc_file_path(const ckcore::tchar *req_file_path,
-									     ckcore::tstring &file_path)
+	void FileSystemHelper::calc_file_path(const ckcore::tchar *req_file_path,
+									      ckcore::tstring &file_path)
 	{
 		size_t dir_path_len = ckcore::string::astrlen(req_file_path),prev_delim = 0,pos = 0;
 		ckcore::tstring cur_dir_name;
@@ -160,3 +147,4 @@ namespace ckfilesystem
 		file_path.append(file_name_buf);
 	}
 };
+

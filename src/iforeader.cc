@@ -75,7 +75,7 @@ namespace ckfilesystem
 	bool IfoReader::read_vmg(IfoVmgData &vmg_data)
 	{
 		// Read last sector of VMG.
-		unsigned long sector = 0;
+		ckcore::tuint32 sector = 0;
 		ckcore::tint64 processed = 0;
 
 		in_stream_.seek(12,ckcore::InStream::ckSTREAM_BEGIN);
@@ -94,7 +94,7 @@ namespace ckfilesystem
 		vmg_data.last_vmg_ifo_sec_ = ckcore::convert::be_to_le32(sector);
 
 		// Read number of VTS  title sets.
-		unsigned short num_titles;
+		ckcore::tuint16 num_titles;
 
 		in_stream_.seek(62,ckcore::InStream::ckSTREAM_BEGIN);
 		processed = in_stream_.read(&num_titles,sizeof(num_titles));
@@ -126,7 +126,7 @@ namespace ckfilesystem
 			return false;
 
 		num_titles = ckcore::convert::be_to_le16(num_titles);
-		for (unsigned short i = 0; i < num_titles; i++)
+		for (ckcore::tuint16 i = 0; i < num_titles; i++)
 		{
 			in_stream_.seek((DVDVIDEO_BLOCK_SIZE * vmg_data.srpt_sec_) + 8 + (i * 12) + 8,ckcore::InStream::ckSTREAM_BEGIN);
 			processed = in_stream_.read(&sector,sizeof(sector));
@@ -142,7 +142,7 @@ namespace ckfilesystem
 	bool IfoReader::read_vts(IfoVtsData &vts_data)
 	{
 		// Read last sector of VTS.
-		unsigned long sector = 0;
+		ckcore::tuint32 sector = 0;
 		ckcore::tint64 processed = 0;
 
 		in_stream_.seek(12,ckcore::InStream::ckSTREAM_BEGIN);

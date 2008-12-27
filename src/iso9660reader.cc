@@ -50,7 +50,7 @@ namespace ckfilesystem
 		ckcore::tchar file_name[(ISO9660WRITER_FILENAME_BUFFER_SIZE / sizeof(ckcore::tchar)) + 1];
 
 		// Skip the '.' and '..' entries.
-		unsigned long read = 0;
+		ckcore::tuint32 read = 0;
 		ckcore::tint64 processed = 0;
 
 		for (unsigned int i = 0; i < 2; i++)
@@ -81,7 +81,7 @@ namespace ckfilesystem
 			if (read + sizeof(tiso_dir_record) > parent_node->extent_len_)
 				break;
 
-			unsigned long dir_rec_processed = 0;
+			ckcore::tuint32 dir_rec_processed = 0;
 
 			memset(&dr,0,sizeof(tiso_dir_record));
 			processed = in_stream.read(&dr,sizeof(tiso_dir_record) - 1);
@@ -93,10 +93,10 @@ namespace ckfilesystem
 			if (processed != sizeof(tiso_dir_record) - 1)
 			{
 				log_.print_line(ckT("Error: Unable to read directory record (size mismatch: %u vs. %u)."),
-					(unsigned long)processed,sizeof(tiso_dir_record) - 1);
+					(ckcore::tuint32)processed,sizeof(tiso_dir_record) - 1);
 				return false;
 			}
-			dir_rec_processed += (unsigned long)processed;
+			dir_rec_processed += (ckcore::tuint32)processed;
 
 			if (dr.file_ident_len > ISO9660WRITER_FILENAME_BUFFER_SIZE)
 			{
@@ -117,7 +117,7 @@ namespace ckfilesystem
 				log_.print_line(ckT("Error: Unable to read directory record file identifier (size mismatch)."));
 				return false;
 			}
-			dir_rec_processed += (unsigned long)processed;
+			dir_rec_processed += (ckcore::tuint32)processed;
 
 			// Convert identifier.
 			if (joliet)
@@ -161,8 +161,8 @@ namespace ckfilesystem
 			//log_.print_line(ckT("  %s: %u"),file_name,read733(dr.extent_loc));
 
 			Iso9660TreeNode *new_node = new Iso9660TreeNode(parent_node,file_name,
-					read733(dr.extent_loc),read733(dr.data_len),
-					read723(dr.volseq_num),dr.file_flags,
+					Iso9660::read733(dr.extent_loc),Iso9660::read733(dr.data_len),
+					Iso9660::read723(dr.volseq_num),dr.file_flags,
 					dr.file_unit_size,dr.interleave_gap_size,dr.rec_timestamp);
 
 			if (dr.file_flags & DIRRECORD_FILEFLAG_DIRECTORY)
@@ -220,7 +220,7 @@ namespace ckfilesystem
 		return true;
 	}
 
-	bool Iso9660Reader::read(ckcore::InStream &in_stream,unsigned long start_sec)
+	bool Iso9660Reader::read(ckcore::InStream &in_stream,ckcore::tuint32 start_sec)
 	{
 		log_.print_line(ckT("Iso9660Reader::Read"));
 
@@ -301,7 +301,7 @@ namespace ckfilesystem
 			{
 				// Check if Joliet.
 				if (voldesc_suppl.esc_sec[0] == 0x25 &&
-					voldesc_suppl.esc_sec[1] == 0x2F)
+					voldesc_suppl.esc_sec[1] == 0x2f)
 				{
 					if (voldesc_suppl.esc_sec[2] == 0x45 ||
 						voldesc_suppl.esc_sec[2] == 0x43 ||
@@ -316,18 +316,18 @@ namespace ckfilesystem
 		}
 
 		// Obtain positions of interest.
-		unsigned long root_extent_loc;
-		unsigned long root_extent_len;
+		ckcore::tuint32 root_extent_loc;
+		ckcore::tuint32 root_extent_len;
 
 		if (joliet)
 		{
-			root_extent_loc = read733(voldesc_suppl.root_dir_record.extent_loc);
-			root_extent_len = read733(voldesc_suppl.root_dir_record.data_len);
+			root_extent_loc = Iso9660::read733(voldesc_suppl.root_dir_record.extent_loc);
+			root_extent_len = Iso9660::read733(voldesc_suppl.root_dir_record.data_len);
 		}
 		else
 		{
-			root_extent_loc = read733(voldesc_prim.root_dir_record.extent_loc);
-			root_extent_len = read733(voldesc_prim.root_dir_record.data_len);
+			root_extent_loc = Iso9660::read733(voldesc_prim.root_dir_record.extent_loc);
+			root_extent_len = Iso9660::read733(voldesc_prim.root_dir_record.data_len);
 		}
 
 		log_.print_line(ckT("  Location of root directory extent: %u."),root_extent_loc);
@@ -337,7 +337,7 @@ namespace ckfilesystem
 			delete root_node_;
 
 		root_node_ = new Iso9660TreeNode(NULL,NULL,root_extent_loc,root_extent_len,
-			read723(voldesc_suppl.root_dir_record.volseq_num),voldesc_suppl.root_dir_record.file_flags,
+			Iso9660::read723(voldesc_suppl.root_dir_record.volseq_num),voldesc_suppl.root_dir_record.file_flags,
 			voldesc_suppl.root_dir_record.file_unit_size,voldesc_suppl.root_dir_record.interleave_gap_size,
 			voldesc_suppl.root_dir_record.rec_timestamp);
 

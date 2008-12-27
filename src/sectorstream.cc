@@ -24,7 +24,7 @@ namespace ckfilesystem
 		COutBufferedStream
 	*/
 	SectorOutStream::SectorOutStream(ckcore::OutStream &out_stream,
-									 unsigned long sector_size) :
+									 ckcore::tuint32 sector_size) :
 		ckcore::BufferedOutStream(out_stream),sector_size_(sector_size),
 		sector_(0),written_(0)
 	{
@@ -59,17 +59,17 @@ namespace ckfilesystem
 	/*
 		Returns the number of buytes that's allocated in the current sector.
 	*/
-	unsigned long SectorOutStream::get_allocated()
+	ckcore::tuint32 SectorOutStream::get_allocated()
 	{
-		return (unsigned long)written_;
+		return (ckcore::tuint32)written_;
 	}
 
 	/*
 		Returns the remaining unallocated bytes in the current sector.
 	*/
-	unsigned long SectorOutStream::get_remaining()
+	ckcore::tuint32 SectorOutStream::get_remaining()
 	{
-		return sector_size_ - (unsigned long)written_;
+		return sector_size_ - (ckcore::tuint32)written_;
 	}
 
 	/*
@@ -79,8 +79,8 @@ namespace ckfilesystem
 	{
 		char tmp[1] = { 0 };
 
-		unsigned long remaining = get_remaining();
-		for (unsigned long i = 0; i < remaining; i++)
+		ckcore::tuint32 remaining = get_remaining();
+		for (ckcore::tuint32 i = 0; i < remaining; i++)
 			write(tmp,1);
 	}
 };

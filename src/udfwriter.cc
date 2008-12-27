@@ -20,15 +20,16 @@
 #include <string.h>
 #include <ckcore/file.hh>
 #include <ckcore/directory.hh>
-#include "ckfilesystem/udfwriter.hh"
 #include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/util.hh"
+#include "ckfilesystem/udfwriter.hh"
 
 namespace ckfilesystem
 {
 	UdfWriter::UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
-		Udf &udf,bool use_file_times) :
+		FileSystem &file_sys,bool use_file_times) :
 		log_(log),out_stream_(out_stream),sec_manager_(sec_manager),
-		udf_(udf),use_file_times_(use_file_times),part_len_(0)
+		file_sys_(file_sys),use_file_times_(use_file_times),part_len_(0)
 	{
 		memset(&voldesc_seqextent_main_,0,sizeof(tudf_extent_ad));
 		memset(&voldesc_seqextent_rsrv_,0,sizeof(tudf_extent_ad));
@@ -48,8 +49,8 @@ namespace ckfilesystem
 		                                    FileTreeNode *local_node)
 	{
 		local_node->udf_size_ = 0;
-		local_node->udf_size_ += bytes_to_sec(udf_.calc_file_entry_size());
-		local_node->udf_size_ += bytes_to_sec(calc_ident_size(local_node));
+		local_node->udf_size_ += util::bytes_to_sec(file_sys_.udf_.calc_file_entry_size());
+		local_node->udf_size_ += util::bytes_to_sec(calc_ident_size(local_node));
 		local_node->udf_size_tot_ = local_node->udf_size_;
 
 		std::vector<FileTreeNode *>::const_iterator it;
@@ -60,7 +61,7 @@ namespace ckfilesystem
 				dir_node_stack.push_back(*it);
 			else
 			{
-				(*it)->udf_size_ = bytes_to_sec(udf_.calc_file_entry_size());
+				(*it)->udf_size_ = util::bytes_to_sec(file_sys_.udf_.calc_file_entry_size());
 				(*it)->udf_size_tot_ = (*it)->udf_size_;
 			}
 		}
@@ -89,11 +90,11 @@ namespace ckfilesystem
 		for (it = local_node->children_.begin(); it !=
 			local_node->children_.end(); it++)
 		{
-			tot_ident_size += udf_.calc_file_ident_size((*it)->file_name_.c_str());
+			tot_ident_size += file_sys_.udf_.calc_file_ident_size((*it)->file_name_.c_str());
 		}
 
 		// Don't forget to add the '..' item to the total.
-		tot_ident_size += udf_.calc_file_ident_parent_size();
+		tot_ident_size += file_sys_.udf_.calc_file_ident_parent_size();
 		return tot_ident_size;
 	}
 
@@ -145,11 +146,11 @@ namespace ckfilesystem
 	}
 
 	bool UdfWriter::write_local_partition_dir(std::deque<FileTreeNode *> &dir_node_queue,
-										      FileTreeNode *local_node,unsigned long &cur_part_sec,
+										      FileTreeNode *local_node,ckcore::tuint32 &cur_part_sec,
 										      ckcore::tuint64 &unique_ident)
 	{
-		unsigned long entry_sec = cur_part_sec++;
-		unsigned long ident_sec = cur_part_sec;	// On folders the identifiers will follow immediately.
+		ckcore::tuint32 entry_sec = cur_part_sec++;
+		ckcore::tuint32 ident_sec = cur_part_sec;	// On folders the identifiers will follow immediately.
 
 		// Calculate the size of all identifiers.
 		ckcore::tuint64 tot_ident_size = 0;
@@ -157,13 +158,13 @@ namespace ckfilesystem
 		for (it = local_node->children_.begin(); it !=
 			local_node->children_.end(); it++)
 		{
-			tot_ident_size += udf_.calc_file_ident_size((*it)->file_name_.c_str());
+			tot_ident_size += file_sys_.udf_.calc_file_ident_size((*it)->file_name_.c_str());
 		}
 
 		// Don't forget to add the '..' item to the total.
-		tot_ident_size += udf_.calc_file_ident_parent_size();
+		tot_ident_size += file_sys_.udf_.calc_file_ident_parent_size();
 
-		unsigned long next_entry_sec = ident_sec + bytes_to_sec(tot_ident_size);
+		ckcore::tuint32 next_entry_sec = ident_sec + util::bytes_to_sec(tot_ident_size);
 
 		// Get file modified dates.
 		struct tm access_time,modify_time,create_time;
@@ -171,7 +172,7 @@ namespace ckfilesystem
 			access_time = modify_time = create_time = create_time_;
 
 		// The current folder entry.
-		if (!udf_.write_file_entry(out_stream_,entry_sec,true,(unsigned short)local_node->udf_link_tot_ + 1,
+		if (!file_sys_.udf_.write_file_entry(out_stream_,entry_sec,true,(ckcore::tuint16)local_node->udf_link_tot_ + 1,
 			unique_ident,ident_sec,tot_ident_size,access_time,modify_time,create_time))
 		{
 			return false;
@@ -184,12 +185,12 @@ namespace ckfilesystem
 			unique_ident++;
 
 		// The '..' item.
-		unsigned long parent_entry_sec = local_node->get_parent() == NULL ? entry_sec : local_node->get_parent()->udf_part_loc_;
-		if (!udf_.write_file_ident_parent(out_stream_,cur_part_sec,parent_entry_sec))
+		ckcore::tuint32 parent_entry_sec = local_node->get_parent() == NULL ? entry_sec : local_node->get_parent()->udf_part_loc_;
+		if (!file_sys_.udf_.write_file_ident_parent(out_stream_,cur_part_sec,parent_entry_sec))
 			return false;
 
 		// Keep track on how many bytes we have in our sector.
-		unsigned long sec_bytes = udf_.calc_file_ident_parent_size();
+		ckcore::tuint32 sec_bytes = file_sys_.udf_.calc_file_ident_parent_size();
 
 		std::vector<FileTreeNode *> tmp_stack;
 		for (it = local_node->children_.begin(); it !=
@@ -200,22 +201,22 @@ namespace ckfilesystem
 
 			if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
-				if (!udf_.write_file_ident(out_stream_,cur_part_sec,next_entry_sec,true,(*it)->file_name_.c_str()))
+				if (!file_sys_.udf_.write_file_ident(out_stream_,cur_part_sec,next_entry_sec,true,(*it)->file_name_.c_str()))
 					return false;
 
 				(*it)->udf_part_loc_ = next_entry_sec;	// Remember where this entry was stored.
-				next_entry_sec += (unsigned long)(*it)->udf_size_tot_;
+				next_entry_sec += (ckcore::tuint32)(*it)->udf_size_tot_;
 			}
 			else
 			{
-				if (!udf_.write_file_ident(out_stream_,cur_part_sec,next_entry_sec,false,(*it)->file_name_.c_str()))
+				if (!file_sys_.udf_.write_file_ident(out_stream_,cur_part_sec,next_entry_sec,false,(*it)->file_name_.c_str()))
 					return false;
 
 				(*it)->udf_part_loc_ = next_entry_sec;	// Remember where this entry was stored.
-				next_entry_sec += (unsigned long)(*it)->udf_size_tot_;
+				next_entry_sec += (ckcore::tuint32)(*it)->udf_size_tot_;
 			}
 
-			sec_bytes += udf_.calc_file_ident_size((*it)->file_name_.c_str());
+			sec_bytes += file_sys_.udf_.calc_file_ident_size((*it)->file_name_.c_str());
 			if (sec_bytes >= UDF_SECTOR_SIZE)
 			{
 				cur_part_sec++;
@@ -240,7 +241,7 @@ namespace ckfilesystem
 	bool UdfWriter::write_partition_entries(FileTree &file_tree)
 	{
 		// We start at partition sector 1, sector 0 is the parition anchor descriptor.
-		unsigned long cur_part_sec = 1;
+		ckcore::tuint32 cur_part_sec = 1;
 
 		// We start with unique identifier 0 (which is reserved for root) and
 		// increase it for every file or folder added.
@@ -278,8 +279,8 @@ namespace ckfilesystem
 				if (use_file_times_ && !ckcore::File::time(cur_node->file_path_.c_str(),access_time,modify_time,create_time))
 					access_time = modify_time = create_time = create_time_;
 
-				if (!udf_.write_file_entry(out_stream_,cur_part_sec++,false,1,
-					unique_ident,(unsigned long)cur_node->data_pos_normal_ - 257,cur_node->file_size_,
+				if (!file_sys_.udf_.write_file_entry(out_stream_,cur_part_sec++,false,1,
+					unique_ident,(ckcore::tuint32)cur_node->data_pos_normal_ - 257,cur_node->file_size_,
 					access_time,modify_time,create_time))
 				{
 					return false;
@@ -298,7 +299,7 @@ namespace ckfilesystem
 
 	int UdfWriter::alloc_header()
 	{
-		sec_manager_.alloc_bytes(this,SR_INITIALDESCRIPTORS,udf_.get_vol_desc_initial_size());
+		sec_manager_.alloc_bytes(this,SR_INITIALDESCRIPTORS,file_sys_.udf_.get_vol_desc_initial_size());
 		return RESULT_OK;
 	}
 
@@ -316,7 +317,7 @@ namespace ckfilesystem
 
 	int UdfWriter::write_header()
 	{
-		if (!udf_.write_vol_desc_initial(out_stream_))
+		if (!file_sys_.udf_.write_vol_desc_initial(out_stream_))
 		{
 			log_.print_line(ckT("  Error: Failed to write initial UDF volume descriptors."));
 			return RESULT_FAIL;
@@ -333,7 +334,7 @@ namespace ckfilesystem
 			return RESULT_FAIL;
 		}
 
-		if (part_len_ > 0xFFFFFFFF)
+		if (part_len_ > 0xffffffff)
 		{
 #ifdef _WINDOWS
 			log_.print_line(ckT("  Error: UDF partition is too large (%I64u sectors)."),part_len_);
@@ -343,7 +344,7 @@ namespace ckfilesystem
 			return RESULT_FAIL;
 		}
 
-		if (sec_manager_.get_start(this,SR_MAINDESCRIPTORS) > 0xFFFFFFFF)
+		if (sec_manager_.get_start(this,SR_MAINDESCRIPTORS) > 0xffffffff)
 		{
 #ifdef _WINDOWS
 			log_.print_line(ckT("  Error: Error during sector space allocation. Start of UDF main descriptors %I64d."),
@@ -354,7 +355,7 @@ namespace ckfilesystem
 			return RESULT_FAIL;
 		}
 
-		if (sec_manager_.get_data_length() > 0xFFFFFFFF)
+		if (sec_manager_.get_data_length() > 0xffffffff)
 		{
 #ifdef _WINDOWS
 			log_.print_line(ckT("  Error: File data too large (%I64d sectors) for UDF."),sec_manager_.get_data_length());
@@ -368,8 +369,8 @@ namespace ckfilesystem
 		char tmp[1] = { 0 };
 
 		// Parition size = the partition size calculated above + the set descriptor + the data length.
-		unsigned long udf_cur_sec = (unsigned long)sec_manager_.get_start(this,SR_MAINDESCRIPTORS);
-		unsigned long udf_part_len = (unsigned long)part_len_ + 1 + (unsigned long)sec_manager_.get_data_length();
+		ckcore::tuint32 udf_cur_sec = (ckcore::tuint32)sec_manager_.get_start(this,SR_MAINDESCRIPTORS);
+		ckcore::tuint32 udf_part_len = (ckcore::tuint32)part_len_ + 1 + (ckcore::tuint32)sec_manager_.get_data_length();
 
 		// Assign a unique identifier that's larger than any unique identifier of a
 		// file entry + 16 for the reserved numbers.
@@ -379,7 +380,7 @@ namespace ckfilesystem
 		integrity_seq_extent.extent_len = UDF_SECTOR_SIZE;
 		integrity_seq_extent.extent_loc = udf_cur_sec;
 
-		if (!udf_.write_vol_desc_log_integrity(out_stream_,udf_cur_sec,file_tree.get_file_count(),
+		if (!file_sys_.udf_.write_vol_desc_log_integrity(out_stream_,udf_cur_sec,file_tree.get_file_count(),
 			file_tree.get_dir_count() + 1,udf_part_len,unique_ident,create_time_))
 		{
 			log_.print_line(ckT("  Error: Failed to write UDF logical integrity descriptor."));
@@ -399,43 +400,43 @@ namespace ckfilesystem
 			else
 				voldesc_seqextent_rsrv_.extent_loc = udf_cur_sec;
 
-			unsigned long voldesc_seqnum = 0;
-			if (!udf_.write_vol_desc_primary(out_stream_,voldesc_seqnum++,udf_cur_sec,create_time_))
+			ckcore::tuint32 voldesc_seqnum = 0;
+			if (!file_sys_.udf_.write_vol_desc_primary(out_stream_,voldesc_seqnum++,udf_cur_sec,create_time_))
 			{
 				log_.print_line(ckT("  Error: Failed to write UDF primary volume descriptor."));
 				return RESULT_FAIL;
 			}
 			udf_cur_sec++;
 
-			if (!udf_.write_vol_desc_impl_use(out_stream_,voldesc_seqnum++,udf_cur_sec))
+			if (!file_sys_.udf_.write_vol_desc_impl_use(out_stream_,voldesc_seqnum++,udf_cur_sec))
 			{
 				log_.print_line(ckT("  Error: Failed to write UDF implementation use descriptor."));
 				return RESULT_FAIL;
 			}
 			udf_cur_sec++;
 
-			if (!udf_.write_vol_desc_partition(out_stream_,voldesc_seqnum++,udf_cur_sec,257,udf_part_len))
+			if (!file_sys_.udf_.write_vol_desc_partition(out_stream_,voldesc_seqnum++,udf_cur_sec,257,udf_part_len))
 			{
 				log_.print_line(ckT("  Error: Failed to write UDF partition descriptor."));
 				return RESULT_FAIL;
 			}
 			udf_cur_sec++;
 
-			if (!udf_.write_vol_desc_logical(out_stream_,voldesc_seqnum++,udf_cur_sec,integrity_seq_extent))
+			if (!file_sys_.udf_.write_vol_desc_logical(out_stream_,voldesc_seqnum++,udf_cur_sec,integrity_seq_extent))
 			{
 				log_.print_line(ckT("  Error: Failed to write UDF logical partition descriptor."));
 				return RESULT_FAIL;
 			}
 			udf_cur_sec++;
 
-			if (!udf_.write_vol_desc_unalloc(out_stream_,voldesc_seqnum++,udf_cur_sec))
+			if (!file_sys_.udf_.write_vol_desc_unalloc(out_stream_,voldesc_seqnum++,udf_cur_sec))
 			{
 				log_.print_line(ckT("  Error: Failed to write UDF unallocated space descriptor."));
 				return RESULT_FAIL;
 			}
 			udf_cur_sec++;
 
-			if (!udf_.write_vol_desc_term(out_stream_,udf_cur_sec))
+			if (!file_sys_.udf_.write_vol_desc_term(out_stream_,udf_cur_sec))
 			{
 				log_.print_line(ckT("  Error: Failed to write UDF descriptor terminator."));
 				return RESULT_FAIL;
@@ -447,7 +448,7 @@ namespace ckfilesystem
 			// this we need to add 10 empty sectors.
 			for (int j = 0; j < 10; j++)
 			{
-				for (unsigned long i = 0; i < ISO9660_SECTOR_SIZE; i++)
+				for (ckcore::tuint32 i = 0; i < ISO9660_SECTOR_SIZE; i++)
 					out_stream_.write(tmp,1);
 				udf_cur_sec++;
 			}
@@ -456,13 +457,13 @@ namespace ckfilesystem
 		// Allocate everything until sector 256 with empty sectors.
 		while (udf_cur_sec < 256)
 		{
-			for (unsigned long i = 0; i < ISO9660_SECTOR_SIZE; i++)
+			for (ckcore::tuint32 i = 0; i < ISO9660_SECTOR_SIZE; i++)
 				out_stream_.write(tmp,1);
 			udf_cur_sec++;
 		}
 
 		// At sector 256 write the first anchor volume descriptor pointer.
-		if (!udf_.write_anchor_vol_desc_ptr(out_stream_,udf_cur_sec,voldesc_seqextent_main_,voldesc_seqextent_rsrv_))
+		if (!file_sys_.udf_.write_anchor_vol_desc_ptr(out_stream_,udf_cur_sec,voldesc_seqextent_main_,voldesc_seqextent_rsrv_))
 		{
 			log_.print_line(ckT("  Error: Failed to write anchor volume descriptor pointer."));
 			return RESULT_FAIL;
@@ -471,7 +472,7 @@ namespace ckfilesystem
 
 		// The file set descriptor is the first entry in the partition, hence the logical block address 0.
 		// The root is located directly after this descriptor, hence the location 1.
-		if (!udf_.write_file_set_desc(out_stream_,0,1,create_time_))
+		if (!file_sys_.udf_.write_file_set_desc(out_stream_,0,1,create_time_))
 		{
 			log_.print_line(ckT("  Error: Failed to write file set descriptor."));
 			return RESULT_FAIL;
@@ -490,7 +491,7 @@ namespace ckfilesystem
 	{
 		ckcore::tuint64 last_data_sec = sec_manager_.get_data_start() +
 			sec_manager_.get_data_length();
-		if (last_data_sec > 0xFFFFFFFF)
+		if (last_data_sec > 0xffffffff)
 		{
 #ifdef _WINDOWS
 			log_.print_line(ckT("  Error: File data too large, last data sector is %I64d."),last_data_sec);
@@ -501,7 +502,7 @@ namespace ckfilesystem
 		}
 
 		// Finally write the 2nd and last anchor volume descriptor pointer.
-		if (!udf_.write_anchor_vol_desc_ptr(out_stream_,(unsigned long)last_data_sec,
+		if (!file_sys_.udf_.write_anchor_vol_desc_ptr(out_stream_,(ckcore::tuint32)last_data_sec,
 			voldesc_seqextent_main_,voldesc_seqextent_rsrv_))
 		{
 			log_.print_line(ckT("  Error: Failed to write anchor volume descriptor pointer."));

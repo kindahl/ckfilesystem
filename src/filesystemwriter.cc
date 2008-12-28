@@ -572,7 +572,7 @@ namespace ckfilesystem
 		}
 
 #ifdef _DEBUG
-		file_tree.print_tree();
+		file_tree_.print_tree();
 #endif
 
 		out_sec_stream.flush();

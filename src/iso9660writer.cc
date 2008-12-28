@@ -499,7 +499,7 @@ namespace ckfilesystem
 #ifdef _UNICODE
 					(*it_file)->file_name_joliet_ = (*it_file)->file_name_;
 
-					if (!is_folder && joliet_.includes_file_ver_info())
+					if (!is_folder && file_sys_.joliet_.includes_file_ver_info())
 						(*it_file)->file_name_joliet_.append(L";1");
 #else
 					wchar_t szWideFileName[(ISO9660WRITER_FILENAME_BUFFER_SIZE >> 1) + 1];

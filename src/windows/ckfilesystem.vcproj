@@ -284,19 +284,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\discimagehelper.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\discimagewriter.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\dvdvideo.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\eltorito.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filesystem.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filesystemhelper.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filesystemwriter.cc"
 				>
 			</File>
 			<File
@@ -343,6 +347,10 @@
 				RelativePath="..\udfwriter.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\util.cc"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -351,14 +359,6 @@
 			>
 			<File
 				RelativePath="..\..\include\ckfilesystem\const.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\ckfilesystem\discimagehelper.hh"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\ckfilesystem\discimagewriter.hh"
 				>
 			</File>
 			<File
@@ -371,6 +371,18 @@
 			</File>
 			<File
 				RelativePath="..\..\include\ckfilesystem\fileset.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ckfilesystem\filesystem.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ckfilesystem\filesystemhelper.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ckfilesystem\filesystemwriter.hh"
 				>
 			</File>
 			<File
@@ -415,6 +427,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\ckfilesystem\udfwriter.hh"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ckfilesystem\util.hh"
 				>
 			</File>
 		</Filter>

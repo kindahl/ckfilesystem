@@ -21,7 +21,7 @@
 namespace ckfilesystem
 {
 	FileSystem::FileSystem(Type type,FileSet &file_set) :
-		type_(type_),file_set_(file_set),udf_(type == TYPE_DVDVIDEO)
+		type_(type),file_set_(file_set),udf_(type == TYPE_DVDVIDEO)
 	{
 	}
 

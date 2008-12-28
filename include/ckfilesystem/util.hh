@@ -18,27 +18,15 @@
 
 #pragma once
 #include <ckcore/types.hh>
-#include "ckfilesystem/discimagewriter.hh"
-#include "ckfilesystem/iso9660.hh"
-#include "ckfilesystem/joliet.hh"
+#include <ckcore/stream.hh>
 
 namespace ckfilesystem
 {
-	class DiscImageHelper
-	{
-	private:
-		DiscImageWriter::FileSystem file_sys_;
-
-		Joliet joliet_;
-		Iso9660 iso9660_;
-
-	public:
-		DiscImageHelper(DiscImageWriter::FileSystem file_sys,
-						bool inc_file_ver_info,bool long_joliet_names,
-						Iso9660::InterLevel inter_level);
-		~DiscImageHelper();
-
-		void calc_file_name(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
-		void calc_file_path(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
+    namespace util
+    {
+        ckcore::tuint32 bytes_to_sec(ckcore::tuint32 bytes);
+        ckcore::tuint32 bytes_to_sec(ckcore::tuint64 bytes);
+        ckcore::tuint64 bytes_to_sec64(ckcore::tuint64 bytes);
 	};
 };
+

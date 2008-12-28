@@ -17,14 +17,13 @@
  */
 
 #pragma once
-#include <set>
 #include <map>
 #include <vector>
 #include <string>
-#include <queue>
 #include <ckcore/types.hh>
 #include <ckcore/progress.hh>
 #include <ckcore/log.hh>
+#include <ckcore/stream.hh>
 #include "ckfilesystem/fileset.hh"
 #include "ckfilesystem/filetree.hh"
 #include "ckfilesystem/sectorstream.hh"
@@ -32,38 +31,20 @@
 #include "ckfilesystem/joliet.hh"
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/udf.hh"
-
-// Fix to be able to include winbase.h.
-#ifdef SetVolumeLabel
-#undef SetVolumeLabel
-#endif
+#include "ckfilesystem/filesystem.hh"
 
 namespace ckfilesystem
 {
-	class DiscImageWriter
+	class FileSystemWriter
 	{
-	public:
-		enum FileSystem
-		{
-			FS_ISO9660,
-			FS_ISO9660_JOLIET,
-			FS_ISO9660_UDF,
-			FS_ISO9660_UDF_JOLIET,
-			FS_UDF,
-			FS_DVDVIDEO
-		};
-
 	private:
 		ckcore::Log &log_;
 
 		// What file system should be created.
-		FileSystem file_sys_;
+		FileSystem &file_sys_;
 
-		// Different standard implementations.
-		Iso9660 iso9660_;
-		Joliet joliet_;
-		ElTorito eltorito_;
-		Udf udf_;
+        // File tree for caching between the write and file_path_map functions.
+        FileTree file_tree_;
 
 		bool calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
 								     FileTreeNode *local_node,int level,ckcore::tuint64 &sec_offset,
@@ -82,39 +63,21 @@ namespace ckfilesystem
 							   bool ext_path,bool joliet);
 		void create_local_file_path_map(FileTreeNode *local_node,
 									    std::vector<FileTreeNode *> &dir_node_stack,
-									    std::map<ckcore::tstring,ckcore::tstring> &filepath_map,
+									    std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
 									    bool joliet);
-		void create_file_path_map(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &filepath_map,
+		void create_file_path_map(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
 							      bool joliet);
 
 		int fail(int res,SectorOutStream &out_stream);
 
 	public:
-		DiscImageWriter(ckcore::Log &log,FileSystem file_sys);
-		~DiscImageWriter();	
+		FileSystemWriter(ckcore::Log &log,FileSystem &file_sys);
+		~FileSystemWriter();	
 
-		int create(SectorOutStream &out_stream,FileSet &files,ckcore::Progress &progress,
-				   unsigned long sec_offset = 0,
-				   std::map<ckcore::tstring,ckcore::tstring> *filepath_map_ptr = NULL);
+		int write(ckcore::OutStream &out_stream,ckcore::Progress &progress,
+				  ckcore::tuint32 sec_offset = 0);
 
-		// File system modifiers, mixed set for Joliet, UDF and ISO9660.
-		void set_volume_label(const ckcore::tchar *label);
-		void set_text_fields(const ckcore::tchar *sys_ident,
-						     const ckcore::tchar *volset_ident,
-						     const ckcore::tchar *publ_ident,
-						     const ckcore::tchar *prep_ident);
-		void set_file_fields(const ckcore::tchar *copy_file_ident,
-						     const ckcore::tchar *abst_file_ident,
-						     const ckcore::tchar *bibl_file_ident);
-		void set_interchange_level(Iso9660::InterLevel inter_level);
-		void set_include_file_ver_info(bool include);
-		void set_part_access_type(Udf::PartAccessType access_type);
-		void set_relax_max_dir_level(bool relax);
-		void set_long_joliet_names(bool enable);
-
-		bool add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
-							       unsigned short load_segment,unsigned short sec_count);
-		bool add_boot_image_floppy(const ckcore::tchar *full_path,bool bootable);
-		bool add_boot_image_hard_disk(const ckcore::tchar *full_path,bool bootable);
+        int file_path_map(std::map<ckcore::tstring,ckcore::tstring> &file_path_map);
 	};
 };
+

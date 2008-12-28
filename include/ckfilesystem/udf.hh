@@ -183,8 +183,8 @@ namespace ckfilesystem
 
 	typedef struct	// ISO 13346 1/7.3.
 	{
-		unsigned short type_tz;
-		unsigned short year;
+		ckcore::tuint16 type_tz;
+		ckcore::tuint16 year;
 		unsigned char mon;
 		unsigned char day;
 		unsigned char hour;
@@ -204,41 +204,41 @@ namespace ckfilesystem
 
 	typedef struct	// ISO 13346 3/7.2.
 	{
-		unsigned short tag_ident;
-		unsigned short desc_ver;
+		ckcore::tuint16 tag_ident;
+		ckcore::tuint16 desc_ver;
 		unsigned char tag_chksum;
 		unsigned char res1;
-		unsigned short tag_serial_num;
-		unsigned short desc_crc;
-		unsigned short desc_crc_len;
-		unsigned long tag_loc;
+		ckcore::tuint16 tag_serial_num;
+		ckcore::tuint16 desc_crc;
+		ckcore::tuint16 desc_crc_len;
+		ckcore::tuint32 tag_loc;
 	} tudf_tag;
 
 	/*typedef struct	// ISO 13346 4/14.5.
 	{
 		tudf_tag desc_tag;
-		unsigned long prev_allocextent_loc;
-		unsigned long alloc_desc_len;
+		ckcore::tuint32 prev_allocextent_loc;
+		ckcore::tuint32 alloc_desc_len;
 	} tudf_alloc_extent_desc;*/
 
 	typedef struct	// ISO 13346 3/7.1
 	{
-		unsigned long extent_len;
-		unsigned long extent_loc;
+		ckcore::tuint32 extent_len;
+		ckcore::tuint32 extent_loc;
 	} tudf_extent_ad;
 
 	typedef struct	// ISO 13346 3/10.1.
 	{
 		tudf_tag desc_tag;
-		unsigned long voldesc_seqnum;
-		unsigned long voldesc_primnum;
+		ckcore::tuint32 voldesc_seqnum;
+		ckcore::tuint32 voldesc_primnum;
 		unsigned char vol_ident[32];		// D-characters.
-		unsigned short volseq_num;
-		unsigned short max_volseq_num;
-		unsigned short interchange_level;
-		unsigned short max_interchange_level;
-		unsigned long charset_list;
-		unsigned long max_charset_list;
+		ckcore::tuint16 volseq_num;
+		ckcore::tuint16 max_volseq_num;
+		ckcore::tuint16 interchange_level;
+		ckcore::tuint16 max_interchange_level;
+		ckcore::tuint32 charset_list;
+		ckcore::tuint32 max_charset_list;
 		unsigned char volset_ident[128];	// D-characters.
 		tudf_charspec desc_charset;
 		tudf_charspec explanatory_charset;
@@ -248,8 +248,8 @@ namespace ckfilesystem
 		tudf_timestamp rec_timestamp;
 		tudf_intity_ident impl_ident;
 		unsigned char impl_use[64];
-		unsigned long predecessor_voldesc_seqloc;
-		unsigned short flags;
+		ckcore::tuint32 predecessor_voldesc_seqloc;
+		ckcore::tuint16 flags;
 		unsigned char res1[22];
 	} tudf_voldesc_prim;
 
@@ -267,7 +267,7 @@ namespace ckfilesystem
 	typedef struct
 	{
 		tudf_tag desc_tag;
-		unsigned long voldesc_seqnum;
+		ckcore::tuint32 voldesc_seqnum;
 		tudf_intity_ident impl_ident;
 		tudf_lv_info lv_info;
 	} tudf_voldesc_impl_use;
@@ -275,14 +275,14 @@ namespace ckfilesystem
 	typedef struct
 	{
 		tudf_tag desc_tag;
-		unsigned long voldesc_seqnum;
-		unsigned short part_flags;
-		unsigned short part_num;
+		ckcore::tuint32 voldesc_seqnum;
+		ckcore::tuint16 part_flags;
+		ckcore::tuint16 part_num;
 		tudf_intity_ident part_content_ident;
 		unsigned char part_content_use[128];
-		unsigned long access_type;
-		unsigned long part_start_loc;
-		unsigned long part_len;
+		ckcore::tuint32 access_type;
+		ckcore::tuint32 part_start_loc;
+		ckcore::tuint32 part_len;
 		tudf_intity_ident impl_ident;
 		unsigned char impl_use[128];
 		unsigned char res1[156];
@@ -291,14 +291,14 @@ namespace ckfilesystem
 	typedef struct	// ISO 13346 3/10.6.
 	{
 		tudf_tag desc_tag;
-		unsigned long voldesc_seqnum;
+		ckcore::tuint32 voldesc_seqnum;
 		tudf_charspec desc_charset;
 		unsigned char logical_vol_ident[128];	// D-characters.
-		unsigned long logical_block_size;
+		ckcore::tuint32 logical_block_size;
 		tudf_intity_ident domain_ident;
 		unsigned char logocal_vol_contents_use[16];
-		unsigned long map_table_len;
-		unsigned long num_part_maps;
+		ckcore::tuint32 map_table_len;
+		ckcore::tuint32 num_part_maps;
 		tudf_intity_ident impl_ident;
 		unsigned char impl_use[128];
 		tudf_extent_ad integrity_seq_extent;
@@ -309,8 +309,8 @@ namespace ckfilesystem
 	{
 		unsigned char part_map_type;			// Always UDF_PARTITION_MAP_TYPE1.
 		unsigned char part_map_len;				// Always 6.
-		unsigned short volseq_num;
-		unsigned short part_num;
+		ckcore::tuint16 volseq_num;
+		ckcore::tuint16 part_num;
 	} tudf_logical_partmap_type1;
 
 	typedef struct	// ISO 13346 3/18
@@ -323,8 +323,8 @@ namespace ckfilesystem
 	typedef struct	// ISO 13346 3/10.8.
 	{
 		tudf_tag desc_tag;
-		unsigned long voldesc_seqnum;
-		unsigned long num_allocdesc;
+		ckcore::tuint32 voldesc_seqnum;
+		ckcore::tuint32 num_allocdesc;
 		//tudf_extent_ad alloc_desc[1];			// Actually num_allocdesc.
 	} tudf_unalloc_space_desc;	// No maximum size.
 
@@ -343,24 +343,24 @@ namespace ckfilesystem
 	typedef struct
 	{
 		tudf_intity_ident impl_ident;
-		unsigned long num_files;
-		unsigned long num_dirs;
-		unsigned short min_udf_rev_read;
-		unsigned short min_udf_rev_write;
-		unsigned short max_udf_rev_write;
+		ckcore::tuint32 num_files;
+		ckcore::tuint32 num_dirs;
+		ckcore::tuint16 min_udf_rev_read;
+		ckcore::tuint16 min_udf_rev_write;
+		ckcore::tuint16 max_udf_rev_write;
 	} tudf_voldesc_logical_integrity_impl_use;
 
 	typedef struct	// ISO 13346 3/10.10.
 	{
 		tudf_tag desc_tag;
 		tudf_timestamp rec_timestamp;
-		unsigned long integrity_type;
+		ckcore::tuint32 integrity_type;
 		tudf_extent_ad next_integrity_extent;
 		tudf_voldesc_logical_header logical_volcontents_use;
-		unsigned long num_partitions;
-		unsigned long impl_use_len;
-		unsigned long free_space_table;
-		unsigned long size_table;
+		ckcore::tuint32 num_partitions;
+		ckcore::tuint32 impl_use_len;
+		ckcore::tuint32 free_space_table;
+		ckcore::tuint32 size_table;
 		tudf_voldesc_logical_integrity_impl_use impl_use;
 	} tudf_voldesc_logical_integrity;
 
@@ -377,19 +377,19 @@ namespace ckfilesystem
 	*/
 	typedef struct	// ISO 13346 4/7.1.
 	{
-		unsigned long logical_block_num;
-		unsigned short partition_ref_num;
+		ckcore::tuint32 logical_block_num;
+		ckcore::tuint16 partition_ref_num;
 	} tudf_attr_lb;
 
 	typedef struct	// ISO 13346 - 4/14.14.1. (Short Allocation Descriptor)
 	{
-		unsigned long extent_len;
-		unsigned long extent_loc;
+		ckcore::tuint32 extent_len;
+		ckcore::tuint32 extent_loc;
 	} tudf_short_alloc_desc;
 
 	typedef struct	// ISO 13346 - 4/14.14.2. (Long Allocation Descriptor)
 	{
-		unsigned long extent_len;
+		ckcore::tuint32 extent_len;
 		tudf_attr_lb extent_loc;
 		unsigned char impl_use[6];
 	} tudf_long_alloc_desc;
@@ -398,12 +398,12 @@ namespace ckfilesystem
 	{
 		tudf_tag desc_tag;
 		tudf_timestamp rec_timestamp;
-		unsigned short interchange_level;
-		unsigned short max_interchange_level;
-		unsigned long charset_list;
-		unsigned long max_charset_list;
-		unsigned long fileset_num;
-		unsigned long fileset_descnum;
+		ckcore::tuint16 interchange_level;
+		ckcore::tuint16 max_interchange_level;
+		ckcore::tuint32 charset_list;
+		ckcore::tuint32 max_charset_list;
+		ckcore::tuint32 fileset_num;
+		ckcore::tuint32 fileset_descnum;
 		tudf_charspec logical_vol_ident_charset;
 		unsigned char logical_vol_ident[128];	// D-characters.
 		tudf_charspec fileset_charset;
@@ -418,38 +418,38 @@ namespace ckfilesystem
 
 	typedef struct	// ISO 13346 4/14.6.
 	{
-		unsigned long prior_rec_num_direct_entries;
-		unsigned short strategy_type;
+		ckcore::tuint32 prior_rec_num_direct_entries;
+		ckcore::tuint16 strategy_type;
 		unsigned char strategy_param[2];
-		unsigned short num_entries;
+		ckcore::tuint16 num_entries;
 		unsigned char res1;
 		unsigned char file_type;
 		tudf_attr_lb parent_icb_loc;
-		unsigned short flags;
+		ckcore::tuint16 flags;
 	} tudf_tagicb;
 
 	typedef struct	// ISO 13346 4/14.9.
 	{
 		tudf_tag desc_tag;
 		tudf_tagicb icb_tag;
-		unsigned long uid;
-		unsigned long gid;
-		unsigned long permissions;
-		unsigned short file_link_count;
+		ckcore::tuint32 uid;
+		ckcore::tuint32 gid;
+		ckcore::tuint32 permissions;
+		ckcore::tuint16 file_link_count;
 		unsigned char rec_format;
 		unsigned char rec_disp_attr;
-		unsigned long rec_len;
+		ckcore::tuint32 rec_len;
 		ckcore::tuint64 info_len;
 		ckcore::tuint64 logical_blocks_rec;
 		tudf_timestamp access_time;
 		tudf_timestamp modify_time;
 		tudf_timestamp attrib_time;
-		unsigned long checkpoint;
+		ckcore::tuint32 checkpoint;
 		tudf_long_alloc_desc extended_attr_icb;
 		tudf_intity_ident impl_ident;
 		ckcore::tuint64 unique_ident;
-		unsigned long extended_attr_len;
-		unsigned long allocdesc_len;
+		ckcore::tuint32 extended_attr_len;
+		ckcore::tuint32 allocdesc_len;
 
 		//unsigned char extended_attr[extended_attr_len];
 		//unsigned char allocdesc[allocdesc_len];
@@ -458,11 +458,11 @@ namespace ckfilesystem
 	typedef struct	// ISO 13346 4/14.4.
 	{
 		tudf_tag desc_tag;
-		unsigned short file_ver_num;
+		ckcore::tuint16 file_ver_num;
 		unsigned char file_characteristics;
 		unsigned char file_ident_len;
 		tudf_long_alloc_desc icb;
-		unsigned short impl_use_len;
+		ckcore::tuint16 impl_use_len;
 		//unsigned char impl_use[1];			// Actually impl_use_len.
 		//char file_ident[1];					// Actually file_ident_len.
 		//unsigned char padding[...];
@@ -474,45 +474,45 @@ namespace ckfilesystem
 	typedef struct	// ISO 13346 4/14.10.1.
 	{
 		tudf_tag desc_tag;
-		unsigned long impl_attr_loc;
-		unsigned long app_attr_loc;
+		ckcore::tuint32 impl_attr_loc;
+		ckcore::tuint32 app_attr_loc;
 	} tudf_extended_attr_header_desc;
 
 	/*typedef struct	// ISO 13346 4/14.10.8.
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned long impl_use_len;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint32 impl_use_len;
 		tudf_intity_ident impl_ident;
 		//unsigned char impl_use[impl_use_len];
 	} tudf_impl_use_extended_attr;*/
 
 	typedef struct	// UDF 1.02 - 3.3.4.5.1.1
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned long impl_use_len;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint32 impl_use_len;
 		tudf_intity_ident impl_ident;
-		unsigned short header_checksum;
-		unsigned short free_space;
+		ckcore::tuint16 header_checksum;
+		ckcore::tuint16 free_space;
 	} tudf_extended_attr_free_ea_space;
 
 	typedef struct	// UDF 1.02 - 3.3.4.5.1.2
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned long impl_use_len;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint32 impl_use_len;
 		tudf_intity_ident impl_ident;
-		unsigned short header_checksum;
+		ckcore::tuint16 header_checksum;
 		unsigned char cgms_info;
 		unsigned char data_struct_type;
-		unsigned long prot_sys_info;
+		ckcore::tuint32 prot_sys_info;
 	} tudf_extended_attr_cgms;
 
 	/*typedef struct	// ISO 13346 4/14.3.
@@ -529,15 +529,15 @@ namespace ckfilesystem
 	{
 		tudf_tag desc_tag;
 		tudf_tagICB icb_tag;
-		unsigned long allocdesc_len;
+		ckcore::tuint32 allocdesc_len;
 		//unsigned char allocdesc[allocdesc_len];
 	} tudf_unallocd_space_entry;	// Maximum of a logical block size.
 
 	typedef struct	// ISO 13346 4/14.11.
 	{
 		tudf_tag desc_tag;
-		unsigned long num_bits;
-		unsigned long num_bytes;
+		ckcore::tuint32 num_bits;
+		ckcore::tuint32 num_bytes;
 		//unsigned char bitmap[num_bytes];
 	} tudf_space_bitmap;	// No maximum size.
 
@@ -556,51 +556,51 @@ namespace ckfilesystem
 	{
 		unsigned char comp_type;
 		unsigned char comp_ident_len;
-		unsigned short comp_file_ver_num;
+		ckcore::tuint16 comp_file_ver_num;
 		//char comp_ident[comp_ident_len];
 	} tudf_path_comp;*/
 
 	/*typedef struct	// ISO 13346 4/14.10.4.
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned short owner_ident;
-		unsigned short group_ident;
-		unsigned short permission;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint16 owner_ident;
+		ckcore::tuint16 group_ident;
+		ckcore::tuint16 permission;
 	} tudf_alt_permissions_extended_attr;
 
 	typedef struct	// ISO 13346 4/14.10.5.
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned long data_len;
-		unsigned long file_time_existence;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint32 data_len;
+		ckcore::tuint32 file_time_existence;
 		unsigned char file_times;
 	} tudf_filetimes_extended_attr;
 
 	typedef struct	// ISO 13346 4/14.10.7.
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned long impl_use_len;
-		unsigned long major_dev_ident;
-		unsigned long minor_dev_ident;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint32 impl_use_len;
+		ckcore::tuint32 major_dev_ident;
+		ckcore::tuint32 minor_dev_ident;
 		//unsigned char impl_use[impl_use_len];
 	} tudf_devspec_extendedattr;
 
 	typedef struct	// ISO 13346 4/14.10.9.
 	{
-		unsigned long attr_type;
+		ckcore::tuint32 attr_type;
 		unsigned char attr_subtype;
 		unsigned char res1[3];
-		unsigned long attr_len;
-		unsigned long app_use_len;
+		ckcore::tuint32 attr_len;
+		ckcore::tuint32 app_use_len;
 		tudf_intity_ident app_ident;
 		//unsigned char app_use[app_use_len];
 	} tudf_app_use_extended_attr;*/
@@ -644,9 +644,9 @@ namespace ckfilesystem
 
 		// Buffer used for various data storage. This is used for performance reasons.
 		unsigned char *byte_buffer_;
-		unsigned long byte_buffer_size_;
+		ckcore::tuint32 byte_buffer_size_;
 
-		void alloc_byte_buffer(unsigned long min_size);
+		void alloc_byte_buffer(ckcore::tuint32 min_size);
 
 		size_t compress_unicode_str(size_t num_chars,unsigned char comp_id,
 								    const wchar_t *in_str,unsigned char *out_str);
@@ -657,7 +657,7 @@ namespace ckfilesystem
 
 		void make_char_spec(tudf_charspec &char_spec);
 		void make_ident(tudf_intity_ident &impl_ident,IdentType ident_type);
-		void make_tag(tudf_tag &tag,unsigned short ident);
+		void make_tag(tudf_tag &tag,ckcore::tuint16 ident);
 		void make_tag_checksums(tudf_tag &tag,unsigned char *buffer);
 		void make_vol_set_ident(unsigned char *volset_ident,size_t volset_ident_size);
 		void make_date_time(struct tm &time,tudf_timestamp &udf_time);
@@ -665,7 +665,7 @@ namespace ckfilesystem
 
 		unsigned char make_file_ident(unsigned char *out_buffer,const ckcore::tchar *file_name);
 
-		unsigned short make_ext_addr_checksum(unsigned char *buffer);
+		ckcore::tuint16 make_ext_addr_checksum(unsigned char *buffer);
 
 	public:
 		Udf(bool dvd_video);
@@ -677,44 +677,45 @@ namespace ckfilesystem
 
 		// Write functions.
 		bool write_vol_desc_initial(ckcore::OutStream &out_stream);
-		bool write_vol_desc_primary(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-							   	    unsigned long sec_location,struct tm &create_time);
-		bool write_vol_desc_impl_use(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								     unsigned long sec_location);
-		bool write_vol_desc_partition(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								      unsigned long sec_location,unsigned long part_start_loc,
-								      unsigned long part_len);
-		bool write_vol_desc_logical(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								    unsigned long sec_location,tudf_extent_ad &integrity_seq_extent);
-		bool write_vol_desc_unalloc(ckcore::OutStream &out_stream,unsigned long voldesc_seqnum,
-								    unsigned long sec_location);
-		bool write_vol_desc_term(ckcore::OutStream &out_stream,unsigned long sec_location);
-		bool write_vol_desc_log_integrity(ckcore::OutStream &out_stream,unsigned long sec_location,
-									      unsigned long file_count,unsigned long dir_count,
-									      unsigned long part_len,ckcore::tuint64 unique_ident,
+		bool write_vol_desc_primary(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+							   	    ckcore::tuint32 sec_location,struct tm &create_time);
+		bool write_vol_desc_impl_use(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+								     ckcore::tuint32 sec_location);
+		bool write_vol_desc_partition(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+								      ckcore::tuint32 sec_location,ckcore::tuint32 part_start_loc,
+								      ckcore::tuint32 part_len);
+		bool write_vol_desc_logical(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+								    ckcore::tuint32 sec_location,tudf_extent_ad &integrity_seq_extent);
+		bool write_vol_desc_unalloc(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+								    ckcore::tuint32 sec_location);
+		bool write_vol_desc_term(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location);
+		bool write_vol_desc_log_integrity(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+									      ckcore::tuint32 file_count,ckcore::tuint32 dir_count,
+									      ckcore::tuint32 part_len,ckcore::tuint64 unique_ident,
 									      struct tm &create_time);
-		bool write_anchor_vol_desc_ptr(ckcore::OutStream &out_stream,unsigned long sec_location,
+		bool write_anchor_vol_desc_ptr(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
 								       tudf_extent_ad &voldesc_main_seqextent,
 								       tudf_extent_ad &voldesc_rsrv_seqextent);
 
-		bool write_file_set_desc(ckcore::OutStream &out_stream,unsigned long sec_location,
-							     unsigned long root_sec_loc,struct tm &create_time);
-		bool write_file_ident_parent(ckcore::OutStream &out_stream,unsigned long sec_location,
-								     unsigned long file_entry_sec_loc);
-		bool write_file_ident(ckcore::OutStream &out_stream,unsigned long sec_location,
-						      unsigned long file_entry_sec_loc,bool is_dir,
+		bool write_file_set_desc(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+							     ckcore::tuint32 root_sec_loc,struct tm &create_time);
+		bool write_file_ident_parent(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+								     ckcore::tuint32 file_entry_sec_loc);
+		bool write_file_ident(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+						      ckcore::tuint32 file_entry_sec_loc,bool is_dir,
 							  const ckcore::tchar *file_name);
-		bool write_file_entry(ckcore::OutStream &out_stream,unsigned long sec_location,
-							  bool is_dir,unsigned short file_link_count,
-							  ckcore::tuint64 unique_ident,unsigned long info_loc,
+		bool write_file_entry(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+							  bool is_dir,ckcore::tuint16 file_link_count,
+							  ckcore::tuint64 unique_ident,ckcore::tuint32 info_loc,
 							  ckcore::tuint64 info_len,struct tm &access_time,
 							  struct tm &modify_time,struct tm &create_time);
 
 		// Helper functions.
-		unsigned long calc_file_ident_parent_size();
-		unsigned long calc_file_ident_size(const ckcore::tchar *file_name);
-		unsigned long calc_file_entry_size();
+		ckcore::tuint32 calc_file_ident_parent_size();
+		ckcore::tuint32 calc_file_ident_size(const ckcore::tchar *file_name);
+		ckcore::tuint32 calc_file_entry_size();
 
-		unsigned long get_vol_desc_initial_size();
+		ckcore::tuint32 get_vol_desc_initial_size();
 	};
 };
+

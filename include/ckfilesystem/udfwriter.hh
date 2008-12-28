@@ -25,6 +25,7 @@
 #include "ckfilesystem/sectorstream.hh"
 #include "ckfilesystem/filetree.hh"
 #include "ckfilesystem/udf.hh"
+#include "ckfilesystem/filesystem.hh"
 
 namespace ckfilesystem
 {
@@ -47,7 +48,7 @@ namespace ckfilesystem
 		bool use_file_times_;
 
 		// Different standard implementations.
-		Udf &udf_;
+		FileSystem &file_sys_;
 
 		// Sizes of different structures.
 		ckcore::tuint64 part_len_;
@@ -70,13 +71,13 @@ namespace ckfilesystem
 		// Write functions.
 		bool write_local_partition_dir(std::deque<FileTreeNode *> &dir_node_queue,
 								       FileTreeNode *local_node,
-								       unsigned long &cur_part_sec,
+								       ckcore::tuint32 &cur_part_sec,
 								       ckcore::tuint64 &unique_ident);
 		bool write_partition_entries(FileTree &file_tree);
 
 	public:
 		UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
-			Udf &udf,bool use_file_times);
+			FileSystem &file_sys,bool use_file_times);
 		~UdfWriter();
 
 		int alloc_header();

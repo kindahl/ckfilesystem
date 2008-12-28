@@ -28,6 +28,7 @@
 #include "ckfilesystem/iso9660.hh"
 #include "ckfilesystem/joliet.hh"
 #include "ckfilesystem/eltorito.hh"
+#include "ckfilesystem/filesystem.hh"
 
 #define ISO9660WRITER_FILENAME_BUFFER_SIZE		206			// Must be enough to hold the largest possible string using
 															// any of the supported file system extensions.
@@ -39,9 +40,9 @@ namespace ckfilesystem
 		unsigned char file_flags_;
 		unsigned char file_unit_size_;
 		unsigned char interleave_gap_size_;
-		unsigned short volseq_num_;
-		unsigned long extent_loc_;
-		unsigned long extent_len_;
+		ckcore::tuint16 volseq_num_;
+		ckcore::tuint32 extent_loc_;
+		ckcore::tuint32 extent_len_;
 
 		ckfilesystem::tiso_dir_record_datetime rec_timestamp_;
 
@@ -80,10 +81,7 @@ namespace ckfilesystem
 		SectorOutStream &out_stream_;
 		SectorManager &sec_manager_;
 
-		// Different standard implementations.
-		Iso9660 &iso9660_;
-		Joliet &joliet_;
-		ElTorito &eltorito_;
+        FileSystem &file_sys_;
 
 		// File system attributes.
 		bool use_joliet_;
@@ -103,15 +101,15 @@ namespace ckfilesystem
 							     unsigned char file_name_size);
 
 		bool compare_strings(const char *str1,const ckcore::tchar *str2,
-							unsigned char len);
+							 unsigned char len);
 		bool compare_strings(const unsigned char *udf_str1,const ckcore::tchar *str2,
-							unsigned char len);
+							 unsigned char len);
 
-		bool calc_path_table_size(FileSet &files,bool joliet_table,
+		bool calc_path_table_size(const FileSet &files,bool joliet_table,
 							      ckcore::tuint64 &pathtable_size,
 							      ckcore::Progress &progress);
 		bool calc_local_dir_entry_len(FileTreeNode *local_node,bool joliet,int level,
-									  unsigned long &dir_len);
+									  ckcore::tuint32 &dir_len);
 		bool calc_local_dir_entries_len(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
 									    FileTreeNode *local_node,int level,
 									    ckcore::tuint64 &sec_offset);
@@ -119,9 +117,9 @@ namespace ckfilesystem
 								  ckcore::tuint64 &len);
 
 		// Write functions.
-		bool write_path_table(FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
+		bool write_path_table(const FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
 		bool write_sys_dir(FileTreeNode *parent_node,SysDirType type,
-						   unsigned long data_pos,unsigned long data_size);
+						   ckcore::tuint32 data_pos,ckcore::tuint32 data_size);
 		int write_local_dir_entry(ckcore::Progress &progress,FileTreeNode *local_node,
 							      bool joliet,int level);
 		int write_local_dir_entries(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
@@ -129,16 +127,15 @@ namespace ckfilesystem
 
 	public:
 		Iso9660Writer(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
-					  Iso9660 &iso9660,Joliet &joliet,ElTorito &eltorito,
-					  bool use_file_times,bool use_joliet);
+                      FileSystem &file_sys,bool use_file_times,bool use_joliet);
 		~Iso9660Writer();
 
 		int alloc_header();
-		int alloc_path_tables(ckcore::Progress &progress,FileSet &files);
+		int alloc_path_tables(ckcore::Progress &progress,const FileSet &files);
 		int alloc_dir_entries(FileTree &file_tree);
 
-		int write_header(FileSet &files,FileTree &file_tree);
-		int write_path_tables(FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
+		int write_header(const FileSet &files,FileTree &file_tree);
+		int write_path_tables(const FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
 		int write_dir_entries(FileTree &file_tree,ckcore::Progress &progress);
 
 		// Helper functions.

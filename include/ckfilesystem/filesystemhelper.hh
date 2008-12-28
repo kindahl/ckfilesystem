@@ -18,30 +18,22 @@
 
 #pragma once
 #include <ckcore/types.hh>
-#include <ckcore/stream.hh>
-#include <ckcore/bufferedstream.hh>
+#include "ckfilesystem/filesystemwriter.hh"
 #include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/joliet.hh"
 
 namespace ckfilesystem
 {
-	class SectorOutStream : public ckcore::BufferedOutStream
+	class FileSystemHelper
 	{
 	private:
-		ckcore::tuint32 sector_size_;
-		ckcore::tuint64 sector_;
-		ckcore::tuint64 written_;
+		FileSystem &file_sys_;
 
 	public:
-		SectorOutStream(ckcore::OutStream &out_stream,
-			ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
-		~SectorOutStream();
+		FileSystemHelper(FileSystem &file_sys);
+		~FileSystemHelper();
 
-		ckcore::tint64 write(void *buffer,ckcore::tuint32 count);
-
-		ckcore::tuint64 get_sector();
-		ckcore::tuint32 get_allocated();
-		ckcore::tuint32 get_remaining();
-
-		void pad_sector();
+		void calc_file_name(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
+		void calc_file_path(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
 	};
 };

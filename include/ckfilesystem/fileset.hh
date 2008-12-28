@@ -62,9 +62,9 @@ namespace ckfilesystem
 			Returns a weight of the specified file name, a ligher file should
 			be placed heigher in the directory hierarchy.
 		*/
-		unsigned long get_file_weight(const ckcore::tchar *file_path) const
+		ckcore::tuint32 get_file_weight(const ckcore::tchar *file_path) const
 		{
-			unsigned long weight = 0xFFFFFFFF;
+			ckcore::tuint32 weight = 0xffffffff;
 
 			// Quick test for optimization.
 			if (file_path[1] == 'V')
@@ -95,20 +95,20 @@ namespace ckfilesystem
 						if (ckcore::string::astrlen(file_name) < 64)
 						{
 							ckcore::tchar file_ext[64];
-							unsigned long num = 0,sub_num = 0;
+							ckcore::tuint32 num = 0,sub_num = 0;
 
 							if (asscanf(file_name,ckT("VTS_%u_%u.%[^\0]"),&num,&sub_num,file_ext) == 3)
 							{
 								// The first number is worth the most, the lower the lighter.
-								weight -= 0xFFFFFF - (num << 8);
+								weight -= 0xffffff - (num << 8);
 
 								if (!ckcore::string::astrcmp(file_ext,ckT("IFO")))
 								{
-									weight -= 0xFF;
+									weight -= 0xff;
 								}
 								else if (!ckcore::string::astrcmp(file_ext,ckT("VOB")))
 								{
-									weight -= 0x0F - sub_num;
+									weight -= 0x0f - sub_num;
 								}
 								else if (!ckcore::string::astrcmp(file_ext,ckT("BUP")))
 								{
@@ -152,8 +152,8 @@ namespace ckfilesystem
 		{
 			if (dvd_video_)
 			{
-				unsigned long weight1 = get_file_weight(item1.internal_path_.c_str());
-				unsigned long weight2 = get_file_weight(item2.internal_path_.c_str());
+				ckcore::tuint32 weight1 = get_file_weight(item1.internal_path_.c_str());
+				ckcore::tuint32 weight2 = get_file_weight(item2.internal_path_.c_str());
 
 				if (weight1 != weight2)
 				{
@@ -178,3 +178,4 @@ namespace ckfilesystem
 
 	typedef std::set<ckfilesystem::FileDescriptor,ckfilesystem::FileComparator> FileSet;
 };
+

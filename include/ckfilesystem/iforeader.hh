@@ -30,22 +30,22 @@ namespace ckfilesystem
 	class IfoVmgData
 	{
 	public:
-		unsigned long last_vmg_sec_;
-		unsigned long last_vmg_ifo_sec_;
-		unsigned short num_vmg_ts_;
-		unsigned long vmg_menu_vob_sec_;
-		unsigned long srpt_sec_;
+		ckcore::tuint32 last_vmg_sec_;
+		ckcore::tuint32 last_vmg_ifo_sec_;
+		ckcore::tuint16 num_vmg_ts_;
+		ckcore::tuint32 vmg_menu_vob_sec_;
+		ckcore::tuint32 srpt_sec_;
 
-		std::vector<unsigned long> titles_;
+		std::vector<ckcore::tuint32> titles_;
 	};
 
 	class IfoVtsData
 	{
 	public:
-		unsigned long last_vts_sec_;
-		unsigned long last_vts_ifo_sec_;
-		unsigned long vts_menu_vob_sec_;
-		unsigned long vts_vob_sec_;
+		ckcore::tuint32 last_vts_sec_;
+		ckcore::tuint32 last_vts_ifo_sec_;
+		ckcore::tuint32 vts_menu_vob_sec_;
+		ckcore::tuint32 vts_vob_sec_;
 	};
 
 	class IfoReader

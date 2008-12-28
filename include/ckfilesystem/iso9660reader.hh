@@ -38,17 +38,17 @@ namespace ckfilesystem
 		unsigned char file_flags_;
 		unsigned char file_unit_size_;
 		unsigned char interleave_gap_size_;
-		unsigned short volseq_num_;
-		unsigned long extent_loc_;
-		unsigned long extent_len_;
+		ckcore::tuint16 volseq_num_;
+		ckcore::tuint32 extent_loc_;
+		ckcore::tuint32 extent_len_;
 
 		tiso_dir_record_datetime rec_timestamp_;
 
 		ckcore::tstring file_name_;
 
 		Iso9660TreeNode(Iso9660TreeNode *parent_node,const ckcore::tchar *file_name,
-						unsigned long extent_loc,unsigned long extent_len,
-						unsigned short volseq_num,unsigned char file_flags,
+						ckcore::tuint32 extent_loc,ckcore::tuint32 extent_len,
+						ckcore::tuint16 volseq_num,unsigned char file_flags,
 						unsigned char file_unit_size,unsigned char interleave_gap_size,
 					    tiso_dir_record_datetime &rec_timestamp) :
 			parent_node_(parent_node),file_flags_(file_flags),
@@ -98,7 +98,7 @@ namespace ckfilesystem
 			return root_node_;
 		}
 
-		bool read(ckcore::InStream &in_stream,unsigned long start_sec);
+		bool read(ckcore::InStream &in_stream,ckcore::tuint32 start_sec);
 
 	#ifdef _DEBUG
 		void print_local_tree(std::vector<std::pair<Iso9660TreeNode *,int> > &dir_node_stack,

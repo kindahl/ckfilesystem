@@ -20,16 +20,11 @@
 #include <ckcore/types.hh>
 #include <ckcore/stream.hh>
 
-// Fix to be able to include winbase.h.
-#ifdef SetVolumeLabel
-#undef SetVolumeLabel
-#endif
-
 #define ISO9660_SECTOR_SIZE						2048
 #define ISO9660_MAX_NAMELEN_1999				 207
 #define ISO9660_MAX_DIRLEVEL_NORMAL				   8		// Maximum is 8 for ISO9660:1988.
 #define ISO9660_MAX_DIRLEVEL_1999				 255		// Maximum is 255 for ISO9660:1999.
-#define ISO9660_MAX_EXTENT_SIZE					0xFFFFF800
+#define ISO9660_MAX_EXTENT_SIZE					0xfffff800
 
 #define DIRRECORD_FILEFLAG_HIDDEN				1 << 0
 #define DIRRECORD_FILEFLAG_DIRECTORY			1 << 1
@@ -99,7 +94,7 @@ namespace ckfilesystem
 	{
 		unsigned char owner_ident[4];		// 7.2.3.
 		unsigned char group_ident[4];		// 7.2.3.
-		unsigned short permissions;
+		ckcore::tuint16 permissions;
 		tiso_dir_record_datetime create_time;
 		tiso_dir_record_datetime modify_time;
 		tiso_dir_record_datetime expr_time;
@@ -122,12 +117,12 @@ namespace ckfilesystem
 	typedef struct
 	{
 		unsigned int year;			// Year from I to 9999.
-		unsigned short mon;			// Month of the year from 1 to 12.
-		unsigned short day;			// Day of the month from 1 to 31.
-		unsigned short hour;		// Hour of the day from 0 to 23.
-		unsigned short min;			// Minute of the hour from 0 to 59.
-		unsigned short sec;			// Second of the minute from 0 to 59.
-		unsigned short hundreds;	// Hundredths of a second.
+		ckcore::tuint16 mon;			// Month of the year from 1 to 12.
+		ckcore::tuint16 day;			// Day of the month from 1 to 31.
+		ckcore::tuint16 hour;		// Hour of the day from 0 to 23.
+		ckcore::tuint16 min;			// Minute of the hour from 0 to 59.
+		ckcore::tuint16 sec;			// Second of the minute from 0 to 59.
+		ckcore::tuint16 hundreds;	// Hundredths of a second.
 		unsigned char zone;			// Offset from Greenwich Mean Time in number of
 									// 15 min intervals from -48 (West) to +52 (East)
 									// recorded according to 7.1.2.
@@ -315,13 +310,13 @@ namespace ckfilesystem
 
 		// Write functions.
 		bool write_vol_desc_primary(ckcore::OutStream &out_stream,struct tm &create_time,
-								    unsigned long vol_space_size,unsigned long pathtable_size,
-								    unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-								    unsigned long root_extent_loc,unsigned long data_len);
+								    ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+								    ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+								    ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
 		bool write_vol_desc_suppl(ckcore::OutStream &out_stream,struct tm &create_time,
-							      unsigned long vol_space_size,unsigned long pathtable_size,
-							      unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-							      unsigned long root_extent_loc,unsigned long data_len);
+							      ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+							      ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+							      ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
 		bool write_vol_desc_setterm(ckcore::OutStream &out_stream);
 
 		// Helper functions.
@@ -332,34 +327,29 @@ namespace ckfilesystem
 		bool has_vol_desc_suppl();
 		bool allows_fragmentation();
 		bool includes_file_ver_info();
+
+        // Static helper functions.
+        static void write721(unsigned char *buffer,ckcore::tuint16 val);			// Least significant byte first.
+        static void write722(unsigned char *buffer,ckcore::tuint16 val);			// Most significant byte first.
+        static void write723(unsigned char *buffer,ckcore::tuint16 val);			// Both-byte orders.
+        static void write72(unsigned char *buffer,ckcore::tuint16 val,bool msbf);   // 7.2.1 or 7.2.2 is decided by parameter.
+        static void write731(unsigned char *buffer,ckcore::tuint32 val);			// Least significant byte first.
+        static void write732(unsigned char *buffer,ckcore::tuint32 val);			// Most significant byte first.
+        static void write733(unsigned char *buffer,ckcore::tuint32 val);			// Both-byte orders.
+        static void write73(unsigned char *buffer,ckcore::tuint32 val,bool msbf);	// 7.3.1 or 7.3.2 is decided by parameter.
+        static ckcore::tuint16 read721(unsigned char *buffer);
+        static ckcore::tuint16 read722(unsigned char *buffer);
+        static ckcore::tuint16 read723(unsigned char *buffer);
+        static ckcore::tuint32 read731(unsigned char *buffer);
+        static ckcore::tuint32 read732(unsigned char *buffer);
+        static ckcore::tuint32 read733(unsigned char *buffer);
+
+        static void make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time);
+        static void make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time);
+        static void make_datetime(ckcore::tuint16 date,ckcore::tuint16 time,
+                                  tiso_dir_record_datetime &iso_time);
+        static void make_dosdatetime(tiso_dir_record_datetime &iso_time,
+                                     ckcore::tuint16 &date,ckcore::tuint16 &time);
 	};
-
-	/*
-		Helper Functions.
-	*/
-	void write721(unsigned char *buffer,unsigned short val);			// Least significant byte first.
-	void write722(unsigned char *buffer,unsigned short val);			// Most significant byte first.
-	void write723(unsigned char *buffer,unsigned short val);			// Both-byte orders.
-	void write72(unsigned char *buffer,unsigned short val,bool msbf);	// 7.2.1 or 7.2.2 is decided by parameter.
-	void write731(unsigned char *buffer,unsigned long val);				// Least significant byte first.
-	void write732(unsigned char *buffer,unsigned long val);				// Most significant byte first.
-	void write733(unsigned char *buffer,unsigned long val);				// Both-byte orders.
-	void write73(unsigned char *buffer,unsigned long val,bool msbf);	// 7.3.1 or 7.3.2 is decided by parameter.
-	unsigned short read721(unsigned char *buffer);
-	unsigned short read722(unsigned char *buffer);
-	unsigned short read723(unsigned char *buffer);
-	unsigned long read731(unsigned char *buffer);
-	unsigned long read732(unsigned char *buffer);
-	unsigned long read733(unsigned char *buffer);
-
-	unsigned long bytes_to_sec(unsigned long bytes);
-	unsigned long bytes_to_sec(ckcore::tuint64 bytes);
-	ckcore::tuint64 bytes_to_sec64(ckcore::tuint64 bytes);
-
-	void iso_make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time);
-	void iso_make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time);
-	void iso_make_datetime(unsigned short date,unsigned short time,
-						   tiso_dir_record_datetime &iso_time);
-	void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,
-							  unsigned short &date,unsigned short &time);
 };
+

@@ -54,19 +54,19 @@ namespace ckfilesystem
 		ckcore::tuint64 data_size_normal_;	// Data length in bytes.
 		ckcore::tuint64 data_size_joliet_;
 
-		unsigned long data_pad_len_;		// The number of sectors to pad with zeroes after the file.
+		ckcore::tuint32 data_pad_len_;		// The number of sectors to pad with zeroes after the file.
 
 		// Sector size of UDF partition entry (all data) for an node and all it's children.
 		ckcore::tuint64 udf_size_;
 		ckcore::tuint64 udf_size_tot_;
 		ckcore::tuint64 udf_link_tot_;		// The number of directory links within the UDF file system.
-		unsigned long udf_part_loc_;		// Where is the actual UDF file entry stored.
+		ckcore::tuint32 udf_part_loc_;		// Where is the actual UDF file entry stored.
 
 		void *data_ptr_;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
 
 		FileTreeNode(FileTreeNode *parent_node,const ckcore::tchar *file_name,
 					 const ckcore::tchar *file_path,ckcore::tuint64 file_size,
-					 bool last_fragment,unsigned long fragment_index,
+					 bool last_fragment,ckcore::tuint32 fragment_index,
 					 unsigned char file_flags = 0,void *data_ptr = NULL) :
 			parent_node_(parent_node),
 			file_flags_(file_flags),file_size_(file_size),
@@ -100,8 +100,8 @@ namespace ckfilesystem
 		FileTreeNode *root_node_;
 
 		// File tree information.
-		unsigned long dir_count_;
-		unsigned long file_count_;
+		ckcore::tuint32 dir_count_;
+		ckcore::tuint32 file_count_;
 
 		FileTreeNode *get_child_from_file_name(FileTreeNode *parent_node,
 										       const ckcore::tchar *file_name);
@@ -124,7 +124,7 @@ namespace ckfilesystem
 	#endif
 
 		// For obtaining file tree information.
-		unsigned long get_dir_count();
-		unsigned long get_file_count();
+		ckcore::tuint32 get_dir_count();
+		ckcore::tuint32 get_file_count();
 	};
 };

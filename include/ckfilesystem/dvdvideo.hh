@@ -42,13 +42,13 @@ namespace ckfilesystem
 
 		ckcore::tuint64 size_to_dvd_len(ckcore::tuint64 file_size);
 
-		FileTreeNode *find_video_node(FileTree &file_tree,FileSetType type,unsigned long number);
+		FileTreeNode *find_video_node(FileTree &file_tree,FileSetType type,ckcore::tuint32 number);
 
-		bool get_total_titles_size(ckcore::tstring &file_path,FileSetType type,unsigned long number,
+		bool get_total_titles_size(ckcore::tstring &file_path,FileSetType type,ckcore::tuint32 number,
 								   ckcore::tuint64 &file_size);
 		bool read_file_set_info_root(FileTree &file_tree,IfoVmgData &vmg_data,
-								     std::vector<unsigned long> &ts_sectors);
-		bool read_file_set_info(FileTree &file_tree,std::vector<unsigned long> &ts_sectors);
+								     std::vector<ckcore::tuint32> &ts_sectors);
+		bool read_file_set_info(FileTree &file_tree,std::vector<ckcore::tuint32> &ts_sectors);
 
 	public:
 		DvdVideo(ckcore::Log &log);
@@ -59,3 +59,4 @@ namespace ckfilesystem
 		bool calc_file_padding(FileTree &file_tree);
 	};
 };
+

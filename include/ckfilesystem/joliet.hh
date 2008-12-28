@@ -59,9 +59,9 @@ namespace ckfilesystem
 
 		// Write functions.
 		bool write_vol_desc(ckcore::OutStream &out_stream,struct tm &create_time,
-						    unsigned long vol_space_size,unsigned long pathtable_size,
-						    unsigned long pos_pathtable_l,unsigned long pos_pathtable_m,
-						    unsigned long root_extent_loc,unsigned long data_len);
+						    ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+						    ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+						    ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
 
 		// Helper functions.
 		unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);

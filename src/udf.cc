@@ -28,6 +28,8 @@
 
 namespace ckfilesystem
 {
+    using namespace util;
+
 	/*
 		Identifiers.
 	*/
@@ -204,7 +206,7 @@ namespace ckfilesystem
 			case IT_LVINFO:
 				memcpy(impl_ident.ident,ident_udf_entity_lv_info,sizeof(ident_udf_entity_lv_info));
 
-				Iso9660::write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
+				write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 
 				impl_ident.ident_suffix[2] = os_class;
 				impl_ident.ident_suffix[3] = os_ident;
@@ -213,7 +215,7 @@ namespace ckfilesystem
 			case IT_DOMAIN:
 				memcpy(impl_ident.ident,ident_udf_entity_domain,sizeof(ident_udf_entity_domain));
 
-				Iso9660::write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
+				write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 
 				impl_ident.ident_suffix[2] = UDF_DOMAIN_FLAG_HARD_WRITEPROTECT | UDF_DOMAIN_FLAG_SOFT_WRITEPROTECT;
 				impl_ident.ident_suffix[3] = os_ident;
@@ -222,13 +224,13 @@ namespace ckfilesystem
 			case IT_FREEEASPACE:
 				memcpy(impl_ident.ident,ident_udf_free_ea_space,sizeof(ident_udf_free_ea_space));
 
-				Iso9660::write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
+				write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 				break;
 
 			case IT_CGMS:
 				memcpy(impl_ident.ident,ident_udf_cgms,sizeof(ident_udf_cgms));
 
-				Iso9660::write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
+				write721(impl_ident.ident_suffix,0x0102);	// Currently only UDF 1.02 is supported.
 				break;
 		}
 	}
@@ -406,7 +408,7 @@ namespace ckfilesystem
 		make_ident(voldesc_logical_.domain_ident,IT_DOMAIN);
 		make_ident(voldesc_logical_.impl_ident,IT_DEVELOPER);
 	
-		Iso9660::write731(voldesc_logical_.logocal_vol_contents_use,UDF_SECTOR_SIZE);	// ?
+		write731(voldesc_logical_.logocal_vol_contents_use,UDF_SECTOR_SIZE);	// ?
 	}
 
 	void Udf::set_volume_label(const ckcore::tchar *label)
@@ -1007,7 +1009,7 @@ namespace ckfilesystem
 		fe.file_link_count = file_link_count;
 
 		fe.info_len = info_len;			// flow.txt = 40, root = 264
-		fe.logical_blocks_rec = util::bytes_to_sec64(info_len);
+		fe.logical_blocks_rec = bytes_to_sec64(info_len);
 
 		// File time stamps.
 		make_date_time(access_time,fe.access_time);

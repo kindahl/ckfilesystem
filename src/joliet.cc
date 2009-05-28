@@ -19,10 +19,13 @@
 #include <string.h>
 #include <iostream>
 #include <ckcore/string.hh>
+#include "ckfilesystem/util.hh"
 #include "ckfilesystem/joliet.hh"
 
 namespace ckfilesystem
 {
+    using namespace util;
+
 	Joliet::Joliet() : inc_file_ver_info_(true),max_name_len_(64)
 	{
 		init_vol_desc();
@@ -129,17 +132,17 @@ namespace ckfilesystem
 							    ckcore::tuint32 root_extent_loc,ckcore::tuint32 ulDataLen)
 	{
 		// Initialize the supplementary volume descriptor.
-		Iso9660::write733(voldesc_suppl_.vol_space_size,vol_space_size);		// Volume size in sectors.
-		Iso9660::write723(voldesc_suppl_.volset_size,1);		// Only one disc in the volume set.
-		Iso9660::write723(voldesc_suppl_.volseq_num,1);		// This is the first disc in the volume set.
-		Iso9660::write723(voldesc_suppl_.logical_block_size,ISO9660_SECTOR_SIZE);
-		Iso9660::write733(voldesc_suppl_.path_table_size,pathtable_size);	// Path table size in bytes.
-		Iso9660::write731(voldesc_suppl_.path_table_type_l,pos_pathtable_l);	// Start sector of LSBF path table.
-		Iso9660::write732(voldesc_suppl_.path_table_type_m,pos_pathtable_m);	// Start sector of MSBF path table.
+		write733(voldesc_suppl_.vol_space_size,vol_space_size);		// Volume size in sectors.
+		write723(voldesc_suppl_.volset_size,1);		// Only one disc in the volume set.
+		write723(voldesc_suppl_.volseq_num,1);		// This is the first disc in the volume set.
+		write723(voldesc_suppl_.logical_block_size,ISO9660_SECTOR_SIZE);
+		write733(voldesc_suppl_.path_table_size,pathtable_size);	// Path table size in bytes.
+		write731(voldesc_suppl_.path_table_type_l,pos_pathtable_l);	// Start sector of LSBF path table.
+		write732(voldesc_suppl_.path_table_type_m,pos_pathtable_m);	// Start sector of MSBF path table.
 
-		Iso9660::write733(voldesc_suppl_.root_dir_record.extent_loc,root_extent_loc);
-		Iso9660::write733(voldesc_suppl_.root_dir_record.data_len,ulDataLen);
-		Iso9660::write723(voldesc_suppl_.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
+		write733(voldesc_suppl_.root_dir_record.extent_loc,root_extent_loc);
+		write733(voldesc_suppl_.root_dir_record.data_len,ulDataLen);
+		write723(voldesc_suppl_.root_dir_record.volseq_num,1);	// The file extent is on the first volume set.
 
 		// Time information.
 		Iso9660::make_datetime(create_time,voldesc_suppl_.root_dir_record.rec_timestamp);

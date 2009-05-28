@@ -26,6 +26,7 @@ libckfilesystem_la_SOURCES = dvdvideo.cc eltorito.cc filesystem.cc \
 							 iso9660reader.cc iso9660writer.cc joliet.cc \
 							 sectormanager.cc sectorstream.cc stringtable.cc \
 							 udf.cc udfwriter.cc util.cc
+libckfilesystem_la_LDFLAGS = -version-info $(CKFILESYSTEM_VERSION)
 
 library_includedir = $(includedir)/ckfilesystem
 library_include_HEADERS = ../include/ckfilesystem/const.hh \

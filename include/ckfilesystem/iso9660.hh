@@ -329,21 +329,6 @@ namespace ckfilesystem
 		bool includes_file_ver_info();
 
         // Static helper functions.
-        static void write721(unsigned char *buffer,ckcore::tuint16 val);			// Least significant byte first.
-        static void write722(unsigned char *buffer,ckcore::tuint16 val);			// Most significant byte first.
-        static void write723(unsigned char *buffer,ckcore::tuint16 val);			// Both-byte orders.
-        static void write72(unsigned char *buffer,ckcore::tuint16 val,bool msbf);   // 7.2.1 or 7.2.2 is decided by parameter.
-        static void write731(unsigned char *buffer,ckcore::tuint32 val);			// Least significant byte first.
-        static void write732(unsigned char *buffer,ckcore::tuint32 val);			// Most significant byte first.
-        static void write733(unsigned char *buffer,ckcore::tuint32 val);			// Both-byte orders.
-        static void write73(unsigned char *buffer,ckcore::tuint32 val,bool msbf);	// 7.3.1 or 7.3.2 is decided by parameter.
-        static ckcore::tuint16 read721(unsigned char *buffer);
-        static ckcore::tuint16 read722(unsigned char *buffer);
-        static ckcore::tuint16 read723(unsigned char *buffer);
-        static ckcore::tuint32 read731(unsigned char *buffer);
-        static ckcore::tuint32 read732(unsigned char *buffer);
-        static ckcore::tuint32 read733(unsigned char *buffer);
-
         static void make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time);
         static void make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time);
         static void make_datetime(ckcore::tuint16 date,ckcore::tuint16 time,

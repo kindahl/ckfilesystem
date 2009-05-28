@@ -27,6 +27,19 @@ namespace ckfilesystem
         ckcore::tuint32 bytes_to_sec(ckcore::tuint32 bytes);
         ckcore::tuint32 bytes_to_sec(ckcore::tuint64 bytes);
         ckcore::tuint64 bytes_to_sec64(ckcore::tuint64 bytes);
+
+        void write721(unsigned char *buffer,ckcore::tuint16 val);
+        void write722(unsigned char *buffer,ckcore::tuint16 val);
+        void write723(unsigned char *buffer,ckcore::tuint16 val);
+        void write731(unsigned char *buffer,ckcore::tuint32 val);
+        void write732(unsigned char *buffer,ckcore::tuint32 val);
+        void write733(unsigned char *buffer,ckcore::tuint32 val);
+        ckcore::tuint16 read721(const unsigned char *buffer);
+        ckcore::tuint16 read722(const unsigned char *buffer);
+        ckcore::tuint16 read723(const unsigned char *buffer);
+        ckcore::tuint32 read731(const unsigned char *buffer);
+        ckcore::tuint32 read732(const unsigned char *buffer);
+        ckcore::tuint32 read733(const unsigned char *buffer);
 	};
 };
 

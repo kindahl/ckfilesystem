@@ -21,10 +21,13 @@
 #include <windows.h>
 #endif
 #include <string.h>
+#include "ckfilesystem/util.hh"
 #include "ckfilesystem/iso9660.hh"
 
 namespace ckfilesystem
 {
+    using namespace util;
+
 	/*
 		Global Identifiers.
 	*/
@@ -34,96 +37,6 @@ namespace ckfilesystem
 	/*
 		Helper Functions.
 	*/
-	void Iso9660::write721(unsigned char *buffer,ckcore::tuint16 val)		// Least significant byte first.
-	{
-		buffer[0] = val & 0xff;
-		buffer[1] = (val >> 8) & 0xff;
-	}
-
-	void Iso9660::write722(unsigned char *buffer,ckcore::tuint16 val)		// Most significant byte first.
-	{
-		buffer[0] = (val >> 8) & 0xff;
-		buffer[1] = val & 0xff;
-	}
-
-	void Iso9660::write723(unsigned char *buffer,ckcore::tuint16 val)		// Both-byte orders.
-	{
-		buffer[3] = buffer[0] = val & 0xff;
-		buffer[2] = buffer[1] = (val >> 8) & 0xff;
-	}
-
-	void Iso9660::write731(unsigned char *buffer,ckcore::tuint32 val)		// Least significant byte first.
-	{
-		buffer[0] = (unsigned char)(val & 0xff);
-		buffer[1] = (unsigned char)((val >> 8) & 0xff);
-		buffer[2] = (unsigned char)((val >> 16) & 0xff);
-		buffer[3] = (unsigned char)((val >> 24) & 0xff);
-	}
-
-	void Iso9660::write732(unsigned char *buffer,ckcore::tuint32 val)		// Most significant byte first.
-	{
-		buffer[0] = (unsigned char)((val >> 24) & 0xff);
-		buffer[1] = (unsigned char)((val >> 16) & 0xff);
-		buffer[2] = (unsigned char)((val >> 8) & 0xff);
-		buffer[3] = (unsigned char)(val & 0xff);
-	}
-
-	void Iso9660::write733(unsigned char *buffer,ckcore::tuint32 val)		// Both-byte orders.
-	{
-		buffer[7] = buffer[0] = (unsigned char)(val & 0xff);
-		buffer[6] = buffer[1] = (unsigned char)((val >> 8) & 0xff);
-		buffer[5] = buffer[2] = (unsigned char)((val >> 16) & 0xff);
-		buffer[4] = buffer[3] = (unsigned char)((val >> 24) & 0xff);
-	}
-
-	void Iso9660::write72(unsigned char *buffer,ckcore::tuint16 val,bool msbf)
-	{
-		if (msbf)
-			write722(buffer,val);
-		else
-			write721(buffer,val);
-	}
-
-	void Iso9660::write73(unsigned char *buffer,ckcore::tuint32 val,bool msbf)
-	{
-		if (msbf)
-			write732(buffer,val);
-		else
-			write731(buffer,val);
-	}
-
-	ckcore::tuint16 Iso9660::read721(unsigned char *buffer)		// Least significant byte first.
-	{
-		return ((ckcore::tuint16)buffer[1] << 8) | buffer[0];
-	}
-
-	ckcore::tuint16 Iso9660::read722(unsigned char *buffer)		// Most significant byte first.
-	{
-		return ((ckcore::tuint16)buffer[0] << 8) | buffer[1];
-	}
-
-	ckcore::tuint16 Iso9660::read723(unsigned char *buffer)		// Both-byte orders.
-	{
-		return read721(buffer);
-	}
-
-	ckcore::tuint32 Iso9660::read731(unsigned char *buffer)			// Least significant byte first.
-	{
-		return ((ckcore::tuint32)buffer[3] << 24) | ((ckcore::tuint32)buffer[2] << 16) |
-			((ckcore::tuint32)buffer[1] << 8) | buffer[0];
-	}
-
-	ckcore::tuint32 Iso9660::read732(unsigned char *buffer)			// Most significant byte first.
-	{
-		return ((ckcore::tuint32)buffer[0] << 24) | ((ckcore::tuint32)buffer[1] << 16) |
-			((ckcore::tuint32)buffer[2] << 8) | buffer[3];
-	}
-
-	ckcore::tuint32 Iso9660::read733(unsigned char *buffer)			// Both-byte orders.
-	{
-		return read731(buffer);
-	}
-
 	void Iso9660::make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time)
 	{
 		char buffer[5];

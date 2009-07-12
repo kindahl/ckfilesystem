@@ -108,17 +108,17 @@ namespace ckfilesystem
 		bool calc_path_table_size(const FileSet &files,bool joliet_table,
 							      ckcore::tuint64 &pathtable_size,
 							      ckcore::Progress &progress);
-		bool calc_local_dir_entry_len(FileTreeNode *local_node,bool joliet,int level,
+		void calc_local_dir_entry_len(FileTreeNode *local_node,bool joliet,int level,
 									  ckcore::tuint32 &dir_len);
-		bool calc_local_dir_entries_len(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+		void calc_local_dir_entries_len(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
 									    FileTreeNode *local_node,int level,
 									    ckcore::tuint64 &sec_offset);
-		bool calc_dir_entries_len(FileTree &file_tree,ckcore::tuint64 start_sec,
+		void calc_dir_entries_len(FileTree &file_tree,ckcore::tuint64 start_sec,
 								  ckcore::tuint64 &len);
 
 		// Write functions.
 		bool write_path_table(const FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
-		bool write_sys_dir(FileTreeNode *parent_node,SysDirType type,
+		void write_sys_dir(FileTreeNode *parent_node,SysDirType type,
 						   ckcore::tuint32 data_pos,ckcore::tuint32 data_size);
 		int write_local_dir_entry(ckcore::Progress &progress,FileTreeNode *local_node,
 							      bool joliet,int level);
@@ -130,11 +130,11 @@ namespace ckfilesystem
                       FileSystem &file_sys,bool use_file_times,bool use_joliet);
 		~Iso9660Writer();
 
-		int alloc_header();
-		int alloc_path_tables(ckcore::Progress &progress,const FileSet &files);
-		int alloc_dir_entries(FileTree &file_tree);
+		void alloc_header();
+		void alloc_path_tables(ckcore::Progress &progress,const FileSet &files);
+		void alloc_dir_entries(FileTree &file_tree);
 
-		int write_header(const FileSet &files,FileTree &file_tree);
+		void write_header(const FileSet &files,FileTree &file_tree);
 		int write_path_tables(const FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
 		int write_dir_entries(FileTree &file_tree,ckcore::Progress &progress);
 

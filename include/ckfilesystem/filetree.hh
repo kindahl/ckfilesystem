@@ -20,6 +20,8 @@
 #include <vector>
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
+#include <ckcore/filestream.hh>
+#include "ckfilesystem/exception.hh"
 #include "ckfilesystem/fileset.hh"
 
 namespace ckfilesystem
@@ -38,6 +40,8 @@ namespace ckfilesystem
 			FLAG_DIRECTORY = 0x01,
 			FLAG_IMPORTED = 0x02
 		};
+
+		ckcore::FileInStream file_stream_;	// File stream for reading.
 
 		unsigned char file_flags_;
 		ckcore::tuint64 file_size_;
@@ -62,19 +66,40 @@ namespace ckfilesystem
 		ckcore::tuint64 udf_link_tot_;		// The number of directory links within the UDF file system.
 		ckcore::tuint32 udf_part_loc_;		// Where is the actual UDF file entry stored.
 
-		void *data_ptr_;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
+		void *data_ptr_;					// Pointer to a user-defined structure, designed for Iso9660TreeNode.
 
+		/**
+		 * Creates a FileTreeNode object.
+		 * @param [in] parent_node The parent node.
+		 * @param [in] file_name The name of the file.
+		 * @param [in] file_path The path of the file on the hard drive.
+		 * @param [in] last_fragment FIXME.
+		 * @param [in] fragment_index FIXME.
+		 * @param [in] file_flags File flags.
+		 * @param [in] data_ptr Pointer to Iso9660TreeNode data structure.
+		 * @throw FileOpenException Thrown when file stream cannot be opened for
+		 *							reading.
+		 */
 		FileTreeNode(FileTreeNode *parent_node,const ckcore::tchar *file_name,
-					 const ckcore::tchar *file_path,ckcore::tuint64 file_size,
+					 const ckcore::tchar *file_path,
 					 bool last_fragment,ckcore::tuint32 fragment_index,
 					 unsigned char file_flags = 0,void *data_ptr = NULL) :
 			parent_node_(parent_node),
-			file_flags_(file_flags),file_size_(file_size),
+			file_flags_(file_flags),file_size_(0),
 			file_name_(file_name),file_path_(file_path),data_ptr_(data_ptr),
 			data_pos_normal_(0),data_pos_joliet_(0),
 			data_size_normal_(0),data_size_joliet_(0),data_pad_len_(0),
-			udf_size_(0),udf_size_tot_(0),udf_link_tot_(0),udf_part_loc_(0)
+			udf_size_(0),udf_size_tot_(0),udf_link_tot_(0),udf_part_loc_(0),
+			file_stream_(file_path)
 		{
+			// If not a directory, try to open the file stream.
+			if (!(file_flags & FLAG_DIRECTORY))
+			{
+				if (!file_stream_.open())
+					throw FileOpenException(file_path_);
+
+				file_size_ = file_stream_.size();
+			}
 		}
 
 		~FileTreeNode()

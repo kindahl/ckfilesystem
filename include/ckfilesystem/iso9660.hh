@@ -19,6 +19,7 @@
 #pragma once
 #include <ckcore/types.hh>
 #include <ckcore/stream.hh>
+#include <ckcore/canexstream.hh>
 
 #define ISO9660_SECTOR_SIZE						2048
 #define ISO9660_MAX_NAMELEN_1999				 207
@@ -116,12 +117,12 @@ namespace ckfilesystem
 	*/
 	typedef struct
 	{
-		unsigned int year;			// Year from I to 9999.
-		ckcore::tuint16 mon;			// Month of the year from 1 to 12.
-		ckcore::tuint16 day;			// Day of the month from 1 to 31.
+		ckcore::tuint32 year;		// Year from 1 to 9999.
+		ckcore::tuint16 mon;		// Month of the year from 1 to 12.
+		ckcore::tuint16 day;		// Day of the month from 1 to 31.
 		ckcore::tuint16 hour;		// Hour of the day from 0 to 23.
-		ckcore::tuint16 min;			// Minute of the hour from 0 to 59.
-		ckcore::tuint16 sec;			// Second of the minute from 0 to 59.
+		ckcore::tuint16 min;		// Minute of the hour from 0 to 59.
+		ckcore::tuint16 sec;		// Second of the minute from 0 to 59.
 		ckcore::tuint16 hundreds;	// Hundredths of a second.
 		unsigned char zone;			// Offset from Greenwich Mean Time in number of
 									// 15 min intervals from -48 (West) to +52 (East)
@@ -136,7 +137,7 @@ namespace ckfilesystem
 		unsigned char boot_sys_ident[32];
 		unsigned char boot_ident[32];
 		unsigned char boot_sys_data[1977];
-	} tiso_voldesc_boot_record;		// Must be 2048 bytes in size.
+	} tiso_voldesc_bootrec;			// Must be 2048 bytes in size.
 
 	typedef struct
 	{
@@ -309,15 +310,15 @@ namespace ckfilesystem
 		void set_include_file_ver_info(bool include);
 
 		// Write functions.
-		bool write_vol_desc_primary(ckcore::OutStream &out_stream,struct tm &create_time,
+		void write_vol_desc_primary(ckcore::CanexOutStream &out_stream,struct tm &create_time,
 								    ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
 								    ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
 								    ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
-		bool write_vol_desc_suppl(ckcore::OutStream &out_stream,struct tm &create_time,
+		void write_vol_desc_suppl(ckcore::CanexOutStream &out_stream,struct tm &create_time,
 							      ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
 							      ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
 							      ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
-		bool write_vol_desc_setterm(ckcore::OutStream &out_stream);
+		void write_vol_desc_setterm(ckcore::CanexOutStream &out_stream);
 
 		// Helper functions.
 		unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,

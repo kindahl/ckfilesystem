@@ -23,9 +23,78 @@ namespace ckfilesystem
 	/*
 		SectorOutStream
 	*/
+	SectorInStream::SectorInStream(ckcore::InStream &in_stream,
+								   ckcore::tuint32 sector_size) :
+		ckcore::CanexInStream(in_stream,ckT("")),sector_size_(sector_size),
+		sector_(0),read_(0)
+	{
+	}
+
+	SectorInStream::~SectorInStream()
+	{
+	}
+
+	void SectorInStream::seek(ckcore::tuint32 distance,ckcore::InStream::StreamWhence whence)
+	{
+		ckcore::CanexInStream::seek(distance,whence);
+
+		switch (whence)
+		{
+		case ckcore::InStream::ckSTREAM_BEGIN:
+			sector_ = 0;
+			read_ = distance;
+			break;
+
+		case ckcore::InStream::ckSTREAM_CURRENT:
+			read_ += distance;			
+			break;
+		}
+
+		// Advance the sector counter.
+		while (read_ >= sector_size_)
+		{
+			read_ -= sector_size_;
+			sector_++;
+		}
+	}
+
+	ckcore::tint64 SectorInStream::read(void *buffer,ckcore::tuint32 count)
+	{
+		ckcore::tint64 res = ckcore::CanexInStream::read(buffer,count);
+
+		read_ += count;
+
+		while (read_ >= sector_size_)
+		{
+			read_ -= sector_size_;
+			sector_++;
+		}
+
+		return res;
+	}
+
+	/*
+		Returns the current sector number.
+	*/
+	ckcore::tuint64 SectorInStream::get_sector()
+	{
+		return sector_;
+	}
+
+	/*
+		Returns the remaining unallocated bytes in the current sector.
+	*/
+	ckcore::tuint32 SectorInStream::get_remaining()
+	{
+		return sector_size_ - (ckcore::tuint32)read_;
+	}
+
+	/*
+		SectorOutStream
+	*/
 	SectorOutStream::SectorOutStream(ckcore::OutStream &out_stream,
 									 ckcore::tuint32 sector_size) :
-		ckcore::BufferedOutStream(out_stream),sector_size_(sector_size),
+		ckcore::CanexOutStream(out_stream,ckT("")),sector_size_(sector_size),
 		sector_(0),written_(0)
 	{
 	}
@@ -34,18 +103,16 @@ namespace ckfilesystem
 	{
 	}
 
-	ckcore::tint64 SectorOutStream::write(void *buffer,ckcore::tuint32 count)
+	void SectorOutStream::write(void *buffer,ckcore::tuint32 count)
 	{
-		ckcore::tint64 res = ckcore::BufferedOutStream::write(buffer,count);
-		written_ += res;
+		ckcore::CanexOutStream::write(buffer,count);
+		written_ += count;
 
 		while (written_ >= sector_size_)
 		{
 			written_ -= sector_size_;
 			sector_++;
 		}
-
-		return res;
 	}
 
 	/*

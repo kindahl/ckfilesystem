@@ -39,6 +39,13 @@ namespace ckfilesystem
 		return root_node_;
 	}
 
+	/**
+	 * Find the children inside a parent node given the name of the child.
+	 * @param [in] parent_node The parent node.
+	 * @param [in] file_name The name of the child.
+	 * @return If successful a pointer to the child now, if not NULL is
+	 *		   returned.
+	 */
 	FileTreeNode *FileTree::get_child_from_file_name(FileTreeNode *parent_node,const ckcore::tchar *file_name)
 	{
 		std::vector<FileTreeNode *>::const_iterator it;
@@ -97,7 +104,7 @@ namespace ckfilesystem
 		if (file.flags_ & FileDescriptor::FLAG_DIRECTORY)
 		{
 			cur_node->children_.push_back(new FileTreeNode(cur_node,file_name,
-				file.external_path_.c_str(),0,true,0,FileTreeNode::FLAG_DIRECTORY | import_flac,
+				file.external_path_.c_str(),true,0,FileTreeNode::FLAG_DIRECTORY | import_flac,
 				import_data_ptr));
 
 			dir_count_++;
@@ -105,7 +112,7 @@ namespace ckfilesystem
 		else
 		{
 			cur_node->children_.push_back(new FileTreeNode(cur_node,file_name,
-				file.external_path_.c_str(),file.file_size_,true,0,import_flac,import_data_ptr));
+				file.external_path_.c_str(),true,0,import_flac,import_data_ptr));
 
 			file_count_++;
 		}
@@ -118,8 +125,8 @@ namespace ckfilesystem
 		if (root_node_ != NULL)
 			delete root_node_;
 
-		root_node_ = new FileTreeNode(NULL,ckT(""),ckT(""),0,true,0,
-			FileTreeNode::FLAG_DIRECTORY);
+		root_node_ = new FileTreeNode(NULL,ckT(""),ckT(""),true,0,
+									  FileTreeNode::FLAG_DIRECTORY);
 
 		FileSet::const_iterator it;
 		for (it = files.begin(); it != files.end(); it++)
@@ -131,9 +138,9 @@ namespace ckfilesystem
 		return true;
 	}
 
+	// CONTINUE: Investigate how this can be made to use exceptions.
 	FileTreeNode *FileTree::get_node_from_path(const FileDescriptor &file)
 	{
-		//m_pLog->print_line(ckT("BEGIN: %s"),file.m_ExternalPath.c_str());
 		size_t dir_path_len = file.internal_path_.length(),prev_delim = 0,pos;
 		ckcore::tstring cur_dir_name;
 		FileTreeNode *cur_node = root_node_;

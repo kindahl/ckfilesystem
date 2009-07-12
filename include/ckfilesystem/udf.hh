@@ -20,6 +20,7 @@
 #include <ckcore/types.hh>
 #include <ckcore/stream.hh>
 #include <ckcore/crcstream.hh>
+#include <ckcore/canexstream.hh>
 
 #define UDF_SECTOR_SIZE							2048
 #define UDF_UNIQUEIDENT_MIN						16
@@ -676,35 +677,35 @@ namespace ckfilesystem
 		void set_part_access_type(PartAccessType access_type);
 
 		// Write functions.
-		bool write_vol_desc_initial(ckcore::OutStream &out_stream);
-		bool write_vol_desc_primary(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+		void write_vol_desc_initial(ckcore::CanexOutStream &out_stream);
+		void write_vol_desc_primary(ckcore::CanexOutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
 							   	    ckcore::tuint32 sec_location,struct tm &create_time);
-		bool write_vol_desc_impl_use(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+		void write_vol_desc_impl_use(ckcore::CanexOutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
 								     ckcore::tuint32 sec_location);
-		bool write_vol_desc_partition(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+		void write_vol_desc_partition(ckcore::CanexOutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
 								      ckcore::tuint32 sec_location,ckcore::tuint32 part_start_loc,
 								      ckcore::tuint32 part_len);
-		bool write_vol_desc_logical(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+		void write_vol_desc_logical(ckcore::CanexOutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
 								    ckcore::tuint32 sec_location,tudf_extent_ad &integrity_seq_extent);
-		bool write_vol_desc_unalloc(ckcore::OutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
+		void write_vol_desc_unalloc(ckcore::CanexOutStream &out_stream,ckcore::tuint32 voldesc_seqnum,
 								    ckcore::tuint32 sec_location);
-		bool write_vol_desc_term(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location);
-		bool write_vol_desc_log_integrity(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+		void write_vol_desc_term(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location);
+		void write_vol_desc_log_integrity(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location,
 									      ckcore::tuint32 file_count,ckcore::tuint32 dir_count,
 									      ckcore::tuint32 part_len,ckcore::tuint64 unique_ident,
 									      struct tm &create_time);
-		bool write_anchor_vol_desc_ptr(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+		void write_anchor_vol_desc_ptr(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location,
 								       tudf_extent_ad &voldesc_main_seqextent,
 								       tudf_extent_ad &voldesc_rsrv_seqextent);
 
-		bool write_file_set_desc(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+		void write_file_set_desc(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location,
 							     ckcore::tuint32 root_sec_loc,struct tm &create_time);
-		bool write_file_ident_parent(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+		void write_file_ident_parent(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location,
 								     ckcore::tuint32 file_entry_sec_loc);
-		bool write_file_ident(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+		void write_file_ident(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location,
 						      ckcore::tuint32 file_entry_sec_loc,bool is_dir,
 							  const ckcore::tchar *file_name);
-		bool write_file_entry(ckcore::OutStream &out_stream,ckcore::tuint32 sec_location,
+		void write_file_entry(ckcore::CanexOutStream &out_stream,ckcore::tuint32 sec_location,
 							  bool is_dir,ckcore::tuint16 file_link_count,
 							  ckcore::tuint64 unique_ident,ckcore::tuint32 info_loc,
 							  ckcore::tuint64 info_len,struct tm &access_time,

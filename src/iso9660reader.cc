@@ -16,13 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ckfilesystem/iso9660writer.hh"
-#include "ckfilesystem/iso9660.hh"
 #include "ckfilesystem/util.hh"
+#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso9660writer.hh"
 #include "ckfilesystem/iso9660reader.hh"
 
 namespace ckfilesystem
 {
+	using namespace util;
+
 	Iso9660Reader::Iso9660Reader(ckcore::Log &log) :
 		log_(log),root_node_(NULL)
 	{
@@ -162,8 +164,8 @@ namespace ckfilesystem
 			//log_.print_line(ckT("  %s: %u"),file_name,read733(dr.extent_loc));
 
 			Iso9660TreeNode *new_node = new Iso9660TreeNode(parent_node,file_name,
-					util::read733(dr.extent_loc),util::read733(dr.data_len),
-					util::read723(dr.volseq_num),dr.file_flags,
+					read733(dr.extent_loc),read733(dr.data_len),
+					read723(dr.volseq_num),dr.file_flags,
 					dr.file_unit_size,dr.interleave_gap_size,dr.rec_timestamp);
 
 			if (dr.file_flags & DIRRECORD_FILEFLAG_DIRECTORY)
@@ -322,13 +324,13 @@ namespace ckfilesystem
 
 		if (joliet)
 		{
-			root_extent_loc = util::read733(voldesc_suppl.root_dir_record.extent_loc);
-			root_extent_len = util::read733(voldesc_suppl.root_dir_record.data_len);
+			root_extent_loc = read733(voldesc_suppl.root_dir_record.extent_loc);
+			root_extent_len = read733(voldesc_suppl.root_dir_record.data_len);
 		}
 		else
 		{
-			root_extent_loc = util::read733(voldesc_prim.root_dir_record.extent_loc);
-			root_extent_len = util::read733(voldesc_prim.root_dir_record.data_len);
+			root_extent_loc = read733(voldesc_prim.root_dir_record.extent_loc);
+			root_extent_len = read733(voldesc_prim.root_dir_record.data_len);
 		}
 
 		log_.print_line(ckT("  Location of root directory extent: %u."),root_extent_loc);
@@ -338,7 +340,7 @@ namespace ckfilesystem
 			delete root_node_;
 
 		root_node_ = new Iso9660TreeNode(NULL,NULL,root_extent_loc,root_extent_len,
-			util::read723(voldesc_suppl.root_dir_record.volseq_num),voldesc_suppl.root_dir_record.file_flags,
+			read723(voldesc_suppl.root_dir_record.volseq_num),voldesc_suppl.root_dir_record.file_flags,
 			voldesc_suppl.root_dir_record.file_unit_size,voldesc_suppl.root_dir_record.interleave_gap_size,
 			voldesc_suppl.root_dir_record.rec_timestamp);
 

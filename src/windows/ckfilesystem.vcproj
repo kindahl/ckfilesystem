@@ -370,6 +370,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\ckfilesystem\exception.hh"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\ckfilesystem\fileset.hh"
 				>
 			</File>

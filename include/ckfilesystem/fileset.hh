@@ -36,16 +36,15 @@ namespace ckfilesystem
 		};
 
 		unsigned char flags_;
-		ckcore::tuint64 file_size_;
 		ckcore::tstring internal_path_;		// Path in disc image.
 		ckcore::tstring external_path_;		// Path on hard drive.
 
 		void *data_ptr_;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
 
 		FileDescriptor(const ckcore::tchar *internal_path,const ckcore::tchar *external_path,
-					   ckcore::tuint64 file_size,unsigned char flags = 0,void *data_ptr = NULL) :
+					   unsigned char flags = 0,void *data_ptr = NULL) :
 			internal_path_(internal_path),external_path_(external_path),
-			file_size_(file_size),flags_(flags),data_ptr_(data_ptr)
+			flags_(flags),data_ptr_(data_ptr)
 		{
 		}
 	};

@@ -17,6 +17,7 @@
  */
 
 #include <ckcore/string.hh>
+#include <ckcore/exception.hh>
 #ifdef _WINDOWS
 #include <windows.h>
 #endif
@@ -26,7 +27,7 @@
 
 namespace ckfilesystem
 {
-    using namespace util;
+	using namespace util;
 
 	/*
 		Global Identifiers.
@@ -583,7 +584,7 @@ namespace ckfilesystem
 		inc_file_ver_info_ = include;
 	}
 
-	bool Iso9660::write_vol_desc_primary(ckcore::OutStream &out_stream,struct tm &create_time,
+	void Iso9660::write_vol_desc_primary(ckcore::CanexOutStream &out_stream,struct tm &create_time,
 									     ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
 									     ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
 									     ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
@@ -613,16 +614,10 @@ namespace ckfilesystem
 		voldesc_primary_.effect_time.zone = 0x00;
 
 		// Write the primary volume descriptor.
-		ckcore::tint64 processed = out_stream.write(&voldesc_primary_,sizeof(voldesc_primary_));
-		if (processed == -1)
-			return false;
-		if (processed != sizeof(voldesc_primary_))
-			return false;
-
-		return true;
+		out_stream.write(&voldesc_primary_,sizeof(voldesc_primary_));
 	}
 
-	bool Iso9660::write_vol_desc_suppl(ckcore::OutStream &out_stream,struct tm &create_time,
+	void Iso9660::write_vol_desc_suppl(ckcore::CanexOutStream &out_stream,struct tm &create_time,
 								       ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
 									   ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
 									   ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
@@ -664,28 +659,18 @@ namespace ckfilesystem
 			sd.effect_time.zone = 0x00;
 
 			// Write the primary volume descriptor.
-			ckcore::tint64 processed = out_stream.write(&sd,sizeof(sd));
-			if (processed == -1)
-				return false;
-			if (processed != sizeof(sd))
-				return false;
-
-			return true;
+			out_stream.write(&sd,sizeof(sd));
 		}
 
-		return false;
+		throw ckcore::Exception(ckT("ISO9660:1999 supplementary descriptor ")
+								ckT("should not be used on standard ISO9660 ")
+								ckT("file systems."));
 	}
 
-	bool Iso9660::write_vol_desc_setterm(ckcore::OutStream &out_stream)
+	void Iso9660::write_vol_desc_setterm(ckcore::CanexOutStream &out_stream)
 	{
 		// Write volume descriptor set terminator.
-		ckcore::tint64 processed = out_stream.write(&voldesc_setterm_,sizeof(voldesc_setterm_));
-		if (processed == -1)
-			return false;
-		if (processed != sizeof(voldesc_setterm_))
-			return false;
-
-		return true;
+		out_stream.write(&voldesc_setterm_,sizeof(voldesc_setterm_));
 	}
 
 	unsigned char Iso9660::write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,

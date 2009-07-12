@@ -24,7 +24,7 @@
 
 namespace ckfilesystem
 {
-    using namespace util;
+	using namespace util;
 
 	Joliet::Joliet() : inc_file_ver_info_(true),max_name_len_(64)
 	{
@@ -126,7 +126,7 @@ namespace ckfilesystem
 		memcpy(voldesc_suppl_.app_ident,app_ident,90);
 	}
 
-	bool Joliet::write_vol_desc(ckcore::OutStream &out_stream,struct tm &create_time,
+	void Joliet::write_vol_desc(ckcore::CanexOutStream &out_stream,struct tm &create_time,
 							    ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
 							    ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
 							    ckcore::tuint32 root_extent_loc,ckcore::tuint32 ulDataLen)
@@ -156,13 +156,7 @@ namespace ckfilesystem
 		voldesc_suppl_.effect_time.zone = 0x00;
 
 		// Write the supplementary volume descriptor.
-		ckcore::tint64 processed = out_stream.write(&voldesc_suppl_,sizeof(voldesc_suppl_));
-		if (processed == -1)
-			return false;
-		if (processed != sizeof(voldesc_suppl_))
-			return false;
-
-		return true;
+		out_stream.write(&voldesc_suppl_,sizeof(voldesc_suppl_));
 	}
 
 	void Joliet::set_volume_label(const ckcore::tchar *label)

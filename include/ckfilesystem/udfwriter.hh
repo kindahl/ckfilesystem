@@ -69,22 +69,22 @@ namespace ckfilesystem
 		ckcore::tuint64 calc_partition_len(FileTree &file_tree);
 
 		// Write functions.
-		bool write_local_partition_dir(std::deque<FileTreeNode *> &dir_node_queue,
+		void write_local_partition_dir(std::deque<FileTreeNode *> &dir_node_queue,
 								       FileTreeNode *local_node,
 								       ckcore::tuint32 &cur_part_sec,
 								       ckcore::tuint64 &unique_ident);
-		bool write_partition_entries(FileTree &file_tree);
+		void write_partition_entries(FileTree &file_tree);
 
 	public:
 		UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
 			FileSystem &file_sys,bool use_file_times);
 		~UdfWriter();
 
-		int alloc_header();
-		int alloc_partition(FileTree &file_tree);
+		void alloc_header();
+		void alloc_partition(FileTree &file_tree);
 
-		int write_header();
-		int write_partition(FileTree &file_tree);
-		int write_tail();
+		void write_header();
+		void write_partition(FileTree &file_tree);
+		void write_tail();
 	};
 };

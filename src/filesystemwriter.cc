@@ -22,12 +22,14 @@
 #include "ckfilesystem/iso9660writer.hh"
 #include "ckfilesystem/udfwriter.hh"
 #include "ckfilesystem/dvdvideo.hh"
+#include "ckfilesystem/exception.hh"
 #include "ckfilesystem/filesystemwriter.hh"
 
 namespace ckfilesystem
 {
-	FileSystemWriter::FileSystemWriter(ckcore::Log &log,FileSystem &file_sys) :
-		log_(log),file_sys_(file_sys),file_tree_(log)
+	FileSystemWriter::FileSystemWriter(ckcore::Log &log,FileSystem &file_sys,
+									   bool fail_on_error) :
+		log_(log),file_sys_(file_sys),file_tree_(log),fail_on_error_(fail_on_error)
     {
 	}
 
@@ -35,11 +37,12 @@ namespace ckfilesystem
 	{
 	}
 
-	/*
-		Calculates file system specific data such as extent location and size for a
-		single file.
+	/**
+	 * Calculates file system specific data such as extent location and size for a
+	 * single file.
+	 * @throw Exception If advertised multi-session data can not be found.
 	 */
-	bool FileSystemWriter::calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+	void FileSystemWriter::calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
 			                                       FileTreeNode *local_node,int level,
 											       ckcore::tuint64 &sec_offset,ckcore::Progress &progress)
 	{
@@ -84,12 +87,13 @@ namespace ckfilesystem
 				// If imported, use the imported information.
 				if ((*it_file)->file_flags_ & FileTreeNode::FLAG_IMPORTED)
 				{
-					Iso9660ImportData *import_node_ptr = (Iso9660ImportData *)(*it_file)->data_ptr_;
+					Iso9660ImportData *import_node_ptr = static_cast<Iso9660ImportData *>((*it_file)->data_ptr_);
 					if (import_node_ptr == NULL)
 					{
-						log_.print_line(ckT("  Error: The file \"%s\" does not contain imported session data like advertised."),
-							(*it_file)->file_name_.c_str());
-						return false;
+						ckcore::tstringstream msg;
+						msg << ckT("The file \"") << (*it_file)->file_name_
+							<< ckT("\" does not contain imported session data like advertised.");
+						throw ckcore::Exception(msg.str());
 					}
 
 					(*it_file)->data_size_normal_ = import_node_ptr->extent_len_;
@@ -115,23 +119,21 @@ namespace ckfilesystem
 				}
 			}
 		}
-
-		return true;
 	}
 
-	/*
-		Calculates file system specific data such as location of extents and sizes of
-		extents.
-	*/
-	bool FileSystemWriter::calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
+	/**
+	 * Calculates file system specific data such as location of extents and sizes of
+	 * extents.
+	 * @throw Exception If advertised multi-session data can not be found.
+	 */
+	void FileSystemWriter::calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
 						    			     ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec)
 	{
 		FileTreeNode *cur_node = file_tree.get_root();
 		ckcore::tuint64 sec_offset = start_sec;
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		if (!calc_local_filesys_data(dir_node_stack,cur_node,0,sec_offset,progress))
-			return false;
+		calc_local_filesys_data(dir_node_stack,cur_node,0,sec_offset,progress);
 
 		while (dir_node_stack.size() > 0)
 		{ 
@@ -139,45 +141,57 @@ namespace ckfilesystem
 			int level = dir_node_stack[dir_node_stack.size() - 1].second;
 			dir_node_stack.pop_back();
 
-			if (!calc_local_filesys_data(dir_node_stack,cur_node,level,sec_offset,progress))
-				return false;
+			calc_local_filesys_data(dir_node_stack,cur_node,level,sec_offset,progress);
 		}
 
 		last_sec = sec_offset;
-		return true;
 	}
 
-	int FileSystemWriter::write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
-									      ckcore::Progresser &progresser)
+	void FileSystemWriter::write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
+									       ckcore::Progresser &progresser)
 	{
-		ckcore::FileInStream fs(node->file_path_.c_str());
-		if (!fs.open())
+		// Make sure that the file stream is ready for reading. Please note that this
+		// is the second place of try. The stream should already be open.
+		if (!node->file_stream_.test() && node->file_stream_.open())
+			throw FileOpenException(node->file_path_);
+
+		// Validate the file size.
+		if (node->file_stream_.size() != node->file_size_)
 		{
-			log_.print_line(ckT("  Error: Unable to obtain file handle to \"%s\"."),
-				node->file_path_.c_str());
-			progresser.notify(ckcore::Progress::ckERROR,
-				StringTable::instance().get_string(StringTable::ERROR_OPENREAD),
-				node->file_path_.c_str());
-			return RESULT_FAIL;
+			if (fail_on_error_)
+			{
+				ckcore::tstringstream msg;
+				msg << ckT("The file \"") << node->file_path_
+					<< ckT("\" may have been modified during file system ")
+					   ckT("creation, please close all applications accessing ")
+					   ckT("the file and try again.");
+				throw ckcore::Exception(msg.str());
+			}
+			else
+			{
+				progresser.notify(ckcore::Progress::ckWARNING,
+								  ckT("The file \"%s\" may have been modified ")
+								  ckT("during file system creation, please verify ")
+								  ckT("its integrity on the disc."),
+								  node->file_path_.c_str());
+				log_.print_line(ckT("warning: conflicting file sizes in \"%s\"."),
+								node->file_path_.c_str());
+			}
 		}
 
-		if (!ckcore::stream::copy(fs,out_stream,progresser))
-		{
-			log_.print_line(ckT("  Error: Unable write file to disc image."));
-			return RESULT_FAIL;
-		}
+		// Copy the file data into the disc file system.
+		ckcore::CanexInStream in_stream(node->file_stream_,node->file_path_);
+		ckcore::canexstream::copy(in_stream,out_stream,progresser,node->file_size_);
 
 		// Pad the sector.
 		if (out_stream.get_allocated() != 0)
 			out_stream.pad_sector();
-
-		return RESULT_OK;
 	}
 
-	int FileSystemWriter::write_local_file_data(SectorOutStream &out_stream,
-										        std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-											    FileTreeNode *local_node,int level,
-											    ckcore::Progresser &progresser)
+	void FileSystemWriter::write_local_file_data(SectorOutStream &out_stream,
+										         std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+											     FileTreeNode *local_node,int level,
+											     ckcore::Progresser &progresser)
 	{
 		std::vector<FileTreeNode *>::const_iterator it_file;
 		for (it_file = local_node->children_.begin(); it_file !=
@@ -185,7 +199,7 @@ namespace ckfilesystem
 		{
 			// Check if we should abort.
 			if (progresser.cancelled())
-				return RESULT_CANCEL;
+				return;
 
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
@@ -204,20 +218,11 @@ namespace ckfilesystem
 						continue;
 				}
 
-				switch (write_file_node(out_stream,*it_file,progresser))
-				{
-					case RESULT_FAIL:
-#ifdef _WINDOWS
-						log_.print_line(ckT("  Error: Unable to write node \"%s\" to (%I64u,%I64u)."),
-#else
-						log_.print_line(ckT("  Error: Unable to write node \"%s\" to (%llu,%llu)."),
-#endif
-							(*it_file)->file_name_.c_str(),(*it_file)->data_pos_normal_,(*it_file)->data_size_normal_);
-						return RESULT_FAIL;
+				write_file_node(out_stream,*it_file,progresser);
 
-					case RESULT_CANCEL:
-						return RESULT_CANCEL;
-				}
+				// The write operation might have been cancelled.
+				if (progresser.cancelled())
+					return;
 
 				// Pad if necessary.
 				char tmp[1] = { 0 };
@@ -228,19 +233,17 @@ namespace ckfilesystem
 				}
 			}
 		}
-
-		return RESULT_OK;
 	}
 
-	int FileSystemWriter::write_file_data(SectorOutStream &out_stream,FileTree &file_tree,
-									      ckcore::Progresser &progresser)
+	void FileSystemWriter::write_file_data(SectorOutStream &out_stream,FileTree &file_tree,
+									       ckcore::Progresser &progresser)
 	{
 		FileTreeNode *cur_node = file_tree.get_root();
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		int res = write_local_file_data(out_stream,dir_node_stack,cur_node,1,progresser);
-		if (res != RESULT_OK)
-			return res;
+		write_local_file_data(out_stream,dir_node_stack,cur_node,1,progresser);
+		if (progresser.cancelled())
+			return;
 
 		while (dir_node_stack.size() > 0)
 		{ 
@@ -248,12 +251,10 @@ namespace ckfilesystem
 			int level = dir_node_stack[dir_node_stack.size() - 1].second;
 			dir_node_stack.pop_back();
 
-			res = write_local_file_data(out_stream,dir_node_stack,cur_node,level,progresser);
-			if (res != RESULT_OK)
-				return res;
+			write_local_file_data(out_stream,dir_node_stack,cur_node,level,progresser);
+			if (progresser.cancelled())
+				return;
 		}
-
-		return RESULT_OK;
 	}
 
 	void FileSystemWriter::get_internal_path(FileTreeNode *child_node,ckcore::tstring &node_path,
@@ -437,7 +438,8 @@ namespace ckfilesystem
 		log_.print_line(ckT("FileSystemWriter::Create"));
 		log_.print_line(ckT("  Sector offset: %u."),sec_offset);
 
-        SectorOutStream out_sec_stream(out_stream);
+		ckcore::BufferedOutStream out_buf_stream(out_stream);
+        SectorOutStream out_sec_stream(out_buf_stream);
 
 		// The first 16 sectors are reserved for system use (write 0s).
 		char tmp[1] = { 0 };
@@ -447,135 +449,127 @@ namespace ckfilesystem
 		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_BUILDTREE));
 		progress.set_marquee(true);
 
-        // Create a file tree.
-        if (!file_tree_.create_from_file_set(file_sys_.files()))
-        {
-            log_.print_line(ckT("  Error: failed to build file tree."));
-            return fail(RESULT_FAIL,out_sec_stream);
-        }
-
-		// Calculate padding if DVD-Video file system.
-		if (file_sys_.is_dvdvideo())
+		try
 		{
-			DvdVideo dvd_video(log_);
-			if (!dvd_video.calc_file_padding(file_tree_))
+			// Create a file tree.
+			if (!file_tree_.create_from_file_set(file_sys_.files()))
 			{
-				log_.print_line(ckT("  Error: failed to calculate file padding for DVD-Video file system."));
-				return fail(RESULT_FAIL,out_sec_stream);
+				log_.print_line(ckT("error: failed to build file tree."));
+				return RESULT_FAIL;
 			}
 
-			dvd_video.print_file_padding(file_tree_);
-		}
+			// Calculate padding if DVD-Video file system.
+			if (file_sys_.is_dvdvideo())
+			{
+				DvdVideo dvd_video(log_);
+				if (!dvd_video.calc_file_padding(file_tree_))
+				{
+					log_.print_line(ckT("  Error: failed to calculate file padding for DVD-Video file system."));
+					return RESULT_FAIL;
+				}
 
-		bool is_iso = file_sys_.is_iso9660();
-		bool is_udf = file_sys_.is_udf();
-		bool is_joliet = file_sys_.is_joliet();
+				dvd_video.print_file_padding(file_tree_);
+			}
 
-		SectorManager sec_manager(16 + sec_offset);
-		Iso9660Writer iso_writer(log_,out_sec_stream,sec_manager,file_sys_,true,is_joliet);
-		UdfWriter udf_writer(log_,out_sec_stream,sec_manager,file_sys_,true);
+			bool is_iso = file_sys_.is_iso9660();
+			bool is_udf = file_sys_.is_udf();
+			bool is_joliet = file_sys_.is_joliet();
 
-		int res = RESULT_FAIL;
+			SectorManager sec_manager(16 + sec_offset);
+			Iso9660Writer iso_writer(log_,out_sec_stream,sec_manager,file_sys_,true,is_joliet);
+			UdfWriter udf_writer(log_,out_sec_stream,sec_manager,file_sys_,true);
 
-		// FIXME: Put failure messages to Progress.
-		if (is_iso)
-		{
-			res = iso_writer.alloc_header();
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			// FIXME: Put failure messages to Progress.
+			if (is_iso)
+				iso_writer.alloc_header();
 
-		if (is_udf)
-		{
-			res = udf_writer.alloc_header();
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			if (is_udf)
+				udf_writer.alloc_header();
 
-		if (is_iso)
-		{
-			res = iso_writer.alloc_path_tables(progress,file_sys_.files());
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
+			if (is_iso)
+			{
+				iso_writer.alloc_path_tables(progress,file_sys_.files());
+				iso_writer.alloc_dir_entries(file_tree_);
+			}
 
-			res = iso_writer.alloc_dir_entries(file_tree_);
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			if (is_udf)
+				udf_writer.alloc_partition(file_tree_);
 
-		if (is_udf)
-		{
-			res = udf_writer.alloc_partition(file_tree_);
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			// Allocate file data.
+			ckcore::tuint64 first_data_sec = sec_manager.get_next_free();
+			ckcore::tuint64 last_data_sec = 0;
 
-		// Allocate file data.
-		ckcore::tuint64 first_data_sec = sec_manager.get_next_free();
-		ckcore::tuint64 last_data_sec = 0;
+			calc_filesys_data(file_tree_,progress,first_data_sec,last_data_sec);
 
-		if (!calc_filesys_data(file_tree_,progress,first_data_sec,last_data_sec))
-		{
-			log_.print_line(ckT("  Error: Could not calculate necessary file system information."));
-			return fail(RESULT_FAIL,out_sec_stream);
-		}
+			sec_manager.alloc_data_sectors(last_data_sec - first_data_sec);
 
-		sec_manager.alloc_data_sectors(last_data_sec - first_data_sec);
+			int res = RESULT_FAIL;
 
-		if (is_iso)
-		{
-			res = iso_writer.write_header(file_sys_.files(),file_tree_);
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			if (is_iso)
+				iso_writer.write_header(file_sys_.files(),file_tree_);
 
-		if (is_udf)
-		{
-			res = udf_writer.write_header();
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			if (is_udf)
+				udf_writer.write_header();
 
-		// FIXME: Add progress for this.
-		if (is_iso)
-		{
-			res = iso_writer.write_path_tables(file_sys_.files(),file_tree_,progress);
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
+			// FIXME: Add progress for this.
+			if (is_iso)
+			{
+				res = iso_writer.write_path_tables(file_sys_.files(),file_tree_,progress);
+				if (res != RESULT_OK)
+					return res;
 
-			res = iso_writer.write_dir_entries(file_tree_,progress);
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+				res = iso_writer.write_dir_entries(file_tree_,progress);
+				if (res != RESULT_OK)
+					return res;
+			}
 
-		if (is_udf)
-		{
-			res = udf_writer.write_partition(file_tree_);
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			if (is_udf)
+				udf_writer.write_partition(file_tree_);
 
-		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEDATA));
-		progress.set_marquee(false);
+			progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEDATA));
+			progress.set_marquee(false);
 
-		// To help keep track of the progress.
-		ckcore::Progresser progresser(progress,sec_manager.get_data_length() * ISO9660_SECTOR_SIZE);
-		res = write_file_data(out_sec_stream,file_tree_,progresser);
-		if (res != RESULT_OK)
-			return fail(res,out_sec_stream);
+			// To help keep track of the progress.
+			ckcore::Progresser progresser(progress,sec_manager.get_data_length() * ISO9660_SECTOR_SIZE);
+			write_file_data(out_sec_stream,file_tree_,progresser);
+			if (progresser.cancelled())
+				return RESULT_CANCEL;
 
-		if (is_udf)
-		{
-			res = udf_writer.write_tail();
-			if (res != RESULT_OK)
-				return fail(res,out_sec_stream);
-		}
+			if (is_udf)
+				udf_writer.write_tail();
 
+			out_buf_stream.flush();
 #ifdef _DEBUG
-		file_tree_.print_tree();
+			file_tree_.print_tree();
 #endif
+		}
+		catch (FileOpenException &e)
+		{
+			progress.notify(ckcore::Progress::ckERROR,
+							StringTable::instance().get_string(StringTable::ERROR_OPENREAD),
+							e.file_path().c_str());
 
-		out_sec_stream.flush();
+			// Restore progress.
+			progress.set_marquee(false);
+			progress.set_progress(100);
+
+			// Write message to log file.
+			log_.print_line(ckT("Error: %s"),e.what().c_str());
+			return RESULT_FAIL;
+		}
+		catch (ckcore::Exception &e)
+		{
+			progress.notify(ckcore::Progress::ckERROR,e.what().c_str());
+
+			// Restore progress.
+			progress.set_marquee(false);
+			progress.set_progress(100);
+
+			// Write message to log file.
+			log_.print_line(ckT("Error: %s"),e.what().c_str());
+			return RESULT_FAIL;
+		}
+
 		return RESULT_OK;
 	}
 
@@ -587,15 +581,5 @@ namespace ckfilesystem
         create_file_path_map(file_tree_,file_path_map,file_sys_.is_joliet());
         return RESULT_OK;
     }
-
-	/*
-		Should be called when create operation fails or cancel so that the
-		broken image can be removed and the file handle closed.
-	 */
-	int FileSystemWriter::fail(int res,SectorOutStream &out_stream)
-	{
-		out_stream.flush();
-		return res;
-	}
 };
 

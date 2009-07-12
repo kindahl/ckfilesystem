@@ -17,43 +17,33 @@
  */
 
 #pragma once
-#include <map>
 #include <ckcore/types.hh>
+#include <ckcore/exception.hh>
 
 namespace ckfilesystem
 {
-	class StringTable
+	/**
+	 * @brief Class for file exceptions.
+	 */
+	class FileOpenException : public ckcore::Exception
 	{
-	public:
-		enum StringId
-		{
-			WARNING_FSDIRLEVEL,
-			WARNING_SKIPFILE,
-			WARNING_SKIP4GFILE,
-			WARNING_SKIP4GFILEISO,
-			ERROR_PATHTABLESIZE,	// FIXME: Not used.
-			ERROR_OPENWRITE,
-			ERROR_OPENREAD,
-			STATUS_BUILDTREE,
-			STATUS_WRITEDATA,
-			STATUS_WRITEISOTABLE,
-			STATUS_WRITEJOLIETTABLE,
-			STATUS_WRITEDIRENTRIES
-		};
-
 	private:
-		std::map<StringId,const ckcore::tchar *> strings_;
-
-		StringTable();
-		StringTable(const StringTable &obj);
-		~StringTable();
-		StringTable &operator=(const StringTable &obj); 
+		ckcore::tstring file_path_;
 
 	public:
+		FileOpenException(const ckcore::tstring &file_path) :
+			file_path_(file_path)
+		{
+			message_  = ckT("Unable to open file \"");
+			message_ += file_path.c_str();
+			message_ += ckT("\" for read/write access.");
+		}
 
-		static StringTable &instance();
+		virtual ~FileOpenException() {};
 
-		const ckcore::tchar *get_string(StringId id);
-		void set_string(StringId id,const ckcore::tchar *str);
+		const ckcore::tstring &file_path() const
+		{
+			return file_path_;
+		}
 	};
 };

@@ -46,18 +46,21 @@ namespace ckfilesystem
         // File tree for caching between the write and file_path_map functions.
         FileTree file_tree_;
 
-		bool calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+		// Set to true in order to abort the operation if an error occurs.
+		const bool fail_on_error_;
+
+		void calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
 								     FileTreeNode *local_node,int level,ckcore::tuint64 &sec_offset,
 								     ckcore::Progress &progress);
-		bool calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
+		void calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
 						       ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec);
 
-		int write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
-					        ckcore::Progresser &progresser);
-		int write_local_file_data(SectorOutStream &out_stream,
-							      std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-							      FileTreeNode *local_node,int level,ckcore::Progresser &progresser);
-		int write_file_data(SectorOutStream &out_stream,FileTree &file_tree,ckcore::Progresser &progresser);
+		void write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
+					         ckcore::Progresser &progresser);
+		void write_local_file_data(SectorOutStream &out_stream,
+								   std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+								   FileTreeNode *local_node,int level,ckcore::Progresser &progresser);
+		void write_file_data(SectorOutStream &out_stream,FileTree &file_tree,ckcore::Progresser &progresser);
 
 		void get_internal_path(FileTreeNode *child_node,ckcore::tstring &node_path,
 							   bool ext_path,bool joliet);
@@ -68,10 +71,8 @@ namespace ckfilesystem
 		void create_file_path_map(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
 							      bool joliet);
 
-		int fail(int res,SectorOutStream &out_stream);
-
 	public:
-		FileSystemWriter(ckcore::Log &log,FileSystem &file_sys);
+		FileSystemWriter(ckcore::Log &log,FileSystem &file_sys,bool fail_on_error);
 		~FileSystemWriter();	
 
 		int write(ckcore::OutStream &out_stream,ckcore::Progress &progress,

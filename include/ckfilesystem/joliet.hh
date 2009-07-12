@@ -19,6 +19,7 @@
 #pragma once
 #include <ckcore/types.hh>
 #include <ckcore/stream.hh>
+#include <ckcore/canexstream.hh>
 #include "ckfilesystem/iso9660.hh"
 
 #define JOLIET_MAX_NAMELEN_NORMAL			 64		// According to Joliet specification.
@@ -58,7 +59,7 @@ namespace ckfilesystem
 		void set_relax_max_name_len(bool relax);
 
 		// Write functions.
-		bool write_vol_desc(ckcore::OutStream &out_stream,struct tm &create_time,
+		void write_vol_desc(ckcore::CanexOutStream &out_stream,struct tm &create_time,
 						    ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
 						    ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
 						    ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);

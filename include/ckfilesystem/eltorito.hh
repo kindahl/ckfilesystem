@@ -156,22 +156,22 @@ namespace ckfilesystem
 
 		bool read_sys_type_mbr(const ckcore::tchar *full_path,unsigned char &sys_type);
 
-		bool write_boot_image(SectorOutStream &out_stream,const ckcore::tchar *full_path);
+		void write_boot_image(SectorOutStream &out_stream,const ckcore::tchar *full_path);
 
 	public:
 		ElTorito();
 		~ElTorito();
 
-		bool write_boot_record(SectorOutStream &out_stream,ckcore::tuint32 boot_cat_sec_pos);
-		bool write_boot_catalog(SectorOutStream &out_stream);
-		bool write_boot_images(SectorOutStream &out_stream);
+		void write_boot_record(SectorOutStream &out_stream,ckcore::tuint32 boot_cat_sec_pos);
+		void write_boot_catalog(SectorOutStream &out_stream);
+		void write_boot_images(SectorOutStream &out_stream);
 
 		bool add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
 							       ckcore::tuint16 load_segment,ckcore::tuint16 sec_count);
 		bool add_boot_image_floppy(const ckcore::tchar *full_path,bool bootable);
 		bool add_boot_image_hard_disk(const ckcore::tchar *full_path,bool bootable);
 
-		bool calc_filesys_data(ckcore::tuint64 start_sec,
+		void calc_filesys_data(ckcore::tuint64 start_sec,
 							   ckcore::tuint64 &last_sec);
 
 		ckcore::tuint64 get_boot_cat_size();

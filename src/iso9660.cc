@@ -661,10 +661,12 @@ namespace ckfilesystem
 			// Write the primary volume descriptor.
 			out_stream.write(&sd,sizeof(sd));
 		}
-
-		throw ckcore::Exception(ckT("ISO9660:1999 supplementary descriptor ")
-								ckT("should not be used on standard ISO9660 ")
-								ckT("file systems."));
+		else
+		{
+			throw ckcore::Exception(ckT("ISO9660:1999 supplementary descriptor ")
+									ckT("should not be used on standard ISO9660 ")
+									ckT("file systems."));
+		}
 	}
 
 	void Iso9660::write_vol_desc_setterm(ckcore::CanexOutStream &out_stream)

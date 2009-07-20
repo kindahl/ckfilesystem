@@ -267,35 +267,37 @@ namespace ckfilesystem
 			// Joliet or ISO9660?
 			if (joliet)
 			{
+				const std::wstring::size_type joliet_len = child_node->file_name_joliet_.length();
 #ifdef _UNICODE
-				if (child_node->file_name_joliet_[child_node->file_name_joliet_.length() - 2] == ';')
-					node_path.append(child_node->file_name_joliet_,0,child_node->file_name_joliet_.length() - 2);
+				if (joliet_len >= 2 && child_node->file_name_joliet_[joliet_len - 2] == ';')
+					node_path.append(child_node->file_name_joliet_,0,joliet_len - 2);
 				else
 					node_path.append(child_node->file_name_joliet_);
 #else
 				char ansi_name[JOLIET_MAX_NAMELEN_RELAXED + 1];
 				ckcore::string::utf16_to_ansi(child_node->file_name_joliet_.c_str(),ansi_name,sizeof(ansi_name));
 
-				if (ansi_name[child_node->file_name_joliet_.length() - 2] == ';')
-					ansi_name[child_node->file_name_joliet_.length() - 2] = '\0';
+				if (joliet_len >= 2 && ansi_name[joliet_len - 2] == ';')
+					ansi_name[joliet_len - 2] = '\0';
 
 				node_path.append(ansi_name);
 #endif
 			}
 			else
 			{
+				const std::string::size_type iso_len = child_node->file_name_iso9660_.length();
 #ifdef _UNICODE
 				wchar_t utf_file_name[MAX_PATH];
 				ckcore::string::ansi_to_utf16(child_node->file_name_iso9660_.c_str(),utf_file_name,
 											  sizeof(utf_file_name)/sizeof(wchar_t));
 
-				if (utf_file_name[child_node->file_name_iso9660_.length() - 2] == ';')
-					utf_file_name[child_node->file_name_iso9660_.length() - 2] = '\0';
+				if (iso_len >= 2 && utf_file_name[iso_len - 2] == ';')
+					utf_file_name[iso_len - 2] = '\0';
 
 				node_path.append(utf_file_name);
 #else
-				if (child_node->file_name_iso9660_[child_node->file_name_iso9660_.length() - 2] == ';')
-					node_path.append(child_node->file_name_iso9660_,0,child_node->file_name_iso9660_.length() - 2);
+				if (iso_len >= 2 && child_node->file_name_iso9660_[iso_len - 2] == ';')
+					node_path.append(child_node->file_name_iso9660_,0,iso_len - 2);
 				else
 					node_path.append(child_node->file_name_iso9660_);
 #endif
@@ -314,8 +316,9 @@ namespace ckfilesystem
 				// Joliet or ISO9660?
 				if (joliet)
 				{
+					const std::wstring::size_type joliet_len = cur_node->file_name_joliet_.length();
 	#ifdef _UNICODE
-					if (cur_node->file_name_joliet_[cur_node->file_name_joliet_.length() - 2] == ';')
+					if (joliet_len >= 2 && cur_node->file_name_joliet_[joliet_len - 2] == ';')
 					{
 						std::wstring::iterator itEnd = cur_node->file_name_joliet_.end();
 						itEnd--;
@@ -332,24 +335,25 @@ namespace ckfilesystem
 					char ansi_name[JOLIET_MAX_NAMELEN_RELAXED + 1];
 					ckcore::string::utf16_to_ansi(cur_node->file_name_joliet_.c_str(),ansi_name,sizeof(ansi_name));
 
-					if (ansi_name[cur_node->file_name_joliet_.length() - 2] == ';')
-						ansi_name[cur_node->file_name_joliet_.length() - 2] = '\0';
+					if (joliet_len >= 2 && ansi_name[joliet_len - 2] == ';')
+						ansi_name[joliet_len - 2] = '\0';
 
 					node_path.insert(0,ansi_name);
 	#endif
 				}
 				else
 				{
+					const std::string::size_type iso_len = cur_node->file_name_iso9660_.length();
 	#ifdef _UNICODE
 					wchar_t utf_file_name[MAX_PATH];
 					ckcore::string::ansi_to_utf16(cur_node->file_name_iso9660_.c_str(),utf_file_name,
 												  sizeof(utf_file_name)/sizeof(wchar_t));
 					node_path.insert(0,utf_file_name);
 
-					if (utf_file_name[cur_node->file_name_iso9660_.length() - 2] == ';')
-						utf_file_name[cur_node->file_name_iso9660_.length() - 2] = '\0';
+					if (iso_len >= 2 && utf_file_name[iso_len - 2] == ';')
+						utf_file_name[iso_len - 2] = '\0';
 	#else
-					if (cur_node->file_name_iso9660_[cur_node->file_name_iso9660_.length() - 2] == ';')
+					if (iso_len >= 2 && cur_node->file_name_iso9660_[iso_len - 2] == ';')
 					{
 						std::string::iterator itEnd = cur_node->file_name_iso9660_.end();
 						itEnd--;

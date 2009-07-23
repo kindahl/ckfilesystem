@@ -447,7 +447,5 @@ namespace ckfilesystem
 		// Finally write the 2nd and last anchor volume descriptor pointer.
 		file_sys_.udf_.write_anchor_vol_desc_ptr(out_stream_,(ckcore::tuint32)last_data_sec,
 												 voldesc_seqextent_main_,voldesc_seqextent_rsrv_);
-
-		out_stream_.pad_sector();
 	}
 };

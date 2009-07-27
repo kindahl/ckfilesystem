@@ -520,11 +520,23 @@ namespace ckfilesystem
 			{
 				res = iso_writer.write_path_tables(file_sys_.files(),file_tree_,progress);
 				if (res != RESULT_OK)
+				{
+					// Restore progress.
+					progress.set_marquee(false);
+					progress.set_progress(100);
+
 					return res;
+				}
 
 				res = iso_writer.write_dir_entries(file_tree_,progress);
 				if (res != RESULT_OK)
+				{
+					// Restore progress.
+					progress.set_marquee(false);
+					progress.set_progress(100);
+
 					return res;
+				}
 			}
 
 			if (is_udf)

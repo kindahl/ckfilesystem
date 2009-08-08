@@ -68,6 +68,10 @@ namespace ckfilesystem
 
 		void *data_ptr_;					// Pointer to a user-defined structure, designed for Iso9660TreeNode.
 
+#ifdef _DEBUG
+		ckcore::tuint64 data_pos_actual_;	// Used for integrity check.
+#endif
+
 		/**
 		 * Creates a FileTreeNode object.
 		 * @param [in] parent_node The parent node.
@@ -91,6 +95,9 @@ namespace ckfilesystem
 			data_size_normal_(0),data_size_joliet_(0),data_pad_len_(0),
 			udf_size_(0),udf_size_tot_(0),udf_link_tot_(0),udf_part_loc_(0),
 			file_stream_(file_path)
+#ifdef _DEBUG
+			,data_pos_actual_(0)
+#endif
 		{
 			// If not a directory, try to open the file stream.
 			if (!(file_flags & FLAG_DIRECTORY))
@@ -112,7 +119,7 @@ namespace ckfilesystem
 			children_.clear();
 		}
 
-		FileTreeNode *get_parent()
+		FileTreeNode *get_parent() const
 		{
 			return parent_node_;
 		}
@@ -139,7 +146,6 @@ namespace ckfilesystem
 		FileTreeNode *get_root();
 		
 		bool create_from_file_set(const FileSet &files);
-		FileTreeNode *get_node_from_path(const FileDescriptor &file);
 		FileTreeNode *get_node_from_path(const ckcore::tchar *internal_path);
 
 	#ifdef _DEBUG

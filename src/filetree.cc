@@ -139,42 +139,6 @@ namespace ckfilesystem
 	}
 
 	// CONTINUE: Investigate how this can be made to use exceptions.
-	FileTreeNode *FileTree::get_node_from_path(const FileDescriptor &file)
-	{
-		size_t dir_path_len = file.internal_path_.length(),prev_delim = 0,pos;
-		ckcore::tstring cur_dir_name;
-		FileTreeNode *cur_node = root_node_;
-
-		for (pos = 0; pos < dir_path_len; pos++)
-		{
-			if (file.internal_path_.c_str()[pos] == '/')
-			{
-				if (pos > (prev_delim + 1))
-				{
-					// Obtain the name of the current directory.
-					cur_dir_name.erase();
-					for (size_t j = prev_delim + 1; j < pos; j++)
-						cur_dir_name.push_back(file.internal_path_.c_str()[j]);
-
-					cur_node = get_child_from_file_name(cur_node,cur_dir_name.c_str());
-					if (cur_node == NULL)
-					{
-						log_.print_line(ckT("  Error: Unable to find child node \"%s\"."),cur_dir_name.c_str());
-						return NULL;
-					}
-				}
-
-				prev_delim = pos;
-			}
-		}
-
-		// We now have our parent.
-		const ckcore::tchar *file_name = file.internal_path_.c_str() + prev_delim + 1;
-
-		//m_pLog->print_line(ckT("  END: %s"),file.m_ExternalPath.c_str());
-		return get_child_from_file_name(cur_node,file_name);
-	}
-
 	FileTreeNode *FileTree::get_node_from_path(const ckcore::tchar *internal_path)
 	{
 		size_t dir_path_len = ckcore::string::astrlen(internal_path),prev_delim = 0,pos;
@@ -246,11 +210,11 @@ namespace ckfilesystem
 				log_.print(ckT("<f>"));
 				log_.print((*it)->file_name_.c_str());
 #ifdef _WINDOWS
-				log_.print_line(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*it)->data_pos_normal_,
+				log_.print_line(ckT(" (%I64u:%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),(*it)->data_pos_normal_,
 #else
-				log_.print_line(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),(*it)->data_pos_normal_,
+				log_.print_line(ckT(" (%llu:%llu:%llu,%llu:%llu,%llu:%llu)"),(*it)->data_pos_normal_,
 #endif
-					(*it)->data_size_normal_,(*it)->data_pos_joliet_,
+					(*it)->data_size_normal_,(*it)->data_pos_joliet_,(*it)->data_pos_actual_,
 					(*it)->data_size_joliet_,(*it)->udf_size_,(*it)->udf_size_tot_);
 			}
 		}
@@ -290,11 +254,11 @@ namespace ckfilesystem
 			log_.print(ckT("<d>"));
 			log_.print(cur_node->file_name_.c_str());
 #ifdef _WINDOWS
-			log_.print_line(ckT(" (%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),cur_node->data_pos_normal_,
+			log_.print_line(ckT(" (%I64u:%I64u:%I64u,%I64u:%I64u,%I64u:%I64u)"),cur_node->data_pos_normal_,
 #else
-			log_.print_line(ckT(" (%llu:%llu,%llu:%llu,%llu:%llu)"),cur_node->data_pos_normal_,
+			log_.print_line(ckT(" (%llu:%llu:%llu,%llu:%llu,%llu:%llu)"),cur_node->data_pos_normal_,
 #endif
-				cur_node->data_size_normal_,cur_node->data_pos_joliet_,
+				cur_node->data_size_normal_,cur_node->data_pos_joliet_,cur_node->data_pos_actual_,
 				cur_node->data_size_joliet_,cur_node->udf_size_,cur_node->udf_size_tot_);
 
 			print_local_tree(dir_node_stack,cur_node,indent + 2);

@@ -26,6 +26,7 @@
 #include "ckfilesystem/fileset.hh"
 #include "ckfilesystem/filetree.hh"
 #include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso9660pathtable.hh"
 #include "ckfilesystem/joliet.hh"
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/filesystem.hh"
@@ -105,7 +106,7 @@ namespace ckfilesystem
 		bool compare_strings(const unsigned char *udf_str1,const ckcore::tchar *str2,
 							 unsigned char len);
 
-		bool calc_path_table_size(const FileSet &files,bool joliet_table,
+		bool calc_path_table_size(const Iso9660PathTable &pt,bool joliet_table,
 							      ckcore::tuint64 &pathtable_size,
 							      ckcore::Progress &progress);
 		void calc_local_dir_entry_len(FileTreeNode *local_node,bool joliet,int level,
@@ -115,9 +116,12 @@ namespace ckfilesystem
 									    ckcore::tuint64 &sec_offset);
 		void calc_dir_entries_len(FileTree &file_tree,ckcore::tuint64 start_sec,
 								  ckcore::tuint64 &len);
+		void calc_local_names(std::vector<FileTreeNode *> &node_stack,
+							  FileTreeNode *node);
 
 		// Write functions.
-		bool write_path_table(const FileSet &files,FileTree &file_tree,bool joliet_table,bool msbf);
+		void write_path_table(const Iso9660PathTable &pt,FileTree &file_tree,
+							  bool joliet_table,bool msbf);
 		void write_sys_dir(FileTreeNode *parent_node,SysDirType type,
 						   ckcore::tuint32 data_pos,ckcore::tuint32 data_size);
 		int write_local_dir_entry(ckcore::Progress &progress,FileTreeNode *local_node,
@@ -130,12 +134,18 @@ namespace ckfilesystem
                       FileSystem &file_sys,bool use_file_times,bool use_joliet);
 		~Iso9660Writer();
 
+		void calc_names(FileTree &file_tree);
+
 		void alloc_header();
-		void alloc_path_tables(ckcore::Progress &progress,const FileSet &files);
+		void alloc_path_tables(const Iso9660PathTable &pt_iso,
+							   const Iso9660PathTable &pt_jol,
+							   ckcore::Progress &progress);
 		void alloc_dir_entries(FileTree &file_tree);
 
 		void write_header(const FileSet &files,FileTree &file_tree);
-		int write_path_tables(const FileSet &files,FileTree &file_tree,ckcore::Progress &progress);
+		void write_path_tables(const Iso9660PathTable &pt_iso,
+							   const Iso9660PathTable &pt_jol,
+							   FileTree &file_tree,ckcore::Progress &progress);
 		int write_dir_entries(FileTree &file_tree,ckcore::Progress &progress);
 
 		// Helper functions.

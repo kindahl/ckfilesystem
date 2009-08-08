@@ -341,27 +341,26 @@ namespace ckfilesystem
 #endif
 	}
 
-	bool Iso9660Writer::calc_path_table_size(const FileSet &files,bool joliet_table,
+	bool Iso9660Writer::calc_path_table_size(const Iso9660PathTable &pt,bool joliet_table,
 										     ckcore::tuint64 &pathtable_size,
 										     ckcore::Progress &progress)
 	{
 		// Root record + 1 padding byte since the root record size is odd.
 		pathtable_size = sizeof(tiso_pathtable_record) + 1;
 
-		// Write all other path table records.
-		std::set<ckcore::tstring> path_dir_list;		// To help keep track of which records that have already been counted.
-		ckcore::tstring path_buffer,cur_dir_name,internal_path;
-
 		// Set to true of we have found that the directory structure is to deep.
 		// This variable is needed so that the warning message will only be printed
 		// once.
 		bool found_deep = false;
 
-		FileSet::const_iterator it_file;
-		for (it_file = files.begin(); it_file != files.end(); it_file++)
+		// Write all other path table records.
+		Iso9660PathTable::const_iterator it;
+		for (it = pt.begin(); it != pt.end(); it++)
 		{
+			FileTreeNode *cur_node = it->first;
+
 			// We're do not have to add the root record once again.
-			int level = FileComparator::level(*it_file);
+			int level = iso9660pathtable::level(cur_node);
 			if (level <= 1)
 				continue;
 
@@ -378,64 +377,24 @@ namespace ckfilesystem
 					found_deep = true;
 				}
 
-				log_.print_line(ckT("  Skipping: %s."),it_file->internal_path_.c_str());
+				log_.print_line(ckT("  Skipping: %s."),cur_node->file_path_.c_str());
 				progress.notify(ckcore::Progress::ckWARNING,
 								StringTable::instance().get_string(StringTable::WARNING_SKIPFILE),
-								it_file->internal_path_.c_str());
+								cur_node->file_path_.c_str());
 				continue;
 			}
 
-			// We're only interested in directories.
-			if (!(it_file->flags_ & FileDescriptor::FLAG_DIRECTORY))
-				continue;
+			unsigned char name_len = joliet_table ?
+				file_sys_.joliet_.calc_file_name_len(cur_node->file_name_.c_str(),true) << 1 : 
+				file_sys_.iso9660_.calc_file_name_len(cur_node->file_name_.c_str(),true);
+			unsigned char pathtable_rec_len = sizeof(tiso_pathtable_record) + name_len - 1;
 
-			// Make sure that the path to the current file or folder exists.
-			size_t prev_delim = 0;
+			// If the record length is not even padd it with a 0 byte.
+			if (pathtable_rec_len % 2 == 1)
+				pathtable_rec_len++;
 
-			// If the file is a directory, append a slash so it will be parsed as a
-			// directory in the loop below.
-			internal_path = it_file->internal_path_;
-			internal_path.push_back('/');
-
-			path_buffer.erase();
-			path_buffer = ckT("/");
-
-			for (size_t i = 0; i < internal_path.length(); i++)
-			{
-				if (internal_path[i] == '/')
-				{
-					if (i > (prev_delim + 1))
-					{
-						// Obtain the name of the current directory.
-						cur_dir_name.erase();
-						for (size_t j = prev_delim + 1; j < i; j++)
-							cur_dir_name.push_back(internal_path[j]);
-
-						path_buffer += cur_dir_name;
-						path_buffer += ckT("/");
-
-						// The path does not exist, create it.
-						if (path_dir_list.find(path_buffer) == path_dir_list.end())
-						{
-							unsigned char name_len = joliet_table ?
-								file_sys_.joliet_.calc_file_name_len(cur_dir_name.c_str(),true) << 1 : 
-								file_sys_.iso9660_.calc_file_name_len(cur_dir_name.c_str(),true);
-							unsigned char pathtable_rec_len = sizeof(tiso_pathtable_record) + name_len - 1;
-
-							// If the record length is not even padd it with a 0 byte.
-							if (pathtable_rec_len % 2 == 1)
-								pathtable_rec_len++;
-
-							path_dir_list.insert(path_buffer);
-
-							// Update the path table length.
-							pathtable_size += pathtable_rec_len;
-						}
-					}
-
-					prev_delim = i;
-				}
-			}
+			// Update the path table length.
+			pathtable_size += pathtable_rec_len;
 		}
 
 		return true;
@@ -496,7 +455,8 @@ namespace ckfilesystem
 				else
 					file_name_end = (name_len >> 1);
 
-				if (compare_strings(file_name,(*it_file)->file_name_.c_str(),file_name_end))
+				// UPDATE: Removed due to causing duplicate Joliet file names.
+				/*if (compare_strings(file_name,(*it_file)->file_name_.c_str(),file_name_end))
 				{
 #ifdef _UNICODE
 					(*it_file)->file_name_joliet_ = (*it_file)->file_name_;
@@ -516,7 +476,7 @@ namespace ckfilesystem
 
 					(*it_file)->file_name_joliet_ = szWideFileName;
 #endif
-				}
+				}*/
 			}
 			else
 			{
@@ -528,11 +488,12 @@ namespace ckfilesystem
 				else
 					file_name_end = name_len;
 
-				if (compare_strings((const char *)file_name,(*it_file)->file_name_.c_str(),file_name_end))
+				// UPDATE: Removed due to causing duplicate ISO9660 file names.
+				/*if (compare_strings((const char *)file_name,(*it_file)->file_name_.c_str(),file_name_end))
 				{
 					file_name[name_len] = '\0';
 					(*it_file)->file_name_iso9660_ = (const char *)file_name;
-				}
+				}*/
 			}
 
 			unsigned char cur_rec_size = sizeof(tiso_dir_record) + name_len - 1;
@@ -613,7 +574,53 @@ namespace ckfilesystem
 		len = sec_offset - start_sec;
 	}
 
-	bool Iso9660Writer::write_path_table(const FileSet &files,FileTree &file_tree,
+	void Iso9660Writer::calc_local_names(std::vector<FileTreeNode *> &node_stack,
+										 FileTreeNode *node)
+	{
+		std::vector<FileTreeNode *>::const_iterator it;
+		for (it = node->children_.begin(); it !=
+			node->children_.end(); it++)
+		{
+			FileTreeNode *cur_node = *it;
+			bool is_folder = cur_node->file_flags_ & FileTreeNode::FLAG_DIRECTORY;
+
+			if (is_folder)
+				node_stack.push_back(*it);
+
+			unsigned char name_size;
+			unsigned char file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE];	// Large enough for both level 1, 2 and even Joliet.
+
+			if (file_sys_.is_iso9660())
+			{
+				name_size = file_sys_.iso9660_.write_file_name(file_name,cur_node->file_name_.c_str(),is_folder);
+				make_unique_iso9660(cur_node,file_name,name_size);
+			}
+
+			if (file_sys_.is_joliet())
+			{
+				name_size = file_sys_.joliet_.write_file_name(file_name,cur_node->file_name_.c_str(),is_folder) << 1;
+				make_unique_joliet(cur_node,file_name,name_size);
+			}
+		}
+	}
+
+	void Iso9660Writer::calc_names(FileTree &file_tree)
+	{
+		FileTreeNode *cur_node = file_tree.get_root();
+
+		std::vector<FileTreeNode *> node_stack;
+		calc_local_names(node_stack,cur_node);
+
+		while (node_stack.size() > 0)
+		{ 
+			cur_node = node_stack.back();
+			node_stack.pop_back();
+
+			calc_local_names(node_stack,cur_node);
+		}
+	}
+
+	void Iso9660Writer::write_path_table(const Iso9660PathTable &pt,FileTree &file_tree,
 									     bool joliet_table,bool msbf)
 	{
 		FileTreeNode *cur_node = file_tree.get_root();
@@ -644,7 +651,7 @@ namespace ckfilesystem
 		else
 			write721(root_record.parent_dir_num,0x01);	// The root has itself as parent.
 
-		root_record.dir_ident[0] = 0;       					// The file name is set to zero.
+		root_record.dir_ident[0] = 0;       			// The file name is set to zero.
 
 		// Write the root record.
 		out_stream_.write(&root_record,sizeof(root_record));
@@ -653,135 +660,79 @@ namespace ckfilesystem
 		out_stream_.write(root_record.dir_ident,1);
 
 		// Write all other path table records.
-		std::map<ckcore::tstring,ckcore::tuint16> pathdir_num_map;
-		ckcore::tstring path_buffer,cur_dir_name,internal_path;
-
-		// Counters for all records.
-		ckcore::tuint16 rec_num = 2;	// Root has number 1.
-
-		FileSet::const_iterator it_file;
-		for (it_file = files.begin(); it_file != files.end(); it_file++)
+		Iso9660PathTable::const_iterator it;
+		for (it = pt.begin(); it != pt.end(); it++)
 		{
+			cur_node = it->first;
+
 			// We're do not have to add the root record once again.
-			int level = FileComparator::level(*it_file);
+			int level = iso9660pathtable::level(cur_node);
 			if (level <= 1)
 				continue;
 
 			if (level > file_sys_.iso9660_.get_max_dir_level())
 				continue;
 
-			// We're only interested in directories.
-			if (!(it_file->flags_ & FileDescriptor::FLAG_DIRECTORY))
-				continue;
+			memset(&path_record,0,sizeof(path_record));
 
-			// Locate the node in the file tree.
-			cur_node = file_tree.get_node_from_path(*it_file);
-			if (cur_node == NULL)
-				return false;
+			unsigned char name_size;
+			unsigned char file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE];	// Large enough for both level 1, 2 and even Joliet.
 
-			// Make sure that the path to the current file or folder exists.
-			size_t prev_delim = 0;
-
-			// If the file is a directory, append a slash so it will be parsed as a
-			// directory in the loop below.
-			internal_path = it_file->internal_path_;
-			internal_path.push_back('/');
-
-			path_buffer.erase();
-			path_buffer = ckT("/");
-
-			ckcore::tuint16 usParent = 1;	// Start from root.
-
-			for (size_t i = 0; i < internal_path.length(); i++)
+			if (joliet_table)
 			{
-				if (internal_path[i] == '/')
-				{
-					if (i > (prev_delim + 1))
-					{
-						// Obtain the name of the current directory.
-						cur_dir_name.erase();
-						for (size_t j = prev_delim + 1; j < i; j++)
-							cur_dir_name.push_back(internal_path[j]);
+				name_size = file_sys_.joliet_.write_file_name(file_name,cur_node->file_name_.c_str(),true) << 1;
+				make_unique_joliet(cur_node,file_name,name_size);
+			}
+			else
+			{
+				name_size = file_sys_.iso9660_.write_file_name(file_name,cur_node->file_name_.c_str(),true);
+				make_unique_iso9660(cur_node,file_name,name_size);
+			}
 
-						path_buffer += cur_dir_name;
-						path_buffer += ckT("/");
+			// If the record length is not even padd it with a 0 byte.
+			bool pad_byte = false;
+			if (name_size % 2 == 1)
+				pad_byte = true;
 
-						// The path does not exist, create it.
-						if (pathdir_num_map.find(path_buffer) == pathdir_num_map.end())
-						{
-							memset(&path_record,0,sizeof(path_record));
+			path_record.dir_ident_len = name_size;
+			path_record.ext_attr_record_len = 0;
 
-							unsigned char name_len;
-							unsigned char file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE];	// Large enough for both level 1, 2 and even Joliet.
-							if (joliet_table)
-							{
-								name_len = file_sys_.joliet_.write_file_name(file_name,cur_dir_name.c_str(),true) << 1;
-								make_unique_joliet(cur_node,file_name,name_len);
-							}
-							else
-							{
-								name_len = file_sys_.iso9660_.write_file_name(file_name,cur_dir_name.c_str(),true);
-								make_unique_iso9660(cur_node,file_name,name_len);
-							}
+			if (joliet_table)
+			{
+				if (msbf)
+					write732(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_joliet_);
+				else
+					write731(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_joliet_);
+			}
+			else
+			{
+				if (msbf)
+					write732(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_normal_);
+				else
+					write731(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_normal_);
+			}
 
-							// If the record length is not even padd it with a 0 byte.
-							bool pad_byte = false;
-							if (name_len % 2 == 1)
-								pad_byte = true;
+			if (msbf)
+				write722(path_record.parent_dir_num,it->second);
+			else
+				write721(path_record.parent_dir_num,it->second);
 
-							path_record.dir_ident_len = name_len;
-							path_record.ext_attr_record_len = 0;
+			path_record.dir_ident[0] = 0;
 
-							if (joliet_table)
-							{
-								if (msbf)
-									write732(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_joliet_);
-								else
-									write731(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_joliet_);
-							}
-							else
-							{
-								if (msbf)
-									write732(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_normal_);
-								else
-									write731(path_record.extent_loc,(ckcore::tuint32)cur_node->data_pos_normal_);
-							}
+			// Write the record.
+			out_stream_.write(&path_record,sizeof(path_record) - 1);
+			out_stream_.write(file_name,name_size);
 
-							if (msbf)
-								write722(path_record.parent_dir_num,usParent);
-							else
-								write721(path_record.parent_dir_num,usParent);
-
-							path_record.dir_ident[0] = 0;
-
-							pathdir_num_map[path_buffer] = usParent = rec_num++;
-
-							// Write the record.
-							out_stream_.write(&path_record,sizeof(path_record) - 1);
-							out_stream_.write(file_name,name_len);
-
-							// Pad if necessary.
-							if (pad_byte)
-							{
-								char szTemp[1] = { 0 };
-								out_stream_.write(szTemp,1);
-							}
-						}
-						else
-						{
-							usParent = pathdir_num_map[path_buffer];
-						}
-					}
-
-					prev_delim = i;
-				}
+			// Pad if necessary.
+			if (pad_byte)
+			{
+				char szTemp[1] = { 0 };
+				out_stream_.write(szTemp,1);
 			}
 		}
 
 		if (out_stream_.get_allocated() != 0)
 			out_stream_.pad_sector();
-
-		return true;
 	}
 
 	void Iso9660Writer::write_sys_dir(FileTreeNode *parent_node,SysDirType type,
@@ -867,15 +818,17 @@ namespace ckfilesystem
 		}
 	}
 
-	void Iso9660Writer::alloc_path_tables(ckcore::Progress &progress,const FileSet &files)
+	void Iso9660Writer::alloc_path_tables(const Iso9660PathTable &pt_iso,
+										  const Iso9660PathTable &pt_jol,
+										  ckcore::Progress &progress)
 	{
 		// Calculate path table sizes.
 		pathtable_size_normal_ = 0;
-		if (!calc_path_table_size(files,false,pathtable_size_normal_,progress))
+		if (!calc_path_table_size(pt_iso,false,pathtable_size_normal_,progress))
 			throw ckcore::Exception(ckT("Unable to calculate path table size."));
 
 		pathtable_size_joliet_ = 0;
-		if (use_joliet_ && !calc_path_table_size(files,true,pathtable_size_joliet_,progress))
+		if (use_joliet_ && !calc_path_table_size(pt_jol,true,pathtable_size_joliet_,progress))
 			throw ckcore::Exception(ckT("Unable to calculate joliet path table size."));
 
 		if (pathtable_size_normal_ > 0xffffffff || pathtable_size_joliet_ > 0xffffffff)
@@ -1008,39 +961,23 @@ namespace ckfilesystem
 		}
 	}
 
-	int Iso9660Writer::write_path_tables(const FileSet &files,FileTree &file_tree,ckcore::Progress &progress)
+	void Iso9660Writer::write_path_tables(const Iso9660PathTable &pt_iso,
+										  const Iso9660PathTable &pt_jol,
+										  FileTree &file_tree,ckcore::Progress &progress)
 	{
 		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEISOTABLE));
 
 		// Write the path tables.
-		if (!write_path_table(files,file_tree,false,false))
-		{
-			log_.print_line(ckT("  Error: Failed to write path table (LSBF)."));
-			return RESULT_FAIL;
-		}
-		if (!write_path_table(files,file_tree,false,true))
-		{
-			log_.print_line(ckT("  Error: Failed to write path table (MSBF)."));
-			return RESULT_FAIL;
-		}
+		write_path_table(pt_iso,file_tree,false,false);
+		write_path_table(pt_iso,file_tree,false,true);
 
 		if (use_joliet_)
 		{
 			progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEJOLIETTABLE));
 
-			if (!write_path_table(files,file_tree,true,false))
-			{
-				log_.print_line(ckT("  Error: Failed to write Joliet path table (LSBF)."));
-				return RESULT_FAIL;
-			}
-			if (!write_path_table(files,file_tree,true,true))
-			{
-				log_.print_line(ckT("  Error: Failed to write Joliet path table (MSBF)."));
-				return RESULT_FAIL;
-			}
+			write_path_table(pt_jol,file_tree,true,false);
+			write_path_table(pt_jol,file_tree,true,true);
 		}
-
-		return RESULT_OK;
 	}
 
 	int Iso9660Writer::write_local_dir_entry(ckcore::Progress &progress,

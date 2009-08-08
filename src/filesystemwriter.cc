@@ -155,6 +155,10 @@ namespace ckfilesystem
 		if (!node->file_stream_.test() && node->file_stream_.open())
 			throw FileOpenException(node->file_path_);
 
+#ifdef _DEBUG
+		node->data_pos_actual_ = out_stream.get_sector();
+#endif
+
 		// Validate the file size.
 		if (node->file_stream_.size() != node->file_size_)
 		{
@@ -490,9 +494,23 @@ namespace ckfilesystem
 			if (is_udf)
 				udf_writer.alloc_header();
 
+			Iso9660PathTable pt_iso,pt_jol;
 			if (is_iso)
 			{
-				iso_writer.alloc_path_tables(progress,file_sys_.files());
+				// Make proper names.
+				iso_writer.calc_names(file_tree_);
+
+				// Populate and sort path tables.
+				iso9660pathtable::populate_from_tree(pt_iso,file_tree_);
+				iso9660pathtable::sort(pt_iso,false,file_sys_.is_dvdvideo());
+
+				if (file_sys_.is_joliet())
+				{
+					iso9660pathtable::populate_from_tree(pt_jol,file_tree_);
+					iso9660pathtable::sort(pt_jol,true,file_sys_.is_dvdvideo());
+				}
+
+				iso_writer.alloc_path_tables(pt_iso,pt_jol,progress);
 				iso_writer.alloc_dir_entries(file_tree_);
 			}
 
@@ -518,15 +536,7 @@ namespace ckfilesystem
 			// FIXME: Add progress for this.
 			if (is_iso)
 			{
-				res = iso_writer.write_path_tables(file_sys_.files(),file_tree_,progress);
-				if (res != RESULT_OK)
-				{
-					// Restore progress.
-					progress.set_marquee(false);
-					progress.set_progress(100);
-
-					return res;
-				}
+				iso_writer.write_path_tables(pt_iso,pt_jol,file_tree_,progress);
 
 				res = iso_writer.write_dir_entries(file_tree_,progress);
 				if (res != RESULT_OK)

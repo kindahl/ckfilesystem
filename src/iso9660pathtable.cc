@@ -19,6 +19,7 @@
 #pragma once
 #include <algorithm>
 #include "ckfilesystem/iso9660pathtable.hh"
+#include "ckfilesystem/stringtable.hh"
 
 namespace ckfilesystem
 {
@@ -51,15 +52,44 @@ namespace ckfilesystem
 			}
 		}
 
-		void populate_from_tree(Iso9660PathTable &pt,FileTree &tree)
+		void populate_from_tree(Iso9660PathTable &pt,FileTree &tree,
+								FileSystem &file_sys,
+								ckcore::Progress &progress)
 		{
 			std::vector<FileTreeNode *> node_stack;
 			populate_from_local_tree(node_stack,pt,tree.get_root());
+
+			// Set to true of we have found that the directory structure is to
+			// deep. This variable is needed so that the warning message will
+			// only be printed once.
+			bool found_deep = false;
 
 			while (node_stack.size() > 0)
 			{
 				FileTreeNode *node = node_stack.back();
 				node_stack.pop_back();
+
+				// Ignore all nodes deeper than the maximum level.
+				int node_level = level(node);
+				if (node_level > file_sys.get_max_dir_level())
+				{
+					// Print the message only once.
+					if (!found_deep)
+					{
+						//log_.print_line(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
+						//			   file_sys_.iso9660_.get_max_dir_level());
+						progress.notify(ckcore::Progress::ckWARNING,
+										StringTable::instance().get_string(StringTable::WARNING_FSDIRLEVEL),
+										file_sys.get_max_dir_level());
+						found_deep = true;
+					}
+
+					//log_.print_line(ckT("  Skipping: %s."),cur_node->file_path_.c_str());
+					progress.notify(ckcore::Progress::ckWARNING,
+									StringTable::instance().get_string(StringTable::WARNING_SKIPFILE),
+									node->file_path_.c_str());
+					continue;
+				}
 
 				pt.push_back(std::make_pair(node,0));
 

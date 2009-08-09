@@ -348,42 +348,13 @@ namespace ckfilesystem
 		// Root record + 1 padding byte since the root record size is odd.
 		pathtable_size = sizeof(tiso_pathtable_record) + 1;
 
-		// Set to true of we have found that the directory structure is to deep.
-		// This variable is needed so that the warning message will only be printed
-		// once.
-		bool found_deep = false;
-
 		// Write all other path table records.
 		Iso9660PathTable::const_iterator it;
 		for (it = pt.begin(); it != pt.end(); it++)
 		{
 			FileTreeNode *cur_node = it->first;
 
-			// We're do not have to add the root record once again.
-			int level = iso9660pathtable::level(cur_node);
-			if (level <= 1)
-				continue;
-
-			if (level > file_sys_.iso9660_.get_max_dir_level())
-			{
-				// Print the message only once.
-				if (!found_deep)
-				{
-					log_.print_line(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
-								   file_sys_.iso9660_.get_max_dir_level());
-					progress.notify(ckcore::Progress::ckWARNING,
-									StringTable::instance().get_string(StringTable::WARNING_FSDIRLEVEL),
-									file_sys_.iso9660_.get_max_dir_level());
-					found_deep = true;
-				}
-
-				log_.print_line(ckT("  Skipping: %s."),cur_node->file_path_.c_str());
-				progress.notify(ckcore::Progress::ckWARNING,
-								StringTable::instance().get_string(StringTable::WARNING_SKIPFILE),
-								cur_node->file_path_.c_str());
-				continue;
-			}
-
+			// FIXME: This can be made to use the length of the already computed names.
 			unsigned char name_len = joliet_table ?
 				file_sys_.joliet_.calc_file_name_len(cur_node->file_name_.c_str(),true) << 1 : 
 				file_sys_.iso9660_.calc_file_name_len(cur_node->file_name_.c_str(),true);
@@ -420,7 +391,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= file_sys_.iso9660_.get_max_dir_level())
+				if (level > file_sys_.iso9660_.get_max_dir_level())
 					continue;
 			}
 
@@ -440,20 +411,20 @@ namespace ckfilesystem
 
 			bool is_folder = (*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY;
 
-			unsigned char name_len;	// FIXME: Rename to Size?
+			unsigned char name_size;
 			
 			// Optimization: If the the compatible file name is equal (not case-sensitive) to the
 			// original file name we assume that it is uniqe.
 			unsigned char file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 4]; // Large enough for level 1, 2 and even Joliet.
 			if (joliet)
 			{
-				name_len = file_sys_.joliet_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder) << 1;
+				name_size = file_sys_.joliet_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder) << 1;
 
 				unsigned char file_name_end;
 				if (!is_folder && file_sys_.joliet_.includes_file_ver_info())
-					file_name_end = (name_len >> 1) - 2;
+					file_name_end = (name_size >> 1) - 2;
 				else
-					file_name_end = (name_len >> 1);
+					file_name_end = (name_size >> 1);
 
 				// UPDATE: Removed due to causing duplicate Joliet file names.
 				/*if (compare_strings(file_name,(*it_file)->file_name_.c_str(),file_name_end))
@@ -480,13 +451,13 @@ namespace ckfilesystem
 			}
 			else
 			{
-				name_len = file_sys_.iso9660_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder);
+				name_size = file_sys_.iso9660_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder);
 
 				unsigned char file_name_end;
 				if (!is_folder && file_sys_.iso9660_.includes_file_ver_info())
-					file_name_end = name_len - 2;
+					file_name_end = name_size - 2;
 				else
-					file_name_end = name_len;
+					file_name_end = name_size;
 
 				// UPDATE: Removed due to causing duplicate ISO9660 file names.
 				/*if (compare_strings((const char *)file_name,(*it_file)->file_name_.c_str(),file_name_end))
@@ -496,7 +467,7 @@ namespace ckfilesystem
 				}*/
 			}
 
-			unsigned char cur_rec_size = sizeof(tiso_dir_record) + name_len - 1;
+			unsigned char cur_rec_size = sizeof(tiso_dir_record) + name_size - 1;
 
 			// If the record length is not even padd it with a 0 byte.
 			if (cur_rec_size % 2 == 1)
@@ -535,7 +506,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= file_sys_.iso9660_.get_max_dir_level())
+				if (level > file_sys_.iso9660_.get_max_dir_level())
 					continue;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -560,7 +531,7 @@ namespace ckfilesystem
 		ckcore::tuint64 sec_offset = start_sec;
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		calc_local_dir_entries_len(dir_node_stack,cur_node,0,sec_offset);
+		calc_local_dir_entries_len(dir_node_stack,cur_node,2,sec_offset);
 
 		while (dir_node_stack.size() > 0)
 		{ 
@@ -665,14 +636,6 @@ namespace ckfilesystem
 		{
 			cur_node = it->first;
 
-			// We're do not have to add the root record once again.
-			int level = iso9660pathtable::level(cur_node);
-			if (level <= 1)
-				continue;
-
-			if (level > file_sys_.iso9660_.get_max_dir_level())
-				continue;
-
 			memset(&path_record,0,sizeof(path_record));
 
 			unsigned char name_size;
@@ -762,7 +725,7 @@ namespace ckfilesystem
 		{
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
-				if (level >= file_sys_.iso9660_.get_max_dir_level())
+				if (level > file_sys_.iso9660_.get_max_dir_level())
 					return false;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -781,7 +744,7 @@ namespace ckfilesystem
 		FileTreeNode *cur_node = file_tree.get_root();
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		if (!validate_tree_node(dir_node_stack,cur_node,1))
+		if (!validate_tree_node(dir_node_stack,cur_node,2))
 			return false;
 
 		while (dir_node_stack.size() > 0)
@@ -1025,7 +988,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= file_sys_.iso9660_.get_max_dir_level())
+				if (level > file_sys_.iso9660_.get_max_dir_level())
 					continue;
 			}
 
@@ -1046,24 +1009,24 @@ namespace ckfilesystem
 				memset(&dr,0,sizeof(dr));
 
 				// Make a valid file name.
-				unsigned char name_len;	// FIXME: Rename to name_size;
+				unsigned char name_size;
 				unsigned char file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 4]; // Large enough for level 1, 2 and even Joliet.
 
 				bool is_folder = (*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY;
 				if (joliet)
 				{
-					name_len = file_sys_.joliet_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder) << 1;
-					make_unique_joliet((*it_file),file_name,name_len);
+					name_size = file_sys_.joliet_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder) << 1;
+					make_unique_joliet((*it_file),file_name,name_size);
 				}
 				else
 				{
-					name_len = file_sys_.iso9660_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder);
-					make_unique_iso9660((*it_file),file_name,name_len);
+					name_size = file_sys_.iso9660_.write_file_name(file_name,(*it_file)->file_name_.c_str(),is_folder);
+					make_unique_iso9660((*it_file),file_name,name_size);
 				}
 
 				// If the record length is not even padd it with a 0 byte.
 				bool pad_byte = false;
-				unsigned char dir_rec_size = sizeof(dr) + name_len - 1;
+				unsigned char dir_rec_size = sizeof(dr) + name_size - 1;
 				if (dir_rec_size % 2 == 1)
 				{
 					pad_byte = true;
@@ -1145,7 +1108,7 @@ namespace ckfilesystem
 				if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && file_remain > 0)
 					dr.file_flags |= DIRRECORD_FILEFLAG_MULTIEXTENT;
 
-				dr.file_ident_len = name_len;
+				dr.file_ident_len = name_size;
 
 				// Pad the sector with zeros if we can not fit the complete
 				// directory entry on this sector.
@@ -1167,7 +1130,7 @@ namespace ckfilesystem
 
 				// Write the record.
 				out_stream_.write(&dr,sizeof(dr) - 1);
-				out_stream_.write(file_name,name_len);
+				out_stream_.write(file_name,name_size);
 
 				// Pad if necessary.
 				if (pad_byte)
@@ -1198,7 +1161,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= file_sys_.iso9660_.get_max_dir_level())
+				if (level > file_sys_.iso9660_.get_max_dir_level())
 					continue;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -1226,7 +1189,7 @@ namespace ckfilesystem
 		FileTreeNode *cur_node = file_tree.get_root();
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		if (!write_local_dir_entries(dir_node_stack,progress,cur_node,1))
+		if (!write_local_dir_entries(dir_node_stack,progress,cur_node,2))
 			return RESULT_FAIL;
 
 		while (dir_node_stack.size() > 0)

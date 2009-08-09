@@ -53,7 +53,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= file_sys_.get_max_dir_level())
+				if (level > file_sys_.get_max_dir_level())
 					continue;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -133,7 +133,7 @@ namespace ckfilesystem
 		ckcore::tuint64 sec_offset = start_sec;
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		calc_local_filesys_data(dir_node_stack,cur_node,0,sec_offset,progress);
+		calc_local_filesys_data(dir_node_stack,cur_node,2,sec_offset,progress);
 
 		while (dir_node_stack.size() > 0)
 		{ 
@@ -208,7 +208,7 @@ namespace ckfilesystem
 			if ((*it_file)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
 			{
 				// Validate directory level.
-				if (level >= file_sys_.get_max_dir_level())
+				if (level > file_sys_.get_max_dir_level())
 					continue;
 				else
 					dir_node_stack.push_back(std::make_pair(*it_file,level + 1));
@@ -245,7 +245,7 @@ namespace ckfilesystem
 		FileTreeNode *cur_node = file_tree.get_root();
 
 		std::vector<std::pair<FileTreeNode *,int> > dir_node_stack;
-		write_local_file_data(out_stream,dir_node_stack,cur_node,1,progresser);
+		write_local_file_data(out_stream,dir_node_stack,cur_node,2,progresser);
 		if (progresser.cancelled())
 			return;
 
@@ -501,12 +501,12 @@ namespace ckfilesystem
 				iso_writer.calc_names(file_tree_);
 
 				// Populate and sort path tables.
-				iso9660pathtable::populate_from_tree(pt_iso,file_tree_);
+				iso9660pathtable::populate_from_tree(pt_iso,file_tree_,file_sys_,progress);
 				iso9660pathtable::sort(pt_iso,false,file_sys_.is_dvdvideo());
 
 				if (file_sys_.is_joliet())
 				{
-					iso9660pathtable::populate_from_tree(pt_jol,file_tree_);
+					iso9660pathtable::populate_from_tree(pt_jol,file_tree_,file_sys_,progress);
 					iso9660pathtable::sort(pt_jol,true,file_sys_.is_dvdvideo());
 				}
 

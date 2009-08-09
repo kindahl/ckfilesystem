@@ -21,6 +21,7 @@
 #include <ckcore/types.hh>
 #include <ckcore/string.hh>
 #include "ckfilesystem/filetree.hh"
+#include "ckfilesystem/filesystem.hh"
 
 namespace ckfilesystem
 {
@@ -31,7 +32,8 @@ namespace ckfilesystem
 	{
 		int level(const FileTreeNode *node);
 
-		void populate_from_tree(Iso9660PathTable &pt,FileTree &tree);
+		void populate_from_tree(Iso9660PathTable &pt,FileTree &tree,
+								FileSystem &file_sys,ckcore::Progress &progress);
 		void sort(Iso9660PathTable &pt,bool joliet,bool dvdvideo);
 	};
 };

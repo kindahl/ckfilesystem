@@ -89,12 +89,13 @@ namespace ckfilesystem
 					 bool last_fragment,ckcore::tuint32 fragment_index,
 					 unsigned char file_flags = 0,void *data_ptr = NULL) :
 			parent_node_(parent_node),
+			file_stream_(file_path),
 			file_flags_(file_flags),file_size_(0),
-			file_name_(file_name),file_path_(file_path),data_ptr_(data_ptr),
+			file_name_(file_name),file_path_(file_path),
 			data_pos_normal_(0),data_pos_joliet_(0),
 			data_size_normal_(0),data_size_joliet_(0),data_pad_len_(0),
 			udf_size_(0),udf_size_tot_(0),udf_link_tot_(0),udf_part_loc_(0),
-			file_stream_(file_path)
+            data_ptr_(data_ptr)
 #ifdef _DEBUG
 			,data_pos_actual_(0)
 #endif

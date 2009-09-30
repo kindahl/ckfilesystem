@@ -24,7 +24,7 @@
 namespace ckfilesystem
 {
 	IfoReader::IfoReader(const ckcore::tchar *full_path) :
-		in_stream_(full_path),ifo_type_(IT_UNKNOWN)
+		ifo_type_(IT_UNKNOWN),in_stream_(full_path)
 	{
 	}
 

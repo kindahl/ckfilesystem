@@ -43,8 +43,9 @@ namespace ckfilesystem
 
 		FileDescriptor(const ckcore::tchar *internal_path,const ckcore::tchar *external_path,
 					   unsigned char flags = 0,void *data_ptr = NULL) :
-			internal_path_(internal_path),external_path_(external_path),
-			flags_(flags),data_ptr_(data_ptr)
+            flags_(flags),
+            internal_path_(internal_path),external_path_(external_path),
+			data_ptr_(data_ptr)
 		{
 		}
 	};
@@ -64,4 +65,3 @@ namespace ckfilesystem
 
 	typedef std::set<ckfilesystem::FileDescriptor,ckfilesystem::FileComparator> FileSet;
 };
-

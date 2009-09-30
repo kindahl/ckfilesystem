@@ -36,7 +36,7 @@ namespace ckfilesystem
 								 bool use_file_times,bool use_joliet) :
 		log_(log),out_stream_(out_stream),sec_manager_(sec_manager),
         file_sys_(file_sys),
-		use_file_times_(use_file_times),use_joliet_(use_joliet),
+		use_joliet_(use_joliet),use_file_times_(use_file_times),
 		pathtable_size_normal_(0),pathtable_size_joliet_(0)
 	{
 		// Get system time.
@@ -63,7 +63,7 @@ namespace ckfilesystem
 			return;
 
 		// Don't calculate a new name of one has already been generated.
-		if (node->file_name_joliet_ != L"")
+		if (!node->file_name_joliet_.empty())
 		{
 			unsigned char file_name_pos = 0;
 			for (unsigned int i = 0; i < file_name_size; i += 2,file_name_pos++)
@@ -90,12 +90,16 @@ namespace ckfilesystem
 		// We're only interested in the file name without the extension and
 		// version information.
 		int delim = -1;
-		for (unsigned int i = 0; i < file_name_len; i++)
+		for (unsigned int i = file_name_len; i > 0; --i)
 		{
-			if (file_name[i] == '.')
-				delim = i;
+			if (file_name[i-1] == '.')
+            {
+				delim = i-1;
+                break;
+            }
 		}
 
+        
 		unsigned char file_name_end;
 
 		// If no '.' character was found just remove the version information if
@@ -136,7 +140,7 @@ namespace ckfilesystem
 		for (it_sibling = parent_node->children_.begin(); it_sibling != parent_node->children_.end();)
 		{
 			// Ignore any siblings that has not yet been assigned an ISO9660 compatible file name.
-			if ((*it_sibling)->file_name_iso9660_ == "")
+			if ((*it_sibling)->file_name_iso9660_.empty())
 			{
 				it_sibling++;
 				continue;
@@ -195,7 +199,7 @@ namespace ckfilesystem
 			return;
 
 		// Don't calculate a new name of one has already been generated.
-		if (node->file_name_iso9660_ != "")
+		if (!node->file_name_iso9660_.empty())
 		{
 			memcpy(file_name_ptr,node->file_name_iso9660_.c_str(),file_name_size);
 			return;
@@ -204,12 +208,16 @@ namespace ckfilesystem
 		// We're only interested in the file name without the extension and
 		// version information.
 		int delim = -1;
-		for (unsigned int i = 0; i < file_name_size; i++)
+		for (unsigned int i = file_name_size; i > 0; --i)
 		{
-			if (file_name_ptr[i] == '.')
-				delim = i;
+			if (file_name_ptr[i-1] == '.')
+            {
+				delim = i-1;
+                break;
+            }
 		}
 
+        
 		unsigned char file_name_end;
 
 		// If no '.' character was found just remove the version information if
@@ -248,7 +256,7 @@ namespace ckfilesystem
 		for (it_sibling = parent_node->children_.begin(); it_sibling != parent_node->children_.end();)
 		{
 			// Ignore any siblings that has not yet been assigned an ISO9660 compatible file name.
-			if ((*it_sibling)->file_name_iso9660_ == "")
+			if ((*it_sibling)->file_name_iso9660_.empty())
 			{
 				it_sibling++;
 				continue;

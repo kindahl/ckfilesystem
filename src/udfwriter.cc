@@ -29,7 +29,7 @@ namespace ckfilesystem
 	UdfWriter::UdfWriter(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
 		FileSystem &file_sys,bool use_file_times) :
 		log_(log),out_stream_(out_stream),sec_manager_(sec_manager),
-		file_sys_(file_sys),use_file_times_(use_file_times),part_len_(0)
+		use_file_times_(use_file_times),file_sys_(file_sys),part_len_(0)
 	{
 		memset(&voldesc_seqextent_main_,0,sizeof(tudf_extent_ad));
 		memset(&voldesc_seqextent_rsrv_,0,sizeof(tudf_extent_ad));

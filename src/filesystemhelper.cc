@@ -140,11 +140,10 @@ namespace ckfilesystem
 		calc_file_name(req_file_path + prev_delim + 1,file_name_buf,false);
 
 		size_t file_name_buf_len = ckcore::string::astrlen(file_name_buf);
-		if (file_name_buf[file_name_buf_len - 2] = ';')
+		if (file_name_buf[file_name_buf_len - 2] == ';')
 			file_name_buf[file_name_buf_len - 2] = '\0';
 
 		file_path.append(ckT("/"));
 		file_path.append(file_name_buf);
 	}
 };
-

@@ -21,7 +21,7 @@
 namespace ckfilesystem
 {
 	FileSystem::FileSystem(Type type,FileSet &file_set) :
-		type_(type),file_set_(file_set),udf_(type == TYPE_DVDVIDEO)
+		type_(type),udf_(type == TYPE_DVDVIDEO),file_set_(file_set)
 	{
 	}
 
@@ -131,4 +131,3 @@ namespace ckfilesystem
         return iso9660_.get_max_dir_level();
     }
 };
-

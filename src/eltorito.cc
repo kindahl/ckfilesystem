@@ -17,6 +17,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include <ckcore/filestream.hh>
 #include <ckcore/exception.hh>
 #include "ckfilesystem/iso9660.hh"

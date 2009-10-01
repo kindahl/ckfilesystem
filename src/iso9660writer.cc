@@ -18,6 +18,7 @@
 
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
 #include <wctype.h>
 #include <ckcore/file.hh>
 #include <ckcore/directory.hh>

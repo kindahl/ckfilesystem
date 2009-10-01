@@ -17,7 +17,7 @@ EXTRA_DIST = ../include/ckfilesystem/const.hh \
 			 ../include/ckfilesystem/udf.hh \
 			 ../include/ckfilesystem/udfwriter.hh \
 			 ../include/ckfilesystem/util.hh 
-INCLUDES = -I../include
+AM_CPPFLAGS = -I../include
 lib_LTLIBRARIES = libckfilesystem.la
 
 libckfilesystem_la_SOURCES = dvdvideo.cc eltorito.cc filesystem.cc \

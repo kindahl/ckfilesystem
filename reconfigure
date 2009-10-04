@@ -1,5 +1,24 @@
-#!/bin/sh
-aclocal
-autoconf
-automake -a
+#!/bin/bash
+
+set -o errexit  # Stop if a command yields a non-zero exit code.
+
+failed()
+{
+   echo "Error running script $0"
+}
+
+trap failed ERR
+
+echo "Running libtoolize..."
 libtoolize --force
+
+echo "Running aclocal..."
+aclocal    --warnings=all  -I m4
+
+echo "Running autoconf..."
+autoconf   --warnings=all
+
+echo "Running automake..."
+automake   --warnings=all  -a
+
+echo "Success running script $0"

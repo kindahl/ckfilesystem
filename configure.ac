@@ -1,6 +1,6 @@
 AC_INIT
 AM_INIT_AUTOMAKE(ckfilesystem,0.1)
-AM_PROG_LIBTOOL
+LT_INIT
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
@@ -34,5 +34,6 @@ AS_IF([test "x$with_ckcore" != xno],
 AC_DEFINE(_UNIX)
 AC_DEFINE(_FILE_OFFSET_BIT,64,[Enable support for large files.])
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_CONFIG_FILES([Makefile src/Makefile])
+AC_OUTPUT
 

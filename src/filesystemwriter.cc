@@ -450,9 +450,10 @@ namespace ckfilesystem
         SectorOutStream out_sec_stream(out_buf_stream);
 
 		// The first 16 sectors are reserved for system use (write 0s).
-		char tmp[1] = { 0 };
-		for (unsigned int i = 0; i < ISO9660_SECTOR_SIZE << 4; i++)
-			out_stream.write(tmp,1);
+		char tmp[ISO9660_SECTOR_SIZE];
+		memset(tmp,0,ISO9660_SECTOR_SIZE);
+		for (unsigned int i = 0; i < 16; i++)
+			out_stream.write(tmp,ISO9660_SECTOR_SIZE);
 
 		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_BUILDTREE));
 		progress.set_marquee(true);
@@ -608,4 +609,3 @@ namespace ckfilesystem
         return RESULT_OK;
     }
 };
-

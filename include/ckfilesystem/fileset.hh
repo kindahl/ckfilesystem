@@ -58,8 +58,7 @@ namespace ckfilesystem
 	public:
 		bool operator() (const FileDescriptor &item1,const FileDescriptor &item2) const
 		{
-			return ckcore::string::astrcmp(item1.internal_path_.c_str(),
-										   item2.internal_path_.c_str()) < 0;
+            return item1.internal_path_.compare(item2.internal_path_) < 0;
 		}
 	};
 

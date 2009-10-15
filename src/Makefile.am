@@ -16,7 +16,9 @@ EXTRA_DIST = ../include/ckfilesystem/const.hh \
 			 ../include/ckfilesystem/stringtable.hh \
 			 ../include/ckfilesystem/udf.hh \
 			 ../include/ckfilesystem/udfwriter.hh \
-			 ../include/ckfilesystem/util.hh 
+			 ../include/ckfilesystem/util.hh \
+			 ../include/ckfilesystem/iso9660pathtable.hh
+
 AM_CPPFLAGS = -I../include
 lib_LTLIBRARIES = libckfilesystem.la
 
@@ -25,7 +27,9 @@ libckfilesystem_la_SOURCES = dvdvideo.cc eltorito.cc filesystem.cc \
 							 filetree.cc iforeader.cc iso9660.cc \
 							 iso9660reader.cc iso9660writer.cc joliet.cc \
 							 sectormanager.cc sectorstream.cc stringtable.cc \
-							 udf.cc udfwriter.cc util.cc
+							 udf.cc udfwriter.cc util.cc \
+							 iso9660pathtable.cc
+
 libckfilesystem_la_LDFLAGS = -version-info $(CKFILESYSTEM_VERSION)
 
 library_includedir = $(includedir)/ckfilesystem
@@ -47,5 +51,5 @@ library_include_HEADERS = ../include/ckfilesystem/const.hh \
 						  ../include/ckfilesystem/stringtable.hh \
 						  ../include/ckfilesystem/udf.hh \
 						  ../include/ckfilesystem/udfwriter.hh \
-						  ../include/ckfilesystem/util.hh
-
+						  ../include/ckfilesystem/util.hh \
+						  ../include/ckfilesystem/iso9660pathtable.hh

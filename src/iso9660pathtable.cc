@@ -16,8 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ckfilesystem/iso9660pathtable.hh"  // The include file for this module comes first.
+
+#include <string.h>
 #include <algorithm>
-#include "ckfilesystem/iso9660pathtable.hh"
 #include "ckfilesystem/stringtable.hh"
 
 namespace ckfilesystem
@@ -339,4 +341,3 @@ namespace ckfilesystem
 		}
 	};
 };
-

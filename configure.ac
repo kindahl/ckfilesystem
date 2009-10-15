@@ -1,6 +1,12 @@
-AC_INIT
-AM_INIT_AUTOMAKE(ckfilesystem,0.1)
+AC_INIT([ckfilesystem],[0.1])
+AM_INIT_AUTOMAKE([-Wall -Werror])
 LT_INIT
+
+# These compilation flags must be set before AC_PROG_CC/CXX,
+# or we'll get "-g -O2" by default.
+CFLAGS="${CFLAGS=} -g3 -O2 -Wall"
+CXXFLAGS="${CXXFLAGS=} -g3 -O2 -Wall"
+
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL

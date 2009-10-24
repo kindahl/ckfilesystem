@@ -64,10 +64,10 @@ namespace ckfilesystem
 		std::vector<tiso_voldesc_bootrec> voldesc_bootrec_;
 		std::vector<tiso_voldesc_setterm> voldesc_setterm_;
 
-		void verify(tiso_voldesc_datetime &voldesc_datetime,
-					const ckcore::tchar *label);
+		void verify(const tiso_voldesc_datetime &voldesc_datetime,
+					const ckcore::tchar *label) const;
 		void verify(tiso_voldesc_primary &voldesc_primary);
-		void verify(tiso_voldesc_suppl &voldesc_suppl,int index);
+		void verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const;
 
 	public:
 		Iso9660VolDescSet();
@@ -89,9 +89,9 @@ namespace ckfilesystem
 		void reset();
 		void verify(SectorInStream &in_stream);
 
-		static void verify_a_chars(unsigned char *str,size_t len);
-		static void verify_d_chars(unsigned char *str,size_t len,bool allow_sep = false);
-		static void verify_j_chars(unsigned char *str,size_t len);
+		static void verify_a_chars(const unsigned char *str,size_t len);
+		static void verify_d_chars(const unsigned char *str,size_t len,bool allow_sep = false);
+		static void verify_j_chars(const unsigned char *str,size_t len);
 
 		static void read_a_chars(const unsigned char *source,size_t size,
 								 char *target);

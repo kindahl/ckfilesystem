@@ -9,23 +9,31 @@
 
 #define CKFSVFY_VERSION			"0.1"
 
+#if defined(_WINDOWS) && defined(_UNICODE)
+std::wostream &out = std::wcout;
+std::wostream &err = std::wcerr;
+#else
+std::ostream &out = std::cout;
+std::ostream &err = std::cerr;
+#endif
+
 int main(int argc,const char *argv[])
 {
-	std::cout << "ckFsVerifier " << CKFSVFY_VERSION
-			  << " Copyright (C) Christian Kindahl 2009" << std::endl << std::endl;
+	out << "ckFsVerifier " << CKFSVFY_VERSION
+		<< " Copyright (C) Christian Kindahl 2009" << std::endl << std::endl;
 
 	// Parse the command line.
 	if (argc != 2)
 	{
-		std::cerr << "Error: Invalid usage, please specify a disc image file to analyze."
-				  << std::endl;
+		err << "Error: Invalid usage, please specify a disc image file to analyze."
+		    << std::endl;
 		return 1;
 	}
 
 	ckcore::Path file_path(ckcore::string::ansi_to_auto<1024>(argv[1]).c_str());
 	if (!ckcore::File::exist(file_path))
 	{
-		std::cerr << "Error: The specified file doesn't exist." << std::endl;
+		err << "Error: The specified file doesn't exist." << std::endl;
 		return 1;
 	}
 
@@ -33,17 +41,17 @@ int main(int argc,const char *argv[])
 	ckcore::FileInStream file_stream(file_path);
 	if (!file_stream.open())
 	{
-		std::cerr << "Error: Unable to open file for reading." << std::endl;
+		err << "Error: Unable to open file for reading." << std::endl;
 		return 1;
 	}
 
 	// Verify the file system.
 	try
 	{
-		std::wcout << ckT("Input: ") << std::endl << ckT("  File: ")
-				   << file_path.name() << std::endl << ckT("  Size: ")
-				   << file_stream.size() << ckT(" bytes") << std::endl
-				   << std::endl;
+		out << ckT("Input: ") << std::endl << ckT("  File: ")
+		    << file_path.name() << std::endl << ckT("  Size: ")
+			<< file_stream.size() << ckT(" bytes") << std::endl
+		    << std::endl;
 
 		ckfilesystem::Iso9660Verifier verifier;
 
@@ -52,13 +60,13 @@ int main(int argc,const char *argv[])
 	}
 	catch (ckfilesystem::VerificationException &e)
 	{
-		std::wcerr << ckT("=> Error: ") << e.what() << std::endl;
-		std::wcerr << ckT("=>        See ") << e.reference() << std::endl;
+		err << ckT("=> Error: ") << e.what() << std::endl;
+		err << ckT("=>        See ") << e.reference() << std::endl;
 		return 1;
 	}
 	catch (ckcore::Exception &e)
 	{
-		std::wcerr << ckT("=> Error: ") << e.what() << std::endl;
+		err << ckT("=> Error: ") << e.what() << std::endl;
 		return 1;
 	}
 

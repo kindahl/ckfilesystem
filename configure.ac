@@ -33,9 +33,9 @@ then
 	LIBS="$LIBS -L$with_ckcore/lib -lckcore"
 fi
 
-AS_IF([test "x$with_ckcore" != xno],
-	  [AC_CHECK_LIB([ckcore],[main],[],
-              		[AC_MSG_FAILURE([--with-ckcore was given, but test for ckcore failed])])])
+#AS_IF([test "x$with_ckcore" != xno],
+#	  [AC_CHECK_LIB([ckcore],[main],[],
+#              		[AC_MSG_FAILURE([--with-ckcore was given, but test for ckcore failed])])])
 
 # check if debug or release build.
 AC_MSG_CHECKING(whether to generate a debug build)

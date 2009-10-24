@@ -21,6 +21,7 @@ EXTRA_DIST = ../include/ckfilesystem/const.hh \
 
 AM_CPPFLAGS = -I../include
 lib_LTLIBRARIES = libckfilesystem.la
+bin_PROGRAMS = verifier
 
 libckfilesystem_la_SOURCES = dvdvideo.cc eltorito.cc filesystem.cc \
 							 filesystemwriter.cc filesystemhelper.cc \
@@ -31,6 +32,10 @@ libckfilesystem_la_SOURCES = dvdvideo.cc eltorito.cc filesystem.cc \
 							 iso9660pathtable.cc
 
 libckfilesystem_la_LDFLAGS = -version-info $(CKFILESYSTEM_VERSION)
+
+verifier_SOURCES = iso9660verifier.cc verifier.cc
+
+verifier_LDFLAGS = -lckfilesystem -ldl -lpthread
 
 library_includedir = $(includedir)/ckfilesystem
 library_include_HEADERS = ../include/ckfilesystem/const.hh \

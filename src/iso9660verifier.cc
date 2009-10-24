@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include <ckcore/exception.hh>
 #include <ckcore/log.hh>
 #include <ckcore/string.hh>
@@ -134,16 +135,16 @@ namespace ckfilesystem
 	 * @param [in] label The label to use when printing the record.
 	 * @throw VerificationException If the record is invalid.b
 	 */
-	void Iso9660VolDescSet::verify(tiso_voldesc_datetime &voldesc_datetime,
-								   const ckcore::tchar *label)
+	void Iso9660VolDescSet::verify(const tiso_voldesc_datetime &voldesc_datetime,
+								   const ckcore::tchar *label) const
 	{
-		char *year_str = reinterpret_cast<char *>(&voldesc_datetime.year);
-		char *mon_str = reinterpret_cast<char *>(&voldesc_datetime.mon);
-		char *day_str = reinterpret_cast<char *>(&voldesc_datetime.day);
-		char *hour_str = reinterpret_cast<char *>(&voldesc_datetime.hour);
-		char *min_str = reinterpret_cast<char *>(&voldesc_datetime.min);
-		char *sec_str = reinterpret_cast<char *>(&voldesc_datetime.sec);
-		char *hundreds_str = reinterpret_cast<char *>(&voldesc_datetime.hundreds);
+		const char *year_str = reinterpret_cast<const char *>(&voldesc_datetime.year);
+		const char *mon_str = reinterpret_cast<const char *>(&voldesc_datetime.mon);
+		const char *day_str = reinterpret_cast<const char *>(&voldesc_datetime.day);
+		const char *hour_str = reinterpret_cast<const char *>(&voldesc_datetime.hour);
+		const char *min_str = reinterpret_cast<const char *>(&voldesc_datetime.min);
+		const char *sec_str = reinterpret_cast<const char *>(&voldesc_datetime.sec);
+		const char *hundreds_str = reinterpret_cast<const char *>(&voldesc_datetime.hundreds);
 
 		ckcore::tuint32 year = (year_str[0] - '0') * 1000 + (year_str[1] - '0') * 100 +
 							   (year_str[2] - '0') * 10   + (year_str[3] - '0');
@@ -502,7 +503,7 @@ namespace ckfilesystem
 	 * @param [in] index The index of the specified descriptor.
 	 * @throw VerificationsException If an error occurred.
 	 */
-	void Iso9660VolDescSet::verify(tiso_voldesc_suppl &voldesc_suppl,int index)
+	void Iso9660VolDescSet::verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const
 	{
 		wchar_t str_buffer[1024];
 		size_t len = 0;
@@ -544,7 +545,7 @@ namespace ckfilesystem
 		Iso9660Verifier::read_j_chars(voldesc_suppl.sys_ident,
 									  sizeof(voldesc_suppl.sys_ident),str_buffer);
 		ckcore::log::print_line(ckT("  System identifier: \"%s\""),
-			ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
+			                    ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
 		Iso9660Verifier::verify_j_chars(voldesc_suppl.sys_ident,len);
 
 		// Volume identifier.
@@ -835,7 +836,7 @@ namespace ckfilesystem
 		std::vector<tiso_voldesc_suppl>::const_iterator it;
 		int i = 0;
 		for (it = voldesc_suppl_.begin(); it != voldesc_suppl_.end(); it++,i++)
-			verify((tiso_voldesc_suppl)*it,i);
+			verify(*it,i);
 	}
 
 	/**
@@ -928,7 +929,7 @@ namespace ckfilesystem
 	 * @param [in] len The string length counter in characters.
 	 * @throw VerificationException If the string is invalid.
 	 */
-	void Iso9660Verifier::verify_a_chars(unsigned char *str,size_t len)
+	void Iso9660Verifier::verify_a_chars(const unsigned char *str,size_t len)
 	{
 		for (size_t i = 0; i < len; i++)
 		{
@@ -962,7 +963,7 @@ namespace ckfilesystem
 	 *						 characters.
 	 * @throw VerificationException If the string is invalid.
 	 */
-	void Iso9660Verifier::verify_d_chars(unsigned char *str,size_t len,bool allow_sep)
+	void Iso9660Verifier::verify_d_chars(const unsigned char *str,size_t len,bool allow_sep)
 	{
 		for (size_t i = 0; i < len; i++)
 		{
@@ -999,7 +1000,7 @@ namespace ckfilesystem
 	 * @param [in] len The string length counter in characters.
 	 * @throw VerificationException If the string is invalid.
 	 */
-	void Iso9660Verifier::verify_j_chars(unsigned char *str,size_t len)
+	void Iso9660Verifier::verify_j_chars(const unsigned char *str,size_t len)
 	{
 		for (size_t i = 0; i < len; i++)
 		{

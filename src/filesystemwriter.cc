@@ -93,7 +93,7 @@ namespace ckfilesystem
 						ckcore::tstringstream msg;
 						msg << ckT("The file \"") << (*it_file)->file_name_
 							<< ckT("\" does not contain imported session data like advertised.");
-						throw ckcore::Exception(msg.str());
+						throw ckcore::Exception2(msg.str());
 					}
 
 					(*it_file)->data_size_normal_ = import_node_ptr->extent_len_;
@@ -169,7 +169,8 @@ namespace ckfilesystem
 					<< ckT("\" may have been modified during file system ")
 					   ckT("creation, please close all applications accessing ")
 					   ckT("the file and try again.");
-				throw ckcore::Exception(msg.str());
+
+				    throw ckcore::Exception2(msg.str());
 			}
 			else
 			{
@@ -581,19 +582,19 @@ namespace ckfilesystem
 			progress.set_progress(100);
 
 			// Write message to log file.
-			log_.print_line(ckT("Error: %s"),e.what().c_str());
+			log_.print_line(ckT("Error: %s"),get_except_msg(e).c_str());
 			return RESULT_FAIL;
 		}
-		catch (ckcore::Exception &e)
+		catch (const std::exception &e)
 		{
-			progress.notify(ckcore::Progress::ckERROR,e.what().c_str());
+			progress.notify(ckcore::Progress::ckERROR,ckcore::get_except_msg(e).c_str());
 
 			// Restore progress.
 			progress.set_marquee(false);
 			progress.set_progress(100);
 
 			// Write message to log file.
-			log_.print_line(ckT("Error: %s"),e.what().c_str());
+			log_.print_line(ckT("Error: %s"),ckcore::get_except_msg(e).c_str());
 			return RESULT_FAIL;
 		}
 

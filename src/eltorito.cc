@@ -117,7 +117,7 @@ namespace ckfilesystem
 
 		// write the default boot entry.
 		if (boot_images_.size() < 1)
-			throw ckcore::Exception(ckT("No ElTorito images to write."));
+			throw ckcore::Exception2(ckT("No ElTorito images to write."));
 
 		ElToritoImage *pDefImage = boot_images_[0];
 
@@ -150,7 +150,7 @@ namespace ckfilesystem
 						dbe.emulation = ELTORITO_EMULATION_DISKETTE288;
 						break;
 					default:
-						throw ckcore::Exception(ckT("Invalid ElTorito floppy emulation type."));
+						throw ckcore::Exception2(ckT("Invalid ElTorito floppy emulation type."));
 				}
 
 				dbe.sys_type = 0;
@@ -160,7 +160,7 @@ namespace ckfilesystem
 				dbe.emulation = ELTORITO_EMULATION_HARDDISK;
 
 				if (!read_sys_type_mbr(pDefImage->full_path_.c_str(),dbe.sys_type))
-					throw ckcore::Exception(ckT("Could not read MBR for producing an ElTorito boot image."));
+					throw ckcore::Exception2(ckT("Could not read MBR for producing an ElTorito boot image."));
 				break;
 		}
 
@@ -218,7 +218,7 @@ namespace ckfilesystem
 							se.emulation = ELTORITO_EMULATION_DISKETTE288;
 							break;
 						default:
-							throw ckcore::Exception(ckT("Invalid ElTorito floppy emulation type."));
+							throw ckcore::Exception2(ckT("Invalid ElTorito floppy emulation type."));
 					}
 
 					se.sys_type = 0;
@@ -228,7 +228,7 @@ namespace ckfilesystem
 					se.emulation = ELTORITO_EMULATION_HARDDISK;
 
 					if (!read_sys_type_mbr(pCurImage->full_path_.c_str(),se.sys_type))
-						throw ckcore::Exception(ckT("Could not read MBR for producing an ElTorito boot image."));
+						throw ckcore::Exception2(ckT("Could not read MBR for producing an ElTorito boot image."));
 					break;
 			}
 
@@ -252,11 +252,7 @@ namespace ckfilesystem
 			ckcore::tint64 processed = FileStream.read(szBuffer,ELTORITO_IO_BUFFER_SIZE);
 			if (processed == -1)
 			{
-				ckcore::tstring message  = ckT("Unable to read the file \"");
-				message += full_path;
-				message += ckT("\".");
-
-				throw ckcore::Exception(message);
+				throw ckcore::Exception2(ckcore::string::formatstr(ckT("Unable to read the file \"%s\"."),full_path));
 			}
 
 			out_stream.write(szBuffer,(ckcore::tuint32)processed);
@@ -332,7 +328,7 @@ namespace ckfilesystem
 		for (it = boot_images_.begin(); it != boot_images_.end(); it++)
 		{
 			if (start_sec > 0xffffffff)
-				throw ckcore::Exception(ckT("Could not calculate ElTorito data boundaries."));
+				throw ckcore::Exception2(ckT("Could not calculate ElTorito data boundaries."));
 
 			(*it)->data_sec_pos_ = (ckcore::tuint32)start_sec;
 

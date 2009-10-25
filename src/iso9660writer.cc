@@ -797,18 +797,18 @@ namespace ckfilesystem
 		// Calculate path table sizes.
 		pathtable_size_normal_ = 0;
 		if (!calc_path_table_size(pt_iso,false,pathtable_size_normal_,progress))
-			throw ckcore::Exception(ckT("Unable to calculate path table size."));
+			throw ckcore::Exception2(ckT("Unable to calculate path table size."));
 
 		pathtable_size_joliet_ = 0;
 		if (use_joliet_ && !calc_path_table_size(pt_jol,true,pathtable_size_joliet_,progress))
-			throw ckcore::Exception(ckT("Unable to calculate joliet path table size."));
+			throw ckcore::Exception2(ckT("Unable to calculate joliet path table size."));
 
 		if (pathtable_size_normal_ > 0xffffffff || pathtable_size_joliet_ > 0xffffffff)
 		{
 			ckcore::tstringstream msg;
 			msg << ckT("The path table is too large, ") << pathtable_size_normal_
 				<< ckT(" and ") << pathtable_size_joliet_ << ckT(" bytes.");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 
 		sec_manager_.alloc_bytes(this,SR_PATHTABLE_NORMAL_L,pathtable_size_normal_);
@@ -835,7 +835,7 @@ namespace ckfilesystem
 	{
 		// Make sure that everything has been allocated.
 		if (pathtable_size_normal_ == 0)
-			throw ckcore::Exception(ckT("Memory for ISO9660 path table has not been allocated."));
+			throw ckcore::Exception2(ckT("Memory for ISO9660 path table has not been allocated."));
 
 		// Calculate boot catalog and image data.
 		if (file_sys_.eltorito_.get_boot_image_count() > 0)
@@ -850,7 +850,7 @@ namespace ckfilesystem
 				msg << ckT("Invalid boot data sector range of ")
 					<< boot_data_sec << ckT(" to ")
 					<< boot_data_end << ckT(".");
-				throw ckcore::Exception(msg.str());
+				throw ckcore::Exception2(msg.str());
 			}
 
 			file_sys_.eltorito_.calc_filesys_data(boot_data_sec,boot_data_end);
@@ -870,7 +870,7 @@ namespace ckfilesystem
 			ckcore::tstringstream msg;
 			msg << ckT("Invalid start sector ") << dir_entries_sec
 				<< ckT(" of directory entries.");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 
 		file_sys_.iso9660_.write_vol_desc_primary(out_stream_,create_time_,
@@ -913,7 +913,7 @@ namespace ckfilesystem
 				ckcore::tstringstream msg;
 				msg << ckT("Root folder is larger than ISO9660 supports, current size is ")
 					<< file_tree.get_root()->data_size_normal_ << ckT(" bytes.");
-				throw ckcore::Exception(msg.str());
+				throw ckcore::Exception2(msg.str());
 			}
 
 			ckcore::tuint32 root_extent_loc_joliet = (ckcore::tuint32)dir_entries_sec +

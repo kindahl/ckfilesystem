@@ -260,14 +260,14 @@ namespace ckfilesystem
 		ckcore::tuint16 find_parent(FileTreeNode *node,Iso9660PathTable &pt)
 		{
 			if (pt.size() > 0xffff)
-				throw ckcore::Exception(ckT("Too many directories in ISO9660 file system. ")
+				throw ckcore::Exception2(ckT("Too many directories in ISO9660 file system. ")
 										ckT("Directory indentifier exceeded 0xffff."));
 
 			for (ckcore::tuint16 i = 0; i < static_cast<ckcore::tuint16>(pt.size()); i++)
 				if (pt[i].first == node)
 					return i + 2;	// Root is 1 so the first identifier will be 2.
 
-			throw ckcore::Exception(ckT("Internal error: Unable to locate parent ")
+			throw ckcore::Exception2(ckT("Internal error: Unable to locate parent ")
 									ckT("directory in path table."));
 		}
 

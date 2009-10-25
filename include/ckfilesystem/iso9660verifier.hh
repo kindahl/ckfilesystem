@@ -26,7 +26,7 @@ namespace ckfilesystem
 	/**
 	 * @brief Class for verifications exceptions.
 	 */
-	class VerificationException : public ckcore::Exception
+	class VerificationException : public ckcore::Exception2
 	{
 	private:
 		ckcore::tstring reference_;
@@ -40,11 +40,11 @@ namespace ckfilesystem
 		 */
 		VerificationException(const ckcore::tstring &message,
 							  const ckcore::tchar *reference) :
-			ckcore::Exception(message),reference_(reference)
+			ckcore::Exception2(message),reference_(reference)
 		{
 		}
 
-		virtual ~VerificationException() {};
+		virtual ~VerificationException() throw() {};
 
 		const ckcore::tstring &reference() const
 		{

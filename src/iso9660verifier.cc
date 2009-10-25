@@ -119,7 +119,7 @@ namespace ckfilesystem
 				ckcore::tstringstream msg;
 				msg << ckT("Invalid volume descriptor of type ") << type
 					<< ckT(" at sector ") << cur_sec << ckT(".");
-				throw ckcore::Exception(msg.str());
+				throw ckcore::Exception2(msg.str());
 			}
 		}
 
@@ -873,7 +873,7 @@ namespace ckfilesystem
 				ckcore::tstringstream msg;
 				msg << ckT("Encountered a second primary volume descriptor at sector ")
 					<< (in_stream.get_sector() - 1) << ckT(".");
-				throw ckcore::Exception(msg.str());
+				throw ckcore::Exception2(msg.str());
 			}
 			break;
 
@@ -890,7 +890,7 @@ namespace ckfilesystem
 			ckcore::tstringstream msg;
 			msg << ckT("Invalid volume descriptor of type ") << type
 				<< ckT(" at sector ") << (in_stream.get_sector() - 1) << ckT(".");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 	}
 

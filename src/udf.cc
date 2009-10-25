@@ -918,7 +918,7 @@ namespace ckfilesystem
 
 			// DVD-Video does not allow files larger than 1 GiB.
 			if (info_len > 0x40000000)
-				throw ckcore::Exception(ckT("DVD-Video discs does not allow files larger than 1 GiB."));
+				throw ckcore::Exception2(ckT("DVD-Video discs does not allow files larger than 1 GiB."));
 		}
 
 		fe.uid = 0xffffffff;

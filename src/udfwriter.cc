@@ -313,7 +313,7 @@ namespace ckfilesystem
 	{
 		if (part_len_ == 0)
 		{
-			throw ckcore::Exception(ckT("Cannot write UDF partition because ")
+			throw ckcore::Exception2(ckT("Cannot write UDF partition because ")
 									ckT("no space has been reserved for it."));
 		}
 
@@ -322,7 +322,7 @@ namespace ckfilesystem
 			ckcore::tstringstream msg;
 			msg << ckT("UDF partition is too large, current length is ")
 				<< part_len_ << ckT(" sectors.");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 
 		if (sec_manager_.get_start(this,SR_MAINDESCRIPTORS) > 0xffffffff)
@@ -330,7 +330,7 @@ namespace ckfilesystem
 			ckcore::tstringstream msg;
 			msg << ckT("Error during sector space allocation, start of UDF main descriptors ")
 				<< sec_manager_.get_start(this,SR_MAINDESCRIPTORS) << ckT(".");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 
 		if (sec_manager_.get_data_length() > 0xffffffff)
@@ -338,7 +338,7 @@ namespace ckfilesystem
 			ckcore::tstringstream msg;
 			msg << ckT("File data is too large for UDF, current length is ")
 				<< sec_manager_.get_data_length() << ckT(" sectors.");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 
 		// Used for padding.
@@ -441,7 +441,7 @@ namespace ckfilesystem
 			ckcore::tstringstream msg;
 			msg << ckT("File data is too large for UDF, last data sector is ")
 				<< last_data_sec << ckT(".");
-			throw ckcore::Exception(msg.str());
+			throw ckcore::Exception2(msg.str());
 		}
 
 		// Finally write the 2nd and last anchor volume descriptor pointer.

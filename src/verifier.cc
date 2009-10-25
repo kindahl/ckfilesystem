@@ -64,9 +64,9 @@ int main(int argc,const char *argv[])
 		err << ckT("=>        See ") << e.reference() << std::endl;
 		return 1;
 	}
-	catch (ckcore::Exception &e)
+	catch (const std::exception &e)
 	{
-		err << ckT("=> Error: ") << e.what() << std::endl;
+		err << ckT("=> Error: ") << ckcore::get_except_msg(e) << std::endl;
 		return 1;
 	}
 

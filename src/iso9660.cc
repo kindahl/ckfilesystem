@@ -664,7 +664,7 @@ namespace ckfilesystem
 		}
 		else
 		{
-			throw ckcore::Exception(ckT("ISO9660:1999 supplementary descriptor ")
+			throw ckcore::Exception2(ckT("ISO9660:1999 supplementary descriptor ")
 									ckT("should not be used on standard ISO9660 ")
 									ckT("file systems."));
 		}

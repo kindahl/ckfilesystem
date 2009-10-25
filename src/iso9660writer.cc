@@ -886,7 +886,11 @@ namespace ckfilesystem
 			ckcore::tuint64 boot_cat_sec = sec_manager_.get_start(this,SR_BOOTCATALOG);
 			file_sys_.eltorito_.write_boot_record(out_stream_,(ckcore::tuint32)boot_cat_sec);
 
-			log_.print_line(ckT("  Wrote El Torito boot record at sector %d."),boot_cat_sec);
+#ifdef _WINDOWS
+			log_.print_line(ckT("  Wrote El Torito boot record at sector %I64u."),boot_cat_sec);
+#else
+			log_.print_line(ckT("  Wrote El Torito boot record at sector %llu."),boot_cat_sec);
+#endif
 		}
 
 		// Write ISO9660 descriptor.

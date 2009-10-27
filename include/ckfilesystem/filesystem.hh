@@ -59,7 +59,7 @@ namespace ckfilesystem
         const FileSet &file_set_;
 
 	public:
-		FileSystem(Type type,FileSet &file_set);
+		FileSystem(Type type,const FileSet &file_set);
 		~FileSystem();
 
 		// File system modifiers, mixed set for Joliet, UDF and ISO9660.
@@ -94,4 +94,3 @@ namespace ckfilesystem
         unsigned char get_max_dir_level();
 	};
 };
-

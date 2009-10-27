@@ -20,7 +20,7 @@
 
 namespace ckfilesystem
 {
-	FileSystem::FileSystem(Type type,FileSet &file_set) :
+	FileSystem::FileSystem(Type type,const FileSet &file_set) :
 		type_(type),udf_(type == TYPE_DVDVIDEO),file_set_(file_set)
 	{
 	}

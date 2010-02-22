@@ -56,11 +56,23 @@ namespace ckfilesystem
 	class FileComparator
 	{
 	public:
-		bool operator() (const FileDescriptor &item1,const FileDescriptor &item2) const
+		bool operator() (const FileDescriptor *item1,const FileDescriptor *item2) const
 		{
-            return item1.internal_path_.compare(item2.internal_path_) < 0;
+            return item1->internal_path_.compare(item2->internal_path_) < 0;
 		}
 	};
 
-	typedef std::set<ckfilesystem::FileDescriptor,ckfilesystem::FileComparator> FileSet;
+	typedef std::set<ckfilesystem::FileDescriptor *,ckfilesystem::FileComparator> FileSet;
+
+	inline void DestroyFileSet ( ckfilesystem::FileSet & fileset )
+    {
+        for ( ckfilesystem::FileSet::const_iterator it = fileset.begin();
+              it != fileset.end();
+              ++it )
+        {
+            delete *it;
+        }
+
+        fileset.clear();
+    }
 };

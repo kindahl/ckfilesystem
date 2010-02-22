@@ -131,7 +131,8 @@ namespace ckfilesystem
 		FileSet::const_iterator it;
 		for (it = files.begin(); it != files.end(); it++)
 		{
-			if (!add_file_from_path(*it))
+			ckfilesystem::FileDescriptor * fd = *it;
+			if (!add_file_from_path(*fd))
 				return false;
 		}
 

@@ -19,7 +19,7 @@ EXTRA_DIST = ../include/ckfilesystem/const.hh \
 			 ../include/ckfilesystem/util.hh \
 			 ../include/ckfilesystem/iso9660pathtable.hh
 
-AM_CPPFLAGS = -I../include
+AM_CPPFLAGS = -I$(srcdir)/../include
 lib_LTLIBRARIES = libckfilesystem.la
 bin_PROGRAMS = verifier
 

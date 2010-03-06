@@ -31,11 +31,11 @@ namespace ckfilesystem
 		ckcore::tstring file_path_;
 
 	public:
-		FileOpenException(const ckcore::tstring &file_path)
+		FileOpenException(const ckcore::tstring &a_file_path)
             : Exception2( ckcore::string::formatstr(
                               ckT("Unable to open file \"%s\" for read/write access."),
-                              file_path.c_str() ) )
-			, file_path_(file_path)
+                              a_file_path.c_str() ) )
+			, file_path_(a_file_path)
 		{
 		}
 

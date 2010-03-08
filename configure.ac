@@ -1,6 +1,7 @@
 AC_INIT([ckfilesystem],[0.1])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 LT_INIT
+AM_SILENT_RULES([yes])
 
 # These compilation flags must be set before AC_PROG_CC/CXX,
 # or we'll get "-g -O2" by default.

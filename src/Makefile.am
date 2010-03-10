@@ -35,8 +35,8 @@ libckfilesystem_la_SOURCES = dvdvideo.cc eltorito.cc filesystem.cc \
 libckfilesystem_la_LDFLAGS = -version-info $(CKFILESYSTEM_VERSION)
 
 verifier_SOURCES = iso9660verifier.cc verifier.cc
-
-verifier_LDFLAGS = -lckfilesystem -ldl -lpthread
+verifier_LDADD = libckfilesystem.la
+verifier_LDFLAGS = -ldl -lpthread
 
 library_includedir = $(includedir)/ckfilesystem
 library_include_HEADERS = ../include/ckfilesystem/const.hh \

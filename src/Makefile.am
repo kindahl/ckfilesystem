@@ -1,6 +1,7 @@
 EXTRA_DIST = ../include/ckfilesystem/const.hh \
 			 ../include/ckfilesystem/dvdvideo.hh \
 			 ../include/ckfilesystem/eltorito.hh \
+			 ../include/ckfilesystem/exception.hh \
 			 ../include/ckfilesystem/fileset.hh \
 			 ../include/ckfilesystem/filesystem.hh \
 			 ../include/ckfilesystem/filesystemhelper.hh \
@@ -41,6 +42,7 @@ library_includedir = $(includedir)/ckfilesystem
 library_include_HEADERS = ../include/ckfilesystem/const.hh \
 						  ../include/ckfilesystem/dvdvideo.hh \
 						  ../include/ckfilesystem/eltorito.hh \
+						  ../include/ckfilesystem/exception.hh \
 						  ../include/ckfilesystem/fileset.hh \
 						  ../include/ckfilesystem/filesystem.hh \
 						  ../include/ckfilesystem/filesystemhelper.hh \

@@ -20,6 +20,7 @@
 #include <windows.h>
 #endif
 #include <string.h>
+#include <time.h>
 #include <stdlib.h>
 #include <ckcore/string.hh>
 #include <ckcore/memory.hh>

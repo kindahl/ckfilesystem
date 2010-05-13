@@ -17,6 +17,7 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 #include <ckcore/string.hh>
 #include <ckcore/exception.hh>
 #ifdef _WINDOWS

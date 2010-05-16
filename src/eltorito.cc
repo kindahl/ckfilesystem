@@ -138,7 +138,7 @@ namespace ckfilesystem
 				break;
 
 			case ElToritoImage::EMULATION_FLOPPY:
-				switch (ckcore::File::size(pDefImage->full_path_.c_str()))
+				switch (ckcore::File::size2(pDefImage->full_path_.c_str()))
 				{
 					case 1200 * 1024:
 						dbe.emulation = ELTORITO_EMULATION_DISKETTE12;
@@ -206,7 +206,7 @@ namespace ckfilesystem
 					break;
 
 				case ElToritoImage::EMULATION_FLOPPY:
-					switch (ckcore::File::size(pCurImage->full_path_.c_str()))
+					switch (ckcore::File::size2(pCurImage->full_path_.c_str()))
 					{
 						case 1200 * 1024:
 							se.emulation = ELTORITO_EMULATION_DISKETTE12;

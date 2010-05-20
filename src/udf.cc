@@ -262,7 +262,7 @@ namespace ckfilesystem
 
 		// Sum of bytes 0-3 and 5-15 modulo 256.
 		unsigned char checksum = 0;
-		for (int i = 0; i < sizeof(tudf_tag); i++)
+		for (unsigned i = 0; i < sizeof(tudf_tag); i++)
 			checksum += ((unsigned char *)&tag)[i];
 
 		tag.tag_chksum = checksum;

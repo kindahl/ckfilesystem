@@ -343,7 +343,7 @@ namespace ckfilesystem
 			wchar_t c = udf_str1[file_name_pos++] << 8;
 			c |= udf_str1[file_name_pos++];
 
-			if (towupper(c) != toupper(str2[i]))
+			if (towupper(c) != wint_t(toupper(str2[i])))
 				return false;
 		}
 		return true;
@@ -941,7 +941,7 @@ namespace ckfilesystem
 										  const Iso9660PathTable &pt_jol,
 										  FileTree &file_tree,ckcore::Progress &progress)
 	{
-		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEISOTABLE));
+        progress.set_status(ckT("%s"),  StringTable::instance().get_string(StringTable::STATUS_WRITEISOTABLE));
 
 		// Write the path tables.
 		write_path_table(pt_iso,file_tree,false,false);
@@ -949,7 +949,7 @@ namespace ckfilesystem
 
 		if (use_joliet_)
 		{
-			progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEJOLIETTABLE));
+            progress.set_status(ckT("%s"), StringTable::instance().get_string(StringTable::STATUS_WRITEJOLIETTABLE));
 
 			write_path_table(pt_jol,file_tree,true,false);
 			write_path_table(pt_jol,file_tree,true,true);
@@ -1197,7 +1197,7 @@ namespace ckfilesystem
 
 	int Iso9660Writer::write_dir_entries(FileTree &file_tree,ckcore::Progress &progress)
 	{
-		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEDIRENTRIES));
+        progress.set_status(ckT("%s"), StringTable::instance().get_string(StringTable::STATUS_WRITEDIRENTRIES));
 
 		FileTreeNode *cur_node = file_tree.get_root();
 

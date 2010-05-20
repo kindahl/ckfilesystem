@@ -86,7 +86,7 @@ namespace ckfilesystem
 		 */
 		FileTreeNode(FileTreeNode *parent_node,const ckcore::tchar *file_name,
 					 const ckcore::tchar *file_path,
-					 bool last_fragment,ckcore::tuint32 fragment_index,
+					 bool /* last_fragment */, ckcore::tuint32 /* fragment_index */,
 					 unsigned char file_flags = 0,void *data_ptr = NULL) :
 			parent_node_(parent_node),
 			file_stream_(file_path),

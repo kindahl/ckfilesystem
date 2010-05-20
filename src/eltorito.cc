@@ -66,7 +66,7 @@ namespace ckfilesystem
 			if (mbr.partitions[i].part_type != 0)
 			{
                 // Make sure that the boot image only contains one partition.
-				if (used_partition != -1)
+                if (used_partition != size_t(-1))
 					return false;
 				else
 					used_partition = i;

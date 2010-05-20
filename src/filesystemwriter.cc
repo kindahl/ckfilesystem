@@ -160,7 +160,7 @@ namespace ckfilesystem
 #endif
 
 		// Validate the file size.
-		if (node->file_stream_.size() != node->file_size_)
+		if ( ckcore::tuint64(node->file_stream_.size()) != node->file_size_)
 		{
 			if (fail_on_error_)
 			{
@@ -456,7 +456,7 @@ namespace ckfilesystem
 		for (unsigned int i = 0; i < 16; i++)
 			out_stream.write(tmp,ISO9660_SECTOR_SIZE);
 
-		progress.set_status(StringTable::instance().get_string(StringTable::STATUS_BUILDTREE));
+		progress.set_status(ckT("%s"),StringTable::instance().get_string(StringTable::STATUS_BUILDTREE));
 		progress.set_marquee(true);
 
 		try
@@ -554,7 +554,7 @@ namespace ckfilesystem
 			if (is_udf)
 				udf_writer.write_partition(file_tree_);
 
-			progress.set_status(StringTable::instance().get_string(StringTable::STATUS_WRITEDATA));
+			progress.set_status(ckT("%s"),StringTable::instance().get_string(StringTable::STATUS_WRITEDATA));
 			progress.set_marquee(false);
 
 			// To help keep track of the progress.
@@ -587,7 +587,7 @@ namespace ckfilesystem
 		}
 		catch (const std::exception &e)
 		{
-			progress.notify(ckcore::Progress::ckERROR,ckcore::get_except_msg(e).c_str());
+            progress.notify(ckcore::Progress::ckERROR,ckT("%s"),ckcore::get_except_msg(e).c_str());
 
 			// Restore progress.
 			progress.set_marquee(false);

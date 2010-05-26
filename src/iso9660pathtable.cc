@@ -122,16 +122,16 @@ namespace ckfilesystem
 			for (it = node_stack.begin(); it != node_stack.end(); it++)
 				path << ckT("/") << (*it)->file_name_;
 
-			const ckcore::tchar *file_path = path.str().c_str();
+			const ckcore::tstring file_path = path.str();
 
 			// Quick test for optimization.
 			if (file_path[1] == 'V')
 			{
-				if (!ckcore::string::astrcmp(file_path,ckT("/VIDEO_TS")))	// The VIDEO_TS folder should be first.
+				if (!ckcore::string::astrcmp(file_path.c_str(),ckT("/VIDEO_TS")))	// The VIDEO_TS folder should be first.
 					weight = 0;
-				else if (!ckcore::string::astrncmp(file_path,ckT("/VIDEO_TS/"),10))
+				else if (!ckcore::string::astrncmp(file_path.c_str(),ckT("/VIDEO_TS/"),10))
 				{
-					const ckcore::tchar *file_name = file_path + 10;
+					const ckcore::tchar *file_name = file_path.c_str() + 10;
 
 					if (!ckcore::string::astrncmp(file_name,ckT("VIDEO_TS"),8))
 					{

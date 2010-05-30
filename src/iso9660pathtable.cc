@@ -129,7 +129,7 @@ namespace ckfilesystem
 			{
 				if (!ckcore::string::astrcmp(file_path.c_str(),ckT("/VIDEO_TS")))	// The VIDEO_TS folder should be first.
 					weight = 0;
-				else if (!ckcore::string::astrncmp(file_path.c_str(),ckT("/VIDEO_TS/"),10))
+				/*else if (!ckcore::string::astrncmp(file_path.c_str(),ckT("/VIDEO_TS/"),10))
 				{
 					const ckcore::tchar *file_name = file_path.c_str() + 10;
 
@@ -175,7 +175,7 @@ namespace ckfilesystem
 							}
 						}
 					}
-				}
+				}*/
 			}
 
 			return weight;

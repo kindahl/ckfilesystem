@@ -55,9 +55,88 @@ namespace ckfilesystem
 	*/
 	class FileComparator
 	{
+	private:
+		/*
+			Returns a weight of the specified file name, a lighter file should
+			be placed heigher in the directory hierarchy.
+		*/
+		ckcore::tuint32 entry_weight(const ckcore::tstring &file_path) const
+		{
+			ckcore::tuint32 weight = 0xffffffff;
+
+			// Quick test for optimization.
+			if (file_path.size() >= 9 && file_path[1] == 'V')
+			{
+				if (!ckcore::string::astrcmp(file_path.c_str(),ckT("/VIDEO_TS")))	// The VIDEO_TS folder should be first.
+					return 0;
+
+				if (file_path.size() >= 10 &&
+					!ckcore::string::astrncmp(file_path.c_str(),ckT("/VIDEO_TS/"),10))
+				{
+					const ckcore::tchar *file_name = file_path.c_str() + 10;
+
+					if (file_path.size() >= (10 + 9) &&
+						!ckcore::string::astrncmp(file_path.c_str(),ckT("VIDEO_TS"),8))
+					{
+						weight -= 0x80000000;
+
+						const ckcore::tchar *file_ext = file_name + 9;
+						if (!ckcore::string::astrcmp(file_ext,ckT("IFO")))
+							weight -= 3;
+						else if (!ckcore::string::astrcmp(file_ext,ckT("VOB")))
+							weight -= 2;
+						else if (!ckcore::string::astrcmp(file_ext,ckT("BUP")))
+							weight -= 1;
+					}
+					else if (file_path.size() >= (10 + 4) &&
+						!ckcore::string::astrncmp(file_name,ckT("VTS_"),4))
+					{
+						weight -= 0x40000000;
+
+						// Just a safety measure.
+						if (file_path.size() < (10 + 64))
+						{
+							ckcore::tchar file_ext[64];
+							ckcore::tuint32 num = 0,sub_num = 0;
+
+							if (asscanf(file_name,ckT("VTS_%u_%u.%[^\0]"),&num,&sub_num,file_ext) == 3)
+							{
+								// The first number is worth the most, the lower the lighter.
+								weight -= 0xffffff - (num << 8);
+
+								if (!ckcore::string::astrcmp(file_ext,ckT("IFO")))
+								{
+									weight -= 0xff;
+								}
+								else if (!ckcore::string::astrcmp(file_ext,ckT("VOB")))
+								{
+									weight -= 0x0f - sub_num;
+								}
+								else if (!ckcore::string::astrcmp(file_ext,ckT("BUP")))
+								{
+									weight -= 1;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			return weight;
+		}
+
 	public:
 		bool operator() (const FileDescriptor *item1,const FileDescriptor *item2) const
 		{
+			//if (m_bDvdVideo)
+			{
+				ckcore::tuint32 weight1 = entry_weight(item1->internal_path_);
+				ckcore::tuint32 weight2 = entry_weight(item2->internal_path_);
+
+				if (weight1 != weight2)
+					return weight1 < weight2;
+			}
+
             return item1->internal_path_.compare(item2->internal_path_) < 0;
 		}
 	};

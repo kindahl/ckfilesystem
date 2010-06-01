@@ -152,10 +152,11 @@ namespace ckfilesystem
 						// Just a safety measure.
 						if (ckcore::string::astrlen(file_name) < 64)
 						{
-							ckcore::tchar file_ext[64];
+							ckcore::tchar file_ext[64+1];
+                            memset( file_ext, 0, sizeof(file_ext) );  // scanf %c does not append the null-terminator
 							ckcore::tuint32 num = 0,sub_num = 0;
 
-							if (asscanf(file_name,ckT("VTS_%u_%u.%[^\0]"),&num,&sub_num,file_ext) == 3)
+							if (asscanf(file_name,ckT("VTS_%u_%u.%64c"),&num,&sub_num,file_ext) == 3)
 							{
 								// The first number is worth the most, the lower the lighter.
 								weight -= 0xffffff - (num << 8);

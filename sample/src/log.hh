@@ -6,7 +6,7 @@ class Log : public ckcore::Log
 {
 public:
     // ckcore::Log interface.
-    void Print(const ckcore::tchar *format,...);
-    void PrintLine(const ckcore::tchar *format,...);
+    void print(const ckcore::tchar *format,...);
+    void print_line(const ckcore::tchar *format,...);
 };
 

@@ -5,7 +5,7 @@ Progress::Progress() : last_progress_(0)
 {
 }
 
-void Progress::SetProgress(unsigned char progress)
+void Progress::set_progress(unsigned char progress)
 {
     if (progress > last_progress_ + 10)
     {
@@ -14,7 +14,7 @@ void Progress::SetProgress(unsigned char progress)
     }
 }
 
-void Progress::SetStatus(const ckcore::tchar *format,...)
+void Progress::set_status(const ckcore::tchar *format,...)
 {
     va_list args;
     va_start(args,format);
@@ -33,7 +33,7 @@ void Progress::SetStatus(const ckcore::tchar *format,...)
     std::cout << "Status: " << buffer << std::endl;
 }
 
-void Progress::Notify(MessageType type,const ckcore::tchar *format,...)
+void Progress::notify(MessageType type,const ckcore::tchar *format,...)
 {
     va_list args;
     va_start(args,format);
@@ -71,7 +71,7 @@ void Progress::Notify(MessageType type,const ckcore::tchar *format,...)
     std::cout << buffer << std::endl;
 }
 
-bool Progress::Cancelled()
+bool Progress::cancelled()
 {
     return false;
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "log.hh"
 
-void Log::Print(const ckcore::tchar *format,...)
+void Log::print(const ckcore::tchar *format,...)
 {
     va_list args;
     va_start(args,format);
@@ -20,7 +20,7 @@ void Log::Print(const ckcore::tchar *format,...)
     std::cout << buffer;
 }
 
-void Log::PrintLine(const ckcore::tchar *format,...)
+void Log::print_line(const ckcore::tchar *format,...)
 {
     va_list args;
     va_start(args,format);

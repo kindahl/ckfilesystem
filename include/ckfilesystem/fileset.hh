@@ -143,11 +143,11 @@ namespace ckfilesystem
 
 	typedef std::set<ckfilesystem::FileDescriptor *,ckfilesystem::FileComparator> FileSet;
 
-	inline void DestroyFileSet ( ckfilesystem::FileSet & fileset )
+	inline void DestroyFileSet(ckfilesystem::FileSet &fileset)
     {
-        for ( ckfilesystem::FileSet::const_iterator it = fileset.begin();
-              it != fileset.end();
-              ++it )
+        for (ckfilesystem::FileSet::const_iterator it = fileset.begin();
+             it != fileset.end();
+             ++it)
         {
             delete *it;
         }

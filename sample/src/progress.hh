@@ -11,9 +11,9 @@ public:
     Progress();
 
     // ckcore::Progress interface.
-    void SetProgress(unsigned char progress);
-    void SetStatus(const ckcore::tchar *format,...);
-    void Notify(MessageType type,const ckcore::tchar *format,...);
-    bool Cancelled();
+    void set_progress(unsigned char progress);
+    void set_status(const ckcore::tchar *format,...);
+    void notify(MessageType type,const ckcore::tchar *format,...);
+    bool cancelled();
 };
 

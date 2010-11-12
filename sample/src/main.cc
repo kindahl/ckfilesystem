@@ -4,14 +4,14 @@
 #include <ckfilesystem/const.hh>
 #include <ckfilesystem/fileset.hh>
 #include <ckfilesystem/sectorstream.hh>
-#include <ckfilesystem/discimagewriter.hh>
+#include <ckfilesystem/filesystemwriter.hh>
 #include "progress.hh"
 #include "log.hh"
 
-bool AddFiles(ckFileSystem::CFileSet &file_set,std::vector<ckcore::Directory *> &dir_stack,
+bool AddFiles(ckfilesystem::FileSet &file_set,std::vector<ckcore::Directory *> &dir_stack,
               ckcore::Directory &dir,const ckcore::tchar *base_path)
 {
-    ckcore::Path path(dir.Name().c_str());
+    ckcore::Path path(dir.name().c_str());
 
     // Calculate the pointer offset for caluclating the internal file or
     // directory path.
@@ -21,24 +21,23 @@ bool AddFiles(ckFileSystem::CFileSet &file_set,std::vector<ckcore::Directory *> 
         base_len--;
 
     ckcore::Directory::Iterator it;
-    for (it = dir.Begin(); it != dir.End(); it++)
+    for (it = dir.begin(); it != dir.end(); it++)
     {
         ckcore::Path new_path = path + (*it).c_str();
 
-        const ckcore::tchar *ext_path = new_path.Name().c_str();
+        const ckcore::tchar *ext_path = new_path.name().c_str();
         const ckcore::tchar *int_path = ext_path + base_len;
 
         // Check if we're dealing with a file or directory.
-        if (ckcore::Directory::Exist(new_path))
+        if (ckcore::Directory::exist(new_path))
         {
-            file_set.insert(ckFileSystem::CFileDescriptor(int_path,ext_path,0,
-                            ckFileSystem::CFileDescriptor::FLAG_DIRECTORY));
+            file_set.insert(new ckfilesystem::FileDescriptor(int_path,ext_path,
+                                                             ckfilesystem::FileDescriptor::FLAG_DIRECTORY));
             dir_stack.push_back(new ckcore::Directory(new_path));
         }
         else
         {
-            file_set.insert(ckFileSystem::CFileDescriptor(int_path,ext_path,
-                            ckcore::File::Size(new_path)));
+            file_set.insert(new ckfilesystem::FileDescriptor(int_path,ext_path));
         }
     }
 
@@ -56,15 +55,15 @@ int main(int argc,const char *argv[])
 
     const ckcore::tchar *base_path = argv[1];
     ckcore::Directory dir(base_path);
-    if (!dir.Exist())
+    if (!dir.exist())
     {
         std::cerr << "Error: The specified folder does not exist" << std::endl;
         return 1;
     }
 
     // Create a non-DVD-Video file system.
-    ckFileSystem::CFileComparator filecomp(false);
-    ckFileSystem::CFileSet file_set(filecomp);
+    ckfilesystem::FileComparator filecomp;
+    ckfilesystem::FileSet file_set(filecomp);
 
     std::cout << "Building file tree." << std::endl;
 
@@ -96,23 +95,21 @@ int main(int argc,const char *argv[])
 
     // Create output stream.
     ckcore::FileOutStream filestream(ckT("out.iso"));
-    if (!filestream.Open())
+    if (!filestream.open())
     {
         std::cerr << "Error: Could not open output file for writing" << std::endl;
         return 1;
     }
 
-    ckFileSystem::CSectorOutStream outstream(filestream);
-
     // Create disc image.
     Progress progress;
     Log log;
-    //ckFileSystem::CDiscImageWriter writer(&log,ckFileSystem::CDiscImageWriter::FS_ISO9660);
-    //ckFileSystem::CDiscImageWriter writer(&log,ckFileSystem::CDiscImageWriter::FS_ISO9660_JOLIET);
-    ckFileSystem::CDiscImageWriter writer(&log,ckFileSystem::CDiscImageWriter::FS_UDF);
-    writer.SetVolumeLabel(ckT("My Volume"));
 
-    if (writer.Create(outstream,file_set,progress) != RESULT_OK)
+    ckfilesystem::FileSystem file_sys(ckfilesystem::FileSystem::TYPE_UDF,file_set);
+    file_sys.set_volume_label(ckT("My Volume"));
+
+    ckfilesystem::FileSystemWriter writer(log,file_sys,true);
+    if (writer.write(filestream,progress) != RESULT_OK)
     {
         std::cerr << "Error: Failed to create disc image." << std::endl;
         return 1;

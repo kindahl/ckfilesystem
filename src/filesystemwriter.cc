@@ -1,6 +1,6 @@
 /*
  * The ckFileSystem library provides file system functionality.
- * Copyright (C) 2006-2009 Christian Kindahl
+ * Copyright (C) 2006-2011 Christian Kindahl
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -444,7 +444,7 @@ namespace ckfilesystem
 	int FileSystemWriter::write(ckcore::OutStream &out_stream,ckcore::Progress &progress,
                                 ckcore::tuint32 sec_offset)
 	{
-		log_.print_line(ckT("FileSystemWriter::Create"));
+		log_.print_line(ckT("FileSystemWriter::write"));
 		log_.print_line(ckT("  Sector offset: %u."),sec_offset);
 
 		ckcore::BufferedOutStream out_buf_stream(out_stream);

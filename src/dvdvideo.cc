@@ -1,6 +1,6 @@
 /*
  * The ckFileSystem library provides file system functionality.
- * Copyright (C) 2006-2009 Christian Kindahl
+ * Copyright (C) 2006-2011 Christian Kindahl
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,7 +168,7 @@ namespace ckfilesystem
 			return false;
 		}
 
-		// Find the actuall size of .IFO.
+		// Find the actual size of .IFO.
 		ckcore::tuint64 info_len = 0;
 		if (menu_node == NULL)
 		{
@@ -198,7 +198,7 @@ namespace ckfilesystem
 		if (info_node != NULL)
 			info_node->data_pad_len_ = (ckcore::tuint32)info_len - (ckcore::tuint32)size_to_dvd_len(info_size);
 
-		// Find the actuall size of .VOB.
+		// Find the actual size of .VOB.
 		ckcore::tuint64 menu_len = 0;
 		if (menu_node != NULL)
 		{
@@ -217,7 +217,7 @@ namespace ckfilesystem
 			menu_node->data_pad_len_ = (ckcore::tuint32)menu_len - (ckcore::tuint32)size_to_dvd_len(menu_size);
 		}
 
-		// Find the actuall size of .BUP.
+		// Find the actual size of .BUP.
 		ckcore::tuint64 bkup_len = 0;
 		if (ts_sectors.size() > 0)
 			bkup_len = *ts_sectors.begin() - menu_len - info_len;
@@ -319,7 +319,7 @@ namespace ckfilesystem
 				return false;
 			}
 
-			// Find the actuall size of VTS_XX_0.IFO.
+			// Find the actual size of VTS_XX_0.IFO.
 			ckcore::tuint64 info_len = 0;
 			if (!title && menu_node == NULL)
 			{
@@ -345,7 +345,7 @@ namespace ckfilesystem
 
 			info_node->data_pad_len_ = (ckcore::tuint32)info_len - (ckcore::tuint32)size_to_dvd_len(info_size);
 
-			// Find the actuall size of VTS_XX_0.VOB.
+			// Find the actual size of VTS_XX_0.VOB.
 			ckcore::tuint64 menu_len = 0;
 			if (menu_node != NULL)
 			{
@@ -372,7 +372,7 @@ namespace ckfilesystem
 				menu_node->data_pad_len_ = (ckcore::tuint32)menu_len - (ckcore::tuint32)size_to_dvd_len(menu_size);
 			}
 
-			// Find the actuall size of VTS_XX_[1 to 9].VOB.
+			// Find the actual size of VTS_XX_[1 to 9].VOB.
 			ckcore::tuint64 title_len = 0;
 			if (title)
 			{
@@ -391,7 +391,7 @@ namespace ckfilesystem
 					pLastTitleNode->data_pad_len_ = (ckcore::tuint32)title_len - (ckcore::tuint32)size_to_dvd_len(title_size);
 			}
 
-			// Find the actuall size of VTS_XX_0.BUP.
+			// Find the actual size of VTS_XX_0.BUP.
 			ckcore::tuint64 bkup_len;
 			if (ts_sectors.size() > counter) {
 				bkup_len = ts_sectors[counter] - ts_sectors[counter - 1] -
@@ -424,7 +424,7 @@ namespace ckfilesystem
 
 	bool DvdVideo::print_file_padding(FileTree &file_tree)
 	{
-		log_.print_line(ckT("DvdVideo::PrintFilePadding"));
+		log_.print_line(ckT("DvdVideo::print_file_padding"));
 
 		FileTreeNode *vts_node = file_tree.get_node_from_path(ckT("/VIDEO_TS"));
 		if (vts_node == NULL)

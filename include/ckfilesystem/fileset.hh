@@ -1,6 +1,6 @@
 /*
  * The ckFileSystem library provides file system functionality.
- * Copyright (C) 2006-2009 Christian Kindahl
+ * Copyright (C) 2006-2011 Christian Kindahl
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
 
 namespace ckfilesystem
 {
-	/*
-		Describes a file that should be included in the disc image.
-	*/
+	/**
+	 * @brief Describes a file that should be included in the disc image.
+	 */
 	class FileDescriptor
 	{
 	public:
@@ -39,7 +39,7 @@ namespace ckfilesystem
 		ckcore::tstring internal_path_;		// Path in disc image.
 		ckcore::tstring external_path_;		// Path on hard drive.
 
-		void *data_ptr_;					// Pointer to a user-defined structure, designed for CIso9660TreeNode
+		void *data_ptr_;					// Pointer to a user-defined structure, designed for Iso9660TreeNode.
 
 		FileDescriptor(const ckcore::tchar *internal_path,const ckcore::tchar *external_path,
 					   unsigned char flags = 0,void *data_ptr = NULL) :
@@ -50,16 +50,20 @@ namespace ckfilesystem
 		}
 	};
 
-	/*
-		Sorts the set of files according to the ECMA-119 standard.
-	*/
+	/**
+	 * @brief Sorts the set of files according to the disc file system requirements.
+	 */
 	class FileComparator
 	{
 	private:
-		/*
-			Returns a weight of the specified file name, a lighter file should
-			be placed heigher in the directory hierarchy.
-		*/
+		bool dvd_video_;
+
+		/**
+		 * Returns a weight of the specified file name, a lighter file should
+		 * be placed heigher in the directory hierarchy.
+		 * @param [in] file_path File path to weight.
+		 * @return Weight of the file path.
+		 */
 		ckcore::tuint32 entry_weight(const ckcore::tstring &file_path) const
 		{
 			ckcore::tuint32 weight = 0xffffffff;
@@ -76,7 +80,7 @@ namespace ckfilesystem
 					const ckcore::tchar *file_name = file_path.c_str() + 10;
 
 					if (file_path.size() >= (10 + 9) &&
-						!ckcore::string::astrncmp(file_path.c_str(),ckT("VIDEO_TS"),8))
+						!ckcore::string::astrncmp(file_name,ckT("VIDEO_TS"),8))
 					{
 						weight -= 0x80000000;
 
@@ -126,9 +130,13 @@ namespace ckfilesystem
 		}
 
 	public:
-		bool operator() (const FileDescriptor *item1,const FileDescriptor *item2) const
+		FileComparator(bool dvd_video) : dvd_video_(dvd_video)
 		{
-			//if (m_bDvdVideo)
+		}
+
+		bool operator()(const FileDescriptor *item1,const FileDescriptor *item2) const
+		{
+			if (dvd_video_)
 			{
 				ckcore::tuint32 weight1 = entry_weight(item1->internal_path_);
 				ckcore::tuint32 weight2 = entry_weight(item2->internal_path_);
@@ -143,14 +151,10 @@ namespace ckfilesystem
 
 	typedef std::set<ckfilesystem::FileDescriptor *,ckfilesystem::FileComparator> FileSet;
 
-	inline void DestroyFileSet(ckfilesystem::FileSet &fileset)
+	inline void destroy_file_set(FileSet &fileset)
     {
-        for (ckfilesystem::FileSet::const_iterator it = fileset.begin();
-             it != fileset.end();
-             ++it)
-        {
+        for (FileSet::const_iterator it = fileset.begin(); it != fileset.end(); it++)
             delete *it;
-        }
 
         fileset.clear();
     }

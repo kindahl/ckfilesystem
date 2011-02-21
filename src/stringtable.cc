@@ -34,6 +34,7 @@ namespace ckfilesystem
 		strings_[STATUS_WRITEISOTABLE] = ckT("Writing ISO9660 path tables.");
 		strings_[STATUS_WRITEJOLIETTABLE] = ckT("Writing Joliet path tables.");
 		strings_[STATUS_WRITEDIRENTRIES] = ckT("Writing directory entries.");
+		strings_[ERROR_DVDVIDEO] = ckT("Cannot create DVD-Video file system, is the VIDEO_TS folder present?");
 	}
 
 	StringTable::~StringTable()

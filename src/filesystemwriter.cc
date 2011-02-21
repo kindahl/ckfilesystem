@@ -445,7 +445,7 @@ namespace ckfilesystem
                                 ckcore::tuint32 sec_offset)
 	{
 		log_.print_line(ckT("FileSystemWriter::write"));
-		log_.print_line(ckT("  Sector offset: %u."),sec_offset);
+		log_.print_line(ckT("  sector offset: %u."),sec_offset);
 
 		ckcore::BufferedOutStream out_buf_stream(out_stream);
         SectorOutStream out_sec_stream(out_buf_stream);
@@ -474,7 +474,14 @@ namespace ckfilesystem
 				DvdVideo dvd_video(log_);
 				if (!dvd_video.calc_file_padding(file_tree_))
 				{
-					log_.print_line(ckT("  Error: failed to calculate file padding for DVD-Video file system."));
+					progress.notify(ckcore::Progress::ckERROR,
+									StringTable::instance().get_string(StringTable::ERROR_DVDVIDEO));
+
+					// Restore progress.
+					progress.set_marquee(false);
+					progress.set_progress(100);
+
+					log_.print_line(ckT("error: failed to calculate file padding for DVD-Video file system."));
 					return RESULT_FAIL;
 				}
 

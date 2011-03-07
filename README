@@ -2,7 +2,7 @@ This is ckFileSystem, a software library providing file system functionality.
 Supported file systems are ISO9660 (with Joliet and ElTorito extensions) and
 UDF (version 1.02).
 
-Copyright (C) 2006-2009 Christian Kindahl
+Copyright (C) 2006-2011 Christian Kindahl
 
 This file is part of ckFileSystem.
 

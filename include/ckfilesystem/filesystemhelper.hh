@@ -24,16 +24,16 @@
 
 namespace ckfilesystem
 {
-	class FileSystemHelper
-	{
-	private:
-		FileSystem &file_sys_;
+    class FileSystemHelper
+    {
+    private:
+        FileSystem &file_sys_;
 
-	public:
-		FileSystemHelper(FileSystem &file_sys);
-		~FileSystemHelper();
+    public:
+        FileSystemHelper(FileSystem &file_sys);
+        ~FileSystemHelper();
 
-		void calc_file_name(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
-		void calc_file_path(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
-	};
+        void calc_file_name(const ckcore::tchar *req_file_name,ckcore::tchar *file_name,bool is_dir);
+        void calc_file_path(const ckcore::tchar *req_file_path,ckcore::tstring &file_path);
+    };
 };

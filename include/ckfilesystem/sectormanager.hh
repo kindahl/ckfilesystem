@@ -22,35 +22,35 @@
 
 namespace ckfilesystem
 {
-	class SectorClient
-	{
-	};
+    class SectorClient
+    {
+    };
 
-	class SectorManager
-	{
-	private:
-		ckcore::tuint64 next_free_sec_;
-		ckcore::tuint64 data_start_;
-		ckcore::tuint64 data_len_;
-		std::map<std::pair<SectorClient *,unsigned char>,ckcore::tuint64> client_map_;
+    class SectorManager
+    {
+    private:
+        ckcore::tuint64 next_free_sec_;
+        ckcore::tuint64 data_start_;
+        ckcore::tuint64 data_len_;
+        std::map<std::pair<SectorClient *,unsigned char>,ckcore::tuint64> client_map_;
 
-	public:
-		SectorManager(ckcore::tuint64 start_sector);
-		~SectorManager();
+    public:
+        SectorManager(ckcore::tuint64 start_sector);
+        ~SectorManager();
 
-		void alloc_sectors(SectorClient *client,unsigned char identifier,
-						   ckcore::tuint64 num_sec);
-		void alloc_bytes(SectorClient *client,unsigned char identifier,
-					     ckcore::tuint64 num_bytes);
+        void alloc_sectors(SectorClient *client,unsigned char identifier,
+                           ckcore::tuint64 num_sec);
+        void alloc_bytes(SectorClient *client,unsigned char identifier,
+                         ckcore::tuint64 num_bytes);
 
-		void alloc_data_sectors(ckcore::tuint64 num_sec);
-		void alloc_data_bytes(ckcore::tuint64 num_bytes);
+        void alloc_data_sectors(ckcore::tuint64 num_sec);
+        void alloc_data_bytes(ckcore::tuint64 num_bytes);
 
-		ckcore::tuint64 get_start(SectorClient *client,unsigned char identifier);
-		ckcore::tuint64 get_next_free();
+        ckcore::tuint64 get_start(SectorClient *client,unsigned char identifier);
+        ckcore::tuint64 get_next_free();
 
-		ckcore::tuint64 get_data_start();
-		ckcore::tuint64 get_data_length();
-	};
+        ckcore::tuint64 get_data_start();
+        ckcore::tuint64 get_data_length();
+    };
 };
 

@@ -23,81 +23,81 @@
 
 namespace ckfilesystem
 {
-	/**
-	 * @brief Class for verifications exceptions.
-	 */
-	class VerificationException : public ckcore::Exception2
-	{
-	private:
-		ckcore::tstring reference_;
+    /**
+     * @brief Class for verifications exceptions.
+     */
+    class VerificationException : public ckcore::Exception2
+    {
+    private:
+        ckcore::tstring reference_;
 
-	public:
-		/**
-		 * Constructs a VerificationException object.
-		 * @param [in] msg The error message.
-		 * @param [in] ref Message describing the reference that contradicts
-		 *				   the behaviour causing the exception.
-		 */
-		VerificationException(const ckcore::tstring &message,
-							  const ckcore::tchar *reference) :
-			ckcore::Exception2(message),reference_(reference)
-		{
-		}
+    public:
+        /**
+         * Constructs a VerificationException object.
+         * @param [in] msg The error message.
+         * @param [in] ref Message describing the reference that contradicts
+         *                 the behaviour causing the exception.
+         */
+        VerificationException(const ckcore::tstring &message,
+                              const ckcore::tchar *reference) :
+            ckcore::Exception2(message),reference_(reference)
+        {
+        }
 
-		virtual ~VerificationException() throw() {};
+        virtual ~VerificationException() throw() {};
 
-		const ckcore::tstring &reference() const
-		{
-			return reference_;
-		}
-	};
+        const ckcore::tstring &reference() const
+        {
+            return reference_;
+        }
+    };
 
-	/**
-	 * @brief Class representing a volume descriptor set.
-	 */
-	class Iso9660VolDescSet
-	{
-	private:
-		tiso_voldesc_primary voldesc_primary_;
-		std::vector<tiso_voldesc_suppl> voldesc_suppl_;
-		std::vector<tiso_voldesc_part> voldesc_part_;
-		std::vector<tiso_voldesc_bootrec> voldesc_bootrec_;
-		std::vector<tiso_voldesc_setterm> voldesc_setterm_;
+    /**
+     * @brief Class representing a volume descriptor set.
+     */
+    class Iso9660VolDescSet
+    {
+    private:
+        tiso_voldesc_primary voldesc_primary_;
+        std::vector<tiso_voldesc_suppl> voldesc_suppl_;
+        std::vector<tiso_voldesc_part> voldesc_part_;
+        std::vector<tiso_voldesc_bootrec> voldesc_bootrec_;
+        std::vector<tiso_voldesc_setterm> voldesc_setterm_;
 
-		void verify(const tiso_voldesc_datetime &voldesc_datetime,
-					const ckcore::tchar *label) const;
-		void verify(tiso_voldesc_primary &voldesc_primary);
-		void verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const;
+        void verify(const tiso_voldesc_datetime &voldesc_datetime,
+                    const ckcore::tchar *label) const;
+        void verify(tiso_voldesc_primary &voldesc_primary);
+        void verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const;
 
-	public:
-		Iso9660VolDescSet();
+    public:
+        Iso9660VolDescSet();
 
-		void read(SectorInStream &in_stream);
-		void verify();
-	};
+        void read(SectorInStream &in_stream);
+        void verify();
+    };
 
-	class Iso9660Verifier
-	{
-	private:
-		//tiso_voldesc_primary *voldesc_primary_;
-		void read_vol_desc(SectorInStream &in_stream);
+    class Iso9660Verifier
+    {
+    private:
+        //tiso_voldesc_primary *voldesc_primary_;
+        void read_vol_desc(SectorInStream &in_stream);
 
-	public:
-		Iso9660Verifier();
-		~Iso9660Verifier();
+    public:
+        Iso9660Verifier();
+        ~Iso9660Verifier();
 
-		void reset();
-		void verify(SectorInStream &in_stream);
+        void reset();
+        void verify(SectorInStream &in_stream);
 
-		static void verify_a_chars(const unsigned char *str,size_t len);
-		static void verify_d_chars(const unsigned char *str,size_t len,bool allow_sep = false);
-		static void verify_j_chars(const unsigned char *str,size_t len);
+        static void verify_a_chars(const unsigned char *str,size_t len);
+        static void verify_d_chars(const unsigned char *str,size_t len,bool allow_sep = false);
+        static void verify_j_chars(const unsigned char *str,size_t len);
 
-		static void read_a_chars(const unsigned char *source,size_t size,
-								 char *target);
-		static void read_d_chars(const unsigned char *source,size_t size,
-								 char *target);
-		static void read_j_chars(const unsigned char *source,size_t size,
-								 wchar_t *target);
-	};
+        static void read_a_chars(const unsigned char *source,size_t size,
+                                 char *target);
+        static void read_d_chars(const unsigned char *source,size_t size,
+                                 char *target);
+        static void read_j_chars(const unsigned char *source,size_t size,
+                                 wchar_t *target);
+    };
 };

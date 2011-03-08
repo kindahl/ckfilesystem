@@ -35,50 +35,50 @@
 
 namespace ckfilesystem
 {
-	class FileSystemWriter
-	{
-	private:
-		ckcore::Log &log_;
+    class FileSystemWriter
+    {
+    private:
+        ckcore::Log &log_;
 
-		// What file system should be created.
-		FileSystem &file_sys_;
+        // What file system should be created.
+        FileSystem &file_sys_;
 
         // File tree for caching between the write and file_path_map functions.
         FileTree file_tree_;
 
-		// Set to true in order to abort the operation if an error occurs.
-		const bool fail_on_error_;
+        // Set to true in order to abort the operation if an error occurs.
+        const bool fail_on_error_;
 
-		void calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-								     FileTreeNode *local_node,int level,ckcore::tuint64 &sec_offset,
-								     ckcore::Progress &progress);
-		void calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
-						       ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec);
+        void calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+                                     FileTreeNode *local_node,int level,ckcore::tuint64 &sec_offset,
+                                     ckcore::Progress &progress);
+        void calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
+                               ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec);
 
-		void write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
-					         ckcore::Progresser &progresser);
-		void write_local_file_data(SectorOutStream &out_stream,
-								   std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
-								   FileTreeNode *local_node,int level,ckcore::Progresser &progresser);
-		void write_file_data(SectorOutStream &out_stream,FileTree &file_tree,ckcore::Progresser &progresser);
+        void write_file_node(SectorOutStream &out_stream,FileTreeNode *node,
+                             ckcore::Progresser &progresser);
+        void write_local_file_data(SectorOutStream &out_stream,
+                                   std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
+                                   FileTreeNode *local_node,int level,ckcore::Progresser &progresser);
+        void write_file_data(SectorOutStream &out_stream,FileTree &file_tree,ckcore::Progresser &progresser);
 
-		void get_internal_path(FileTreeNode *child_node,ckcore::tstring &node_path,
-							   bool ext_path,bool joliet);
-		void create_local_file_path_map(FileTreeNode *local_node,
-									    std::vector<FileTreeNode *> &dir_node_stack,
-									    std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
-									    bool joliet);
-		void create_file_path_map(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
-							      bool joliet);
+        void get_internal_path(FileTreeNode *child_node,ckcore::tstring &node_path,
+                               bool ext_path,bool joliet);
+        void create_local_file_path_map(FileTreeNode *local_node,
+                                        std::vector<FileTreeNode *> &dir_node_stack,
+                                        std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
+                                        bool joliet);
+        void create_file_path_map(FileTree &file_tree,std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
+                                  bool joliet);
 
-	public:
-		FileSystemWriter(ckcore::Log &log,FileSystem &file_sys,bool fail_on_error);
-		~FileSystemWriter();	
+    public:
+        FileSystemWriter(ckcore::Log &log,FileSystem &file_sys,bool fail_on_error);
+        ~FileSystemWriter();    
 
-		int write(ckcore::OutStream &out_stream,ckcore::Progress &progress,
-				  ckcore::tuint32 sec_offset = 0);
+        int write(ckcore::OutStream &out_stream,ckcore::Progress &progress,
+                  ckcore::tuint32 sec_offset = 0);
 
         int file_path_map(std::map<ckcore::tstring,ckcore::tstring> &file_path_map);
-	};
+    };
 };
 

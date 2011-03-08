@@ -27,55 +27,55 @@
 
 namespace ckfilesystem
 {
-	class FileSystem
-	{
+    class FileSystem
+    {
     public:
         friend class Iso9660Writer;
         friend class UdfWriter;
         friend class FileSystemHelper;
 
-	public:
-		enum Type
-		{
-			TYPE_ISO9660,
-			TYPE_ISO9660_JOLIET,
-			TYPE_ISO9660_UDF,
-			TYPE_ISO9660_UDF_JOLIET,
-			TYPE_UDF,
-			TYPE_DVDVIDEO
-		};
+    public:
+        enum Type
+        {
+            TYPE_ISO9660,
+            TYPE_ISO9660_JOLIET,
+            TYPE_ISO9660_UDF,
+            TYPE_ISO9660_UDF_JOLIET,
+            TYPE_UDF,
+            TYPE_DVDVIDEO
+        };
 
-	private:
-		// What type of file system should be created.
-		Type type_;
+    private:
+        // What type of file system should be created.
+        Type type_;
 
-		// Different standard implementations.
-		Iso9660 iso9660_;
-		Joliet joliet_;
+        // Different standard implementations.
+        Iso9660 iso9660_;
+        Joliet joliet_;
         ElTorito eltorito_;
-		Udf udf_;
+        Udf udf_;
 
         // File set.
         const FileSet &file_set_;
 
-	public:
-		FileSystem(Type type,const FileSet &file_set);
-		~FileSystem();
+    public:
+        FileSystem(Type type,const FileSet &file_set);
+        ~FileSystem();
 
-		// File system modifiers, mixed set for Joliet, UDF and ISO9660.
-		void set_volume_label(const ckcore::tchar *label);
-		void set_text_fields(const ckcore::tchar *sys_ident,
-						     const ckcore::tchar *volset_ident,
-						     const ckcore::tchar *publ_ident,
-						     const ckcore::tchar *prep_ident);
-		void set_file_fields(const ckcore::tchar *copy_file_ident,
-						     const ckcore::tchar *abst_file_ident,
-						     const ckcore::tchar *bibl_file_ident);
-		void set_interchange_level(Iso9660::InterLevel inter_level);
-		void set_include_file_ver_info(bool include);
-		void set_part_access_type(Udf::PartAccessType access_type);
-		void set_relax_max_dir_level(bool relax);
-		void set_long_joliet_names(bool enable);
+        // File system modifiers, mixed set for Joliet, UDF and ISO9660.
+        void set_volume_label(const ckcore::tchar *label);
+        void set_text_fields(const ckcore::tchar *sys_ident,
+                             const ckcore::tchar *volset_ident,
+                             const ckcore::tchar *publ_ident,
+                             const ckcore::tchar *prep_ident);
+        void set_file_fields(const ckcore::tchar *copy_file_ident,
+                             const ckcore::tchar *abst_file_ident,
+                             const ckcore::tchar *bibl_file_ident);
+        void set_interchange_level(Iso9660::InterLevel inter_level);
+        void set_include_file_ver_info(bool include);
+        void set_part_access_type(Udf::PartAccessType access_type);
+        void set_relax_max_dir_level(bool relax);
+        void set_long_joliet_names(bool enable);
 
         bool add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
                                    ckcore::tuint16 load_segment,ckcore::tuint16 sec_count);
@@ -92,5 +92,5 @@ namespace ckfilesystem
 
         bool allows_fragmentation();
         unsigned char get_max_dir_level();
-	};
+    };
 };

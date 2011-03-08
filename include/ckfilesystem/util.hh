@@ -40,6 +40,6 @@ namespace ckfilesystem
         ckcore::tuint32 read731(const unsigned char *buffer);
         ckcore::tuint32 read732(const unsigned char *buffer);
         ckcore::tuint32 read733(const unsigned char *buffer);
-	};
+    };
 };
 

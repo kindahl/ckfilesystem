@@ -25,43 +25,43 @@
 
 namespace ckfilesystem
 {
-	class SectorInStream : public ckcore::CanexInStream
-	{
-	private:
-		ckcore::tuint32 sector_size_;
-		ckcore::tuint64 sector_;
-		ckcore::tuint64 read_;
+    class SectorInStream : public ckcore::CanexInStream
+    {
+    private:
+        ckcore::tuint32 sector_size_;
+        ckcore::tuint64 sector_;
+        ckcore::tuint64 read_;
 
-	public:
-		SectorInStream(ckcore::InStream &in_stream,
-					   ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
-		virtual ~SectorInStream();
+    public:
+        SectorInStream(ckcore::InStream &in_stream,
+                       ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
+        virtual ~SectorInStream();
 
-		void seek(ckcore::tuint32 distance,ckcore::InStream::StreamWhence whence);
-		ckcore::tint64 read(void *buffer,ckcore::tuint32 count);
+        void seek(ckcore::tuint32 distance,ckcore::InStream::StreamWhence whence);
+        ckcore::tint64 read(void *buffer,ckcore::tuint32 count);
 
-		ckcore::tuint64 get_sector();
-		ckcore::tuint32 get_remaining();
-	};
+        ckcore::tuint64 get_sector();
+        ckcore::tuint32 get_remaining();
+    };
 
-	class SectorOutStream : public ckcore::CanexOutStream
-	{
-	private:
-		ckcore::tuint32 sector_size_;
-		ckcore::tuint64 sector_;
-		ckcore::tuint64 written_;
+    class SectorOutStream : public ckcore::CanexOutStream
+    {
+    private:
+        ckcore::tuint32 sector_size_;
+        ckcore::tuint64 sector_;
+        ckcore::tuint64 written_;
 
-	public:
-		SectorOutStream(ckcore::OutStream &out_stream,
-						ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
-		virtual ~SectorOutStream();
+    public:
+        SectorOutStream(ckcore::OutStream &out_stream,
+                        ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
+        virtual ~SectorOutStream();
 
-		void write(void *buffer,ckcore::tuint32 count);
+        void write(void *buffer,ckcore::tuint32 count);
 
-		ckcore::tuint64 get_sector();
-		ckcore::tuint32 get_allocated();
-		ckcore::tuint32 get_remaining();
+        ckcore::tuint64 get_sector();
+        ckcore::tuint32 get_allocated();
+        ckcore::tuint32 get_remaining();
 
-		void pad_sector();
-	};
+        void pad_sector();
+    };
 };

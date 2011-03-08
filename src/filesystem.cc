@@ -20,64 +20,64 @@
 
 namespace ckfilesystem
 {
-	FileSystem::FileSystem(Type type,const FileSet &file_set) :
-		type_(type),udf_(type == TYPE_DVDVIDEO),file_set_(file_set)
-	{
-	}
+    FileSystem::FileSystem(Type type,const FileSet &file_set) :
+        type_(type),udf_(type == TYPE_DVDVIDEO),file_set_(file_set)
+    {
+    }
 
-	FileSystem::~FileSystem()
-	{
-	}
+    FileSystem::~FileSystem()
+    {
+    }
 
-	void FileSystem::set_volume_label(const ckcore::tchar *label)
-	{
-		iso9660_.set_volume_label(label);
-		joliet_.set_volume_label(label);
-		udf_.set_volume_label(label);
-	}
+    void FileSystem::set_volume_label(const ckcore::tchar *label)
+    {
+        iso9660_.set_volume_label(label);
+        joliet_.set_volume_label(label);
+        udf_.set_volume_label(label);
+    }
 
-	void FileSystem::set_text_fields(const ckcore::tchar *sys_ident,
-										  const ckcore::tchar *volset_ident,
-										  const ckcore::tchar *publ_ident,
-										  const ckcore::tchar *prep_ident)
-	{
-		iso9660_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
-		joliet_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
-	}
+    void FileSystem::set_text_fields(const ckcore::tchar *sys_ident,
+                                          const ckcore::tchar *volset_ident,
+                                          const ckcore::tchar *publ_ident,
+                                          const ckcore::tchar *prep_ident)
+    {
+        iso9660_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
+        joliet_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
+    }
 
-	void FileSystem::set_file_fields(const ckcore::tchar *copy_file_ident,
-										  const ckcore::tchar *abst_file_ident,
-										  const ckcore::tchar *bibl_file_ident)
-	{
-		iso9660_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
-		joliet_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
-	}
+    void FileSystem::set_file_fields(const ckcore::tchar *copy_file_ident,
+                                          const ckcore::tchar *abst_file_ident,
+                                          const ckcore::tchar *bibl_file_ident)
+    {
+        iso9660_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
+        joliet_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
+    }
 
-	void FileSystem::set_interchange_level(Iso9660::InterLevel inter_level)
-	{
-		iso9660_.set_interchange_level(inter_level);
-	}
+    void FileSystem::set_interchange_level(Iso9660::InterLevel inter_level)
+    {
+        iso9660_.set_interchange_level(inter_level);
+    }
 
-	void FileSystem::set_include_file_ver_info(bool include)
-	{
-		iso9660_.set_include_file_ver_info(include);
-		joliet_.set_include_file_ver_info(include);
-	}
+    void FileSystem::set_include_file_ver_info(bool include)
+    {
+        iso9660_.set_include_file_ver_info(include);
+        joliet_.set_include_file_ver_info(include);
+    }
 
-	void FileSystem::set_part_access_type(Udf::PartAccessType access_type)
-	{
-		udf_.set_part_access_type(access_type);
-	}
+    void FileSystem::set_part_access_type(Udf::PartAccessType access_type)
+    {
+        udf_.set_part_access_type(access_type);
+    }
 
-	void FileSystem::set_relax_max_dir_level(bool relax)
-	{
-		iso9660_.set_relax_max_dir_level(relax);
-	}
+    void FileSystem::set_relax_max_dir_level(bool relax)
+    {
+        iso9660_.set_relax_max_dir_level(relax);
+    }
 
-	void FileSystem::set_long_joliet_names(bool enable)
-	{
-		joliet_.set_relax_max_name_len(enable);
-	}
+    void FileSystem::set_long_joliet_names(bool enable)
+    {
+        joliet_.set_relax_max_name_len(enable);
+    }
 
     bool FileSystem::add_boot_image_no_emu(const ckcore::tchar *full_path,bool bootable,
                                            ckcore::tuint16 load_segment,ckcore::tuint16 sec_count)

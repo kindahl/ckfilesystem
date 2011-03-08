@@ -22,51 +22,51 @@
 #include <ckcore/canexstream.hh>
 #include "ckfilesystem/iso9660.hh"
 
-#define JOLIET_MAX_NAMELEN_NORMAL			 64		// According to Joliet specification.
-#define JOLIET_MAX_NAMELEN_RELAXED			101		// 207 bytes = 101 wide characters + 4 wide characters for file version.
+#define JOLIET_MAX_NAMELEN_NORMAL            64     // According to Joliet specification.
+#define JOLIET_MAX_NAMELEN_RELAXED          101     // 207 bytes = 101 wide characters + 4 wide characters for file version.
 
 namespace ckfilesystem
 {
-	class Joliet
-	{
-	private:
-		bool inc_file_ver_info_;
-		int max_name_len_;
+    class Joliet
+    {
+    private:
+        bool inc_file_ver_info_;
+        int max_name_len_;
 
-		tiso_voldesc_suppl voldesc_suppl_;
+        tiso_voldesc_suppl voldesc_suppl_;
 
-		wchar_t make_char(wchar_t c);
+        wchar_t make_char(wchar_t c);
         int last_delimiter_w(const wchar_t *str,wchar_t delim);
-		void mem_str_cpy(unsigned char *target,const wchar_t *source,size_t len);
-		void empty_str_buffer(unsigned char *buffer,size_t size);
+        void mem_str_cpy(unsigned char *target,const wchar_t *source,size_t len);
+        void empty_str_buffer(unsigned char *buffer,size_t size);
 
-		void init_vol_desc();
+        void init_vol_desc();
 
-	public:
-		Joliet();
-		~Joliet();
+    public:
+        Joliet();
+        ~Joliet();
 
-		// Change of internal state functions.
-		void set_volume_label(const ckcore::tchar *label);
-		void set_text_fields(const ckcore::tchar *sys_ident,
-						     const ckcore::tchar *volset_ident,
-						     const ckcore::tchar *publ_ident,
-						     const ckcore::tchar *prep_ident);
-		void set_file_fields(const ckcore::tchar *copy_file_ident,
-						     const ckcore::tchar *abst_file_ident,
-						     const ckcore::tchar *bibl_file_ident);
-		void set_include_file_ver_info(bool include);
-		void set_relax_max_name_len(bool relax);
+        // Change of internal state functions.
+        void set_volume_label(const ckcore::tchar *label);
+        void set_text_fields(const ckcore::tchar *sys_ident,
+                             const ckcore::tchar *volset_ident,
+                             const ckcore::tchar *publ_ident,
+                             const ckcore::tchar *prep_ident);
+        void set_file_fields(const ckcore::tchar *copy_file_ident,
+                             const ckcore::tchar *abst_file_ident,
+                             const ckcore::tchar *bibl_file_ident);
+        void set_include_file_ver_info(bool include);
+        void set_relax_max_name_len(bool relax);
 
-		// Write functions.
-		void write_vol_desc(ckcore::CanexOutStream &out_stream,struct tm &create_time,
-						    ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
-						    ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
-						    ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
+        // Write functions.
+        void write_vol_desc(ckcore::CanexOutStream &out_stream,struct tm &create_time,
+                            ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+                            ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+                            ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len);
 
-		// Helper functions.
-		unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
-		unsigned char calc_file_name_len(const ckcore::tchar *file_name,bool is_dir);
-		bool includes_file_ver_info();
-	};
+        // Helper functions.
+        unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,bool is_dir);
+        unsigned char calc_file_name_len(const ckcore::tchar *file_name,bool is_dir);
+        bool includes_file_ver_info();
+    };
 };

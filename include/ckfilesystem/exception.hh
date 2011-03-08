@@ -22,28 +22,28 @@
 
 namespace ckfilesystem
 {
-	/**
-	 * @brief Class for file exceptions.
-	 */
-	class FileOpenException : public ckcore::Exception2
-	{
-	private:
-		ckcore::tstring file_path_;
+    /**
+     * @brief Class for file exceptions.
+     */
+    class FileOpenException : public ckcore::Exception2
+    {
+    private:
+        ckcore::tstring file_path_;
 
-	public:
-		FileOpenException(const ckcore::tstring &a_file_path)
+    public:
+        FileOpenException(const ckcore::tstring &a_file_path)
             : Exception2( ckcore::string::formatstr(
                               ckT("Unable to open file \"%s\" for read/write access."),
                               a_file_path.c_str() ) )
-			, file_path_(a_file_path)
-		{
-		}
+            , file_path_(a_file_path)
+        {
+        }
 
-		virtual ~FileOpenException() throw() {};
+        virtual ~FileOpenException() throw() {};
 
-		const ckcore::tstring &file_path() const
-		{
-			return file_path_;
-		}
-	};
+        const ckcore::tstring &file_path() const
+        {
+            return file_path_;
+        }
+    };
 };

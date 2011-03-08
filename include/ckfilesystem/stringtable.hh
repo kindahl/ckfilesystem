@@ -22,39 +22,39 @@
 
 namespace ckfilesystem
 {
-	class StringTable
-	{
-	public:
-		enum StringId
-		{
-			WARNING_FSDIRLEVEL,
-			WARNING_SKIPFILE,
-			WARNING_SKIP4GFILE,
-			WARNING_SKIP4GFILEISO,
-			ERROR_PATHTABLESIZE,	// FIXME: Not used.
-			ERROR_OPENWRITE,
-			ERROR_OPENREAD,
-			STATUS_BUILDTREE,
-			STATUS_WRITEDATA,
-			STATUS_WRITEISOTABLE,
-			STATUS_WRITEJOLIETTABLE,
-			STATUS_WRITEDIRENTRIES,
-			ERROR_DVDVIDEO
-		};
+    class StringTable
+    {
+    public:
+        enum StringId
+        {
+            WARNING_FSDIRLEVEL,
+            WARNING_SKIPFILE,
+            WARNING_SKIP4GFILE,
+            WARNING_SKIP4GFILEISO,
+            ERROR_PATHTABLESIZE,    // FIXME: Not used.
+            ERROR_OPENWRITE,
+            ERROR_OPENREAD,
+            STATUS_BUILDTREE,
+            STATUS_WRITEDATA,
+            STATUS_WRITEISOTABLE,
+            STATUS_WRITEJOLIETTABLE,
+            STATUS_WRITEDIRENTRIES,
+            ERROR_DVDVIDEO
+        };
 
-	private:
-		std::map<StringId,const ckcore::tchar *> strings_;
+    private:
+        std::map<StringId,const ckcore::tchar *> strings_;
 
-		StringTable();
-		StringTable(const StringTable &obj);
-		~StringTable();
-		StringTable &operator=(const StringTable &obj); 
+        StringTable();
+        StringTable(const StringTable &obj);
+        ~StringTable();
+        StringTable &operator=(const StringTable &obj); 
 
-	public:
+    public:
 
-		static StringTable &instance();
+        static StringTable &instance();
 
-		const ckcore::tchar *get_string(StringId id);
-		void set_string(StringId id,const ckcore::tchar *str);
-	};
+        const ckcore::tchar *get_string(StringId id);
+        void set_string(StringId id,const ckcore::tchar *str);
+    };
 };

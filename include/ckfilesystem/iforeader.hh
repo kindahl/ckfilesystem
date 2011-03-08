@@ -21,59 +21,59 @@
 #include <ckcore/types.hh>
 #include <ckcore/filestream.hh>
 
-#define IFO_INDETIFIER_VMG				"DVDVIDEO-VMG"
-#define IFO_INDETIFIER_VTS				"DVDVIDEO-VTS"
-#define IFO_IDENTIFIER_LEN				12
+#define IFO_INDETIFIER_VMG              "DVDVIDEO-VMG"
+#define IFO_INDETIFIER_VTS              "DVDVIDEO-VTS"
+#define IFO_IDENTIFIER_LEN              12
 
 namespace ckfilesystem
 {
-	class IfoVmgData
-	{
-	public:
-		ckcore::tuint32 last_vmg_sec_;
-		ckcore::tuint32 last_vmg_ifo_sec_;
-		ckcore::tuint16 num_vmg_ts_;
-		ckcore::tuint32 vmg_menu_vob_sec_;
-		ckcore::tuint32 srpt_sec_;
+    class IfoVmgData
+    {
+    public:
+        ckcore::tuint32 last_vmg_sec_;
+        ckcore::tuint32 last_vmg_ifo_sec_;
+        ckcore::tuint16 num_vmg_ts_;
+        ckcore::tuint32 vmg_menu_vob_sec_;
+        ckcore::tuint32 srpt_sec_;
 
-		std::vector<ckcore::tuint32> titles_;
-	};
+        std::vector<ckcore::tuint32> titles_;
+    };
 
-	class IfoVtsData
-	{
-	public:
-		ckcore::tuint32 last_vts_sec_;
-		ckcore::tuint32 last_vts_ifo_sec_;
-		ckcore::tuint32 vts_menu_vob_sec_;
-		ckcore::tuint32 vts_vob_sec_;
-	};
+    class IfoVtsData
+    {
+    public:
+        ckcore::tuint32 last_vts_sec_;
+        ckcore::tuint32 last_vts_ifo_sec_;
+        ckcore::tuint32 vts_menu_vob_sec_;
+        ckcore::tuint32 vts_vob_sec_;
+    };
 
-	class IfoReader
-	{
-	public:
-		enum IfoType
-		{
-			IT_UNKNOWN,
-			IT_VMG,
-			IT_VTS
-		};
+    class IfoReader
+    {
+    public:
+        enum IfoType
+        {
+            IT_UNKNOWN,
+            IT_VMG,
+            IT_VTS
+        };
 
-	private:
-		IfoType ifo_type_;
+    private:
+        IfoType ifo_type_;
 
-		ckcore::FileInStream in_stream_;
+        ckcore::FileInStream in_stream_;
 
-	public:
+    public:
 
-		IfoReader(const ckcore::tchar *full_path);
-		~IfoReader();
+        IfoReader(const ckcore::tchar *full_path);
+        ~IfoReader();
 
-		bool open();
-		bool close();
+        bool open();
+        bool close();
 
-		bool read_vmg(IfoVmgData &vmg_data);
-		bool read_vts(IfoVtsData &vts_data);
+        bool read_vmg(IfoVmgData &vmg_data);
+        bool read_vts(IfoVtsData &vts_data);
 
-		IfoType get_type();
-	};
+        IfoType get_type();
+    };
 };

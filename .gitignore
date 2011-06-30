@@ -4,7 +4,9 @@
 /obj/*
 *.ncb
 *.suo
+*.sdf
 /src/windows/*.vcproj.*.user
+/src/windows/*.vcxproj.user
 
 /aclocal.m4
 /autom4te.cache/*

@@ -24,6 +24,8 @@ namespace ckfilesystem
 {
     class SectorClient
     {
+    public:
+        virtual ~SectorClient() {}
     };
 
     class SectorManager

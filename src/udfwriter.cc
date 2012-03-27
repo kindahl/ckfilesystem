@@ -362,7 +362,7 @@ namespace ckfilesystem
                                                     udf_part_len,unique_ident,
                                                     create_time_);
 
-        udf_cur_sec++;          
+        udf_cur_sec++;
 
         // 6 volume descriptors. But minimum length is 16 so we pad with empty sectors.
         voldesc_seqextent_main_.extent_len = voldesc_seqextent_rsrv_.extent_len = 16 * ISO9660_SECTOR_SIZE;

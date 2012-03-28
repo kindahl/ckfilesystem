@@ -344,9 +344,25 @@ namespace ckfilesystem
         // Used for padding.
         char tmp[1] = { 0 };
 
-        // Parition size = the partition size calculated above + the set descriptor + the data length.
+        // Notes on partition size
+        //
+        // Originally udf_part_len was calculated as follows:
+        //  part_len_ + the set descriptor (1) + the data length.
+        //
+        // This works well if the data immediately follows the partition which
+        // previously was the case. udf_part_len is used as an offset for
+        // locating the file data.
+        //
+        // After changing path tables and directory entries to be written after
+        // the partition instead of before we must include the space allocated
+        // by the path tables and directory entries in udf_part_len. The
+        // easiest way to do this is to let udf_part_len include all sectors
+        // from start to the file data.
+
         ckcore::tuint32 udf_cur_sec = (ckcore::tuint32)sec_manager_.get_start(this,SR_MAINDESCRIPTORS);
-        ckcore::tuint32 udf_part_len = (ckcore::tuint32)part_len_ + 1 + (ckcore::tuint32)sec_manager_.get_data_length();
+        //ckcore::tuint32 udf_part_len = (ckcore::tuint32)part_len_ + 1 + (ckcore::tuint32)sec_manager_.get_data_length();
+        ckcore::tuint32 udf_part_len = 1 + sec_manager_.get_data_length() +
+                                       sec_manager_.get_data_start() - sec_manager_.get_start(this,SR_FILESETCONTENTS);
 
         // Assign a unique identifier that's larger than any unique identifier of a
         // file entry + 16 for the reserved numbers.

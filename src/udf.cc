@@ -693,7 +693,7 @@ namespace ckfilesystem
         make_ident(vli.impl_use.impl_ident,IT_DEVELOPER);
         vli.impl_use.num_files = file_count;
         vli.impl_use.num_dirs = dir_count;
-        vli.impl_use.min_udf_rev_read = 0x0102; // Currently only UDF 1.02 is supported.
+        vli.impl_use.min_udf_rev_read = 0x0102;     // Currently only UDF 1.02 is supported.
         vli.impl_use.min_udf_rev_write = 0x0102;    // Currently only UDF 1.02 is supported.
         vli.impl_use.max_udf_rev_write = 0x0102;    // Currently only UDF 1.02 is supported.
 

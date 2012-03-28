@@ -503,6 +503,9 @@ namespace ckfilesystem
             if (is_udf)
                 udf_writer.alloc_header();
 
+            if (is_udf)
+                udf_writer.alloc_partition(file_tree_);
+
             Iso9660PathTable pt_iso,pt_jol;
             if (is_iso)
             {
@@ -523,9 +526,6 @@ namespace ckfilesystem
                 iso_writer.alloc_dir_entries(file_tree_);
             }
 
-            if (is_udf)
-                udf_writer.alloc_partition(file_tree_);
-
             // Allocate file data.
             ckcore::tuint64 first_data_sec = sec_manager.get_next_free();
             ckcore::tuint64 last_data_sec = 0;
@@ -542,6 +542,9 @@ namespace ckfilesystem
             if (is_udf)
                 udf_writer.write_header();
 
+            if (is_udf)
+                udf_writer.write_partition(file_tree_);
+
             // FIXME: Add progress for this.
             if (is_iso)
             {
@@ -557,9 +560,6 @@ namespace ckfilesystem
                     return res;
                 }
             }
-
-            if (is_udf)
-                udf_writer.write_partition(file_tree_);
 
             progress.set_status(ckT("%s"),StringTable::instance().get_string(StringTable::STATUS_WRITEDATA));
             progress.set_marquee(false);

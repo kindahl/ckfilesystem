@@ -93,14 +93,13 @@ namespace ckfilesystem
         int delim = -1;
         for (unsigned int i = file_name_len; i > 0; --i)
         {
-            if (file_name[i-1] == '.')
+            if (file_name[i - 1] == '.')
             {
-                delim = i-1;
+                delim = i - 1;
                 break;
             }
         }
 
-        
         unsigned char file_name_end;
 
         // If no '.' character was found just remove the version information if
@@ -134,20 +133,22 @@ namespace ckfilesystem
             return;
         }
 
-        unsigned char next_number = 1;
+        unsigned char next_number = 2;
         wchar_t next_number_str[4];
 
         std::vector<FileTreeNode *>::const_iterator it_sibling;
         for (it_sibling = parent_node->children_.begin(); it_sibling != parent_node->children_.end();)
         {
+            const FileTreeNode *sibling = *it_sibling;
+
             // Ignore any siblings that has not yet been assigned an ISO9660 compatible file name.
-            if ((*it_sibling)->file_name_iso9660_.empty())
+            if (sibling->file_name_iso9660_.empty())
             {
                 it_sibling++;
                 continue;
             }
 
-            if (!wcscmp((*it_sibling)->file_name_joliet_.c_str(),file_name))
+            if (!wcscmp(sibling->file_name_joliet_.c_str(),file_name))
             {
                 swprintf(next_number_str,4,L"%d",next_number);
 
@@ -206,20 +207,26 @@ namespace ckfilesystem
             return;
         }
 
-        // We're only interested in the file name without the extension and
-        // version information.
+        // We're only interested in modifying the file name without the extension
+        // and version information.
         int delim = -1;
         for (unsigned int i = file_name_size; i > 0; --i)
         {
-            if (file_name_ptr[i-1] == '.')
+            if (file_name_ptr[i - 1] == '.')
             {
-                delim = i-1;
+                delim = i - 1;
                 break;
             }
         }
 
-        
-        unsigned char file_name_end;
+        unsigned char file_name_end = 0;
+        unsigned char file_base_end = file_name_size;
+
+        if (!(node->file_flags_ & FileTreeNode::FLAG_DIRECTORY) &&
+                file_sys_.iso9660_.includes_file_ver_info())
+        {
+            file_base_end -= 2;
+        }
 
         // If no '.' character was found just remove the version information if
         // we're dealing with a file.
@@ -250,20 +257,23 @@ namespace ckfilesystem
             return;
         }
 
-        unsigned char next_number = 1;
+        unsigned char next_number = 2;
         char next_number_str[4];
 
         std::vector<FileTreeNode *>::const_iterator it_sibling;
         for (it_sibling = parent_node->children_.begin(); it_sibling != parent_node->children_.end();)
         {
+            const FileTreeNode *sibling = *it_sibling;
+
             // Ignore any siblings that has not yet been assigned an ISO9660 compatible file name.
-            if ((*it_sibling)->file_name_iso9660_.empty())
+            if (sibling->file_name_iso9660_.empty())
             {
                 it_sibling++;
                 continue;
             }
 
-            if (!memcmp((*it_sibling)->file_name_iso9660_.c_str(),file_name_ptr,file_name_end))
+            if (sibling->file_name_iso9660_.size() >= file_base_end &&
+                !memcmp(sibling->file_name_iso9660_.c_str(),file_name_ptr,file_base_end))
             {
                 sprintf(next_number_str,"%d",next_number);
 
@@ -1015,7 +1025,7 @@ namespace ckfilesystem
 
             do
             {
-                // We can't actually use 0xffffffff bytes since that will not fit perfectly withing a sector range.
+                // We can't actually use 0xffffffff bytes since that will not fit perfectly within a sector range.
                 ckcore::tuint32 extent_size = file_remain > ISO9660_MAX_EXTENT_SIZE ?
                     ISO9660_MAX_EXTENT_SIZE : (ckcore::tuint32)file_remain;
 
@@ -1037,7 +1047,7 @@ namespace ckfilesystem
                     make_unique_iso9660((*it_file),file_name,name_size);
                 }
 
-                // If the record length is not even padd it with a 0 byte.
+                // If the record length is not even pad it with a 0 byte.
                 bool pad_byte = false;
                 unsigned char dir_rec_size = sizeof(dr) + name_size - 1;
                 if (dir_rec_size % 2 == 1)

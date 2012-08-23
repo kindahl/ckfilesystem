@@ -145,9 +145,9 @@ namespace ckfilesystem
         write723(voldesc_suppl_.root_dir_record.volseq_num,1);  // The file extent is on the first volume set.
 
         // Time information.
-        Iso9660::make_datetime(create_time,voldesc_suppl_.root_dir_record.rec_timestamp);
+        iso_make_datetime(create_time,voldesc_suppl_.root_dir_record.rec_timestamp);
 
-        Iso9660::make_datetime(create_time,voldesc_suppl_.create_time);
+        iso_make_datetime(create_time,voldesc_suppl_.create_time);
         memcpy(&voldesc_suppl_.modify_time,&voldesc_suppl_.create_time,sizeof(tiso_voldesc_datetime));
 
         memset(&voldesc_suppl_.expr_time,'0',sizeof(tiso_voldesc_datetime));

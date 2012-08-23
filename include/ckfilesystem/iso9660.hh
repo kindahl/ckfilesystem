@@ -248,10 +248,93 @@ namespace ckfilesystem
 #pragma pack()  // Switch back to normal alignment.
 
     /**
-        Implements functionallity for creating parts of ISO9660 file systems.
-        For example writing certain descriptors and for generating ISO9660
-        compatible file names.
-    */
+     * Converts an ASCII character to an a-character (appendix A).
+     * @param [in] c Character to convert.
+     * @return c converted to an a-character.
+     */
+    char iso_make_char_a(char c);
+
+    /**
+     * Converts an ASCII character to a d-character (appendix A).
+     * @param [in] c Character to convert.
+     * @return c converted to a d-character.
+     */
+    char iso_make_char_d(char c);
+
+    /**
+     * Performs a memory copy from source to target, all characters
+     * in target will be converted to a-characters.
+     * @param [out] dst Destination memory buffer.
+     * @param [in] src Source memory buffer.
+     * @param [in] size Number of bytes to copy.
+     */
+    void iso_memcpy_a(unsigned char *dst, const char *src, size_t size);
+
+    /**
+     * Performs a memory copy from source to target, all characters
+     * in target will be converted to d-characters.
+     * @param [out] dst Destination memory buffer.
+     * @param [in] src Source memory buffer.
+     * @param [in] size Number of bytes to copy.
+     */
+    void iso_memcpy_d(unsigned char *dst, const char *src, size_t size);
+
+    /**
+     * Finds the last specified delimiter in the specified string of
+     * a-characters.
+     * @param [in] str String to find delimiter in.
+     * @param [in] delim Delimiter to find.
+     * @return If successful the index of the first matching delimiter, if
+     *         unsuccessful -1 is returned.
+     */
+    int iso_last_delimiter_a(const char *str, char delim);
+
+    /**
+     * Converts the input file name to a valid ISO level 1 file name. This
+     * means:
+     *  - A maximum of 12 characters.
+     *  - A file extension of at most 3 characters.
+     *  - A file name of at most 8 characters.
+     * @param [out] buffer Output buffer to write file name to.
+     * @param [in] file_name File name to write.
+     * @return Length of output string.
+     */
+    unsigned char iso_write_file_name_l1(unsigned char *buffer, const ckcore::tchar *file_name);
+
+    /**
+     * Converts the input file name to a valid ISO level 2 and above file name.
+     * This means:
+     *  - A maximum of 31 characters.
+     */
+    unsigned char iso_write_file_name_l2(unsigned char *buffer ,const ckcore::tchar *file_name);
+
+    unsigned char iso_write_file_name_1999(unsigned char *buffer, const ckcore::tchar *file_name);
+    unsigned char iso_write_file_name_generic(unsigned char *buffer, const ckcore::tchar *file_name, int max_len);
+
+    unsigned char iso_write_dir_name_l1(unsigned char *buffer, const ckcore::tchar *dir_name);
+    unsigned char iso_write_dir_name_l2(unsigned char *buffer, const ckcore::tchar *dir_name);
+    unsigned char iso_write_dir_name_1999(unsigned char *buffer, const ckcore::tchar *dir_name);
+    unsigned char iso_write_dir_name_generic(unsigned char *buffer, const ckcore::tchar *dir_name, int max_len);
+
+    unsigned char iso_calc_file_name_len_l1(const ckcore::tchar *file_name);
+    unsigned char iso_calc_file_name_len_l2(const ckcore::tchar *file_name);
+    unsigned char iso_calc_file_name_len_1999(const ckcore::tchar *file_name);
+    unsigned char iso_calc_dir_name_len_l1(const ckcore::tchar *file_name);
+    unsigned char iso_calc_dir_name_len_l2(const ckcore::tchar *file_name);
+    unsigned char iso_calc_dir_name_len_1999(const ckcore::tchar *file_name);
+
+    void iso_make_datetime(struct tm &time, tiso_voldesc_datetime &iso_time);
+    void iso_make_datetime(struct tm &time, tiso_dir_record_datetime &iso_time);
+    void iso_make_datetime(ckcore::tuint16 date, ckcore::tuint16 time,
+                           tiso_dir_record_datetime &iso_time);
+    void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,
+                              ckcore::tuint16 &date, ckcore::tuint16 &time);
+
+    /**
+     * Implements functionallity for creating parts of ISO9660 file systems.
+     * For example writing certain descriptors and for generating ISO9660
+     * compatible file names.
+     */
     class Iso9660
     {
     public:
@@ -270,27 +353,6 @@ namespace ckfilesystem
 
         tiso_voldesc_primary voldesc_primary_;
         tiso_voldesc_setterm voldesc_setterm_;
-
-        char make_char_a(char c);
-        char make_char_d(char c);
-        int last_delimiter_a(const char *str,char delim);
-        void mem_str_cpy_a(unsigned char *target,const char *source,size_t len);
-        void mem_str_cpy_d(unsigned char *target,const char *source,size_t len);
-
-        unsigned char write_file_name_l1(unsigned char *buffer,const ckcore::tchar *file_name);
-        unsigned char write_file_name_generic(unsigned char *buffer,const ckcore::tchar *file_name,int max_len);
-        unsigned char write_file_name_l2(unsigned char *buffer,const ckcore::tchar *file_name);
-        unsigned char write_file_name_1999(unsigned char *buffer,const ckcore::tchar *file_name);
-        unsigned char write_dir_name_l1(unsigned char *buffer,const ckcore::tchar *dir_name);
-        unsigned char write_dir_name_generic(unsigned char *buffer,const ckcore::tchar *dir_name,int max_len);
-        unsigned char write_dir_name_l2(unsigned char *buffer,const ckcore::tchar *dir_name);
-        unsigned char write_dir_name_1999(unsigned char *buffer,const ckcore::tchar *dir_name);
-        unsigned char calc_file_name_len_l1(const ckcore::tchar *file_name);
-        unsigned char calc_file_name_len_l2(const ckcore::tchar *file_name);
-        unsigned char calc_file_name_len_1999(const ckcore::tchar *file_name);
-        unsigned char calc_dir_name_len_l1(const ckcore::tchar *file_name);
-        unsigned char calc_dir_name_len_l2(const ckcore::tchar *file_name);
-        unsigned char calc_dir_name_len_1999(const ckcore::tchar *file_name);
 
         void init_vol_desc_primary();
         void init_vol_desc_setterm();
@@ -321,21 +383,44 @@ namespace ckfilesystem
         void write_vol_desc_setterm(ckcore::CanexOutStream &out_stream);
 
         // Helper functions.
-        unsigned char write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,
+        unsigned char write_file_name(unsigned char *buffer, const ckcore::tchar *file_name,
                                       bool is_dir);
-        unsigned char calc_file_name_len(const ckcore::tchar *file_name,bool is_dir);
-        unsigned char get_max_dir_level();
-        bool has_vol_desc_suppl();
-        bool allows_fragmentation();
-        bool includes_file_ver_info();
 
-        // Static helper functions.
-        static void make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time);
-        static void make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time);
-        static void make_datetime(ckcore::tuint16 date,ckcore::tuint16 time,
-                                  tiso_dir_record_datetime &iso_time);
-        static void make_dosdatetime(tiso_dir_record_datetime &iso_time,
-                                     ckcore::tuint16 &date,ckcore::tuint16 &time);
+        /**
+         * Determines the length of the compatible file name generated from the
+         * specified file name. A compatible file name is a file name that is
+         * generated from the specified file name that is supported by the
+         * current file system configuration.
+         * @param file_name the origial file name.
+         * @param is_dir if true, file_name is assumed to be a directory name.
+         * @return the length of the compatible file name.
+         */
+        unsigned char calc_file_name_len(const ckcore::tchar *file_name, bool is_dir);
+
+        /**
+         * Obtains the maximum numbe of directory levels supported by the
+         * current file system configuration.
+         * @return maximum number of allowed directory levels.
+         */
+        unsigned char get_max_dir_level();
+
+        /**
+         * Checks whether the file system has a supplementary volume descriptor or not.
+         * @return true if the file system has a supplementary volume descriptor.
+         */
+        bool has_vol_desc_suppl();
+
+        /**
+         * Checks whether the file system allows files to be fragmented
+         * (multiple extents) or not.
+         * @return true if the file system allows fragmentation.
+         */
+        bool allows_fragmentation();
+
+        /**
+         * Returns true if the file names includes the two character file
+         * version information (;1).
+         */
+        bool includes_file_ver_info();
     };
 };
-

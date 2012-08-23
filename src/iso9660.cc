@@ -31,16 +31,279 @@ namespace ckfilesystem
 {
     using namespace util;
 
-    /*
-        Global Identifiers.
-    */
     const char *iso_ident_cd = "CD001";
     const char *iso_ident_eltorito = "EL TORITO SPECIFICATION";
 
-    /*
-        Helper Functions.
-    */
-    void Iso9660::make_datetime(struct tm &time,tiso_voldesc_datetime &iso_time)
+    char iso_make_char_a(char c)
+    {
+        char res = toupper(c);
+
+        // Make sure that it's a valid character, otherwise return '_'.
+        if ((res >= 0x20 && res <= 0x22) ||
+            (res >= 0x25 && res <= 0x39) ||
+            (res >= 0x41 && res <= 0x5a) || res == 0x5f)
+            return res;
+
+        return '_';
+    }
+
+    char iso_make_char_d(char c)
+    {
+        char res = toupper(c);
+
+        // Make sure that it's a valid character, otherwise return '_'.
+        if ((res >= 0x30 && res <= 0x39) ||
+            (res >= 0x41 && res <= 0x5a) || res == 0x5f)
+            return res;
+
+        return '_';
+    }
+
+    void iso_memcpy_a(unsigned char *dst, const char *src, size_t size)
+    {
+        for (size_t i = 0; i < size; i++)
+            dst[i] = iso_make_char_a(src[i]);
+    }
+
+    void iso_memcpy_d(unsigned char *dst, const char *src, size_t size)
+    {
+        for (size_t i = 0; i < size; i++)
+            dst[i] = iso_make_char_d(src[i]);
+    }
+
+    int iso_last_delimiter_a(const char *str, char delim)
+    {    
+        int len = (int)strlen(str);
+        for (int i = len - 1; i >= 0; i--)
+        {
+            if (str[i] == delim)
+                return i;
+        }
+
+        return -1;
+    }
+
+    unsigned char iso_write_file_name_l1(unsigned char *buffer,const ckcore::tchar *file_name)
+    {
+        int file_name_len = (int)ckcore::string::astrlen(file_name);
+        unsigned char len = 0;
+
+        char *ansi_file_name;
+    #ifdef _UNICODE
+        ansi_file_name = new char [file_name_len + 1];
+        ckcore::string::utf16_to_ansi(file_name,ansi_file_name,file_name_len + 1);
+    #else
+        ansi_file_name = (char *)file_name;
+    #endif
+
+        int ext_delim = iso_last_delimiter_a(ansi_file_name,'.');
+        if (ext_delim == -1)
+        {
+            size_t max = file_name_len < 8 ? file_name_len : 8;
+            for (size_t i = 0; i < max; i++)
+                buffer[i] = iso_make_char_d(ansi_file_name[i]);
+            
+            len = (unsigned char)max;
+            buffer[max] = '\0';
+        }
+        else
+        {
+            int ext_len = (int)file_name_len - ext_delim - 1;
+            if (ext_len > 3)    // Level one support a maxmimum file extension of length 3.
+                ext_len = 3;
+
+            size_t max = ext_delim < 8 ? ext_delim : 8;
+            for (size_t i = 0; i < max; i++)
+                buffer[i] = iso_make_char_d(ansi_file_name[i]);
+
+            buffer[max] = '.';
+
+            // Copy the extension.
+            for (size_t i = max + 1; i < max + ext_len + 1; i++)
+                buffer[i] = iso_make_char_d(ansi_file_name[++ext_delim]);
+
+            len = (unsigned char)max + (unsigned char)ext_len + 1;
+            buffer[len] = '\0';
+        }
+
+    #ifdef _UNICODE
+        delete [] ansi_file_name;
+    #endif
+
+        return len;
+    }
+
+    unsigned char iso_write_file_name_l2(unsigned char *buffer, const ckcore::tchar *file_name)
+    {
+        return iso_write_file_name_generic(buffer, file_name, 31);
+    }
+
+    unsigned char iso_write_file_name_1999(unsigned char *buffer, const ckcore::tchar *file_name)
+    {
+        return iso_write_file_name_generic(buffer, file_name, ISO9660_MAX_NAMELEN_1999);
+    }
+
+    unsigned char iso_write_file_name_generic(unsigned char *buffer, const ckcore::tchar *file_name,
+                                              int max_len)
+    {
+        int file_name_len = (int)ckcore::string::astrlen(file_name);
+        unsigned char len = 0;
+
+    #ifdef _UNICODE
+        char *ansi_file_name = new char [file_name_len + 1];
+        ckcore::string::utf16_to_ansi(file_name, ansi_file_name, file_name_len + 1);
+    #else
+        char *ansi_file_name = (char *)file_name;
+    #endif
+
+        int ext_delim = iso_last_delimiter_a(ansi_file_name,'.');
+        if (ext_delim == -1)
+        {
+            size_t max = file_name_len < max_len ? file_name_len : max_len;
+            for (size_t i = 0; i < max; i++)
+                buffer[i] = iso_make_char_d(ansi_file_name[i]);
+            
+            len = (unsigned char)max;
+            buffer[max] = '\0';
+        }
+        else
+        {
+            int ext_len = (int)file_name_len - ext_delim - 1;
+            if (ext_len > max_len - 1)  // The file can at most contain an extension of length max_len - 1 characters.
+                ext_len = max_len - 1;
+
+            size_t max = ext_delim < (max_len - ext_len) ? ext_delim : (max_len - 1 - ext_len);
+            for (size_t i = 0; i < max; i++)
+                buffer[i] = iso_make_char_d(ansi_file_name[i]);
+
+            buffer[max] = '.';
+
+            // Copy the extension.
+            for (size_t i = max + 1; i < max + ext_len + 1; i++)
+                buffer[i] = iso_make_char_d(ansi_file_name[++ext_delim]);
+
+            len = (unsigned char)max + (unsigned char)ext_len + 1;
+            buffer[len] = '\0';
+        }
+
+    #ifdef _UNICODE
+        delete [] ansi_file_name;
+    #endif
+
+        return len;
+    }
+
+    unsigned char iso_write_dir_name_l1(unsigned char *buffer, const ckcore::tchar *dir_name)
+    {
+        int dir_name_len = (int)ckcore::string::astrlen(dir_name);
+        int max = dir_name_len < 8 ? dir_name_len : 8;
+
+    #ifdef _UNICODE
+        char *ansi_dir_name = new char [dir_name_len + 1];
+        ckcore::string::utf16_to_ansi(dir_name, ansi_dir_name, dir_name_len + 1);
+    #else
+        char *ansi_dir_name = (char *)dir_name;
+    #endif
+
+        for (size_t i = 0; i < (size_t)max; i++)
+            buffer[i] = iso_make_char_d(ansi_dir_name[i]);
+            
+        buffer[max] = '\0';
+
+    #ifdef _UNICODE
+        delete [] ansi_dir_name;
+    #endif
+
+        return max;
+    }
+
+    unsigned char iso_write_dir_name_l2(unsigned char *buffer, const ckcore::tchar *dir_name)
+    {
+        return iso_write_dir_name_generic(buffer, dir_name, 31);
+    }
+
+    unsigned char iso_write_dir_name_1999(unsigned char *buffer, const ckcore::tchar *dir_name)
+    {
+        return iso_write_dir_name_generic(buffer, dir_name, ISO9660_MAX_NAMELEN_1999);
+    }
+
+    unsigned char iso_write_dir_name_generic(unsigned char *buffer, const ckcore::tchar *dir_name,
+                                             int max_len)
+    {
+        int dir_name_len = (int)ckcore::string::astrlen(dir_name);
+        int max = dir_name_len < max_len ? dir_name_len : max_len;
+
+    #ifdef _UNICODE
+        char *ansi_dir_name = new char [dir_name_len + 1];
+        ckcore::string::utf16_to_ansi(dir_name,ansi_dir_name,dir_name_len + 1);
+    #else
+        char *ansi_dir_name = (char *)dir_name;
+    #endif
+
+        for (size_t i = 0; i < (size_t)max; i++)
+            buffer[i] = iso_make_char_d(ansi_dir_name[i]);
+            
+        buffer[max] = '\0';
+
+    #ifdef _UNICODE
+        delete [] ansi_dir_name;
+    #endif
+
+        return max;
+    }
+
+    unsigned char iso_calc_file_name_len_l1(const ckcore::tchar *file_name)
+    {
+        unsigned char szTempBuffer[13];
+        return iso_write_file_name_l1(szTempBuffer,file_name);
+    }
+
+    unsigned char iso_calc_file_name_len_l2(const ckcore::tchar *file_name)
+    {
+        size_t file_name_len = ckcore::string::astrlen(file_name);
+        if (file_name_len < 31)
+            return (unsigned char)file_name_len;
+
+        return 31;
+    }
+
+    unsigned char iso_calc_file_name_len_1999(const ckcore::tchar *file_name)
+    {
+        size_t file_name_len = ckcore::string::astrlen(file_name);
+        if (file_name_len < ISO9660_MAX_NAMELEN_1999)
+            return (unsigned char)file_name_len;
+
+        return ISO9660_MAX_NAMELEN_1999;
+    }
+
+    unsigned char iso_calc_dir_name_len_l1(const ckcore::tchar *dir_name)
+    {
+        size_t dir_name_len = ckcore::string::astrlen(dir_name);
+        if (dir_name_len < 8)
+            return (unsigned char)dir_name_len;
+
+        return 8;
+    }
+
+    unsigned char iso_calc_dir_name_len_l2(const ckcore::tchar *dir_name)
+    {
+        size_t dir_name_len = ckcore::string::astrlen(dir_name);
+        if (dir_name_len < 31)
+            return (unsigned char)dir_name_len;
+
+        return 31;
+    }
+
+    unsigned char iso_calc_dir_name_len_1999(const ckcore::tchar *dir_name)
+    {
+        size_t dir_name_len = ckcore::string::astrlen(dir_name);
+        if (dir_name_len < ISO9660_MAX_NAMELEN_1999)
+            return (unsigned char)dir_name_len;
+
+        return ISO9660_MAX_NAMELEN_1999;
+    }
+
+    void iso_make_datetime(struct tm &time, tiso_voldesc_datetime &iso_time)
     {
         char buffer[5];
         sprintf(buffer,"%.4u",time.tm_year + 1900);
@@ -77,7 +340,7 @@ namespace ckfilesystem
 #endif
     }
 
-    void Iso9660::make_datetime(struct tm &time,tiso_dir_record_datetime &iso_time)
+    void iso_make_datetime(struct tm &time, tiso_dir_record_datetime &iso_time)
     {
         iso_time.year = (unsigned char)time.tm_year;
         iso_time.mon = (unsigned char)time.tm_mon + 1;
@@ -96,8 +359,8 @@ namespace ckfilesystem
 #endif
     }
 
-    void Iso9660::make_datetime(ckcore::tuint16 date,ckcore::tuint16 time,
-                                    tiso_dir_record_datetime &iso_time)
+    void iso_make_datetime(ckcore::tuint16 date, ckcore::tuint16 time,
+                           tiso_dir_record_datetime &iso_time)
     {
         iso_time.year = ((date >> 9) & 0x7f) + 80;
         iso_time.mon = (date >> 5) & 0x0f;
@@ -116,7 +379,8 @@ namespace ckfilesystem
 #endif
     }
 
-    void Iso9660::make_dosdatetime(tiso_dir_record_datetime &iso_time,ckcore::tuint16 &date,ckcore::tuint16 &time)
+    void iso_make_dosdatetime(tiso_dir_record_datetime &iso_time,
+                              ckcore::tuint16 &date, ckcore::tuint16 &time)
     {
         date = ((iso_time.year - 80) & 0x7f) << 9;
         date |= (iso_time.mon & 0x7f) << 5;
@@ -136,302 +400,6 @@ namespace ckfilesystem
 
     Iso9660::~Iso9660()
     {
-    }
-
-    /*
-        Convert the specified character to an a-character (appendix A).
-    */
-    char Iso9660::make_char_a(char c)
-    {
-        char res = toupper(c);
-
-        // Make sure that it's a valid character, otherwise return '_'.
-        if ((res >= 0x20 && res <= 0x22) ||
-            (res >= 0x25 && res <= 0x39) ||
-            (res >= 0x41 && res <= 0x5a) || res == 0x5f)
-            return res;
-
-        return '_';
-    }
-
-    /*
-        Convert the specified character to a d-character (appendix A).
-    */
-    char Iso9660::make_char_d(char c)
-    {
-        char res = toupper(c);
-
-        // Make sure that it's a valid character, otherwise return '_'.
-        if ((res >= 0x30 && res <= 0x39) ||
-            (res >= 0x41 && res <= 0x5a) || res == 0x5f)
-            return res;
-
-        return '_';
-    }
-
-    /*
-     * Fins the last specified delimiter in the specified string.
-     */
-    int Iso9660::last_delimiter_a(const char *str,char delim)
-    {    
-        int len = (int)strlen(str);
-        for (int i = len - 1; i >= 0; i--)
-        {
-            if (str[i] == delim)
-                return i;
-        }
-
-        return -1;
-    }
-
-    /*
-        Performs a memory copy from source to target, all characters
-        in target will be A-characters.
-    */
-    void Iso9660::mem_str_cpy_a(unsigned char *target,const char *source,size_t len)
-    {
-        for (size_t i = 0; i < len; i++)
-            target[i] = make_char_a(source[i]);
-    }
-
-    /*
-        Performs a memory copy from source to target, all characters
-        in target will be D-characters.
-    */
-    void Iso9660::mem_str_cpy_d(unsigned char *target,const char *source,size_t len)
-    {
-        for (size_t i = 0; i < len; i++)
-            target[i] = make_char_d(source[i]);
-    }
-
-    /*
-        Converts the input file name to a valid ISO level 1 file name. This means:
-         - A maximum of 12 characters.
-         - A file extension of at most 3 characters.
-         - A file name of at most 8 characters.
-    */
-    unsigned char Iso9660::write_file_name_l1(unsigned char *buffer,const ckcore::tchar *file_name)
-    {
-        int file_name_len = (int)ckcore::string::astrlen(file_name);
-        unsigned char len = 0;
-
-        char *ansi_file_name;
-    #ifdef _UNICODE
-        ansi_file_name = new char [file_name_len + 1];
-        ckcore::string::utf16_to_ansi(file_name,ansi_file_name,file_name_len + 1);
-    #else
-        ansi_file_name = (char *)file_name;
-    #endif
-
-        int ext_delim = last_delimiter_a(ansi_file_name,'.');
-        if (ext_delim == -1)
-        {
-            size_t max = file_name_len < 8 ? file_name_len : 8;
-            for (size_t i = 0; i < max; i++)
-                buffer[i] = make_char_d(ansi_file_name[i]);
-            
-            len = (unsigned char)max;
-            buffer[max] = '\0';
-        }
-        else
-        {
-            int ext_len = (int)file_name_len - ext_delim - 1;
-            if (ext_len > 3)    // Level one support a maxmimum file extension of length 3.
-                ext_len = 3;
-
-            size_t max = ext_delim < 8 ? ext_delim : 8;
-            for (size_t i = 0; i < max; i++)
-                buffer[i] = make_char_d(ansi_file_name[i]);
-
-            buffer[max] = '.';
-
-            // Copy the extension.
-            for (size_t i = max + 1; i < max + ext_len + 1; i++)
-                buffer[i] = make_char_d(ansi_file_name[++ext_delim]);
-
-            len = (unsigned char)max + (unsigned char)ext_len + 1;
-            buffer[len] = '\0';
-        }
-
-    #ifdef _UNICODE
-        delete [] ansi_file_name;
-    #endif
-
-        return len;
-    }
-
-    unsigned char Iso9660::write_file_name_generic(unsigned char *buffer,const ckcore::tchar *file_name,
-                                                int max_len)
-    {
-        int file_name_len = (int)ckcore::string::astrlen(file_name);
-        unsigned char len = 0;
-
-    #ifdef _UNICODE
-        char *ansi_file_name = new char [file_name_len + 1];
-        ckcore::string::utf16_to_ansi(file_name,ansi_file_name,file_name_len + 1);
-    #else
-        char *ansi_file_name = (char *)file_name;
-    #endif
-
-        int ext_delim = last_delimiter_a(ansi_file_name,'.');
-        if (ext_delim == -1)
-        {
-            size_t max = file_name_len < max_len ? file_name_len : max_len;
-            for (size_t i = 0; i < max; i++)
-                buffer[i] = make_char_d(ansi_file_name[i]);
-            
-            len = (unsigned char)max;
-            buffer[max] = '\0';
-        }
-        else
-        {
-            int ext_len = (int)file_name_len - ext_delim - 1;
-            if (ext_len > max_len - 1)  // The file can at most contain an extension of length max_len - 1 characters.
-                ext_len = max_len - 1;
-
-            size_t max = ext_delim < (max_len - ext_len) ? ext_delim : (max_len - 1 - ext_len);
-            for (size_t i = 0; i < max; i++)
-                buffer[i] = make_char_d(ansi_file_name[i]);
-
-            buffer[max] = '.';
-
-            // Copy the extension.
-            for (size_t i = max + 1; i < max + ext_len + 1; i++)
-                buffer[i] = make_char_d(ansi_file_name[++ext_delim]);
-
-            len = (unsigned char)max + (unsigned char)ext_len + 1;
-            buffer[len] = '\0';
-        }
-
-    #ifdef _UNICODE
-        delete [] ansi_file_name;
-    #endif
-
-        return len;
-    }
-
-    /*
-        Converts the input file name to a valid ISO level 2 and above file name. This means:
-         - A maximum of 31 characters.
-    */
-    unsigned char Iso9660::write_file_name_l2(unsigned char *buffer,const ckcore::tchar *file_name)
-    {
-        return write_file_name_generic(buffer,file_name,31);
-    }
-
-    unsigned char Iso9660::write_file_name_1999(unsigned char *buffer,const ckcore::tchar *file_name)
-    {
-        return write_file_name_generic(buffer,file_name,ISO9660_MAX_NAMELEN_1999);
-    }
-
-    unsigned char Iso9660::write_dir_name_l1(unsigned char *buffer,const ckcore::tchar *dir_name)
-    {
-        int dir_name_len = (int)ckcore::string::astrlen(dir_name);
-        int max = dir_name_len < 8 ? dir_name_len : 8;
-
-    #ifdef _UNICODE
-        char *ansi_dir_name = new char [dir_name_len + 1];
-        ckcore::string::utf16_to_ansi(dir_name,ansi_dir_name,dir_name_len + 1);
-    #else
-        char *ansi_dir_name = (char *)dir_name;
-    #endif
-
-        for (size_t i = 0; i < (size_t)max; i++)
-            buffer[i] = make_char_d(ansi_dir_name[i]);
-            
-        buffer[max] = '\0';
-
-    #ifdef _UNICODE
-        delete [] ansi_dir_name;
-    #endif
-
-        return max;
-    }
-
-    unsigned char Iso9660::write_dir_name_generic(unsigned char *buffer,const ckcore::tchar *dir_name,
-                                               int max_len)
-    {
-        int dir_name_len = (int)ckcore::string::astrlen(dir_name);
-        int max = dir_name_len < max_len ? dir_name_len : max_len;
-
-    #ifdef _UNICODE
-        char *ansi_dir_name = new char [dir_name_len + 1];
-        ckcore::string::utf16_to_ansi(dir_name,ansi_dir_name,dir_name_len + 1);
-    #else
-        char *ansi_dir_name = (char *)dir_name;
-    #endif
-
-        for (size_t i = 0; i < (size_t)max; i++)
-            buffer[i] = make_char_d(ansi_dir_name[i]);
-            
-        buffer[max] = '\0';
-
-    #ifdef _UNICODE
-        delete [] ansi_dir_name;
-    #endif
-
-        return max;
-    }
-
-    unsigned char Iso9660::write_dir_name_l2(unsigned char *buffer,const ckcore::tchar *dir_name)
-    {
-        return write_dir_name_generic(buffer,dir_name,31);
-    }
-
-    unsigned char Iso9660::write_dir_name_1999(unsigned char *buffer,const ckcore::tchar *dir_name)
-    {
-        return write_dir_name_generic(buffer,dir_name,ISO9660_MAX_NAMELEN_1999);
-    }
-
-    unsigned char Iso9660::calc_file_name_len_l1(const ckcore::tchar *file_name)
-    {
-        unsigned char szTempBuffer[13];
-        return write_file_name_l1(szTempBuffer,file_name);
-    }
-
-    unsigned char Iso9660::calc_file_name_len_l2(const ckcore::tchar *file_name)
-    {
-        size_t file_name_len = ckcore::string::astrlen(file_name);
-        if (file_name_len < 31)
-            return (unsigned char)file_name_len;
-
-        return 31;
-    }
-
-    unsigned char Iso9660::calc_file_name_len_1999(const ckcore::tchar *file_name)
-    {
-        size_t file_name_len = ckcore::string::astrlen(file_name);
-        if (file_name_len < ISO9660_MAX_NAMELEN_1999)
-            return (unsigned char)file_name_len;
-
-        return ISO9660_MAX_NAMELEN_1999;
-    }
-
-    unsigned char Iso9660::calc_dir_name_len_l1(const ckcore::tchar *dir_name)
-    {
-        size_t dir_name_len = ckcore::string::astrlen(dir_name);
-        if (dir_name_len < 8)
-            return (unsigned char)dir_name_len;
-
-        return 8;
-    }
-
-    unsigned char Iso9660::calc_dir_name_len_l2(const ckcore::tchar *dir_name)
-    {
-        size_t dir_name_len = ckcore::string::astrlen(dir_name);
-        if (dir_name_len < 31)
-            return (unsigned char)dir_name_len;
-
-        return 31;
-    }
-
-    unsigned char Iso9660::calc_dir_name_len_1999(const ckcore::tchar *dir_name)
-    {
-        size_t dir_name_len = ckcore::string::astrlen(dir_name);
-        if (dir_name_len < ISO9660_MAX_NAMELEN_1999)
-            return (unsigned char)dir_name_len;
-
-        return ISO9660_MAX_NAMELEN_1999;
     }
 
     void Iso9660::init_vol_desc_primary()
@@ -489,9 +457,9 @@ namespace ckfilesystem
     #ifdef _UNICODE
         char ansi_label[33];
         ckcore::string::utf16_to_ansi(label,ansi_label,sizeof(ansi_label));
-        mem_str_cpy_d(voldesc_primary_.vol_ident,ansi_label,label_copy_len);
+        iso_memcpy_d(voldesc_primary_.vol_ident,ansi_label,label_copy_len);
     #else
-        mem_str_cpy_d(voldesc_primary_.vol_ident,label,label_copy_len);
+        iso_memcpy_d(voldesc_primary_.vol_ident,label,label_copy_len);
     #endif
     }
 
@@ -524,15 +492,15 @@ namespace ckfilesystem
         ckcore::string::utf16_to_ansi(publ_ident,ansi_publ_ident,sizeof(ansi_publ_ident));
         ckcore::string::utf16_to_ansi(prep_ident,ansi_prep_ident,sizeof(ansi_prep_ident));
 
-        mem_str_cpy_a(voldesc_primary_.sys_ident,ansi_sys_ident,sys_ident_copy_len);
-        mem_str_cpy_d(voldesc_primary_.volset_ident,ansi_volset_ident,volset_ident_copy_len);
-        mem_str_cpy_a(voldesc_primary_.publ_ident,ansi_publ_ident,publ_ident_copy_len);
-        mem_str_cpy_a(voldesc_primary_.prep_ident,ansi_prep_ident,prep_ident_copy_len);
+        iso_memcpy_a(voldesc_primary_.sys_ident,ansi_sys_ident,sys_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.volset_ident,ansi_volset_ident,volset_ident_copy_len);
+        iso_memcpy_a(voldesc_primary_.publ_ident,ansi_publ_ident,publ_ident_copy_len);
+        iso_memcpy_a(voldesc_primary_.prep_ident,ansi_prep_ident,prep_ident_copy_len);
     #else
-        mem_str_cpy_a(voldesc_primary_.sys_ident,sys_ident,sys_ident_copy_len);
-        mem_str_cpy_d(voldesc_primary_.volset_ident,volset_ident,volset_ident_copy_len);
-        mem_str_cpy_a(voldesc_primary_.publ_ident,publ_ident,publ_ident_copy_len);
-        mem_str_cpy_a(voldesc_primary_.prep_ident,prep_ident,prep_ident_copy_len);
+        iso_memcpy_a(voldesc_primary_.sys_ident,sys_ident,sys_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.volset_ident,volset_ident,volset_ident_copy_len);
+        iso_memcpy_a(voldesc_primary_.publ_ident,publ_ident,publ_ident_copy_len);
+        iso_memcpy_a(voldesc_primary_.prep_ident,prep_ident,prep_ident_copy_len);
     #endif
     }
 
@@ -561,13 +529,13 @@ namespace ckfilesystem
         ckcore::string::utf16_to_ansi(abst_file_ident,ansi_abst_file_ident,sizeof(ansi_abst_file_ident));
         ckcore::string::utf16_to_ansi(bibl_file_ident,ansi_bibl_file_ident,sizeof(ansi_bibl_file_ident));
 
-        mem_str_cpy_d(voldesc_primary_.copy_file_ident,ansi_copy_file_ident,copy_file_ident_copy_len);
-        mem_str_cpy_d(voldesc_primary_.abst_file_ident,ansi_abst_file_ident,abst_file_ident_copy_len);
-        mem_str_cpy_d(voldesc_primary_.bibl_file_ident,ansi_bibl_file_ident,bibl_file_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.copy_file_ident,ansi_copy_file_ident,copy_file_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.abst_file_ident,ansi_abst_file_ident,abst_file_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.bibl_file_ident,ansi_bibl_file_ident,bibl_file_ident_copy_len);
     #else
-        mem_str_cpy_d(voldesc_primary_.copy_file_ident,copy_file_ident,copy_file_ident_copy_len);
-        mem_str_cpy_d(voldesc_primary_.abst_file_ident,abst_file_ident,abst_file_ident_copy_len);
-        mem_str_cpy_d(voldesc_primary_.bibl_file_ident,bibl_file_ident,bibl_file_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.copy_file_ident,copy_file_ident,copy_file_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.abst_file_ident,abst_file_ident,abst_file_ident_copy_len);
+        iso_memcpy_d(voldesc_primary_.bibl_file_ident,bibl_file_ident,bibl_file_ident_copy_len);
     #endif
     }
 
@@ -605,9 +573,9 @@ namespace ckfilesystem
         write723(voldesc_primary_.root_dir_record.volseq_num,1);    // The file extent is on the first volume set.
 
         // Time information.
-        make_datetime(create_time,voldesc_primary_.root_dir_record.rec_timestamp);
+        iso_make_datetime(create_time,voldesc_primary_.root_dir_record.rec_timestamp);
 
-        make_datetime(create_time,voldesc_primary_.create_time);
+        iso_make_datetime(create_time,voldesc_primary_.create_time);
         memcpy(&voldesc_primary_.modify_time,&voldesc_primary_.create_time,sizeof(tiso_voldesc_datetime));
 
         memset(&voldesc_primary_.expr_time,'0',sizeof(tiso_voldesc_datetime));
@@ -650,9 +618,9 @@ namespace ckfilesystem
             write723(sd.root_dir_record.volseq_num,1);  // The file extent is on the first volume set.
 
             // Time information.
-            make_datetime(create_time,sd.root_dir_record.rec_timestamp);
+            iso_make_datetime(create_time,sd.root_dir_record.rec_timestamp);
 
-            make_datetime(create_time,sd.create_time);
+            iso_make_datetime(create_time,sd.create_time);
             memcpy(&sd.modify_time,&sd.create_time,sizeof(tiso_voldesc_datetime));
 
             memset(&sd.expr_time,'0',sizeof(tiso_voldesc_datetime));
@@ -677,7 +645,7 @@ namespace ckfilesystem
         out_stream.write(&voldesc_setterm_,sizeof(voldesc_setterm_));
     }
 
-    unsigned char Iso9660::write_file_name(unsigned char *buffer,const ckcore::tchar *file_name,
+    unsigned char Iso9660::write_file_name(unsigned char *buffer, const ckcore::tchar *file_name,
                                            bool is_dir)
     {
         switch (inter_level_)
@@ -686,11 +654,11 @@ namespace ckfilesystem
             default:
                 if (is_dir)
                 {
-                    return write_dir_name_l1(buffer,file_name);
+                    return iso_write_dir_name_l1(buffer,file_name);
                 }
                 else
                 {
-                    unsigned char file_name_len = write_file_name_l1(buffer,file_name);
+                    unsigned char file_name_len = iso_write_file_name_l1(buffer,file_name);
 
                     if (inc_file_ver_info_)
                     {
@@ -705,11 +673,11 @@ namespace ckfilesystem
             case LEVEL_2:
                 if (is_dir)
                 {
-                    return write_dir_name_l2(buffer,file_name);
+                    return iso_write_dir_name_l2(buffer,file_name);
                 }
                 else
                 {
-                    unsigned char file_name_len = write_file_name_l2(buffer,file_name);
+                    unsigned char file_name_len = iso_write_file_name_l2(buffer,file_name);
 
                     if (inc_file_ver_info_)
                     {
@@ -723,22 +691,13 @@ namespace ckfilesystem
 
             case ISO9660_1999:
                 if (is_dir)
-                    return write_dir_name_1999(buffer,file_name);
+                    return iso_write_dir_name_1999(buffer,file_name);
                 else
-                    return write_file_name_1999(buffer,file_name);
+                    return iso_write_file_name_1999(buffer,file_name);
         }
     }
 
-    /**
-        Determines the length of the compatible file name generated from the
-        specified file name. A compatible file name is a file name that is
-        generated from the specified file name that is supported by the current
-        file system configuration.
-        @param file_name the origial file name.
-        @param is_dir if true, file_name is assumed to be a directory name.
-        @return the length of the compatible file name.
-    */
-    unsigned char Iso9660::calc_file_name_len(const ckcore::tchar *file_name,bool is_dir)
+    unsigned char Iso9660::calc_file_name_len(const ckcore::tchar *file_name, bool is_dir)
     {
         switch (inter_level_)
         {
@@ -746,11 +705,11 @@ namespace ckfilesystem
             default:
                 if (is_dir)
                 {
-                    return calc_dir_name_len_l1(file_name);
+                    return iso_calc_dir_name_len_l1(file_name);
                 }
                 else
                 {
-                    unsigned char file_name_len = calc_file_name_len_l1(file_name);
+                    unsigned char file_name_len = iso_calc_file_name_len_l1(file_name);
 
                     if (inc_file_ver_info_)
                         file_name_len += 2;
@@ -762,11 +721,11 @@ namespace ckfilesystem
             case LEVEL_2:
                 if (is_dir)
                 {
-                    return calc_dir_name_len_l2(file_name);
+                    return iso_calc_dir_name_len_l2(file_name);
                 }
                 else
                 {
-                    unsigned char file_name_len = calc_file_name_len_l2(file_name);
+                    unsigned char file_name_len = iso_calc_file_name_len_l2(file_name);
 
                     if (inc_file_ver_info_)
                         file_name_len += 2;
@@ -777,17 +736,12 @@ namespace ckfilesystem
 
             case ISO9660_1999:
                 if (is_dir)
-                    return calc_dir_name_len_1999(file_name);
+                    return iso_calc_dir_name_len_1999(file_name);
                 else
-                    return calc_file_name_len_1999(file_name);
+                    return iso_calc_file_name_len_1999(file_name);
         }
     }
 
-    /**
-        Obtains the maximum numbe of directory levels supported by the current
-        file system configuration.
-        @return maximum number of allowed directory levels.
-    */
     unsigned char Iso9660::get_max_dir_level()
     {
         if (relax_max_dir_level_)
@@ -809,29 +763,16 @@ namespace ckfilesystem
         }
     }
 
-    /**
-        Checks whether the file system has a supplementary volume descriptor or not.
-        @return true if the file system has a supplementary volume descriptor.
-    */
     bool Iso9660::has_vol_desc_suppl()
     {
         return inter_level_ == ISO9660_1999;
     }
 
-    /**
-        Checks whether the file system allows files to be fragmented (multiple
-        extents) or not.
-        @return true if the file system allows fragmentation.
-    */
     bool Iso9660::allows_fragmentation()
     {
         return inter_level_ == LEVEL_3;
     }
 
-    /**
-        Returns true if the file names includes the two character file version
-        information (;1).
-    */
     bool Iso9660::includes_file_ver_info()
     {
         return inc_file_ver_info_;

@@ -726,7 +726,7 @@ namespace ckfilesystem
         dr.dir_record_len = 0x22;
         write733(dr.extent_loc,data_pos);
         write733(dr.data_len,data_size);
-        Iso9660::make_datetime(create_time_,dr.rec_timestamp);
+        iso_make_datetime(create_time_,dr.rec_timestamp);
         dr.file_flags = DIRRECORD_FILEFLAG_DIRECTORY;
         write723(dr.volseq_num,0x01);   // The directory is on the first volume set.
         dr.file_ident_len = 1;
@@ -1103,14 +1103,14 @@ namespace ckfilesystem
                         ckcore::convert::tm_to_dostime(modify_time,file_date,file_time);
 
                         if (res)
-                            Iso9660::make_datetime(file_date,file_time,dr.rec_timestamp);
+                            iso_make_datetime(file_date,file_time,dr.rec_timestamp);
                         else
-                            Iso9660::make_datetime(create_time_,dr.rec_timestamp);
+                            iso_make_datetime(create_time_,dr.rec_timestamp);
                     }
                     else
                     {
                         // The time when the disc image creation was initialized.
-                        Iso9660::make_datetime(create_time_,dr.rec_timestamp);
+                        iso_make_datetime(create_time_,dr.rec_timestamp);
                     }
 
                     // File flags.

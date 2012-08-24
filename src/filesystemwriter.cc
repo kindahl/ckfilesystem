@@ -37,11 +37,6 @@ namespace ckfilesystem
     {
     }
 
-    /**
-     * Calculates file system specific data such as extent location and size for a
-     * single file.
-     * @throw Exception If advertised multi-session data can not be found.
-     */
     void FileSystemWriter::calc_local_filesys_data(std::vector<std::pair<FileTreeNode *,int> > &dir_node_stack,
                                                    FileTreeNode *local_node,int level,
                                                    ckcore::tuint64 &sec_offset,ckcore::Progress &progress)
@@ -121,11 +116,6 @@ namespace ckfilesystem
         }
     }
 
-    /**
-     * Calculates file system specific data such as location of extents and sizes of
-     * extents.
-     * @throw Exception If advertised multi-session data can not be found.
-     */
     void FileSystemWriter::calc_filesys_data(FileTree &file_tree,ckcore::Progress &progress,
                                              ckcore::tuint64 start_sec,ckcore::tuint64 &last_sec)
     {
@@ -413,10 +403,6 @@ namespace ckfilesystem
         }
     }
 
-    /*
-        Used for creating a map between the internal file names and the
-        external (Joliet or ISO9660, in that order).
-    */
     void FileSystemWriter::create_file_path_map(FileTree &file_tree,
                                                 std::map<ckcore::tstring,ckcore::tstring> &file_path_map,
                                                 bool joliet)
@@ -435,12 +421,6 @@ namespace ckfilesystem
         }
     }
 
-    /*
-        sec_offset is a space assumed to be allocated before this image,
-        this is used for creating multi-session discs.
-        pFileNameMap is optional, it should be specified if one wants to map the
-        internal file paths to the actual external paths.
-     */
     int FileSystemWriter::write(ckcore::OutStream &out_stream,ckcore::Progress &progress,
                                 ckcore::tuint32 sec_offset)
     {
@@ -608,9 +588,6 @@ namespace ckfilesystem
         return RESULT_OK;
     }
 
-    /**
-     * Must be called after the write function.
-     */
     int FileSystemWriter::file_path_map(std::map<ckcore::tstring,ckcore::tstring> &file_path_map)
     {
         create_file_path_map(file_tree_,file_path_map,file_sys_.is_joliet());

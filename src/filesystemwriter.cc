@@ -493,13 +493,13 @@ namespace ckfilesystem
                 iso_writer.calc_names(file_tree_);
 
                 // Populate and sort path tables.
-                iso9660pathtable::populate_from_tree(pt_iso,file_tree_,file_sys_,progress);
-                iso9660pathtable::sort(pt_iso,false,file_sys_.is_dvdvideo());
+                iso_path_table_populate(pt_iso,file_tree_,file_sys_,progress);
+                iso_path_table_sort(pt_iso,false,file_sys_.is_dvdvideo());
 
                 if (file_sys_.is_joliet())
                 {
-                    iso9660pathtable::populate_from_tree(pt_jol,file_tree_,file_sys_,progress);
-                    iso9660pathtable::sort(pt_jol,true,file_sys_.is_dvdvideo());
+                    iso_path_table_populate(pt_jol,file_tree_,file_sys_,progress);
+                    iso_path_table_sort(pt_jol,true,file_sys_.is_dvdvideo());
                 }
 
                 iso_writer.alloc_path_tables(pt_iso,pt_jol,progress);

@@ -20,7 +20,7 @@
 #include <string.h>
 #include <ckcore/file.hh>
 #include <ckcore/directory.hh>
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 #include "ckfilesystem/util.hh"
 #include "ckfilesystem/udfwriter.hh"
 

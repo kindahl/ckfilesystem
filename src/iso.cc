@@ -25,7 +25,7 @@
 #endif
 #include <string.h>
 #include "ckfilesystem/util.hh"
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 
 namespace ckfilesystem
 {

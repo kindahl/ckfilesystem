@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 #include "ckfilesystem/util.hh"
 #include "ckfilesystem/sectormanager.hh"
 

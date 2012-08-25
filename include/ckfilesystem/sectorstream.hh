@@ -21,7 +21,7 @@
 #include <ckcore/stream.hh>
 #include <ckcore/bufferedstream.hh>
 #include <ckcore/canexstream.hh>
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 
 namespace ckfilesystem
 {

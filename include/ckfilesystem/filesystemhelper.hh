@@ -19,7 +19,7 @@
 #pragma once
 #include <ckcore/types.hh>
 #include "ckfilesystem/filesystemwriter.hh"
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 #include "ckfilesystem/joliet.hh"
 
 namespace ckfilesystem

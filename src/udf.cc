@@ -25,7 +25,7 @@
 #include <ckcore/string.hh>
 #include <ckcore/memory.hh>
 #include <ckcore/exception.hh>
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 #include "ckfilesystem/util.hh"
 #include "ckfilesystem/udf.hh"
 

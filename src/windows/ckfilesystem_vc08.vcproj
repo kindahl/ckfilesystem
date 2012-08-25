@@ -312,19 +312,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\iso9660.cc"
+				RelativePath="..\iso.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\iso9660pathtable.cc"
+				RelativePath="..\isopathtable.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\iso9660reader.cc"
+				RelativePath="..\isoreader.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\iso9660writer.cc"
+				RelativePath="..\isowriter.cc"
 				>
 			</File>
 			<File
@@ -402,19 +402,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\ckfilesystem\iso9660.hh"
+				RelativePath="..\..\include\ckfilesystem\iso.hh"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\ckfilesystem\iso9660pathtable.hh"
+				RelativePath="..\..\include\ckfilesystem\isopathtable.hh"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\ckfilesystem\iso9660reader.hh"
+				RelativePath="..\..\include\ckfilesystem\isoreader.hh"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\ckfilesystem\iso9660writer.hh"
+				RelativePath="..\..\include\ckfilesystem\isowriter.hh"
 				>
 			</File>
 			<File

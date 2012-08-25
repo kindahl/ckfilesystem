@@ -172,11 +172,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\iso9660.cc"
+				RelativePath="..\iso.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\iso9660verifier.cc"
+				RelativePath="..\isoverifier.cc"
 				>
 			</File>
 			<File
@@ -198,11 +198,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\include\ckfilesystem\iso9660.hh"
+				RelativePath="..\..\include\ckfilesystem\iso.hh"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\ckfilesystem\iso9660verifier.hh"
+				RelativePath="..\..\include\ckfilesystem\isoverifier.hh"
 				>
 			</File>
 			<File

@@ -20,7 +20,7 @@
 #include <ckcore/types.hh>
 #include <ckcore/stream.hh>
 #include <ckcore/canexstream.hh>
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 
 #define JOLIET_MAX_NAMELEN_NORMAL            64     // According to Joliet specification.
 #define JOLIET_MAX_NAMELEN_RELAXED          101     // 207 bytes = 101 wide characters + 4 wide characters for file version.

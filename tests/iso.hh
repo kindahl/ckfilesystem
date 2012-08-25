@@ -18,7 +18,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include <string.h>
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 
 using namespace ckfilesystem;
 

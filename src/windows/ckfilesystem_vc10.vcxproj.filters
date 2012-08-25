@@ -36,16 +36,16 @@
     <ClCompile Include="..\iforeader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\iso9660.cc">
+    <ClCompile Include="..\iso.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\iso9660pathtable.cc">
+    <ClCompile Include="..\isopathtable.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\iso9660reader.cc">
+    <ClCompile Include="..\isoreader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\iso9660writer.cc">
+    <ClCompile Include="..\isowriter.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\joliet.cc">
@@ -101,16 +101,16 @@
     <None Include="..\..\include\ckfilesystem\iforeader.hh">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\include\ckfilesystem\iso9660.hh">
+    <None Include="..\..\include\ckfilesystem\iso.hh">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\include\ckfilesystem\iso9660pathtable.hh">
+    <None Include="..\..\include\ckfilesystem\isopathtable.hh">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\include\ckfilesystem\iso9660reader.hh">
+    <None Include="..\..\include\ckfilesystem\isoreader.hh">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\include\ckfilesystem\iso9660writer.hh">
+    <None Include="..\..\include\ckfilesystem\isowriter.hh">
       <Filter>Header Files</Filter>
     </None>
     <None Include="..\..\include\ckfilesystem\joliet.hh">

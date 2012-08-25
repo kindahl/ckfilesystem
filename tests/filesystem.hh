@@ -24,7 +24,7 @@
 #include "ckcore/linereader.hh"
 #include "ckfilesystem/filesystem.hh"
 #include "ckfilesystem/filetree.hh"
-#include "ckfilesystem/iso9660writer.hh"
+#include "ckfilesystem/isowriter.hh"
 
 #ifdef TEST_SRC_DIR
 #undef TEST_SRC_DIR
@@ -132,25 +132,25 @@ class FileSystemTestSuite : public CxxTest::TestSuite
 public:
     void test_iso9660_file_test_01()
     {
-        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-01.src"), ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-01.exp"),
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-01.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-01.exp"),
                           false);
     }
 
     void test_iso9660_file_test_02()
     {
-        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-02.src"), ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-02.exp"),
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-02.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-02.exp"),
                           false);
     }
 
     void test_iso9660_file_test_03()
     {
-        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-03.src"), ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-03.exp"),
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-03.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-03.exp"),
                           true);
     }
 
     void test_iso9660_file_test_04()
     {
-        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-04.src"), ckT(TEST_SRC_DIR)ckT("/data/iso9660/test-04.exp"),
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-04.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-04.exp"),
                           false);
     }
 };

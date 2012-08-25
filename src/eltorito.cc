@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <ckcore/filestream.hh>
 #include <ckcore/exception.hh>
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 #include "ckfilesystem/util.hh"
 #include "ckfilesystem/exception.hh"
 #include "ckfilesystem/eltorito.hh"

@@ -17,9 +17,9 @@
  */
 
 #include "ckfilesystem/util.hh"
-#include "ckfilesystem/iso9660.hh"
-#include "ckfilesystem/iso9660writer.hh"
-#include "ckfilesystem/iso9660reader.hh"
+#include "ckfilesystem/iso.hh"
+#include "ckfilesystem/isowriter.hh"
+#include "ckfilesystem/isoreader.hh"
 
 namespace ckfilesystem
 {

@@ -20,10 +20,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\tests\iso9660.hh">
+    <None Include="..\..\tests\filesystem.hh">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\tests\filesystem.hh">
+    <None Include="..\..\tests\iso.hh">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

@@ -20,7 +20,7 @@
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
 #include "ckfilesystem/fileset.hh"
-#include "ckfilesystem/iso9660.hh"
+#include "ckfilesystem/iso.hh"
 #include "ckfilesystem/joliet.hh"
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/udf.hh"

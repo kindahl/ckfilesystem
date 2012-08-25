@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ckfilesystem/iso9660writer.hh"
+#include "ckfilesystem/isowriter.hh"
 #include "ckfilesystem/filesystemhelper.hh"
 
 namespace ckfilesystem

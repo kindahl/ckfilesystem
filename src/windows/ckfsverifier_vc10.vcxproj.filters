@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\iso9660.cc">
+    <ClCompile Include="..\iso.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\iso9660verifier.cc">
+    <ClCompile Include="..\isoverifier.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\sectorstream.cc">
@@ -32,10 +32,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\include\ckfilesystem\iso9660.hh">
+    <None Include="..\..\include\ckfilesystem\iso.hh">
       <Filter>Resource Files\Header Files</Filter>
     </None>
-    <None Include="..\..\include\ckfilesystem\iso9660verifier.hh">
+    <None Include="..\..\include\ckfilesystem\isoverifier.hh">
       <Filter>Resource Files\Header Files</Filter>
     </None>
     <None Include="..\..\include\ckfilesystem\sectorstream.hh">

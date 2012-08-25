@@ -19,7 +19,7 @@
 #include <ckcore/string.hh>
 #include "ckfilesystem/stringtable.hh"
 #include "ckfilesystem/sectormanager.hh"
-#include "ckfilesystem/iso9660writer.hh"
+#include "ckfilesystem/isowriter.hh"
 #include "ckfilesystem/udfwriter.hh"
 #include "ckfilesystem/dvdvideo.hh"
 #include "ckfilesystem/exception.hh"

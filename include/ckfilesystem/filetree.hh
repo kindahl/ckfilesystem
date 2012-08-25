@@ -50,7 +50,7 @@ namespace ckfilesystem
         ckcore::tstring file_path_;         // Place on hard drive.
 
         // I am not sure this is the best way, this uses lots of memory.
-        std::string file_name_iso9660_;
+        std::string file_name_iso_;
         std::wstring file_name_joliet_;
 
         // File system information (not set by the routines in this file).
@@ -67,7 +67,7 @@ namespace ckfilesystem
         ckcore::tuint64 udf_link_tot_;      // The number of directory links within the UDF file system.
         ckcore::tuint32 udf_part_loc_;      // Where is the actual UDF file entry stored.
 
-        void *data_ptr_;                    // Pointer to a user-defined structure, designed for Iso9660TreeNode.
+        void *data_ptr_;                    // Pointer to a user-defined structure, designed for IsoTreeNode.
 
 #ifdef _DEBUG
         ckcore::tuint64 data_pos_actual_;   // Used for integrity check.
@@ -81,7 +81,7 @@ namespace ckfilesystem
          * @param [in] last_fragment FIXME.
          * @param [in] fragment_index FIXME.
          * @param [in] file_flags File flags.
-         * @param [in] data_ptr Pointer to Iso9660TreeNode data structure.
+         * @param [in] data_ptr Pointer to IsoTreeNode data structure.
          * @throw FileOpenException Thrown when file stream cannot be opened for
          *                          reading.
          */
@@ -147,7 +147,7 @@ namespace ckfilesystem
     enum FileTreeNameType
     {
         NAME_ORIGINAL,
-        NAME_ISO9660,
+        NAME_ISO,
         NAME_JOLIET
     };
 

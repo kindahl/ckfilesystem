@@ -34,7 +34,7 @@ namespace ckfilesystem
 
     public:
         SectorInStream(ckcore::InStream &in_stream,
-                       ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
+                       ckcore::tuint32 sector_size = ISO_SECTOR_SIZE);
         virtual ~SectorInStream();
 
         void seek(ckcore::tuint32 distance,ckcore::InStream::StreamWhence whence);
@@ -53,7 +53,7 @@ namespace ckfilesystem
 
     public:
         SectorOutStream(ckcore::OutStream &out_stream,
-                        ckcore::tuint32 sector_size = ISO9660_SECTOR_SIZE);
+                        ckcore::tuint32 sector_size = ISO_SECTOR_SIZE);
         virtual ~SectorOutStream();
 
         void write(void *buffer,ckcore::tuint32 count);

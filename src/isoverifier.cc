@@ -22,17 +22,17 @@
 #include <ckcore/string.hh>
 #include "ckfilesystem/sectorstream.hh"
 #include "ckfilesystem/util.hh"
-#include "ckfilesystem/iso9660.hh"
-#include "ckfilesystem/iso9660verifier.hh"
+#include "ckfilesystem/iso.hh"
+#include "ckfilesystem/isoverifier.hh"
 
 namespace ckfilesystem
 {
     using namespace util;
 
     /**
-     * Constructs an Iso9660VolDescSet object.
+     * Constructs an IsoVolDescSet object.
      */
-    Iso9660VolDescSet::Iso9660VolDescSet()
+    IsoVolDescSet::IsoVolDescSet()
     {
         memset(&voldesc_primary_,0,sizeof(voldesc_primary_));
     }
@@ -42,7 +42,7 @@ namespace ckfilesystem
      * @param [in] in_stream The input stream to read from.
      * @throw Exception If an error occurred.
      */
-    void Iso9660VolDescSet::read(SectorInStream &in_stream)
+    void IsoVolDescSet::read(SectorInStream &in_stream)
     {
         unsigned char buffer[2048];
         ckcore::log::print_line(ckT("Looking for volume descriptor set..."));
@@ -135,8 +135,8 @@ namespace ckfilesystem
      * @param [in] label The label to use when printing the record.
      * @throw VerificationException If the record is invalid.b
      */
-    void Iso9660VolDescSet::verify(const tiso_voldesc_datetime &voldesc_datetime,
-                                   const ckcore::tchar *label) const
+    void IsoVolDescSet::verify(const tiso_voldesc_datetime &voldesc_datetime,
+                               const ckcore::tchar *label) const
     {
         const char *year_str = reinterpret_cast<const char *>(&voldesc_datetime.year);
         const char *mon_str = reinterpret_cast<const char *>(&voldesc_datetime.mon);
@@ -213,7 +213,7 @@ namespace ckfilesystem
      * @param [in] voldesc_primary The primary volume descriptor to verify.
      * @throw VerificationsException If an error occurred.
      */
-    void Iso9660VolDescSet::verify(tiso_voldesc_primary &voldesc_primary)
+    void IsoVolDescSet::verify(tiso_voldesc_primary &voldesc_primary)
     {
         char str_buffer[1024];
         size_t len = 0;
@@ -247,18 +247,18 @@ namespace ckfilesystem
         }
 
         // System identifier.
-        Iso9660Verifier::read_a_chars(voldesc_primary.sys_ident,
-                                      sizeof(voldesc_primary.sys_ident),str_buffer);
+        IsoVerifier::read_a_chars(voldesc_primary.sys_ident,
+                                  sizeof(voldesc_primary.sys_ident),str_buffer);
         ckcore::log::print_line(ckT("  System identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_a_chars(voldesc_primary.sys_ident,len);
+        IsoVerifier::verify_a_chars(voldesc_primary.sys_ident,len);
 
         // Volume identifier.
-        Iso9660Verifier::read_d_chars(voldesc_primary.vol_ident,
-                                      sizeof(voldesc_primary.vol_ident),str_buffer);
+        IsoVerifier::read_d_chars(voldesc_primary.vol_ident,
+                                  sizeof(voldesc_primary.vol_ident),str_buffer);
         ckcore::log::print_line(ckT("  Volume identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_d_chars(voldesc_primary.vol_ident,len);
+        IsoVerifier::verify_d_chars(voldesc_primary.vol_ident,len);
 
         // Volume space size.
         ckcore::log::print_line(ckT("  Volume space size: %d blocks"),
@@ -416,58 +416,58 @@ namespace ckfilesystem
         str_buffer[voldesc_primary.root_dir_record.file_ident_len] = '\0';
         ckcore::log::print_line(ckT("    File identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_d_chars(voldesc_primary.root_dir_record.file_ident,
-                                        voldesc_primary.root_dir_record.file_ident_len,
-                                        !(voldesc_primary.root_dir_record.file_flags & DIRRECORD_FILEFLAG_DIRECTORY));*/
+        IsoVerifier::verify_d_chars(voldesc_primary.root_dir_record.file_ident,
+                                    voldesc_primary.root_dir_record.file_ident_len,
+                                    !(voldesc_primary.root_dir_record.file_flags & DIRRECORD_FILEFLAG_DIRECTORY));*/
 
         // Volume set identifier.
-        Iso9660Verifier::read_d_chars(voldesc_primary.volset_ident,
-                                      sizeof(voldesc_primary.volset_ident),str_buffer);
+        IsoVerifier::read_d_chars(voldesc_primary.volset_ident,
+                                  sizeof(voldesc_primary.volset_ident),str_buffer);
         ckcore::log::print_line(ckT("  Volume set identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_d_chars(voldesc_primary.volset_ident,len);
+        IsoVerifier::verify_d_chars(voldesc_primary.volset_ident,len);
 
         // Publisher identifier.
-        Iso9660Verifier::read_a_chars(voldesc_primary.publ_ident,
-                                      sizeof(voldesc_primary.publ_ident),str_buffer);
+        IsoVerifier::read_a_chars(voldesc_primary.publ_ident,
+                                  sizeof(voldesc_primary.publ_ident),str_buffer);
         ckcore::log::print_line(ckT("  Publisher identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_a_chars(voldesc_primary.publ_ident,len);
+        IsoVerifier::verify_a_chars(voldesc_primary.publ_ident,len);
 
         // Data preparer identifier.
-        Iso9660Verifier::read_a_chars(voldesc_primary.prep_ident,
-                                      sizeof(voldesc_primary.prep_ident),str_buffer);
+        IsoVerifier::read_a_chars(voldesc_primary.prep_ident,
+                                  sizeof(voldesc_primary.prep_ident),str_buffer);
         ckcore::log::print_line(ckT("  Data preparer identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_a_chars(voldesc_primary.prep_ident,len);
+        IsoVerifier::verify_a_chars(voldesc_primary.prep_ident,len);
 
         // Application identifier.
-        Iso9660Verifier::read_a_chars(voldesc_primary.app_ident,
-                                      sizeof(voldesc_primary.app_ident),str_buffer);
+        IsoVerifier::read_a_chars(voldesc_primary.app_ident,
+                                  sizeof(voldesc_primary.app_ident),str_buffer);
         ckcore::log::print_line(ckT("  Application identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_a_chars(voldesc_primary.app_ident,len);
+        IsoVerifier::verify_a_chars(voldesc_primary.app_ident,len);
 
         // Copyright file identifier.
-        Iso9660Verifier::read_d_chars(voldesc_primary.copy_file_ident,
-                                      sizeof(voldesc_primary.copy_file_ident),str_buffer);
+        IsoVerifier::read_d_chars(voldesc_primary.copy_file_ident,
+                                  sizeof(voldesc_primary.copy_file_ident),str_buffer);
         ckcore::log::print_line(ckT("  Copyright file identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_d_chars(voldesc_primary.copy_file_ident,len,true);
+        IsoVerifier::verify_d_chars(voldesc_primary.copy_file_ident,len,true);
 
         // Abstract file identifier.
-        Iso9660Verifier::read_d_chars(voldesc_primary.abst_file_ident,
-                                      sizeof(voldesc_primary.abst_file_ident),str_buffer);
+        IsoVerifier::read_d_chars(voldesc_primary.abst_file_ident,
+                                  sizeof(voldesc_primary.abst_file_ident),str_buffer);
         ckcore::log::print_line(ckT("  Abstract file identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_d_chars(voldesc_primary.abst_file_ident,len,true);
+        IsoVerifier::verify_d_chars(voldesc_primary.abst_file_ident,len,true);
 
         // Bibliographic file identifier.
-        Iso9660Verifier::read_d_chars(voldesc_primary.bibl_file_ident,
-                                      sizeof(voldesc_primary.bibl_file_ident),str_buffer);
+        IsoVerifier::read_d_chars(voldesc_primary.bibl_file_ident,
+                                  sizeof(voldesc_primary.bibl_file_ident),str_buffer);
         ckcore::log::print_line(ckT("  Bibliographic file identifier: \"%s\""),
             ckcore::string::ansi_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_d_chars(voldesc_primary.bibl_file_ident,len,true);
+        IsoVerifier::verify_d_chars(voldesc_primary.bibl_file_ident,len,true);
 
         // Volume date and times.
         verify(voldesc_primary.create_time,ckT("  Volume creation date and time:"));
@@ -503,7 +503,7 @@ namespace ckfilesystem
      * @param [in] index The index of the specified descriptor.
      * @throw VerificationsException If an error occurred.
      */
-    void Iso9660VolDescSet::verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const
+    void IsoVolDescSet::verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const
     {
         wchar_t str_buffer[1024];
         size_t len = 0;
@@ -542,18 +542,18 @@ namespace ckfilesystem
                                 static_cast<ckcore::tuint32>(voldesc_suppl.vol_flags));
 
         // System identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.sys_ident,
-                                      sizeof(voldesc_suppl.sys_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.sys_ident,
+                                  sizeof(voldesc_suppl.sys_ident),str_buffer);
         ckcore::log::print_line(ckT("  System identifier: \"%s\""),
                                 ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.sys_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.sys_ident,len);
 
         // Volume identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.vol_ident,
-                                      sizeof(voldesc_suppl.vol_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.vol_ident,
+                                  sizeof(voldesc_suppl.vol_ident),str_buffer);
         ckcore::log::print_line(ckT("  Volume identifier: \"%s\""),
                                 ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.vol_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.vol_ident,len);
 
         // Volume space size.
         ckcore::log::print_line(ckT("  Volume space size: %d blocks"),
@@ -731,53 +731,53 @@ namespace ckfilesystem
         ckcore::log::print_line(ckT("    File identifier: 0"));
 
         // Volume set identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.volset_ident,
-                                      sizeof(voldesc_suppl.volset_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.volset_ident,
+                                  sizeof(voldesc_suppl.volset_ident),str_buffer);
         ckcore::log::print_line(ckT("  Volume set identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.volset_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.volset_ident,len);
 
         // Publisher identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.publ_ident,
-                                      sizeof(voldesc_suppl.publ_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.publ_ident,
+                                  sizeof(voldesc_suppl.publ_ident),str_buffer);
         ckcore::log::print_line(ckT("  Publisher identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.publ_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.publ_ident,len);
 
         // Data preparer identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.prep_ident,
-                                      sizeof(voldesc_suppl.prep_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.prep_ident,
+                                  sizeof(voldesc_suppl.prep_ident),str_buffer);
         ckcore::log::print_line(ckT("  Data preparer identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.prep_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.prep_ident,len);
 
         // Application identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.app_ident,
-                                      sizeof(voldesc_suppl.app_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.app_ident,
+                                  sizeof(voldesc_suppl.app_ident),str_buffer);
         ckcore::log::print_line(ckT("  Application identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.app_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.app_ident,len);
 
         // Copyright file identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.copy_file_ident,
-                                      sizeof(voldesc_suppl.copy_file_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.copy_file_ident,
+                                  sizeof(voldesc_suppl.copy_file_ident),str_buffer);
         ckcore::log::print_line(ckT("  Copyright file identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.copy_file_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.copy_file_ident,len);
 
         // Abstract file identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.abst_file_ident,
-                                      sizeof(voldesc_suppl.abst_file_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.abst_file_ident,
+                                  sizeof(voldesc_suppl.abst_file_ident),str_buffer);
         ckcore::log::print_line(ckT("  Abstract file identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.abst_file_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.abst_file_ident,len);
 
         // Bibliographic file identifier.
-        Iso9660Verifier::read_j_chars(voldesc_suppl.bibl_file_ident,
-                                      sizeof(voldesc_suppl.bibl_file_ident),str_buffer);
+        IsoVerifier::read_j_chars(voldesc_suppl.bibl_file_ident,
+                                  sizeof(voldesc_suppl.bibl_file_ident),str_buffer);
         ckcore::log::print_line(ckT("  Bibliographic file identifier: \"%s\""),
             ckcore::string::utf16_to_auto<1024>(str_buffer).c_str());
-        Iso9660Verifier::verify_j_chars(voldesc_suppl.bibl_file_ident,len);
+        IsoVerifier::verify_j_chars(voldesc_suppl.bibl_file_ident,len);
 
         // Volume date and times.
         verify(voldesc_suppl.create_time,ckT("  Volume creation date and time:"));
@@ -811,7 +811,7 @@ namespace ckfilesystem
      * Prints and verifies the contents of the volume descriptor set.
      * @throw Exception If an error occurred.
      */
-    void Iso9660VolDescSet::verify()
+    void IsoVolDescSet::verify()
     {
         // Make sure that there is a primary volume descriptor.
         tiso_voldesc_primary zero;
@@ -840,20 +840,20 @@ namespace ckfilesystem
     }
 
     /**
-     * Constructs an Iso9660Verifier object.
+     * Constructs an IsoVerifier object.
      */
-    Iso9660Verifier::Iso9660Verifier()// : voldesc_primary_(NULL)
+    IsoVerifier::IsoVerifier()// : voldesc_primary_(NULL)
     {
     }
 
     /**
-     * Destructs the Iso9660Verifier object.
+     * Destructs the IsoVerifier object.
      */
-    Iso9660Verifier::~Iso9660Verifier()
+    IsoVerifier::~IsoVerifier()
     {
     }
 
-    void Iso9660Verifier::read_vol_desc(SectorInStream &in_stream)
+    void IsoVerifier::read_vol_desc(SectorInStream &in_stream)
     {
         unsigned char buffer[2048];
         in_stream.read(buffer,sizeof(buffer));
@@ -898,7 +898,7 @@ namespace ckfilesystem
      * Resets the internal state of the verifier, making it ready for a new
      * verification analysis.
      */
-    void Iso9660Verifier::reset()
+    void IsoVerifier::reset()
     {
     }
 
@@ -906,7 +906,7 @@ namespace ckfilesystem
      * Verifies the file system provided by the specified input stream.
      * @throw Exception on any error.
      */
-    void Iso9660Verifier::verify(SectorInStream &in_stream)
+    void IsoVerifier::verify(SectorInStream &in_stream)
     {
         reset();
 
@@ -917,7 +917,7 @@ namespace ckfilesystem
 
         //read_vol_desc(in_stream);
 
-        Iso9660VolDescSet voldesc_set;
+        IsoVolDescSet voldesc_set;
         voldesc_set.read(in_stream);
 
         voldesc_set.verify();
@@ -929,7 +929,7 @@ namespace ckfilesystem
      * @param [in] len The string length counter in characters.
      * @throw VerificationException If the string is invalid.
      */
-    void Iso9660Verifier::verify_a_chars(const unsigned char *str,size_t len)
+    void IsoVerifier::verify_a_chars(const unsigned char *str,size_t len)
     {
         for (size_t i = 0; i < len; i++)
         {
@@ -963,7 +963,7 @@ namespace ckfilesystem
      *                       characters.
      * @throw VerificationException If the string is invalid.
      */
-    void Iso9660Verifier::verify_d_chars(const unsigned char *str,size_t len,bool allow_sep)
+    void IsoVerifier::verify_d_chars(const unsigned char *str,size_t len,bool allow_sep)
     {
         for (size_t i = 0; i < len; i++)
         {
@@ -1000,7 +1000,7 @@ namespace ckfilesystem
      * @param [in] len The string length counter in characters.
      * @throw VerificationException If the string is invalid.
      */
-    void Iso9660Verifier::verify_j_chars(const unsigned char *str,size_t len)
+    void IsoVerifier::verify_j_chars(const unsigned char *str,size_t len)
     {
         for (size_t i = 0; i < len; i++)
         {
@@ -1027,7 +1027,7 @@ namespace ckfilesystem
      * @param [in] size The size of the source buffer in bytes.
      * @param [out] target The target buffer.
      */
-    void Iso9660Verifier::read_a_chars(const unsigned char *source,size_t size,
+    void IsoVerifier::read_a_chars(const unsigned char *source,size_t size,
                                        char *target)
     {
         // Find the string length.
@@ -1052,7 +1052,7 @@ namespace ckfilesystem
      * @param [in] size The size of the source buffer in bytes.
      * @param [out] target The target buffer.
      */
-    void Iso9660Verifier::read_d_chars(const unsigned char *source,size_t size,
+    void IsoVerifier::read_d_chars(const unsigned char *source,size_t size,
                                        char *target)
     {
         // Find the string length.
@@ -1077,8 +1077,8 @@ namespace ckfilesystem
      * @param [in] size The size of the source buffer in bytes.
      * @param [out] target The target buffer.
      */
-    void Iso9660Verifier::read_j_chars(const unsigned char *source,size_t size,
-                                       wchar_t *target)
+    void IsoVerifier::read_j_chars(const unsigned char *source,size_t size,
+                                   wchar_t *target)
     {
 
         // FIXME: I am not sure if this length calculation is correct. I blieve

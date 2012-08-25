@@ -381,7 +381,7 @@ namespace ckfilesystem
         udf_cur_sec++;
 
         // 6 volume descriptors. But minimum length is 16 so we pad with empty sectors.
-        voldesc_seqextent_main_.extent_len = voldesc_seqextent_rsrv_.extent_len = 16 * ISO9660_SECTOR_SIZE;
+        voldesc_seqextent_main_.extent_len = voldesc_seqextent_rsrv_.extent_len = 16 * ISO_SECTOR_SIZE;
 
         // We should write the set of volume descriptors twice.
         for (unsigned int i = 0; i < 2; i++)
@@ -421,7 +421,7 @@ namespace ckfilesystem
             // this we need to add 10 empty sectors.
             for (int j = 0; j < 10; j++)
             {
-                for (ckcore::tuint32 i = 0; i < ISO9660_SECTOR_SIZE; i++)
+                for (ckcore::tuint32 i = 0; i < ISO_SECTOR_SIZE; i++)
                     out_stream_.write(tmp,1);
                 udf_cur_sec++;
             }
@@ -430,7 +430,7 @@ namespace ckfilesystem
         // Allocate everything until sector 256 with empty sectors.
         while (udf_cur_sec < 256)
         {
-            for (ckcore::tuint32 i = 0; i < ISO9660_SECTOR_SIZE; i++)
+            for (ckcore::tuint32 i = 0; i < ISO_SECTOR_SIZE; i++)
                 out_stream_.write(tmp,1);
             udf_cur_sec++;
         }

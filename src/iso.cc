@@ -140,7 +140,7 @@ namespace ckfilesystem
 
     unsigned char iso_write_file_name_1999(unsigned char *buffer, const ckcore::tchar *file_name)
     {
-        return iso_write_file_name_generic(buffer, file_name, ISO9660_MAX_NAMELEN_1999);
+        return iso_write_file_name_generic(buffer, file_name, ISO_MAX_NAMELEN_1999);
     }
 
     unsigned char iso_write_file_name_generic(unsigned char *buffer, const ckcore::tchar *file_name,
@@ -224,7 +224,7 @@ namespace ckfilesystem
 
     unsigned char iso_write_dir_name_1999(unsigned char *buffer, const ckcore::tchar *dir_name)
     {
-        return iso_write_dir_name_generic(buffer, dir_name, ISO9660_MAX_NAMELEN_1999);
+        return iso_write_dir_name_generic(buffer, dir_name, ISO_MAX_NAMELEN_1999);
     }
 
     unsigned char iso_write_dir_name_generic(unsigned char *buffer, const ckcore::tchar *dir_name,
@@ -270,10 +270,10 @@ namespace ckfilesystem
     unsigned char iso_calc_file_name_len_1999(const ckcore::tchar *file_name)
     {
         size_t file_name_len = ckcore::string::astrlen(file_name);
-        if (file_name_len < ISO9660_MAX_NAMELEN_1999)
+        if (file_name_len < ISO_MAX_NAMELEN_1999)
             return (unsigned char)file_name_len;
 
-        return ISO9660_MAX_NAMELEN_1999;
+        return ISO_MAX_NAMELEN_1999;
     }
 
     unsigned char iso_calc_dir_name_len_l1(const ckcore::tchar *dir_name)
@@ -297,10 +297,10 @@ namespace ckfilesystem
     unsigned char iso_calc_dir_name_len_1999(const ckcore::tchar *dir_name)
     {
         size_t dir_name_len = ckcore::string::astrlen(dir_name);
-        if (dir_name_len < ISO9660_MAX_NAMELEN_1999)
+        if (dir_name_len < ISO_MAX_NAMELEN_1999)
             return (unsigned char)dir_name_len;
 
-        return ISO9660_MAX_NAMELEN_1999;
+        return ISO_MAX_NAMELEN_1999;
     }
 
     void iso_make_datetime(struct tm &time, tiso_voldesc_datetime &iso_time)
@@ -391,18 +391,18 @@ namespace ckfilesystem
         time |= (iso_time.sec & 0x1f) >> 1;
     }
 
-    Iso9660::Iso9660() : relax_max_dir_level_(false),inc_file_ver_info_(true),
+    Iso::Iso() : relax_max_dir_level_(false),inc_file_ver_info_(true),
         inter_level_(LEVEL_1)
     {
         init_vol_desc_primary();
         init_vol_desc_setterm();
     }
 
-    Iso9660::~Iso9660()
+    Iso::~Iso()
     {
     }
 
-    void Iso9660::init_vol_desc_primary()
+    void Iso::init_vol_desc_primary()
     {
         // Clear memory.
         memset(&voldesc_primary_,0,sizeof(voldesc_primary_));
@@ -436,7 +436,7 @@ namespace ckfilesystem
         memcpy(voldesc_primary_.app_ident,app_ident,45);
     }
 
-    void Iso9660::init_vol_desc_setterm()
+    void Iso::init_vol_desc_setterm()
     {
         // Clear memory.
         memset(&voldesc_setterm_,0,sizeof(voldesc_setterm_));
@@ -447,7 +447,7 @@ namespace ckfilesystem
         memcpy(voldesc_setterm_.ident,iso_ident_cd,sizeof(voldesc_setterm_.ident));
     }
 
-    void Iso9660::set_volume_label(const ckcore::tchar *label)
+    void Iso::set_volume_label(const ckcore::tchar *label)
     {
         size_t label_len = ckcore::string::astrlen(label);
         size_t label_copy_len = label_len < 32 ? label_len : 32;
@@ -463,8 +463,8 @@ namespace ckfilesystem
     #endif
     }
 
-    void Iso9660::set_text_fields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
-                                  const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident)
+    void Iso::set_text_fields(const ckcore::tchar *sys_ident,const ckcore::tchar *volset_ident,
+                              const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident)
     {
         size_t sys_ident_len = ckcore::string::astrlen(sys_ident);
         size_t volset_ident_len = ckcore::string::astrlen(volset_ident);
@@ -504,9 +504,9 @@ namespace ckfilesystem
     #endif
     }
 
-    void Iso9660::set_file_fields(const ckcore::tchar *copy_file_ident,
-                                  const ckcore::tchar *abst_file_ident,
-                                  const ckcore::tchar *bibl_file_ident)
+    void Iso::set_file_fields(const ckcore::tchar *copy_file_ident,
+                              const ckcore::tchar *abst_file_ident,
+                              const ckcore::tchar *bibl_file_ident)
     {
         size_t copy_file_ident_len = ckcore::string::astrlen(copy_file_ident);
         size_t abst_file_ident_len = ckcore::string::astrlen(abst_file_ident);
@@ -539,31 +539,31 @@ namespace ckfilesystem
     #endif
     }
 
-    void Iso9660::set_interchange_level(InterLevel inter_level)
+    void Iso::set_interchange_level(InterLevel inter_level)
     {
         inter_level_ = inter_level;
     }
 
-    void Iso9660::set_relax_max_dir_level(bool relax)
+    void Iso::set_relax_max_dir_level(bool relax)
     {
         relax_max_dir_level_ = relax;
     }
 
-    void Iso9660::set_include_file_ver_info(bool include)
+    void Iso::set_include_file_ver_info(bool include)
     {
         inc_file_ver_info_ = include;
     }
 
-    void Iso9660::write_vol_desc_primary(ckcore::CanexOutStream &out_stream,struct tm &create_time,
-                                         ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
-                                         ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
-                                         ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
+    void Iso::write_vol_desc_primary(ckcore::CanexOutStream &out_stream,struct tm &create_time,
+                                     ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+                                     ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+                                     ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
     {
         // Initialize the primary volume descriptor.
         write733(voldesc_primary_.vol_space_size,vol_space_size);       // Volume size in sectors.
         write723(voldesc_primary_.volset_size,1);                       // Only one disc in the volume set.
         write723(voldesc_primary_.volseq_num,1);                        // This is the first disc in the volume set.
-        write723(voldesc_primary_.logical_block_size,ISO9660_SECTOR_SIZE);
+        write723(voldesc_primary_.logical_block_size,ISO_SECTOR_SIZE);
         write733(voldesc_primary_.path_table_size,pathtable_size);      // Path table size in bytes.
         write731(voldesc_primary_.path_table_type_l,pos_pathtable_l);   // Start sector of LSBF path table.
         write732(voldesc_primary_.path_table_type_m,pos_pathtable_m);   // Start sector of MSBF path table.
@@ -587,10 +587,10 @@ namespace ckfilesystem
         out_stream.write(&voldesc_primary_,sizeof(voldesc_primary_));
     }
 
-    void Iso9660::write_vol_desc_suppl(ckcore::CanexOutStream &out_stream,struct tm &create_time,
-                                       ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
-                                       ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
-                                       ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
+    void Iso::write_vol_desc_suppl(ckcore::CanexOutStream &out_stream,struct tm &create_time,
+                                   ckcore::tuint32 vol_space_size,ckcore::tuint32 pathtable_size,
+                                   ckcore::tuint32 pos_pathtable_l,ckcore::tuint32 pos_pathtable_m,
+                                   ckcore::tuint32 root_extent_loc,ckcore::tuint32 data_len)
     {
         if (inter_level_ == ISO9660_1999)
         {
@@ -608,7 +608,7 @@ namespace ckfilesystem
             write733(sd.vol_space_size,vol_space_size);     // Volume size in sectors.
             write723(sd.volset_size,1);     // Only one disc in the volume set.
             write723(sd.volseq_num,1);  // This is the first disc in the volume set.
-            write723(sd.logical_block_size,ISO9660_SECTOR_SIZE);
+            write723(sd.logical_block_size,ISO_SECTOR_SIZE);
             write733(sd.path_table_size,pathtable_size);    // Path table size in bytes.
             write731(sd.path_table_type_l,pos_pathtable_l); // Start sector of LSBF path table.
             write732(sd.path_table_type_m,pos_pathtable_m); // Start sector of MSBF path table.
@@ -639,14 +639,14 @@ namespace ckfilesystem
         }
     }
 
-    void Iso9660::write_vol_desc_setterm(ckcore::CanexOutStream &out_stream)
+    void Iso::write_vol_desc_setterm(ckcore::CanexOutStream &out_stream)
     {
         // Write volume descriptor set terminator.
         out_stream.write(&voldesc_setterm_,sizeof(voldesc_setterm_));
     }
 
-    unsigned char Iso9660::write_file_name(unsigned char *buffer, const ckcore::tchar *file_name,
-                                           bool is_dir)
+    unsigned char Iso::write_file_name(unsigned char *buffer, const ckcore::tchar *file_name,
+                                       bool is_dir)
     {
         switch (inter_level_)
         {
@@ -697,7 +697,7 @@ namespace ckfilesystem
         }
     }
 
-    unsigned char Iso9660::calc_file_name_len(const ckcore::tchar *file_name, bool is_dir)
+    unsigned char Iso::calc_file_name_len(const ckcore::tchar *file_name, bool is_dir)
     {
         switch (inter_level_)
         {
@@ -742,11 +742,11 @@ namespace ckfilesystem
         }
     }
 
-    unsigned char Iso9660::get_max_dir_level()
+    unsigned char Iso::get_max_dir_level()
     {
         if (relax_max_dir_level_)
         {
-            return ISO9660_MAX_DIRLEVEL_1999;
+            return ISO_MAX_DIRLEVEL_1999;
         }
         else
         {
@@ -755,25 +755,25 @@ namespace ckfilesystem
                 case LEVEL_1:
                 case LEVEL_2:
                 default:
-                    return ISO9660_MAX_DIRLEVEL_NORMAL;
+                    return ISO_MAX_DIRLEVEL_NORMAL;
 
                 case ISO9660_1999:
-                    return ISO9660_MAX_DIRLEVEL_1999;
+                    return ISO_MAX_DIRLEVEL_1999;
             }
         }
     }
 
-    bool Iso9660::has_vol_desc_suppl()
+    bool Iso::has_vol_desc_suppl()
     {
         return inter_level_ == ISO9660_1999;
     }
 
-    bool Iso9660::allows_fragmentation()
+    bool Iso::allows_fragmentation()
     {
         return inter_level_ == LEVEL_3;
     }
 
-    bool Iso9660::includes_file_ver_info()
+    bool Iso::includes_file_ver_info()
     {
         return inc_file_ver_info_;
     }

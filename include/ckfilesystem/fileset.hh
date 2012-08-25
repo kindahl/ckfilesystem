@@ -39,7 +39,7 @@ namespace ckfilesystem
         ckcore::tstring internal_path_;     // Path in disc image.
         ckcore::tstring external_path_;     // Path on hard drive.
 
-        void *data_ptr_;                    // Pointer to a user-defined structure, designed for Iso9660TreeNode.
+        void *data_ptr_;                    // Pointer to a user-defined structure, designed for IsoTreeNode.
 
         FileDescriptor(const ckcore::tchar *internal_path,const ckcore::tchar *external_path,
                        unsigned char flags = 0,void *data_ptr = NULL) :

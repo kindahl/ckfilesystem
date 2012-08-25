@@ -31,7 +31,7 @@ namespace ckfilesystem
 
     void FileSystem::set_volume_label(const ckcore::tchar *label)
     {
-        iso9660_.set_volume_label(label);
+        iso_.set_volume_label(label);
         joliet_.set_volume_label(label);
         udf_.set_volume_label(label);
     }
@@ -41,7 +41,7 @@ namespace ckfilesystem
                                           const ckcore::tchar *publ_ident,
                                           const ckcore::tchar *prep_ident)
     {
-        iso9660_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
+        iso_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
         joliet_.set_text_fields(sys_ident,volset_ident,publ_ident,prep_ident);
     }
 
@@ -49,18 +49,18 @@ namespace ckfilesystem
                                           const ckcore::tchar *abst_file_ident,
                                           const ckcore::tchar *bibl_file_ident)
     {
-        iso9660_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
+        iso_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
         joliet_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
     }
 
-    void FileSystem::set_interchange_level(Iso9660::InterLevel inter_level)
+    void FileSystem::set_interchange_level(Iso::InterLevel inter_level)
     {
-        iso9660_.set_interchange_level(inter_level);
+        iso_.set_interchange_level(inter_level);
     }
 
     void FileSystem::set_include_file_ver_info(bool include)
     {
-        iso9660_.set_include_file_ver_info(include);
+        iso_.set_include_file_ver_info(include);
         joliet_.set_include_file_ver_info(include);
     }
 
@@ -71,7 +71,7 @@ namespace ckfilesystem
 
     void FileSystem::set_relax_max_dir_level(bool relax)
     {
-        iso9660_.set_relax_max_dir_level(relax);
+        iso_.set_relax_max_dir_level(relax);
     }
 
     void FileSystem::set_long_joliet_names(bool enable)
@@ -100,19 +100,19 @@ namespace ckfilesystem
         return file_set_;
     }
 
-    bool FileSystem::is_iso9660()
+    bool FileSystem::is_iso()
     {
         return type_ != TYPE_UDF;
     }
 
     bool FileSystem::is_joliet()
     {
-        return type_ == TYPE_ISO9660_JOLIET || type_ == TYPE_ISO9660_UDF_JOLIET;
+        return type_ == TYPE_ISO_JOLIET || type_ == TYPE_ISO_UDF_JOLIET;
     }
 
     bool FileSystem::is_udf()
     {
-        return type_ == TYPE_ISO9660_UDF || type_ == TYPE_ISO9660_UDF_JOLIET ||
+        return type_ == TYPE_ISO_UDF || type_ == TYPE_ISO_UDF_JOLIET ||
                type_ == TYPE_UDF || type_ == TYPE_DVDVIDEO;
     }
 
@@ -123,11 +123,11 @@ namespace ckfilesystem
 
     bool FileSystem::allows_fragmentation()
     {
-        return iso9660_.allows_fragmentation();
+        return iso_.allows_fragmentation();
     }
 
     unsigned char FileSystem::get_max_dir_level()
     {
-        return iso9660_.get_max_dir_level();
+        return iso_.get_max_dir_level();
     }
 };

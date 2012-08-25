@@ -25,15 +25,16 @@
 
 namespace ckfilesystem
 {
-    // A Iso9660TreeNode tree node contains every information needed to write
-    // an ISO9660 directory record.
-    class Iso9660TreeNode
+    /**
+     * @brief Contains every information needed to write an ISO9660 directory record.
+     */
+    class IsoTreeNode
     {
     private:
-        Iso9660TreeNode *parent_node_;
+        IsoTreeNode *parent_node_;
 
     public:
-        std::vector<Iso9660TreeNode *> children_;
+        std::vector<IsoTreeNode *> children_;
 
         unsigned char file_flags_;
         unsigned char file_unit_size_;
@@ -46,11 +47,11 @@ namespace ckfilesystem
 
         ckcore::tstring file_name_;
 
-        Iso9660TreeNode(Iso9660TreeNode *parent_node,const ckcore::tchar *file_name,
-                        ckcore::tuint32 extent_loc,ckcore::tuint32 extent_len,
-                        ckcore::tuint16 volseq_num,unsigned char file_flags,
-                        unsigned char file_unit_size,unsigned char interleave_gap_size,
-                        tiso_dir_record_datetime &rec_timestamp) :
+        IsoTreeNode(IsoTreeNode *parent_node,const ckcore::tchar *file_name,
+                    ckcore::tuint32 extent_loc,ckcore::tuint32 extent_len,
+                    ckcore::tuint16 volseq_num,unsigned char file_flags,
+                    unsigned char file_unit_size,unsigned char interleave_gap_size,
+                    tiso_dir_record_datetime &rec_timestamp) :
             parent_node_(parent_node),file_flags_(file_flags),
             file_unit_size_(file_unit_size),interleave_gap_size_(interleave_gap_size),
             volseq_num_(volseq_num),extent_loc_(extent_loc),extent_len_(extent_len)
@@ -61,39 +62,39 @@ namespace ckfilesystem
                 file_name_ = file_name;
         }
 
-        ~Iso9660TreeNode()
+        ~IsoTreeNode()
         {
             // Free the children.
-            std::vector<Iso9660TreeNode *>::iterator it_node;
+            std::vector<IsoTreeNode *>::iterator it_node;
             for (it_node = children_.begin(); it_node != children_.end(); it_node++)
                 delete *it_node;
 
             children_.clear();
         }
 
-        Iso9660TreeNode *get_parent()
+        IsoTreeNode *parent()
         {
             return parent_node_;
         }
     };
 
-    class Iso9660Reader
+    class IsoReader
     {
     private:
         ckcore::Log &log_;
 
-        Iso9660TreeNode *root_node_;
+        IsoTreeNode *root_node_;
 
         bool read_dir_entry(ckcore::InStream &in_stream,
-                            std::vector<Iso9660TreeNode *> &dir_entries,
-                            Iso9660TreeNode *parent_node,
+                            std::vector<IsoTreeNode *> &dir_entries,
+                            IsoTreeNode *parent_node,
                             bool joliet);
 
     public:
-        Iso9660Reader(ckcore::Log &log);
-        ~Iso9660Reader();
+        IsoReader(ckcore::Log &log);
+        ~IsoReader();
 
-        Iso9660TreeNode *get_root()
+        IsoTreeNode *get_root()
         {
             return root_node_;
         }
@@ -101,8 +102,8 @@ namespace ckfilesystem
         bool read(ckcore::InStream &in_stream,ckcore::tuint32 start_sec);
 
     #ifdef _DEBUG
-        void print_local_tree(std::vector<std::pair<Iso9660TreeNode *,int> > &dir_node_stack,
-                              Iso9660TreeNode *local_node,int indent);
+        void print_local_tree(std::vector<std::pair<IsoTreeNode *,int> > &dir_node_stack,
+                              IsoTreeNode *local_node,int indent);
         void print_tree();
     #endif
     };

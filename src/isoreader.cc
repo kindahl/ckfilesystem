@@ -25,12 +25,12 @@ namespace ckfilesystem
 {
     using namespace util;
 
-    Iso9660Reader::Iso9660Reader(ckcore::Log &log) :
+    IsoReader::IsoReader(ckcore::Log &log) :
         log_(log),root_node_(NULL)
     {
     }
 
-    Iso9660Reader::~Iso9660Reader()
+    IsoReader::~IsoReader()
     {
         if (root_node_ != NULL)
         {
@@ -42,15 +42,15 @@ namespace ckfilesystem
     /**
         Reads an entire directory entry.
      */
-    bool Iso9660Reader::read_dir_entry(ckcore::InStream &in_stream,
-                                       std::vector<Iso9660TreeNode *> &dir_entries,
-                                       Iso9660TreeNode *parent_node,bool joliet)
+    bool IsoReader::read_dir_entry(ckcore::InStream &in_stream,
+                                   std::vector<IsoTreeNode *> &dir_entries,
+                                   IsoTreeNode *parent_node,bool joliet)
     {
         // Search to the extent location.
-        in_stream.seek(parent_node->extent_loc_ * ISO9660_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
+        in_stream.seek(parent_node->extent_loc_ * ISO_SECTOR_SIZE,ckcore::InStream::ckSTREAM_BEGIN);
 
-        unsigned char file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE];
-        ckcore::tchar file_name[(ISO9660WRITER_FILENAME_BUFFER_SIZE / sizeof(ckcore::tchar)) + 1];
+        unsigned char file_name_buf[ISOWRITER_FILENAME_BUFFER_SIZE];
+        ckcore::tchar file_name[(ISOWRITER_FILENAME_BUFFER_SIZE / sizeof(ckcore::tchar)) + 1];
 
         // Skip the '.' and '..' entries.
         ckcore::tuint32 read = 0;
@@ -101,7 +101,7 @@ namespace ckfilesystem
             }
             dir_rec_processed += (ckcore::tuint32)processed;
 
-            if (dr.file_ident_len > ISO9660WRITER_FILENAME_BUFFER_SIZE)
+            if (dr.file_ident_len > ISOWRITER_FILENAME_BUFFER_SIZE)
             {
                 log_.print_line(ckT("Error: Directory record file identifier is too large: %u bytes."),
                     dr.file_ident_len);
@@ -128,7 +128,7 @@ namespace ckfilesystem
 #ifdef _UNICODE
                 wchar_t *utf_file_name = file_name;
 #else
-                wchar_t utf_file_name[(ISO9660WRITER_FILENAME_BUFFER_SIZE >> 1) + 1];
+                wchar_t utf_file_name[(ISOWRITER_FILENAME_BUFFER_SIZE >> 1) + 1];
 #endif
                 unsigned char file_name_len = dr.file_ident_len >> 1;
                 unsigned char file_name_pos = 0;
@@ -163,7 +163,7 @@ namespace ckfilesystem
 
             //log_.print_line(ckT("  %s: %u"),file_name,read733(dr.extent_loc));
 
-            Iso9660TreeNode *new_node = new Iso9660TreeNode(parent_node,file_name,
+            IsoTreeNode *new_node = new IsoTreeNode(parent_node,file_name,
                     read733(dr.extent_loc),read733(dr.data_len),
                     read723(dr.volseq_num),dr.file_flags,
                     dr.file_unit_size,dr.interleave_gap_size,dr.rec_timestamp);
@@ -217,18 +217,18 @@ namespace ckfilesystem
                 }
             }
 
-            in_stream.seek(parent_node->extent_loc_ * ISO9660_SECTOR_SIZE + read,ckcore::InStream::ckSTREAM_BEGIN);
+            in_stream.seek(parent_node->extent_loc_ * ISO_SECTOR_SIZE + read,ckcore::InStream::ckSTREAM_BEGIN);
         }
 
         return true;
     }
 
-    bool Iso9660Reader::read(ckcore::InStream &in_stream,ckcore::tuint32 start_sec)
+    bool IsoReader::read(ckcore::InStream &in_stream,ckcore::tuint32 start_sec)
     {
-        log_.print_line(ckT("Iso9660Reader::Read"));
+        log_.print_line(ckT("IsoReader::Read"));
 
         // Seek to sector 16.
-        in_stream.seek(ISO9660_SECTOR_SIZE * (16 + start_sec),ckcore::InStream::ckSTREAM_BEGIN);
+        in_stream.seek(ISO_SECTOR_SIZE * (16 + start_sec),ckcore::InStream::ckSTREAM_BEGIN);
         if (in_stream.end())
         {
             log_.print_line(ckT("  Error: Invalid ISO9660 file system."));
@@ -339,12 +339,12 @@ namespace ckfilesystem
         if (root_node_ != NULL)
             delete root_node_;
 
-        root_node_ = new Iso9660TreeNode(NULL,NULL,root_extent_loc,root_extent_len,
+        root_node_ = new IsoTreeNode(NULL,NULL,root_extent_loc,root_extent_len,
             read723(voldesc_suppl.root_dir_record.volseq_num),voldesc_suppl.root_dir_record.file_flags,
             voldesc_suppl.root_dir_record.file_unit_size,voldesc_suppl.root_dir_record.interleave_gap_size,
             voldesc_suppl.root_dir_record.rec_timestamp);
 
-        std::vector<Iso9660TreeNode *> dir_entries;
+        std::vector<IsoTreeNode *> dir_entries;
         if (!read_dir_entry(in_stream,dir_entries,root_node_,joliet))
         {
             log_.print_line(ckT("  Error: Failed to read directory entry at sector: %u."),root_extent_loc);
@@ -353,7 +353,7 @@ namespace ckfilesystem
 
         while (dir_entries.size() > 0)
         {
-            Iso9660TreeNode *parent_node = dir_entries.back();
+            IsoTreeNode *parent_node = dir_entries.back();
             dir_entries.pop_back();
 
             if (!read_dir_entry(in_stream,dir_entries,parent_node,joliet))
@@ -367,10 +367,10 @@ namespace ckfilesystem
     }
 
     #ifdef _DEBUG
-    void Iso9660Reader::print_local_tree(std::vector<std::pair<Iso9660TreeNode *,int> > &dir_node_stack,
-                                         Iso9660TreeNode *local_node,int indent)
+    void IsoReader::print_local_tree(std::vector<std::pair<IsoTreeNode *,int> > &dir_node_stack,
+                                     IsoTreeNode *local_node,int indent)
     {
-        std::vector<Iso9660TreeNode *>::const_iterator it_file;
+        std::vector<IsoTreeNode *>::const_iterator it_file;
         for (it_file = local_node->children_.begin(); it_file !=
             local_node->children_.end(); it_file++)
         {
@@ -390,22 +390,22 @@ namespace ckfilesystem
         }
     }
 
-    void Iso9660Reader::print_tree()
+    void IsoReader::print_tree()
     {
         if (root_node_ == NULL)
             return;
 
-        Iso9660TreeNode *cur_node = root_node_;
+        IsoTreeNode *cur_node = root_node_;
         int indent = 0;
 
-        log_.print_line(ckT("Iso9660Reader::print_tree"));
+        log_.print_line(ckT("IsoReader::print_tree"));
 #ifdef _WINDOWS
         log_.print_line(ckT("  <root> (%I64u:%I64u)"),cur_node->extent_loc_,cur_node->extent_len_);
 #else
         log_.print_line(ckT("  <root> (%llu:%llu)"),cur_node->extent_loc_,cur_node->extent_len_);
 #endif
 
-        std::vector<std::pair<Iso9660TreeNode *,int> > dir_node_stack;
+        std::vector<std::pair<IsoTreeNode *,int> > dir_node_stack;
         print_local_tree(dir_node_stack,cur_node,4);
 
         while (dir_node_stack.size() > 0)

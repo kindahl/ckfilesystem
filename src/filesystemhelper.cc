@@ -35,7 +35,7 @@ namespace ckfilesystem
     void FileSystemHelper::calc_file_name(const ckcore::tchar *req_file_name,
                                           ckcore::tchar *file_name,bool is_dir)
     {
-        bool is_iso = file_sys_.is_iso9660();
+        bool is_iso = file_sys_.is_iso();
         bool is_udf = file_sys_.is_udf();
         bool is_joliet = file_sys_.is_joliet();
 
@@ -46,7 +46,7 @@ namespace ckfilesystem
         }
         else if (is_joliet)
         {
-            unsigned char file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+            unsigned char file_name_buf[ISOWRITER_FILENAME_BUFFER_SIZE + 1];
             unsigned char len = file_sys_.joliet_.write_file_name((unsigned char *)file_name_buf,req_file_name,is_dir);
 
 #ifdef _UNICODE
@@ -59,7 +59,7 @@ namespace ckfilesystem
 
             file_name[len] = '\0';
 #else
-            wchar_t utf_file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+            wchar_t utf_file_name[ISOWRITER_FILENAME_BUFFER_SIZE + 1];
             unsigned char file_name_pos = 0;
             for (unsigned char i = 0; i < len; i++)
             {
@@ -75,13 +75,13 @@ namespace ckfilesystem
         else if (is_iso)
         {
 #ifdef _UNICODE
-            char ansi_file_name[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
-            unsigned char len = file_sys_.iso9660_.write_file_name((unsigned char *)ansi_file_name,req_file_name,is_dir);
+            char ansi_file_name[ISOWRITER_FILENAME_BUFFER_SIZE + 1];
+            unsigned char len = file_sys_.iso_.write_file_name((unsigned char *)ansi_file_name,req_file_name,is_dir);
             ansi_file_name[len] = '\0';
 
             ckcore::string::ansi_to_utf16(ansi_file_name,file_name,len + 1);
 #else
-            unsigned char len = file_sys_.iso9660_.write_file_name((unsigned char *)file_name,req_file_name,is_dir);
+            unsigned char len = file_sys_.iso_.write_file_name((unsigned char *)file_name,req_file_name,is_dir);
             file_name[len] = '\0';
 #endif
         }
@@ -96,7 +96,7 @@ namespace ckfilesystem
     {
         size_t dir_path_len = ckcore::string::astrlen(req_file_path),prev_delim = 0,pos = 0;
         ckcore::tstring cur_dir_name;
-        ckcore::tchar file_name_buf[ISO9660WRITER_FILENAME_BUFFER_SIZE + 1];
+        ckcore::tchar file_name_buf[ISOWRITER_FILENAME_BUFFER_SIZE + 1];
 
         // Locate the first delimiter (so we can safely skip any driveletter).
         for (size_t i = 0; i < dir_path_len; i++)

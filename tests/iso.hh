@@ -22,7 +22,7 @@
 
 using namespace ckfilesystem;
 
-class Iso9660TestSuite : public CxxTest::TestSuite
+class IsoTestSuite : public CxxTest::TestSuite
 {
 public:
     void test_write_file_name_l1()

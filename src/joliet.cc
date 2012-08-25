@@ -135,7 +135,7 @@ namespace ckfilesystem
         write733(voldesc_suppl_.vol_space_size,vol_space_size);     // Volume size in sectors.
         write723(voldesc_suppl_.volset_size,1);     // Only one disc in the volume set.
         write723(voldesc_suppl_.volseq_num,1);      // This is the first disc in the volume set.
-        write723(voldesc_suppl_.logical_block_size,ISO9660_SECTOR_SIZE);
+        write723(voldesc_suppl_.logical_block_size,ISO_SECTOR_SIZE);
         write733(voldesc_suppl_.path_table_size,pathtable_size);    // Path table size in bytes.
         write731(voldesc_suppl_.path_table_type_l,pos_pathtable_l); // Start sector of LSBF path table.
         write732(voldesc_suppl_.path_table_type_m,pos_pathtable_m); // Start sector of MSBF path table.

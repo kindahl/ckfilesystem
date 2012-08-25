@@ -32,11 +32,11 @@
 #include "ckfilesystem/eltorito.hh"
 #include "ckfilesystem/filesystem.hh"
 
-#define ISO9660WRITER_FILENAME_BUFFER_SIZE      206         // Must be enough to hold the largest possible string using
-                                                            // any of the supported file system extensions.
+#define ISOWRITER_FILENAME_BUFFER_SIZE      206         // Must be enough to hold the largest possible string using
+                                                        // any of the supported file system extensions.
 namespace ckfilesystem
 {
-    class Iso9660ImportData
+    class IsoImportData
     {
     public:
         unsigned char file_flags_;
@@ -48,7 +48,7 @@ namespace ckfilesystem
 
         ckfilesystem::tiso_dir_record_datetime rec_timestamp_;
 
-        Iso9660ImportData() : file_flags_(0),file_unit_size_(0),
+        IsoImportData() : file_flags_(0),file_unit_size_(0),
             interleave_gap_size_(0),volseq_num_(0),
             extent_loc_(0),extent_len_(0)
         {
@@ -56,7 +56,7 @@ namespace ckfilesystem
         }
     };
 
-    class Iso9660Writer : public SectorClient
+    class IsoWriter : public SectorClient
     {
     private:
         // Identifiers of different sector ranges.
@@ -99,15 +99,15 @@ namespace ckfilesystem
         // File system preparation functions.
         void make_unique_joliet(FileTreeNode *node,unsigned char *file_name_ptr,
                                 unsigned char file_name_size);
-        void make_unique_iso9660(FileTreeNode *node,unsigned char *file_name_ptr,
-                                 unsigned char file_name_size);
+        void make_unique_iso(FileTreeNode *node,unsigned char *file_name_ptr,
+                             unsigned char file_name_size);
 
         bool compare_strings(const char *str1,const ckcore::tchar *str2,
                              unsigned char len);
         bool compare_strings(const unsigned char *udf_str1,const ckcore::tchar *str2,
                              unsigned char len);
 
-        bool calc_path_table_size(const Iso9660PathTable &pt,bool joliet_table,
+        bool calc_path_table_size(const IsoPathTable &pt,bool joliet_table,
                                   ckcore::tuint64 &pathtable_size,
                                   ckcore::Progress &progress);
         void calc_local_dir_entry_len(FileTreeNode *local_node,bool joliet,int level,
@@ -121,7 +121,7 @@ namespace ckfilesystem
                               FileTreeNode *node);
 
         // Write functions.
-        void write_path_table(const Iso9660PathTable &pt,FileTree &file_tree,
+        void write_path_table(const IsoPathTable &pt,FileTree &file_tree,
                               bool joliet_table,bool msbf);
         void write_sys_dir(FileTreeNode *parent_node,SysDirType type,
                            ckcore::tuint32 data_pos,ckcore::tuint32 data_size);
@@ -131,21 +131,21 @@ namespace ckfilesystem
                                     ckcore::Progress &progress,FileTreeNode *local_node,int level);
 
     public:
-        Iso9660Writer(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
+        IsoWriter(ckcore::Log &log,SectorOutStream &out_stream,SectorManager &sec_manager,
                       FileSystem &file_sys,bool use_file_times,bool use_joliet);
-        ~Iso9660Writer();
+        ~IsoWriter();
 
         void calc_names(FileTree &file_tree);
 
         void alloc_header();
-        void alloc_path_tables(const Iso9660PathTable &pt_iso,
-                               const Iso9660PathTable &pt_jol,
+        void alloc_path_tables(const IsoPathTable &pt_iso,
+                               const IsoPathTable &pt_jol,
                                ckcore::Progress &progress);
         void alloc_dir_entries(FileTree &file_tree);
 
         void write_header(const FileSet &files,FileTree &file_tree);
-        void write_path_tables(const Iso9660PathTable &pt_iso,
-                               const Iso9660PathTable &pt_jol,
+        void write_path_tables(const IsoPathTable &pt_iso,
+                               const IsoPathTable &pt_jol,
                                FileTree &file_tree,ckcore::Progress &progress);
         int write_dir_entries(FileTree &file_tree,ckcore::Progress &progress);
 

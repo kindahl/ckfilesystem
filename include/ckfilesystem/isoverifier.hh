@@ -55,7 +55,7 @@ namespace ckfilesystem
     /**
      * @brief Class representing a volume descriptor set.
      */
-    class Iso9660VolDescSet
+    class IsoVolDescSet
     {
     private:
         tiso_voldesc_primary voldesc_primary_;
@@ -70,21 +70,21 @@ namespace ckfilesystem
         void verify(const tiso_voldesc_suppl &voldesc_suppl,int index) const;
 
     public:
-        Iso9660VolDescSet();
+        IsoVolDescSet();
 
         void read(SectorInStream &in_stream);
         void verify();
     };
 
-    class Iso9660Verifier
+    class IsoVerifier
     {
     private:
         //tiso_voldesc_primary *voldesc_primary_;
         void read_vol_desc(SectorInStream &in_stream);
 
     public:
-        Iso9660Verifier();
-        ~Iso9660Verifier();
+        IsoVerifier();
+        ~IsoVerifier();
 
         void reset();
         void verify(SectorInStream &in_stream);

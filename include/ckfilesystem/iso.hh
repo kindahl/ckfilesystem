@@ -21,11 +21,11 @@
 #include <ckcore/stream.hh>
 #include <ckcore/canexstream.hh>
 
-#define ISO9660_SECTOR_SIZE                     2048
-#define ISO9660_MAX_NAMELEN_1999                 207
-#define ISO9660_MAX_DIRLEVEL_NORMAL                8        // Maximum is 8 for ISO9660:1988.
-#define ISO9660_MAX_DIRLEVEL_1999                255        // Maximum is 255 for ISO9660:1999.
-#define ISO9660_MAX_EXTENT_SIZE                 0xfffff800
+#define ISO_SECTOR_SIZE                      2048
+#define ISO_MAX_NAMELEN_1999                  207
+#define ISO_MAX_DIRLEVEL_NORMAL                 8           // Maximum is 8 for ISO9660:1988.
+#define ISO_MAX_DIRLEVEL_1999                 255           // Maximum is 255 for ISO9660:1999.
+#define ISO_MAX_EXTENT_SIZE                  0xfffff800
 
 #define DIRRECORD_FILEFLAG_HIDDEN               1 << 0
 #define DIRRECORD_FILEFLAG_DIRECTORY            1 << 1
@@ -335,7 +335,7 @@ namespace ckfilesystem
      * For example writing certain descriptors and for generating ISO9660
      * compatible file names.
      */
-    class Iso9660
+    class Iso
     {
     public:
         enum InterLevel
@@ -358,8 +358,8 @@ namespace ckfilesystem
         void init_vol_desc_setterm();
 
     public:
-        Iso9660();
-        ~Iso9660();
+        Iso();
+        ~Iso();
 
         // Change of internal state functions.
         void set_volume_label(const ckcore::tchar *label);

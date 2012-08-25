@@ -30,17 +30,17 @@ namespace ckfilesystem
     class FileSystem
     {
     public:
-        friend class Iso9660Writer;
+        friend class IsoWriter;
         friend class UdfWriter;
         friend class FileSystemHelper;
 
     public:
         enum Type
         {
-            TYPE_ISO9660,
-            TYPE_ISO9660_JOLIET,
-            TYPE_ISO9660_UDF,
-            TYPE_ISO9660_UDF_JOLIET,
+            TYPE_ISO,
+            TYPE_ISO_JOLIET,
+            TYPE_ISO_UDF,
+            TYPE_ISO_UDF_JOLIET,
             TYPE_UDF,
             TYPE_DVDVIDEO
         };
@@ -50,7 +50,7 @@ namespace ckfilesystem
         Type type_;
 
         // Different standard implementations.
-        Iso9660 iso9660_;
+        Iso iso_;
         Joliet joliet_;
         ElTorito eltorito_;
         Udf udf_;
@@ -71,7 +71,7 @@ namespace ckfilesystem
         void set_file_fields(const ckcore::tchar *copy_file_ident,
                              const ckcore::tchar *abst_file_ident,
                              const ckcore::tchar *bibl_file_ident);
-        void set_interchange_level(Iso9660::InterLevel inter_level);
+        void set_interchange_level(Iso::InterLevel inter_level);
         void set_include_file_ver_info(bool include);
         void set_part_access_type(Udf::PartAccessType access_type);
         void set_relax_max_dir_level(bool relax);
@@ -85,7 +85,7 @@ namespace ckfilesystem
         // Information output routines.
         const FileSet &files();
 
-        bool is_iso9660();
+        bool is_iso();
         bool is_joliet();
         bool is_udf();
         bool is_dvdvideo();

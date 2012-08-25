@@ -34,9 +34,9 @@ namespace ckfilesystem
                 return 0;
 
             ckcore::tuint32 sectors = 1;
-            while (bytes > ISO9660_SECTOR_SIZE)
+            while (bytes > ISO_SECTOR_SIZE)
             {
-                bytes -= ISO9660_SECTOR_SIZE;
+                bytes -= ISO_SECTOR_SIZE;
                 sectors++;
             }
 
@@ -55,9 +55,9 @@ namespace ckfilesystem
                 return 0;
 
             ckcore::tuint32 sectors = 1;
-            while (bytes > ISO9660_SECTOR_SIZE)
+            while (bytes > ISO_SECTOR_SIZE)
             {
-                bytes -= ISO9660_SECTOR_SIZE;
+                bytes -= ISO_SECTOR_SIZE;
                 sectors++;
             }
 
@@ -76,9 +76,9 @@ namespace ckfilesystem
                 return 0;
 
             ckcore::tuint64 sectors = 1;
-            while (bytes > ISO9660_SECTOR_SIZE)
+            while (bytes > ISO_SECTOR_SIZE)
             {
-                bytes -= ISO9660_SECTOR_SIZE;
+                bytes -= ISO_SECTOR_SIZE;
                 sectors++;
             }
 

@@ -56,9 +56,9 @@ namespace ckfilesystem
             else
             {
                 // Validate file size.
-                if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !file_sys_.allows_fragmentation())
+                if ((*it_file)->file_size_ > ISO_MAX_EXTENT_SIZE && !file_sys_.allows_fragmentation())
                 {
-                    bool is_iso = file_sys_.is_iso9660(),is_udf = file_sys_.is_udf();
+                    bool is_iso = file_sys_.is_iso(),is_udf = file_sys_.is_udf();
 
                     // FIXME: Make nested loops.
                     if (is_iso && !is_udf)
@@ -82,7 +82,7 @@ namespace ckfilesystem
                 // If imported, use the imported information.
                 if ((*it_file)->file_flags_ & FileTreeNode::FLAG_IMPORTED)
                 {
-                    Iso9660ImportData *import_node_ptr = static_cast<Iso9660ImportData *>((*it_file)->data_ptr_);
+                    IsoImportData *import_node_ptr = static_cast<IsoImportData *>((*it_file)->data_ptr_);
                     if (import_node_ptr == NULL)
                     {
                         ckcore::tstringstream msg;
@@ -105,8 +105,8 @@ namespace ckfilesystem
                     (*it_file)->data_pos_normal_ = sec_offset;
                     (*it_file)->data_pos_joliet_ = sec_offset;
 
-                    sec_offset += (*it_file)->data_size_normal_/ISO9660_SECTOR_SIZE;
-                    if ((*it_file)->data_size_normal_ % ISO9660_SECTOR_SIZE != 0)
+                    sec_offset += (*it_file)->data_size_normal_/ISO_SECTOR_SIZE;
+                    if ((*it_file)->data_size_normal_ % ISO_SECTOR_SIZE != 0)
                         sec_offset++;
 
                     // Pad if necessary.
@@ -207,9 +207,9 @@ namespace ckfilesystem
             else if (!((*it_file)->file_flags_ & FileTreeNode::FLAG_IMPORTED))  // We don't have any data to write for imported files.
             {
                 // Validate file size.
-                if (file_sys_.is_iso9660() && !file_sys_.is_udf())
+                if (file_sys_.is_iso() && !file_sys_.is_udf())
                 {
-                    if ((*it_file)->file_size_ > ISO9660_MAX_EXTENT_SIZE && !file_sys_.allows_fragmentation())
+                    if ((*it_file)->file_size_ > ISO_MAX_EXTENT_SIZE && !file_sys_.allows_fragmentation())
                         continue;
                 }
 
@@ -223,7 +223,7 @@ namespace ckfilesystem
                 char tmp[1] = { 0 };
                 for (unsigned int i = 0; i < (*it_file)->data_pad_len_; i++)
                 {
-                    for (unsigned int j = 0; j < ISO9660_SECTOR_SIZE; j++)
+                    for (unsigned int j = 0; j < ISO_SECTOR_SIZE; j++)
                         out_stream.write(tmp,1);
                 }
             }
@@ -280,10 +280,10 @@ namespace ckfilesystem
             }
             else
             {
-                const std::string::size_type iso_len = child_node->file_name_iso9660_.length();
+                const std::string::size_type iso_len = child_node->file_name_iso_.length();
 #ifdef _UNICODE
                 wchar_t utf_file_name[MAX_PATH];
-                ckcore::string::ansi_to_utf16(child_node->file_name_iso9660_.c_str(),utf_file_name,
+                ckcore::string::ansi_to_utf16(child_node->file_name_iso_.c_str(),utf_file_name,
                                               sizeof(utf_file_name)/sizeof(wchar_t));
 
                 if (iso_len >= 2 && utf_file_name[iso_len - 2] == ';')
@@ -291,10 +291,10 @@ namespace ckfilesystem
 
                 node_path.append(utf_file_name);
 #else
-                if (iso_len >= 2 && child_node->file_name_iso9660_[iso_len - 2] == ';')
-                    node_path.append(child_node->file_name_iso9660_,0,iso_len - 2);
+                if (iso_len >= 2 && child_node->file_name_iso_[iso_len - 2] == ';')
+                    node_path.append(child_node->file_name_iso_,0,iso_len - 2);
                 else
-                    node_path.append(child_node->file_name_iso9660_);
+                    node_path.append(child_node->file_name_iso_);
 #endif
             }
         }
@@ -338,28 +338,28 @@ namespace ckfilesystem
                 }
                 else
                 {
-                    const std::string::size_type iso_len = cur_node->file_name_iso9660_.length();
+                    const std::string::size_type iso_len = cur_node->file_name_iso_.length();
     #ifdef _UNICODE
                     wchar_t utf_file_name[MAX_PATH];
-                    ckcore::string::ansi_to_utf16(cur_node->file_name_iso9660_.c_str(),utf_file_name,
+                    ckcore::string::ansi_to_utf16(cur_node->file_name_iso_.c_str(),utf_file_name,
                                                   sizeof(utf_file_name)/sizeof(wchar_t));
                     node_path.insert(0,utf_file_name);
 
                     if (iso_len >= 2 && utf_file_name[iso_len - 2] == ';')
                         utf_file_name[iso_len - 2] = '\0';
     #else
-                    if (iso_len >= 2 && cur_node->file_name_iso9660_[iso_len - 2] == ';')
+                    if (iso_len >= 2 && cur_node->file_name_iso_[iso_len - 2] == ';')
                     {
-                        std::string::iterator itEnd = cur_node->file_name_iso9660_.end();
+                        std::string::iterator itEnd = cur_node->file_name_iso_.end();
                         itEnd--;
                         itEnd--;
 
-                        node_path.insert(node_path.begin(),cur_node->file_name_iso9660_.begin(),itEnd);
+                        node_path.insert(node_path.begin(),cur_node->file_name_iso_.begin(),itEnd);
                     }
                     else
                     {
-                        node_path.insert(node_path.begin(),cur_node->file_name_iso9660_.begin(),
-                            cur_node->file_name_iso9660_.end());
+                        node_path.insert(node_path.begin(),cur_node->file_name_iso_.begin(),
+                            cur_node->file_name_iso_.end());
                     }
     #endif
                 }
@@ -431,10 +431,10 @@ namespace ckfilesystem
         SectorOutStream out_sec_stream(out_buf_stream);
 
         // The first 16 sectors are reserved for system use (write 0s).
-        char tmp[ISO9660_SECTOR_SIZE];
-        memset(tmp,0,ISO9660_SECTOR_SIZE);
+        char tmp[ISO_SECTOR_SIZE];
+        memset(tmp,0,ISO_SECTOR_SIZE);
         for (unsigned int i = 0; i < 16; i++)
-            out_stream.write(tmp,ISO9660_SECTOR_SIZE);
+            out_stream.write(tmp,ISO_SECTOR_SIZE);
 
         progress.set_status(ckT("%s"),StringTable::instance().get_string(StringTable::STATUS_BUILDTREE));
         progress.set_marquee(true);
@@ -468,12 +468,12 @@ namespace ckfilesystem
                 dvd_video.print_file_padding(file_tree_);
             }
 
-            bool is_iso = file_sys_.is_iso9660();
+            bool is_iso = file_sys_.is_iso();
             bool is_udf = file_sys_.is_udf();
             bool is_joliet = file_sys_.is_joliet();
 
             SectorManager sec_manager(16 + sec_offset);
-            Iso9660Writer iso_writer(log_,out_sec_stream,sec_manager,file_sys_,true,is_joliet);
+            IsoWriter iso_writer(log_,out_sec_stream,sec_manager,file_sys_,true,is_joliet);
             UdfWriter udf_writer(log_,out_sec_stream,sec_manager,file_sys_,true);
 
             // FIXME: Put failure messages to Progress.
@@ -486,7 +486,7 @@ namespace ckfilesystem
             if (is_udf)
                 udf_writer.alloc_partition(file_tree_);
 
-            Iso9660PathTable pt_iso,pt_jol;
+            IsoPathTable pt_iso,pt_jol;
             if (is_iso)
             {
                 // Make proper names.
@@ -545,7 +545,7 @@ namespace ckfilesystem
             progress.set_marquee(false);
 
             // To help keep track of the progress.
-            ckcore::Progresser progresser(progress,sec_manager.get_data_length() * ISO9660_SECTOR_SIZE);
+            ckcore::Progresser progresser(progress,sec_manager.get_data_length() * ISO_SECTOR_SIZE);
             write_file_data(out_sec_stream,file_tree_,progresser);
             if (progresser.cancelled())
                 return RESULT_CANCEL;

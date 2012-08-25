@@ -25,10 +25,10 @@
 
 namespace ckfilesystem
 {
-    typedef std::pair<FileTreeNode *,ckcore::tuint16> Iso9660PathTableEntry;
-    typedef std::vector<Iso9660PathTableEntry> Iso9660PathTable;
+    typedef std::pair<FileTreeNode *,ckcore::tuint16> IsoPathTableEntry;
+    typedef std::vector<IsoPathTableEntry> IsoPathTable;
 
-    void iso_path_table_populate(Iso9660PathTable &pt, FileTree &tree,
+    void iso_path_table_populate(IsoPathTable &pt, FileTree &tree,
                                  FileSystem &file_sys, ckcore::Progress &progress);
-    void iso_path_table_sort(Iso9660PathTable &pt, bool joliet, bool dvdvideo);
+    void iso_path_table_sort(IsoPathTable &pt, bool joliet, bool dvdvideo);
 };

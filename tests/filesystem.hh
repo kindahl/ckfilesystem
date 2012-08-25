@@ -97,19 +97,19 @@ void run_tree_test_iso(const ckcore::tchar *src_path, const ckcore::tchar *exp_p
     read_src(src_path, file_set);
     read_exp(exp_path, exp_paths);
 
-    FileSystem file_sys(FileSystem::TYPE_ISO9660, file_set);
-    file_sys.set_interchange_level(Iso9660::LEVEL_1);
+    FileSystem file_sys(FileSystem::TYPE_ISO, file_set);
+    file_sys.set_interchange_level(Iso::LEVEL_1);
     file_sys.set_include_file_ver_info(file_ver_info);
 
     FileTree file_tree(dummy_logger);
     TS_ASSERT(file_tree.create_from_file_set(file_set));
     destroy_file_set(file_set);
 
-    Iso9660Writer iso_writer(dummy_logger, dummy_sec_stream, dummy_sec_mgr, file_sys, false, false);
+    IsoWriter iso_writer(dummy_logger, dummy_sec_stream, dummy_sec_mgr, file_sys, false, false);
     iso_writer.calc_names(file_tree);
 
     std::vector<ckcore::tstring> final_org = file_tree.serialize(NAME_ORIGINAL);
-    std::vector<ckcore::tstring> final_iso = file_tree.serialize(NAME_ISO9660);
+    std::vector<ckcore::tstring> final_iso = file_tree.serialize(NAME_ISO);
 
     TS_ASSERT_EQUALS(final_org.size(), final_iso.size());
     TS_ASSERT_EQUALS(final_org.size(), exp_paths.size());
@@ -130,25 +130,25 @@ void run_tree_test_iso(const ckcore::tchar *src_path, const ckcore::tchar *exp_p
 class FileSystemTestSuite : public CxxTest::TestSuite
 {
 public:
-    void test_iso9660_file_test_01()
+    void test_iso_file_test_01()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-01.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-01.exp"),
                           false);
     }
 
-    void test_iso9660_file_test_02()
+    void test_iso_file_test_02()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-02.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-02.exp"),
                           false);
     }
 
-    void test_iso9660_file_test_03()
+    void test_iso_file_test_03()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-03.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-03.exp"),
                           true);
     }
 
-    void test_iso9660_file_test_04()
+    void test_iso_file_test_04()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-04.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-04.exp"),
                           false);

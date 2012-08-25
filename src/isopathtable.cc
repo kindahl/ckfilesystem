@@ -39,8 +39,8 @@ namespace ckfilesystem
     }
 
     void iso_path_table_populate_locally(std::vector<FileTreeNode *> &node_stack,
-                                            Iso9660PathTable &pt,
-                                            FileTreeNode *node)
+                                         IsoPathTable &pt,
+                                         FileTreeNode *node)
     {
         std::vector<FileTreeNode *>::const_iterator it;
         for (it = node->children_.begin(); it !=
@@ -51,9 +51,9 @@ namespace ckfilesystem
         }
     }
 
-    void iso_path_table_populate(Iso9660PathTable &pt, FileTree &tree,
-                                    FileSystem &file_sys,
-                                    ckcore::Progress &progress)
+    void iso_path_table_populate(IsoPathTable &pt, FileTree &tree,
+                                 FileSystem &file_sys,
+                                 ckcore::Progress &progress)
     {
         std::vector<FileTreeNode *> node_stack;
         iso_path_table_populate_locally(node_stack, pt, tree.get_root());
@@ -76,7 +76,7 @@ namespace ckfilesystem
                 if (!found_deep)
                 {
                     //log_.print_line(ckT("  Warning: The directory structure is deeper than %d levels. Deep files and folders will be ignored."),
-                    //             file_sys_.iso9660_.get_max_dir_level());
+                    //             file_sys_.iso_.get_max_dir_level());
                     progress.notify(ckcore::Progress::ckWARNING,
                                     StringTable::instance().get_string(StringTable::WARNING_FSDIRLEVEL),
                                     file_sys.get_max_dir_level());
@@ -100,7 +100,7 @@ namespace ckfilesystem
      * Returns a weight of the specified file name, a lighter file should
      * be placed heigher in the directory hierarchy.
      */
-    ckcore::tuint32 entry_weight(const Iso9660PathTableEntry &entry)
+    ckcore::tuint32 entry_weight(const IsoPathTableEntry &entry)
     {
         ckcore::tuint32 weight = 0xffffffff;
 
@@ -180,61 +180,26 @@ namespace ckfilesystem
         return weight;
     }
 
-    bool level_predicate(const Iso9660PathTableEntry &e1,
-                         const Iso9660PathTableEntry &e2)
+    bool level_predicate(const IsoPathTableEntry &e1,
+                         const IsoPathTableEntry &e2)
     {
         return level(e1.first) < level(e2.first);
     }
 
-    bool main_predicate_iso(const Iso9660PathTableEntry &e1,
-                            const Iso9660PathTableEntry &e2)
+    bool main_predicate_iso(const IsoPathTableEntry &e1,
+                            const IsoPathTableEntry &e2)
     {
         if (e1.second < e2.second)
             return true;
         else if (e1.second == e2.second)
-            return strcmp(e1.first->file_name_iso9660_.c_str(),
-                          e2.first->file_name_iso9660_.c_str()) < 0;
+            return strcmp(e1.first->file_name_iso_.c_str(),
+                          e2.first->file_name_iso_.c_str()) < 0;
         else
             return false;
     }
 
-    bool main_predicate_iso_dvd(const Iso9660PathTableEntry &e1,
-                                const Iso9660PathTableEntry &e2)
-    {
-        ckcore::tuint32 weight1 = entry_weight(e1);
-        ckcore::tuint32 weight2 = entry_weight(e2);
-
-        if (weight1 != weight2)
-        {
-            if (weight1 < weight2)
-                return true;
-            else
-                return false;
-        }
-
-        if (e1.second < e2.second)
-            return true;
-        else if (e1.second == e2.second)
-            return strcmp(e1.first->file_name_iso9660_.c_str(),
-                          e2.first->file_name_iso9660_.c_str()) < 0;
-        else
-            return false;
-    }
-
-    bool main_predicate_jol(const Iso9660PathTableEntry &e1,
-                            const Iso9660PathTableEntry &e2)
-    {
-        if (e1.second < e2.second)
-            return true;
-        else if (e1.second == e2.second)
-            return wcscmp(e1.first->file_name_joliet_.c_str(),
-                          e2.first->file_name_joliet_.c_str()) < 0;
-        else
-            return false;
-    }
-
-    bool main_predicate_jol_dvd(const Iso9660PathTableEntry &e1,
-                                const Iso9660PathTableEntry &e2)
+    bool main_predicate_iso_dvd(const IsoPathTableEntry &e1,
+                                const IsoPathTableEntry &e2)
     {
         ckcore::tuint32 weight1 = entry_weight(e1);
         ckcore::tuint32 weight2 = entry_weight(e2);
@@ -250,13 +215,48 @@ namespace ckfilesystem
         if (e1.second < e2.second)
             return true;
         else if (e1.second == e2.second)
+            return strcmp(e1.first->file_name_iso_.c_str(),
+                          e2.first->file_name_iso_.c_str()) < 0;
+        else
+            return false;
+    }
+
+    bool main_predicate_jol(const IsoPathTableEntry &e1,
+                            const IsoPathTableEntry &e2)
+    {
+        if (e1.second < e2.second)
+            return true;
+        else if (e1.second == e2.second)
             return wcscmp(e1.first->file_name_joliet_.c_str(),
                           e2.first->file_name_joliet_.c_str()) < 0;
         else
             return false;
     }
 
-    ckcore::tuint16 find_parent(FileTreeNode *node, Iso9660PathTable &pt)
+    bool main_predicate_jol_dvd(const IsoPathTableEntry &e1,
+                                const IsoPathTableEntry &e2)
+    {
+        ckcore::tuint32 weight1 = entry_weight(e1);
+        ckcore::tuint32 weight2 = entry_weight(e2);
+
+        if (weight1 != weight2)
+        {
+            if (weight1 < weight2)
+                return true;
+            else
+                return false;
+        }
+
+        if (e1.second < e2.second)
+            return true;
+        else if (e1.second == e2.second)
+            return wcscmp(e1.first->file_name_joliet_.c_str(),
+                          e2.first->file_name_joliet_.c_str()) < 0;
+        else
+            return false;
+    }
+
+    ckcore::tuint16 find_parent(FileTreeNode *node, IsoPathTable &pt)
     {
         if (pt.size() > 0xffff)
             throw ckcore::Exception2(ckT("Too many directories in ISO9660 file system. ")
@@ -270,36 +270,36 @@ namespace ckfilesystem
                                  ckT("directory in path table."));
     }
 
-    void calc_ids(Iso9660PathTable::iterator &begin, Iso9660PathTable::iterator &end)
+    void calc_ids(IsoPathTable::iterator &begin, IsoPathTable::iterator &end)
     {
-        Iso9660PathTable::iterator it;
+        IsoPathTable::iterator it;
         for (it = begin; it != end; it++)
             it->second = 1; // The parent is obviously the root.
     }
 
-    void calc_ids(Iso9660PathTable::iterator &begin, Iso9660PathTable::iterator &end,
-                  Iso9660PathTable &pt)
+    void calc_ids(IsoPathTable::iterator &begin, IsoPathTable::iterator &end,
+                  IsoPathTable &pt)
     {
-        Iso9660PathTable::iterator it;
+        IsoPathTable::iterator it;
         for (it = begin; it != end; it++)
             it->second = find_parent(it->first->parent(),pt);
     }
 
-    void iso_path_table_sort(Iso9660PathTable &pt, bool joliet, bool dvdvideo)
+    void iso_path_table_sort(IsoPathTable &pt, bool joliet, bool dvdvideo)
     {
         // First, sort everything by level.
         std::sort(pt.begin(), pt.end(), level_predicate);
 
         // Locate all levels.
-        std::vector<std::pair<Iso9660PathTable::iterator,
-                              Iso9660PathTable::iterator> > levels;
+        std::vector<std::pair<IsoPathTable::iterator,
+                              IsoPathTable::iterator> > levels;
 
-        Iso9660PathTable::iterator it_begin = pt.begin();
+        IsoPathTable::iterator it_begin = pt.begin();
         if (it_begin != pt.end())
         {
             int prv_level = level(it_begin->first);
 
-            Iso9660PathTable::iterator it;
+            IsoPathTable::iterator it;
             for (it = pt.begin(); it != pt.end(); it++)
             {
                 int new_level = level(it->first);
@@ -318,8 +318,8 @@ namespace ckfilesystem
         }
 
         // Select sort predicate.
-        bool (*sort_predicate)(const Iso9660PathTableEntry &,
-                               const Iso9660PathTableEntry &) = NULL;
+        bool (*sort_predicate)(const IsoPathTableEntry &,
+                               const IsoPathTableEntry &) = NULL;
 
         if (joliet)
             sort_predicate = dvdvideo ? main_predicate_jol_dvd : main_predicate_jol;

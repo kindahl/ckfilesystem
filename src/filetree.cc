@@ -286,8 +286,8 @@ namespace ckfilesystem
                     case NAME_ORIGINAL:
                         path.insert(0, ckcore::tstring(ckT("/")) + node.file_name_);
                         break;
-                    case NAME_ISO9660:
-                        path.insert(0, ckcore::tstring(ckT("/")) + ckcore::string::to_auto(node.file_name_iso9660_));
+                    case NAME_ISO:
+                        path.insert(0, ckcore::tstring(ckT("/")) + ckcore::string::to_auto(node.file_name_iso_));
                         break;
                     case NAME_JOLIET:
                         path.insert(0, ckcore::tstring(ckT("/")) + node.file_name_joliet_);

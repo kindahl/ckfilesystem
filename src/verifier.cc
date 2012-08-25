@@ -5,7 +5,7 @@
 #include <ckcore/filestream.hh>
 #include <ckcore/exception.hh>
 #include "ckfilesystem/sectorstream.hh"
-#include "ckfilesystem/iso9660verifier.hh"
+#include "ckfilesystem/isoverifier.hh"
 
 #define CKFSVFY_VERSION         "0.1"
 
@@ -53,7 +53,7 @@ int main(int argc,const char *argv[])
             << file_stream.size() << ckT(" bytes") << std::endl
             << std::endl;
 
-        ckfilesystem::Iso9660Verifier verifier;
+        ckfilesystem::IsoVerifier verifier;
 
         ckfilesystem::SectorInStream in_stream(file_stream);
         verifier.verify(in_stream);

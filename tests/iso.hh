@@ -29,23 +29,23 @@ public:
     {
         unsigned char buffer[256];
 
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("")), 0);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT(""), CHARSET_ISO), 0);
 
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcd")), 4);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcd"), CHARSET_ISO), 4);
         TS_ASSERT_SAME_DATA(buffer, "ABCD", 4);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghijk")), 8);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghijk"), CHARSET_ISO), 8);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH", 8);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefgh.ijk")), 12);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefgh.ijk"), CHARSET_ISO), 12);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.IJK", 12);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefgh.ijkl")), 12);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefgh.ijkl"), CHARSET_ISO), 12);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.IJK", 12);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghi.jkl")), 12);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghi.jkl"), CHARSET_ISO), 12);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.JKL", 12);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghij.kl")), 11);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghij.kl"), CHARSET_ISO), 11);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.KL", 11);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghijk.l")), 10);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghijk.l"), CHARSET_ISO), 10);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.L", 10);
-        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghijkl.")), 9);
+        TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, ckT("abcdefghijkl."), CHARSET_ISO), 9);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.", 9);
 
         const char *expected_l1 =
@@ -67,7 +67,7 @@ public:
         {
             ckcore::tchar tmp[2] = { 0,0 };
             tmp[0] = static_cast<ckcore::tchar>(i);
-            TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, tmp), 1);
+            TS_ASSERT_EQUALS(iso_write_file_name_l1(buffer, tmp, CHARSET_ISO), 1);
             TS_ASSERT_EQUALS(buffer[0], static_cast<unsigned char>(expected_l1[i]));
         }
     }
@@ -76,23 +76,23 @@ public:
     {
         unsigned char buffer[256];
 
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("")), 0);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT(""), CHARSET_ISO), 0);
 
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcd")), 4);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcd"), CHARSET_ISO), 4);
         TS_ASSERT_SAME_DATA(buffer, "ABCD", 4);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghijk")), 11);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghijk"), CHARSET_ISO), 11);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGHIJK", 11);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefgh.ijk")), 12);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefgh.ijk"), CHARSET_ISO), 12);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.IJK", 12);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefgh.ijkl")), 13);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefgh.ijkl"), CHARSET_ISO), 13);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGH.IJKL", 13);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghi.jkl")), 13);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghi.jkl"), CHARSET_ISO), 13);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGHI.JKL", 13);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghij.kl")), 13);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghij.kl"), CHARSET_ISO), 13);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGHIJ.KL", 13);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghijk.l")), 13);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghijk.l"), CHARSET_ISO), 13);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGHIJK.L", 13);
-        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghijkl.")), 13);
+        TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, ckT("abcdefghijkl."), CHARSET_ISO), 13);
         TS_ASSERT_SAME_DATA(buffer, "ABCDEFGHIJKL.", 13);
 
         const char *expected_l2 =
@@ -114,7 +114,7 @@ public:
         {
             ckcore::tchar tmp[2] = { 0,0 };
             tmp[0] = static_cast<ckcore::tchar>(i);
-            TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, tmp), 1);
+            TS_ASSERT_EQUALS(iso_write_file_name_l2(buffer, tmp, CHARSET_ISO), 1);
             TS_ASSERT_EQUALS(buffer[0], static_cast<unsigned char>(expected_l2[i]));
         }
     }

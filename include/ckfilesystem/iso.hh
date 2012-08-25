@@ -248,18 +248,30 @@ namespace ckfilesystem
 #pragma pack()  // Switch back to normal alignment.
 
     /**
+     * @brief Supported character sets.
+     */
+    enum CharacterSet
+    {
+        CHARSET_ISO,    ///< Character set as specified in the ISO9660 standard.
+        CHARSET_DOS,    ///< DOS (code page 437) character set (256 characters).
+        CHARSET_ASCII   ///< ASCII character set (128 characters).
+    };
+
+    /**
      * Converts an ASCII character to an a-character (appendix A).
      * @param [in] c Character to convert.
+     * @param [in] char_set Character set to use.
      * @return c converted to an a-character.
      */
-    char iso_make_char_a(char c);
+    char iso_make_char_a(char c, CharacterSet char_set);
 
     /**
      * Converts an ASCII character to a d-character (appendix A).
      * @param [in] c Character to convert.
+     * @param [in] char_set Character set to use.
      * @return c converted to a d-character.
      */
-    char iso_make_char_d(char c);
+    char iso_make_char_d(char c, CharacterSet char_set);
 
     /**
      * Performs a memory copy from source to target, all characters
@@ -267,8 +279,9 @@ namespace ckfilesystem
      * @param [out] dst Destination memory buffer.
      * @param [in] src Source memory buffer.
      * @param [in] size Number of bytes to copy.
+     * @param [in] char_set Character set to use.
      */
-    void iso_memcpy_a(unsigned char *dst, const char *src, size_t size);
+    void iso_memcpy_a(unsigned char *dst, const char *src, size_t size, CharacterSet char_set);
 
     /**
      * Performs a memory copy from source to target, all characters
@@ -276,8 +289,9 @@ namespace ckfilesystem
      * @param [out] dst Destination memory buffer.
      * @param [in] src Source memory buffer.
      * @param [in] size Number of bytes to copy.
+     * @param [in] char_set Character set to use.
      */
-    void iso_memcpy_d(unsigned char *dst, const char *src, size_t size);
+    void iso_memcpy_d(unsigned char *dst, const char *src, size_t size, CharacterSet char_set);
 
     /**
      * Finds the last specified delimiter in the specified string of
@@ -297,26 +311,35 @@ namespace ckfilesystem
      *  - A file name of at most 8 characters.
      * @param [out] buffer Output buffer to write file name to.
      * @param [in] file_name File name to write.
+     * @param [in] char_set Character set to use.
      * @return Length of output string.
      */
-    unsigned char iso_write_file_name_l1(unsigned char *buffer, const ckcore::tchar *file_name);
+    unsigned char iso_write_file_name_l1(unsigned char *buffer, const ckcore::tchar *file_name,
+                                         CharacterSet char_set);
 
     /**
      * Converts the input file name to a valid ISO level 2 and above file name.
      * This means:
      *  - A maximum of 31 characters.
      */
-    unsigned char iso_write_file_name_l2(unsigned char *buffer ,const ckcore::tchar *file_name);
+    unsigned char iso_write_file_name_l2(unsigned char *buffer ,const ckcore::tchar *file_name,
+                                         CharacterSet char_set);
 
-    unsigned char iso_write_file_name_1999(unsigned char *buffer, const ckcore::tchar *file_name);
-    unsigned char iso_write_file_name_generic(unsigned char *buffer, const ckcore::tchar *file_name, int max_len);
+    unsigned char iso_write_file_name_1999(unsigned char *buffer, const ckcore::tchar *file_name,
+                                           CharacterSet char_set);
+    unsigned char iso_write_file_name_generic(unsigned char *buffer, const ckcore::tchar *file_name,
+                                              int max_len, CharacterSet char_set);
 
-    unsigned char iso_write_dir_name_l1(unsigned char *buffer, const ckcore::tchar *dir_name);
-    unsigned char iso_write_dir_name_l2(unsigned char *buffer, const ckcore::tchar *dir_name);
-    unsigned char iso_write_dir_name_1999(unsigned char *buffer, const ckcore::tchar *dir_name);
-    unsigned char iso_write_dir_name_generic(unsigned char *buffer, const ckcore::tchar *dir_name, int max_len);
+    unsigned char iso_write_dir_name_l1(unsigned char *buffer, const ckcore::tchar *dir_name,
+                                        CharacterSet char_set);
+    unsigned char iso_write_dir_name_l2(unsigned char *buffer, const ckcore::tchar *dir_name,
+                                        CharacterSet char_set);
+    unsigned char iso_write_dir_name_1999(unsigned char *buffer, const ckcore::tchar *dir_name,
+                                          CharacterSet char_set);
+    unsigned char iso_write_dir_name_generic(unsigned char *buffer, const ckcore::tchar *dir_name,
+                                             int max_len, CharacterSet char_set);
 
-    unsigned char iso_calc_file_name_len_l1(const ckcore::tchar *file_name);
+    unsigned char iso_calc_file_name_len_l1(const ckcore::tchar *file_name, CharacterSet char_set);
     unsigned char iso_calc_file_name_len_l2(const ckcore::tchar *file_name);
     unsigned char iso_calc_file_name_len_1999(const ckcore::tchar *file_name);
     unsigned char iso_calc_dir_name_len_l1(const ckcore::tchar *file_name);
@@ -338,7 +361,10 @@ namespace ckfilesystem
     class Iso
     {
     public:
-        enum InterLevel
+        /**
+         * @brief Supported interchange levels.
+         */
+        enum InterchangeLevel
         {
             LEVEL_1,
             LEVEL_2,
@@ -349,7 +375,8 @@ namespace ckfilesystem
     private:
         bool relax_max_dir_level_;
         bool inc_file_ver_info_;
-        InterLevel inter_level_;
+        InterchangeLevel inter_level_;
+        CharacterSet char_set_;
 
         tiso_voldesc_primary voldesc_primary_;
         tiso_voldesc_setterm voldesc_setterm_;
@@ -367,7 +394,8 @@ namespace ckfilesystem
                              const ckcore::tchar *publ_ident,const ckcore::tchar *prep_ident);
         void set_file_fields(const ckcore::tchar *copy_file_ident,const ckcore::tchar *abst_file_ident,
                              const ckcore::tchar *bibl_file_ident);
-        void set_interchange_level(InterLevel inter_level);
+        void set_interchange_level(InterchangeLevel inter_level);
+        void set_char_set(CharacterSet char_set);
         void set_relax_max_dir_level(bool relax);
         void set_include_file_ver_info(bool include);
 

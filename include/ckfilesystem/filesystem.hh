@@ -71,7 +71,8 @@ namespace ckfilesystem
         void set_file_fields(const ckcore::tchar *copy_file_ident,
                              const ckcore::tchar *abst_file_ident,
                              const ckcore::tchar *bibl_file_ident);
-        void set_interchange_level(Iso::InterLevel inter_level);
+        void set_interchange_level(Iso::InterchangeLevel inter_level);
+        void set_char_set(CharacterSet char_set);
         void set_include_file_ver_info(bool include);
         void set_part_access_type(Udf::PartAccessType access_type);
         void set_relax_max_dir_level(bool relax);

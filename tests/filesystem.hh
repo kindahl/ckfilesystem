@@ -84,7 +84,8 @@ void read_exp(const ckcore::tchar *exp_path,
     }
 }
 
-void run_tree_test_iso(const ckcore::tchar *src_path, const ckcore::tchar *exp_path, bool file_ver_info)
+void run_tree_test_iso(const ckcore::tchar *src_path, const ckcore::tchar *exp_path,
+                       bool file_ver_info, CharacterSet char_set)
 {
     DummyLogger dummy_logger;
     DummyStream dummy_stream;
@@ -99,6 +100,7 @@ void run_tree_test_iso(const ckcore::tchar *src_path, const ckcore::tchar *exp_p
 
     FileSystem file_sys(FileSystem::TYPE_ISO, file_set);
     file_sys.set_interchange_level(Iso::LEVEL_1);
+    file_sys.set_char_set(char_set);
     file_sys.set_include_file_ver_info(file_ver_info);
 
     FileTree file_tree(dummy_logger);
@@ -133,24 +135,38 @@ public:
     void test_iso_file_test_01()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-01.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-01.exp"),
-                          false);
+                          false, CHARSET_ISO);
     }
 
     void test_iso_file_test_02()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-02.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-02.exp"),
-                          false);
+                          false, CHARSET_ISO);
     }
 
     void test_iso_file_test_03()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-03.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-03.exp"),
-                          true);
+                          true, CHARSET_ISO);
     }
 
     void test_iso_file_test_04()
     {
         run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-04.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-04.exp"),
-                          false);
+                          false, CHARSET_ISO);
+    }
+
+    void test_iso_file_test_05()
+    {
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-05.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-05.exp"),
+                          false, CHARSET_ISO);
+    }
+
+    void test_iso_file_test_06()
+    {
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-06.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-06.exp"),
+                          false, CHARSET_DOS);
+        run_tree_test_iso(ckT(TEST_SRC_DIR)ckT("/data/iso/test-06.src"), ckT(TEST_SRC_DIR)ckT("/data/iso/test-06.exp"),
+                          false, CHARSET_ASCII);
     }
 };

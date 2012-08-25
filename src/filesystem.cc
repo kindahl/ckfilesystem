@@ -53,9 +53,14 @@ namespace ckfilesystem
         joliet_.set_file_fields(copy_file_ident,abst_file_ident,bibl_file_ident);
     }
 
-    void FileSystem::set_interchange_level(Iso::InterLevel inter_level)
+    void FileSystem::set_interchange_level(Iso::InterchangeLevel inter_level)
     {
         iso_.set_interchange_level(inter_level);
+    }
+
+    void FileSystem::set_char_set(CharacterSet char_set)
+    {
+        iso_.set_char_set(char_set);
     }
 
     void FileSystem::set_include_file_ver_info(bool include)

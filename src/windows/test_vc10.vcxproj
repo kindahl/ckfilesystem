@@ -100,7 +100,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
       <Message>Generating test program.</Message>
-      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/iso9660.hh</Command>
+      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/filesystem.hh ../../tests/iso9660.hh</Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Message>Performing Custom Build Step</Message>
@@ -130,7 +130,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PreBuildEvent>
       <Message>Generating test program.</Message>
-      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/iso9660.hh</Command>
+      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/filesystem.hh ../../tests/iso9660.hh</Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Message>Performing Custom Build Step</Message>
@@ -163,7 +163,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
       <Message>Generating test program.</Message>
-      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/iso9660.hh</Command>
+      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/filesystem.hh ../../tests/iso9660.hh</Command>
     </PreBuildEvent>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -186,7 +186,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
       <Message>Generating test program.</Message>
-      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/iso9660.hh</Command>
+      <Command>perl -w "c:\program files\cxxtest\cxxtestgen.pl" --error-printer -o test.cc ../../tests/filesystem.hh ../../tests/iso9660.hh</Command>
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
@@ -213,6 +213,7 @@
     <ClCompile Include="test.cc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\tests\filesystem.hh" />
     <None Include="..\..\tests\iso9660.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

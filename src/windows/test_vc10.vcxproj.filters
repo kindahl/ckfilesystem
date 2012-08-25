@@ -23,5 +23,8 @@
     <None Include="..\..\tests\iso9660.hh">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="..\..\tests\filesystem.hh">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -34,7 +34,7 @@ namespace ckfilesystem
             while (cur_node != NULL)
             {
                 item_level++;
-                cur_node = cur_node->get_parent();
+                cur_node = cur_node->parent();
             }
 
             return item_level;
@@ -98,10 +98,10 @@ namespace ckfilesystem
             }
         }
 
-        /*
-            Returns a weight of the specified file name, a lighter file should
-            be placed heigher in the directory hierarchy.
-        */
+        /**
+         * Returns a weight of the specified file name, a lighter file should
+         * be placed heigher in the directory hierarchy.
+         */
         ckcore::tuint32 entry_weight(const Iso9660PathTableEntry &entry)
         {
             ckcore::tuint32 weight = 0xffffffff;
@@ -113,7 +113,7 @@ namespace ckfilesystem
             while (cur_node != NULL)
             {
                 node_stack.push_back(cur_node);
-                cur_node = cur_node->get_parent();
+                cur_node = cur_node->parent();
             }
 
             ckcore::tstringstream path;
@@ -284,7 +284,7 @@ namespace ckfilesystem
         {
             Iso9660PathTable::iterator it;
             for (it = begin; it != end; it++)
-                it->second = find_parent(it->first->get_parent(),pt);
+                it->second = find_parent(it->first->parent(),pt);
         }
 
         void sort(Iso9660PathTable &pt,bool joliet,bool dvdvideo)

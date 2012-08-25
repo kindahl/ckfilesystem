@@ -184,7 +184,7 @@ namespace ckfilesystem
             unique_ident++;
 
         // The '..' item.
-        ckcore::tuint32 parent_entry_sec = local_node->get_parent() == NULL ? entry_sec : local_node->get_parent()->udf_part_loc_;
+        ckcore::tuint32 parent_entry_sec = local_node->parent() == NULL ? entry_sec : local_node->parent()->udf_part_loc_;
         file_sys_.udf_.write_file_ident_parent(out_stream_,cur_part_sec,parent_entry_sec);
 
         // Keep track on how many bytes we have in our sector.

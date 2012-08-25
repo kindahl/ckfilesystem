@@ -59,7 +59,7 @@ namespace ckfilesystem
     void Iso9660Writer::make_unique_joliet(FileTreeNode *node,unsigned char *file_name_ptr,
                                            unsigned char file_name_size)
     {
-        FileTreeNode *parent_node = node->get_parent();
+        FileTreeNode *parent_node = node->parent();
         if (parent_node == NULL)
             return;
 
@@ -196,7 +196,7 @@ namespace ckfilesystem
     void Iso9660Writer::make_unique_iso9660(FileTreeNode *node,unsigned char *file_name_ptr,
                                             unsigned char file_name_size)
     {
-        FileTreeNode *parent_node = node->get_parent();
+        FileTreeNode *parent_node = node->parent();
         if (parent_node == NULL)
             return;
 
@@ -973,7 +973,7 @@ namespace ckfilesystem
         tiso_dir_record dr;
 
         // Write the '.' and '..' directories.
-        FileTreeNode *parent_node = local_node->get_parent();
+        FileTreeNode *parent_node = local_node->parent();
         if (parent_node == NULL)
             parent_node = local_node;
 

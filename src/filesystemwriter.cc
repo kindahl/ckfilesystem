@@ -303,8 +303,8 @@ namespace ckfilesystem
             node_path.append(child_node->file_name_);
         }
 
-        FileTreeNode *cur_node = child_node->get_parent();
-        while (cur_node->get_parent() != NULL)
+        FileTreeNode *cur_node = child_node->parent();
+        while (cur_node->parent() != NULL)
         {
             if (ext_path)
             {
@@ -372,7 +372,7 @@ namespace ckfilesystem
 
             node_path.insert(0,ckT("/"));
 
-            cur_node = cur_node->get_parent();
+            cur_node = cur_node->parent();
         }
     }
 

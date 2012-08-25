@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include "ckfilesystem/filetree.hh"
 
 namespace ckfilesystem
@@ -266,4 +267,82 @@ namespace ckfilesystem
         }
     }
 #endif
+
+    ckcore::tstring FileTree::get_path(const FileTreeNode *node, FileTreeNameType name_type) const
+    {
+        assert(node);
+
+        ckcore::tstring path;
+
+        node->bottom_up(
+            [&](const FileTreeNode &node)
+            {
+                // Skip the root node.
+                if (node.parent() == NULL)
+                    return;
+
+                switch (name_type)
+                {
+                    case NAME_ORIGINAL:
+                        path.insert(0, ckcore::tstring(ckT("/")) + node.file_name_);
+                        break;
+                    case NAME_ISO9660:
+                        path.insert(0, ckcore::tstring(ckT("/")) + ckcore::string::to_auto(node.file_name_iso9660_));
+                        break;
+                    case NAME_JOLIET:
+                        path.insert(0, ckcore::tstring(ckT("/")) + node.file_name_joliet_);
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+            });
+
+        return path;
+    }
+
+    std::vector<ckcore::tstring> FileTree::serialize_local_tree(std::vector<FileTreeNode *> &dir_node_stack,
+                                                                FileTreeNode *local_node, FileTreeNameType name_type) const
+    {
+        std::vector<ckcore::tstring> res;
+
+        std::vector<FileTreeNode *>::const_iterator it;
+        for (it = local_node->children_.begin(); it !=
+            local_node->children_.end(); it++)
+        {
+            if ((*it)->file_flags_ & FileTreeNode::FLAG_DIRECTORY)
+                dir_node_stack.push_back(*it);
+            else
+                res.push_back(get_path(*it, name_type));
+        }
+
+        return res;
+    }
+
+    std::vector<ckcore::tstring> FileTree::serialize(FileTreeNameType name_type) const
+    {
+        std::vector<ckcore::tstring> res, tmp;
+
+        if (root_node_ == NULL)
+            return res;
+
+        FileTreeNode *cur_node = root_node_;
+
+        std::vector<FileTreeNode *> dir_node_stack;
+
+        tmp = serialize_local_tree(dir_node_stack, cur_node, name_type);
+        res.insert(res.end(), tmp.begin(), tmp.end());
+
+        while (dir_node_stack.size() > 0)
+        {
+            cur_node = dir_node_stack[dir_node_stack.size() - 1];
+            dir_node_stack.pop_back();
+
+            res.push_back(get_path(cur_node, name_type));
+            tmp = serialize_local_tree(dir_node_stack, cur_node, name_type);
+            res.insert(res.end(), tmp.begin(), tmp.end());
+        }
+
+        return res;
+    }
 };

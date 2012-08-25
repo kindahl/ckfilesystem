@@ -17,6 +17,7 @@
  */
 
 #pragma once
+#include <functional>
 #include <vector>
 #include <ckcore/types.hh>
 #include <ckcore/log.hh>
@@ -120,10 +121,34 @@ namespace ckfilesystem
             children_.clear();
         }
 
-        FileTreeNode *get_parent() const
+        FileTreeNode *parent() const
         {
             return parent_node_;
         }
+
+        /**
+         * Visists this node and its parents in bottom-up order.
+         * @param [in] func Function to call for each visited node.
+         */
+        void bottom_up(std::function<void(const FileTreeNode &)> func) const
+        {
+            const FileTreeNode *cur_node = this;
+            while (cur_node)
+            {
+                func(*cur_node);
+                cur_node = cur_node->parent();
+            }
+        }
+    };
+
+    /**
+     * @brief File name types maintained by file tree nodes.
+     */
+    enum FileTreeNameType
+    {
+        NAME_ORIGINAL,
+        NAME_ISO9660,
+        NAME_JOLIET
     };
 
     class FileTree
@@ -154,6 +179,13 @@ namespace ckfilesystem
                               FileTreeNode *local_node,int indent);
         void print_tree();
     #endif
+
+        // Used for unit testing.
+        ckcore::tstring get_path(const FileTreeNode *node, FileTreeNameType name_type) const;
+
+        std::vector<ckcore::tstring> serialize_local_tree(std::vector<FileTreeNode *> &dir_node_stack,
+                                                          FileTreeNode *local_node, FileTreeNameType name_type) const;
+        std::vector<ckcore::tstring> serialize(FileTreeNameType name_type) const;
 
         // For obtaining file tree information.
         ckcore::tuint32 get_dir_count();

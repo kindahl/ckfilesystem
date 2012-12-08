@@ -94,18 +94,18 @@ namespace ckfilesystem
         const ckcore::tchar *file_name = file.internal_path_.c_str() + prev_delim + 1;
 
         // Check if imported.
-        unsigned char import_flac = 0;
+        unsigned char import_flag = 0;
         void *import_data_ptr = NULL;
         if (file.flags_ & FileDescriptor::FLAG_IMPORTED)
         {
-            import_flac = FileTreeNode::FLAG_IMPORTED;
+            import_flag = FileTreeNode::FLAG_IMPORTED;
             import_data_ptr = file.data_ptr_;
         }
 
         if (file.flags_ & FileDescriptor::FLAG_DIRECTORY)
         {
             cur_node->children_.push_back(new FileTreeNode(cur_node,file_name,
-                file.external_path_.c_str(),true,0,FileTreeNode::FLAG_DIRECTORY | import_flac,
+                file.external_path_.c_str(),true,0,FileTreeNode::FLAG_DIRECTORY | import_flag,
                 import_data_ptr));
 
             dir_count_++;
@@ -113,7 +113,7 @@ namespace ckfilesystem
         else
         {
             cur_node->children_.push_back(new FileTreeNode(cur_node,file_name,
-                file.external_path_.c_str(),true,0,import_flac,import_data_ptr));
+                file.external_path_.c_str(),true,0,import_flag,import_data_ptr));
 
             file_count_++;
         }

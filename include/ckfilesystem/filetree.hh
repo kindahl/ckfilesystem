@@ -102,7 +102,7 @@ namespace ckfilesystem
 #endif
         {
             // If not a directory, try to open the file stream.
-            if (!(file_flags & FLAG_DIRECTORY))
+            if (!(file_flags & FLAG_DIRECTORY) && !(file_flags & FLAG_IMPORTED))
             {
                 if (!file_stream_.open())
                     throw FileOpenException(file_path_);

@@ -150,7 +150,7 @@ namespace ckfilesystem
 #endif
 
         // Validate the file size.
-        if ( ckcore::tuint64(node->file_stream_.size()) != node->file_size_)
+        if (ckcore::tuint64(node->file_stream_.size()) != node->file_size_)
         {
             if (fail_on_error_)
             {
